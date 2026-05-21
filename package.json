@@ -16,8 +16,9 @@
     "qa:functional": "node scripts/qa-functional-runner.mjs",
     "qa:catalog": "set QA_PORT=3200&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-catalog-lifecycle.mjs&& node scripts/qa-api-runner.mjs",
     "qa:payments21": "set QA_PORT=3201&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-payments-2-1.mjs&& node scripts/qa-api-runner.mjs",
+    "qa:exceptions": "set QA_PORT=3203&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-payments-exceptions.mjs&& set RBAC_ACTIVE=true&& node scripts/qa-api-runner.mjs",
     "qa:coreops": "set QA_PORT=3202&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-core-operations.mjs&& set RBAC_ACTIVE=true&& set QA_EXPECT_RBAC=true&& node scripts/qa-api-runner.mjs",
-    "qa:full": "npm run alert:critical && npm run check && npm run qa:catalog && npm run qa:payments21 && npm run qa:coreops"
+    "qa:full": "npm run alert:critical && npm run check && npm run qa:catalog && npm run qa:payments21 && npm run qa:exceptions && npm run qa:coreops"
   },
   "dependencies": {
     "@google/genai": "^1.52.0",

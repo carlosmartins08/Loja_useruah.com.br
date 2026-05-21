@@ -154,6 +154,35 @@ async function ensureSchema(pool: Pool) {
     )
   `);
   await pool.execute(`
+    CREATE TABLE IF NOT EXISTS refunds (
+      refund_id VARCHAR(64) PRIMARY KEY,
+      order_id VARCHAR(64) NOT NULL,
+      payment_id VARCHAR(64) NOT NULL,
+      status VARCHAR(24) NOT NULL,
+      reason TEXT NOT NULL,
+      requested_by VARCHAR(64) NOT NULL,
+      approved_by VARCHAR(64) NULL,
+      rejected_by VARCHAR(64) NULL,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL,
+      idempotency_key VARCHAR(128) NOT NULL UNIQUE,
+      INDEX idx_refunds_order (order_id),
+      INDEX idx_refunds_payment (payment_id)
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS chargeback_events (
+      chargeback_id VARCHAR(64) PRIMARY KEY,
+      event_id VARCHAR(128) NOT NULL UNIQUE,
+      payment_id VARCHAR(64) NOT NULL,
+      order_id VARCHAR(64) NOT NULL,
+      reason TEXT NULL,
+      created_at DATETIME(3) NOT NULL,
+      INDEX idx_chargebacks_payment (payment_id),
+      INDEX idx_chargebacks_order (order_id)
+    )
+  `);
+  await pool.execute(`
     CREATE TABLE IF NOT EXISTS terms_acceptances (
       acceptance_id VARCHAR(64) PRIMARY KEY,
       user_id VARCHAR(64) NOT NULL,

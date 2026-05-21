@@ -475,3 +475,40 @@ Escopo: decomposicao financeira por item + license_events + terms_acceptances + 
 - `POST /api/artworks` pode exigir termo de artista (`TERMS_ENFORCE_ARTIST=true`).
 - `POST /api/orders` pode exigir termo de consumidor (`TERMS_ENFORCE_CONSUMER=true`).
 - Webhook de pagamento aprovado registra split e evento de licenciamento sem mudar payload publico.
+
+## P0 — Excecoes Criticas (cancel/refund/chargeback) + sincronizacao financeira
+
+Status: PASS  
+Data: 2026-05-21  
+Ambiente: local/dev  
+Escopo: `order.cancel`, `refund`, `chargeback`, idempotencia e update de `payment_splits`/`license_events`
+
+### Resultado
+- P0-EXC-01 cancelamento valido em `placed`: PASS
+- P0-EXC-02 bloqueio de cancelamento invalido por estado: PASS
+- P0-EXC-03 abertura de refund (`requested`): PASS
+- P0-EXC-04 idempotencia de refund por `x-idempotency-key`: PASS
+- P0-EXC-05 aprovacao de refund (`requested -> approved`): PASS
+- P0-EXC-06 bloqueio de rejeicao apos aprovacao: PASS
+- P0-EXC-07 chargeback recebido: PASS
+- P0-EXC-08 duplicidade de chargeback sem impacto duplicado: PASS
+- P0-EXC-09 `payment_splits` atualizados para `refunded`: PASS
+- P0-EXC-10 `license_events` atualizados em refund: PASS
+- P0-EXC-11 `license_events` atualizados em chargeback: PASS
+
+### Evidencias tecnicas
+- Endpoints implementados:
+  - `POST /api/orders/:orderId/cancel`
+  - `POST /api/refunds`
+  - `POST /api/refunds/:refundId/approve`
+  - `POST /api/refunds/:refundId/reject`
+  - `POST /api/chargebacks/webhook`
+- Atualizacao financeira idempotente aplicada em:
+  - `lib/payment-split-store.ts`
+  - `lib/license-event-store.ts`
+  - `lib/payment-exception-service.ts`
+- Gates executados:
+  - `npm run check`: PASS
+  - `npm run qa:payments21`: PASS
+  - `npm run qa:exceptions`: PASS
+  - `npm run qa:coreops`: PASS

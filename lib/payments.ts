@@ -1,5 +1,13 @@
-﻿export type PaymentMethod = 'card' | 'pix' | 'wallet';
-export type PaymentStatus = 'created' | 'processing' | 'approved' | 'failed';
+export type PaymentMethod = 'card' | 'pix' | 'wallet';
+export type PaymentStatus =
+  | 'created'
+  | 'processing'
+  | 'approved'
+  | 'failed'
+  | 'cancelled'
+  | 'refunded'
+  | 'partially_refunded'
+  | 'chargeback';
 
 export interface CheckoutPaymentPayload {
   orderId: string;

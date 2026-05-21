@@ -146,3 +146,37 @@ export async function listPaymentSplitsByPaymentId(paymentId: string) {
   const ids = state.byPayment[paymentId] ?? [];
   return ids.map((id) => state.splits[id]).filter((row): row is PaymentSplitRecord => Boolean(row));
 }
+
+export async function updatePaymentSplitsStatusByPaymentId(
+  paymentId: string,
+  nextStatus: PaymentSplitRecord['status']
+) {
+  const mysql = await getMysqlPool();
+  const now = new Date().toISOString();
+  if (mysql && shouldUseMysql()) {
+    await mysql.execute<MysqlResult>(`UPDATE payment_splits SET status = ?, updated_at = ? WHERE payment_id = ?`, [
+      nextStatus,
+      toMysqlDatetime(now),
+      paymentId,
+    ]);
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM payment_splits WHERE payment_id = ? ORDER BY created_at ASC`, [paymentId]);
+    return rows.map(rowToRecord);
+  }
+
+  const state = readState();
+  const ids = state.byPayment[paymentId] ?? [];
+  const updated = ids
+    .map((id) => state.splits[id])
+    .filter((row): row is PaymentSplitRecord => Boolean(row))
+    .map((row) => {
+      const next: PaymentSplitRecord = {
+        ...row,
+        status: nextStatus,
+        updatedAt: now,
+      };
+      state.splits[row.splitId] = next;
+      return next;
+    });
+  writeState(state);
+  return updated;
+}

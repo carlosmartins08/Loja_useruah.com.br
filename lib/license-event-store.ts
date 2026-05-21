@@ -157,3 +157,53 @@ export async function listLicenseEventsByOrderId(orderId: string) {
   const ids = state.byOrder[orderId] ?? [];
   return ids.map((id) => state.events[id]).filter((row): row is LicenseEventRecord => Boolean(row));
 }
+
+export async function updateLicenseEventsByOrderId(
+  orderId: string,
+  input: {
+    paymentStatus: LicenseEventRecord['paymentStatus'];
+    canceledAt?: string;
+    refundedAt?: string;
+  }
+) {
+  const mysql = await getMysqlPool();
+  if (mysql && shouldUseMysql()) {
+    const now = new Date().toISOString();
+    await mysql.execute<MysqlResult>(
+      `UPDATE license_events
+       SET payment_status = ?,
+           canceled_at = ?,
+           refunded_at = ?,
+           paid_at = CASE WHEN ? = 'approved' AND paid_at IS NULL THEN ? ELSE paid_at END
+       WHERE order_id = ?`,
+      [
+        input.paymentStatus,
+        input.canceledAt ? toMysqlDatetime(input.canceledAt) : null,
+        input.refundedAt ? toMysqlDatetime(input.refundedAt) : null,
+        input.paymentStatus,
+        toMysqlDatetime(now),
+        orderId,
+      ]
+    );
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM license_events WHERE order_id = ? ORDER BY created_at ASC`, [orderId]);
+    return rows.map(rowToRecord);
+  }
+
+  const state = readState();
+  const ids = state.byOrder[orderId] ?? [];
+  const updated = ids
+    .map((id) => state.events[id])
+    .filter((row): row is LicenseEventRecord => Boolean(row))
+    .map((row) => {
+      const next: LicenseEventRecord = {
+        ...row,
+        paymentStatus: input.paymentStatus,
+        canceledAt: input.canceledAt ?? row.canceledAt,
+        refundedAt: input.refundedAt ?? row.refundedAt,
+      };
+      state.events[row.licenseEventId] = next;
+      return next;
+    });
+  writeState(state);
+  return updated;
+}
