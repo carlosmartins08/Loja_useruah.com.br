@@ -52,6 +52,7 @@ Não repetir estados ou transições neste DoD. Qualquer alteração de fluxo de
 ## Fase B: Gateway real
 ### Escopo
 - [x] Implementar adapter homologado de gateway sandbox (`PAYMENT_PROVIDER=gateway_sandbox`).
+- [x] Implementar adapter tecnico de gateway real (`PAYMENT_PROVIDER=gateway_real`) sem quebra de contrato.
 - [ ] Tokenização de método de pagamento.
 - [ ] Tratamento explícito de falhas transitórias e fallback seguro.
 - [ ] Mapeamento de eventos reais do provedor para `payment.paid|failed|pending`.

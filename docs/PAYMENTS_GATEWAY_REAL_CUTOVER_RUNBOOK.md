@@ -15,6 +15,9 @@ Executar migracao controlada de `gateway_sandbox` para provedor real sem quebrar
 - Chaves e segredos configurados por ambiente:
   - `PAYMENT_PROVIDER`
   - `PAYMENT_WEBHOOK_SECRET`
+  - `PAYMENT_GATEWAY_BASE_URL`
+  - `PAYMENT_GATEWAY_API_KEY`
+  - `PAYMENT_GATEWAY_MERCHANT_ID`
   - credenciais do provedor real
 - Endpoint de webhook do provedor apontando para ambiente correto.
 - Time de suporte avisado da janela de cutover.
@@ -30,8 +33,10 @@ Executar migracao controlada de `gateway_sandbox` para provedor real sem quebrar
    - `npm run check`
    - `npm run qa:payments21`
 2. Configurar variaveis de ambiente:
-   - `PAYMENT_PROVIDER` para provedor real
+   - `PAYMENT_PROVIDER=gateway_real`
    - `PAYMENT_WEBHOOK_SECRET` ativo
+   - `PAYMENT_GATEWAY_BASE_URL` com endpoint HTTPS do provedor
+   - `PAYMENT_GATEWAY_API_KEY` e `PAYMENT_GATEWAY_MERCHANT_ID`
 3. Publicar versao com feature ativa para baixo volume inicial.
 4. Executar smoke funcional:
    - checkout real
