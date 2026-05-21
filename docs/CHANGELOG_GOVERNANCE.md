@@ -420,6 +420,38 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `docs/ARCHITECTURE.md`
   - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
 
+### [2026-05-21] Hardening operacional core com endpoint de producao e QA cruzado
+- ID: GOV-0032
+- Status: `aprovada`
+- Dono da decisao: Engenharia + QA
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pedidos-logistica`
+  - `suporte-tickets`
+  - `qa`
+  - `rbac`
+- Documento fonte afetado:
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
+- Decisao:
+  - Implementar `POST /api/production-jobs` com validacao de transicao (`order.paid`) e trilha de auditoria.
+  - Exigir permissao operacional em `POST /api/production-jobs/:id/start` e `POST /api/production-jobs/:id/ship` com RBAC ativo.
+  - Instituir QA de integracao `qa:coreops` para validar fluxo `order -> payment -> production -> shipment -> support`.
+- Contexto:
+  - Existia lacuna entre o plano operacional e a validacao automatizada cross-domain.
+- Impacto esperado:
+  - Reduzir risco de regressao entre dominios acoplados e elevar confianca do fluxo de ponta a ponta.
+- Riscos conhecidos:
+  - Execucao local ainda depende de elevacao em ambientes afetados por `spawn EPERM`.
+- Plano de rollback:
+  - Desativar gate `qa:coreops` e reverter endpoint de criacao manual de producao (nao recomendado).
+- Documentos atualizados:
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
+  - `README.md`
+
 ### [2026-05-21] MySQL estendido para suporte e financeiro
 - ID: GOV-0031
 - Status: `aprovada`

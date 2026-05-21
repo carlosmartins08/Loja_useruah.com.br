@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
+import { canOperateProduction, getActorFromRequest } from '@/lib/access-control';
 import { getOrder, updateOrderStatus } from '@/lib/order-store';
 import { getProductionJobById, updateProductionJobStatus } from '@/lib/production-store';
 
-export async function POST(_: Request, context: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+  const actor = getActorFromRequest(request);
+  if (!canOperateProduction(actor)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
   const { id } = await context.params;
   const job = await getProductionJobById(id);
   if (!job) {
@@ -34,8 +40,8 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
   }
 
   appendAuditLog({
-    actor_id: 'system',
-    actor_role: 'production_operator',
+    actor_id: actor?.actorId ?? 'unknown',
+    actor_role: actor?.actorRole ?? 'unknown',
     action: 'production.started',
     entity_type: 'ProductionJob',
     entity_id: updatedJob.productionJobId,
@@ -45,8 +51,8 @@ export async function POST(_: Request, context: { params: Promise<{ id: string }
   });
 
   appendAuditLog({
-    actor_id: 'system',
-    actor_role: 'production_operator',
+    actor_id: actor?.actorId ?? 'unknown',
+    actor_role: actor?.actorRole ?? 'unknown',
     action: 'order.in_production',
     entity_type: 'Order',
     entity_id: updatedOrder.orderId,

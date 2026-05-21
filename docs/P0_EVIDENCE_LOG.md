@@ -414,3 +414,41 @@ Escopo: suporte e financeiro migrados para adapter MySQL com fallback
 - `app/api/commissions/me/route.ts`
 - `app/api/payouts/route.ts`
 - `infra/mysql/init/001_payments.sql`
+
+## P0 - Core Operations Cross-Domain (`order -> payment -> production -> shipment -> support`)
+
+Status: PASS  
+Data: 2026-05-21  
+Ambiente: local/dev  
+Escopo: fluxo operacional cruzado com RBAC em acoes de producao
+
+### Casos executados
+
+- P0-CORE-01 - bootstrap catalog ready: PASS
+- P0-CORE-02 - production creation blocked for non-paid order: PASS
+- P0-CORE-03 - paid order created via checkout+webhook: PASS
+- P0-CORE-04 - production create idempotent for paid order: PASS
+- P0-CORE-05 - production start protected by RBAC: PASS
+- P0-CORE-06 - production start queued->in_progress: PASS
+- P0-CORE-07 - production ship in_progress->shipped: PASS
+- P0-CORE-08 - customer sees shipped order status: PASS
+- P0-CORE-09 - shipment tracking available: PASS
+- P0-CORE-10 - customer ticket opened: PASS
+- P0-CORE-11 - support replied ticket: PASS
+- P0-CORE-12 - support context consolidated: PASS
+
+### Evidencias tecnicas
+
+- `POST /api/production-jobs` implementado e validado com:
+  - `409 invalid_transition` para `order.status != paid`
+  - `201|200` controlado para criacao/idempotencia
+- `POST /api/production-jobs/:id/start` e `POST /api/production-jobs/:id/ship` exigem actor de operacao com RBAC ativo.
+- `GET /api/orders/:id/status` e `GET /api/shipments/:orderId` refletem estado final `shipped`.
+- `POST /api/tickets` + `POST /api/tickets/:id/reply` + `GET /api/support/orders/:orderId/context` validados no mesmo fluxo.
+
+### Referencias
+
+- `scripts/qa-core-operations.mjs`
+- `app/api/production-jobs/route.ts`
+- `app/api/production-jobs/[id]/start/route.ts`
+- `app/api/production-jobs/[id]/ship/route.ts`

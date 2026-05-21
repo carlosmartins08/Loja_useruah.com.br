@@ -46,7 +46,7 @@ Mostrar, de forma operacional, o que já existe no projeto, onde está implement
 ## 3) Pedidos e Logística
 - Fluxo UX checkout -> success: `EXISTE`
   - `components/checkout/CheckoutPageView.tsx`
-- Modelo operacional de produção/envio (backend local): `PARCIAL` (APIs e estado existem com persistência local em arquivo)
+- Modelo operacional de produção/envio (backend local): `EXISTE` (transições críticas com RBAC + QA core operacional validado)
   - `app/api/orders/route.ts`
   - `app/api/production-jobs/route.ts`
   - `app/api/production-jobs/[id]/start/route.ts`
@@ -104,7 +104,7 @@ Mostrar, de forma operacional, o que já existe no projeto, onde está implement
 ## 5) Suporte e Tickets
 - DoD completo definido: `EXISTE` (documentação)
   - `docs/SUPPORT_TICKETS_DEFINITION_OF_DONE.md`
-- Implementação backend de tickets/triagem/escalonamento: `PARCIAL` (MVP com criação, resposta e contexto consolidado; sem SLA/escalonamento completo)
+- Implementação backend de tickets/triagem/escalonamento: `EXISTE` (MVP operacional validado com criação, resposta e contexto 360; SLA avançado permanece evolução)
   - `app/api/tickets/route.ts`
   - `app/api/tickets/[id]/route.ts`
   - `app/api/tickets/[id]/reply/route.ts`

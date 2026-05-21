@@ -1,20 +1,40 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Loja UseRuah
 
-# Run and deploy your AI Studio app
+Aplicação Next.js da loja UseRuah com foco em catálogo/curadoria, checkout, pagamentos, pedidos/logística e suporte.
 
-This contains everything you need to run your app locally.
+## Requisitos
 
-View your app in AI Studio: https://ai.studio/apps/1a8c71fb-939f-41ff-bbd5-2a101b883b8c
+- Node.js 20+
+- npm 10+
 
-## Run Locally
+## Setup local
 
-**Prerequisites:**  Node.js
+1. Instale dependências:
+   - `npm install`
+2. Copie variáveis:
+   - `.env.example` -> `.env.local`
+3. Suba a aplicação:
+   - `npm run dev`
 
+## Comandos principais
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- Qualidade:
+  - `npm run check`
+  - `npm run check:strict`
+- Build:
+  - `npm run build`
+  - `npm run start`
+- QA:
+  - `npm run qa:catalog`
+  - `npm run qa:payments21`
+  - `npm run qa:coreops`
+  - `npm run qa:functional`
+  - `npm run qa:full`
+
+## Observações de execução
+
+- `qa:catalog`, `qa:payments21` e `qa:coreops` sobem servidor automaticamente na porta alvo.
+- `qa:coreops` valida ciclo cruzado `order -> payment -> production -> shipment -> support`.
+- Se já existir servidor em execução nas portas de QA, os scripts reutilizam a instância ativa.
+- Em ambientes com bloqueio `spawn EPERM`, execute os comandos de QA/build com permissão elevada.
+- Governança e critérios de pronto por domínio estão em `docs/EXECUTION_CONSOLIDATED_MASTER.md` e `docs/EXECUTION_STATUS_MATRIX.md`.

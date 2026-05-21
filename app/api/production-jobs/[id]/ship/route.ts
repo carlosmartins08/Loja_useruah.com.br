@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
+import { canOperateProduction, getActorFromRequest } from '@/lib/access-control';
 import { reconcileCommissionAvailabilityForOrder } from '@/lib/commission-store';
 import { getOrder, updateOrderStatus } from '@/lib/order-store';
 import { getProductionJobById, updateProductionJobStatus } from '@/lib/production-store';
@@ -22,6 +23,11 @@ function isValidPayload(payload: unknown): payload is ShipPayload {
 }
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
+  const actor = getActorFromRequest(request);
+  if (!canOperateProduction(actor)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
   const { id } = await context.params;
   const payload = await request.json().catch(() => null);
   if (!isValidPayload(payload)) {
@@ -74,8 +80,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   });
 
   appendAuditLog({
-    actor_id: 'system',
-    actor_role: 'production_operator',
+    actor_id: actor?.actorId ?? 'unknown',
+    actor_role: actor?.actorRole ?? 'unknown',
     action: 'production.shipped',
     entity_type: 'ProductionJob',
     entity_id: updatedJob.productionJobId,
@@ -86,8 +92,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
   if (shipmentResult.created) {
     appendAuditLog({
-      actor_id: 'system',
-      actor_role: 'production_operator',
+      actor_id: actor?.actorId ?? 'unknown',
+      actor_role: actor?.actorRole ?? 'unknown',
       action: 'shipment.created',
       entity_type: 'Shipment',
       entity_id: shipmentResult.shipment.shipmentId,
@@ -98,8 +104,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   appendAuditLog({
-    actor_id: 'system',
-    actor_role: 'production_operator',
+    actor_id: actor?.actorId ?? 'unknown',
+    actor_role: actor?.actorRole ?? 'unknown',
     action: 'order.shipped',
     entity_type: 'Order',
     entity_id: updatedOrder.orderId,

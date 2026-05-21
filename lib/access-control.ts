@@ -54,3 +54,9 @@ export function canManageCatalog(actor: AccessActor | null) {
   if (!actor) return false;
   return actor.actorRole === 'curator' || actor.actorRole === 'platform_admin';
 }
+
+export function canOperateProduction(actor: AccessActor | null) {
+  if (!isRbacActive()) return true;
+  if (!actor) return false;
+  return actor.actorRole === 'production_operator' || actor.actorRole === 'platform_admin';
+}

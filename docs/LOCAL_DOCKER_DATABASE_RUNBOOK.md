@@ -44,7 +44,15 @@ Use `.env.example` como base:
 ## Check operacional minimo
 1. `npm run check`
 2. `npm run qa:payments21`
-3. Confirmar que webhook continua idempotente e timeline de eventos retorna no status.
+3. `npm run qa:coreops`
+4. Confirmar que webhook continua idempotente e timeline de eventos retorna no status.
+
+## Politica temporaria de execucao (EPERM)
+
+Enquanto o ambiente local estiver com bloqueio `spawn EPERM`, padronizar:
+- Executar `build` e `QA` com permissao elevada.
+- Registrar no PR/evidencia quando a elevacao foi necessaria.
+- Nao bloquear entrega de dominio por esse ponto, mas manter item de infraestrutura aberto para correcao definitiva.
 
 ## Estrategia de migracao sem retrabalho
 1. Manter contrato API congelado.
