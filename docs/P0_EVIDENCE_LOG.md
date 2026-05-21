@@ -512,3 +512,22 @@ Escopo: `order.cancel`, `refund`, `chargeback`, idempotencia e update de `paymen
   - `npm run qa:payments21`: PASS
   - `npm run qa:exceptions`: PASS
   - `npm run qa:coreops`: PASS
+
+## P0 — Fechamento de Achados Altos (provider_recipients + provider_webhook_events + integration_logs)
+
+Status: PASS  
+Data: 2026-05-21  
+Ambiente: local/dev  
+Escopo: trilha de integracao de provider e mapeamento de recebedores sem quebra de contrato
+
+### Resultado
+- P0-HIGH-01 persistencia de webhook bruto por provider antes do processamento: PASS
+- P0-HIGH-02 registro de logs de integracao (checkout/webhook): PASS
+- P0-HIGH-03 mapeamento de recebedores de provider com fallback interno: PASS
+- P0-HIGH-04 `npm run qa:full`: PASS
+
+### Evidencias tecnicas
+- Entidades adicionadas no schema runtime: `provider_recipients`, `provider_webhook_events`, `integration_logs`.
+- `POST /api/payments/webhook` agora registra evento bruto, processa e marca resultado.
+- `createPaymentWithIdempotency` registra trilha de integracao de `create_charge`.
+- Split financeiro usa `provider_recipient_id` quando existir mapeamento para entidade.

@@ -154,6 +154,52 @@ async function ensureSchema(pool: Pool) {
     )
   `);
   await pool.execute(`
+    CREATE TABLE IF NOT EXISTS provider_recipients (
+      id VARCHAR(64) PRIMARY KEY,
+      entity_type VARCHAR(24) NOT NULL,
+      entity_id VARCHAR(64) NOT NULL,
+      provider VARCHAR(32) NOT NULL,
+      provider_recipient_id VARCHAR(128) NOT NULL,
+      status VARCHAR(24) NOT NULL,
+      document VARCHAR(64) NULL,
+      bank_account_reference VARCHAR(128) NULL,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL,
+      UNIQUE KEY uq_provider_recipient_entity (entity_type, entity_id, provider)
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS provider_webhook_events (
+      id VARCHAR(64) PRIMARY KEY,
+      provider VARCHAR(32) NOT NULL,
+      event_type VARCHAR(64) NOT NULL,
+      provider_event_id VARCHAR(128) NOT NULL,
+      provider_reference VARCHAR(128) NULL,
+      payload_json JSON NOT NULL,
+      processed TINYINT(1) NOT NULL DEFAULT 0,
+      processed_at DATETIME(3) NULL,
+      error_message TEXT NULL,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL,
+      UNIQUE KEY uq_provider_event (provider, provider_event_id),
+      INDEX idx_provider_reference (provider_reference)
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS integration_logs (
+      id VARCHAR(64) PRIMARY KEY,
+      provider VARCHAR(32) NOT NULL,
+      action VARCHAR(80) NOT NULL,
+      request_payload_json JSON NULL,
+      response_payload_json JSON NULL,
+      status_code INT NULL,
+      success TINYINT(1) NOT NULL,
+      error_message TEXT NULL,
+      created_at DATETIME(3) NOT NULL,
+      INDEX idx_integration_provider_action (provider, action)
+    )
+  `);
+  await pool.execute(`
     CREATE TABLE IF NOT EXISTS refunds (
       refund_id VARCHAR(64) PRIMARY KEY,
       order_id VARCHAR(64) NOT NULL,

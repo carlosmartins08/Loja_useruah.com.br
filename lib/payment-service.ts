@@ -19,6 +19,8 @@ import { createPaymentSplits } from '@/lib/payment-split-store';
 import { createLicenseEvents } from '@/lib/license-event-store';
 import { getCatalogItem } from '@/lib/catalog-item-store';
 import { getArtwork } from '@/lib/artwork-store';
+import { appendIntegrationLog } from '@/lib/integration-log-store';
+import { getProviderRecipient } from '@/lib/provider-recipient-store';
 
 export class PaymentFlowError extends Error {
   status: number;
@@ -65,6 +67,24 @@ export async function createPaymentWithIdempotency(
 
   const provider = getPaymentProvider();
   const charge = await provider.createCharge(payload);
+  await appendIntegrationLog({
+    provider: process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox',
+    action: 'create_charge',
+    requestPayload: {
+      orderId: payload.orderId,
+      method: payload.method,
+      amount: payload.amount,
+      currency: payload.currency,
+      itemsCount: payload.items.length,
+    },
+    responsePayload: {
+      providerReference: charge.providerReference,
+      status: charge.status,
+      nextAction: charge.nextAction,
+    },
+    statusCode: 200,
+    success: true,
+  });
 
   const payment = await createPaymentRecord({
     payload,
@@ -174,8 +194,25 @@ export async function applyWebhookEvent(input: {
       });
     }
 
+    const providerName = process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox';
     const supplierDefault = process.env.SUPPLIER_OWNER_DEFAULT_ID?.trim() || 'supplier-default';
     const platformDefault = process.env.PLATFORM_OWNER_DEFAULT_ID?.trim() || 'platform-default';
+    const artistDefault = process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default';
+    const supplierRecipient = await getProviderRecipient({
+      provider: providerName,
+      entityType: 'supplier',
+      entityId: supplierDefault,
+    });
+    const artistRecipient = await getProviderRecipient({
+      provider: providerName,
+      entityType: 'artist',
+      entityId: artistDefault,
+    });
+    const platformRecipient = await getProviderRecipient({
+      provider: providerName,
+      entityType: 'platform',
+      entityId: platformDefault,
+    });
     const supplierPct = Number(process.env.SUPPLIER_REVENUE_PCT ?? '0.7');
     const artistPct = Number(process.env.ARTIST_LICENSE_PCT ?? '0.1');
     const platformPct = Number(process.env.PLATFORM_COMMISSION_PCT ?? '0.15');
@@ -199,7 +236,7 @@ export async function applyWebhookEvent(input: {
           paymentId: updatedPayment.paymentId,
           recipientType: 'supplier' as const,
           recipientId: supplierDefault,
-          providerRecipientId: undefined,
+          providerRecipientId: supplierRecipient?.providerRecipientId,
           grossAmount: gross,
           splitAmount: supplierAmount,
           splitPercentage: gross > 0 ? Number((supplierAmount / gross).toFixed(4)) : 0,
@@ -214,8 +251,8 @@ export async function applyWebhookEvent(input: {
           orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
           paymentId: updatedPayment.paymentId,
           recipientType: 'artist' as const,
-          recipientId: process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default',
-          providerRecipientId: undefined,
+          recipientId: artistDefault,
+          providerRecipientId: artistRecipient?.providerRecipientId,
           grossAmount: gross,
           splitAmount: artistLicenseAmount,
           splitPercentage: gross > 0 ? Number((artistLicenseAmount / gross).toFixed(4)) : 0,
@@ -231,7 +268,7 @@ export async function applyWebhookEvent(input: {
           paymentId: updatedPayment.paymentId,
           recipientType: 'platform' as const,
           recipientId: platformDefault,
-          providerRecipientId: undefined,
+          providerRecipientId: platformRecipient?.providerRecipientId,
           grossAmount: gross,
           splitAmount: platformCommissionAmount,
           splitPercentage: gross > 0 ? Number((platformCommissionAmount / gross).toFixed(4)) : 0,

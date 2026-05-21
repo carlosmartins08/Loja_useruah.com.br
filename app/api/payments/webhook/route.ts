@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { applyWebhookEvent, PaymentFlowError, verifyWebhookSignature } from '@/lib/payment-service';
+import { appendIntegrationLog } from '@/lib/integration-log-store';
+import { markProviderWebhookEventProcessed, registerProviderWebhookEvent } from '@/lib/provider-webhook-event-store';
 
 interface WebhookPayload {
   eventId?: string;
@@ -24,6 +26,18 @@ export async function POST(request: Request) {
 
   try {
     const eventId = body.eventId || idempotencyKey || '';
+    const providerName = process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox';
+    const eventRegistration = await registerProviderWebhookEvent({
+      provider: providerName,
+      eventType: body.event,
+      providerEventId: eventId,
+      providerReference: body.providerReference,
+      payload: body,
+    });
+    if (!eventRegistration.created && eventRegistration.event?.processed) {
+      return NextResponse.json({ ok: true, status: 'already_processed' });
+    }
+
     const maxRetriesRaw = Number(process.env.PAYMENT_WEBHOOK_MAX_RETRIES ?? '2');
     const maxRetries = Number.isFinite(maxRetriesRaw) && maxRetriesRaw > 0 ? Math.floor(maxRetriesRaw) : 2;
     let attempt = 0;
@@ -52,14 +66,56 @@ export async function POST(request: Request) {
     }
 
     if (result.kind === 'already_processed') {
+      await markProviderWebhookEventProcessed({
+        provider: providerName,
+        providerEventId: eventId,
+        processed: true,
+      });
       return NextResponse.json({ ok: true, status: 'already_processed' });
     }
     if (result.kind === 'not_found') {
+      await markProviderWebhookEventProcessed({
+        provider: providerName,
+        providerEventId: eventId,
+        processed: false,
+        errorMessage: 'payment_not_found',
+      });
       return NextResponse.json({ error: 'payment_not_found' }, { status: 404 });
     }
 
+    await markProviderWebhookEventProcessed({
+      provider: providerName,
+      providerEventId: eventId,
+      processed: true,
+    });
+    await appendIntegrationLog({
+      provider: providerName,
+      action: 'webhook_payment',
+      requestPayload: body,
+      responsePayload: { status: 'processed' },
+      statusCode: 200,
+      success: true,
+    });
+
     return NextResponse.json({ ok: true, payment: result.payment });
   } catch (error) {
+    const providerName = process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox';
+    const eventId = body.eventId || idempotencyKey || '';
+    await markProviderWebhookEventProcessed({
+      provider: providerName,
+      providerEventId: eventId,
+      processed: false,
+      errorMessage: error instanceof Error ? error.message : 'internal_error',
+    });
+    await appendIntegrationLog({
+      provider: providerName,
+      action: 'webhook_payment',
+      requestPayload: body,
+      responsePayload: null,
+      statusCode: error instanceof PaymentFlowError ? error.status : 500,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : 'internal_error',
+    });
     if (error instanceof PaymentFlowError) {
       return NextResponse.json({ error: error.code }, { status: error.status });
     }

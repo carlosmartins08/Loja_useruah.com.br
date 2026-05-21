@@ -571,3 +571,32 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `docs/EXECUTION_STATUS_MATRIX.md`
   - `docs/P0_EVIDENCE_LOG.md`
 
+### [2026-05-21] Fechamento de achados altos de integracao com provider
+- ID: GOV-0036
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Operacoes
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `observabilidade`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+- Decisao:
+  - Implementar entidades dedicadas: `provider_recipients`, `provider_webhook_events`, `integration_logs`.
+  - Registrar webhook bruto de provider antes do processamento e marcar resultado (`processed`/erro).
+  - Registrar logs de integracao em checkout e webhook.
+  - Conectar `payment_splits` ao mapeamento de `provider_recipients` com fallback seguro.
+- Contexto:
+  - Auditoria apontou risco de retrabalho no cutover real sem trilha de integracao e mapeamento de recebedores.
+- Impacto esperado:
+  - Reducao de retrabalho em conciliacao e onboarding de recebedores no gateway real.
+- Riscos conhecidos:
+  - Eventos antigos podem nao ter `provider_recipient_id` historico, mantendo fallback interno.
+- Plano de rollback:
+  - Preservar fallback por IDs internos e desconsiderar campos de provider no split sem quebra de contrato.
+- Documentos atualizados:
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+

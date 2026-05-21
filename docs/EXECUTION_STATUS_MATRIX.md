@@ -146,6 +146,10 @@ Mostrar, de forma operacional, o que já existe no projeto, onde está implement
   - `lib/payment-split-store.ts`
   - `lib/license-event-store.ts`
   - `lib/terms-acceptance-store.ts`
+- Entidades de integracao de provider (`provider_recipients`, `provider_webhook_events`, `integration_logs`): `EXISTE`
+  - `lib/provider-recipient-store.ts`
+  - `lib/provider-webhook-event-store.ts`
+  - `lib/integration-log-store.ts`
 
 ## 7) Documentos externos citados e não presentes no repositório
 - `docs/USERUAH_360_ARCHITECTURE.md`: `AUSENTE NO REPO`
