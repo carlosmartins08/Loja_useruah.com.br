@@ -4,6 +4,7 @@
 - [ ] `npm run alert:critical`
 - [ ] `npm run check`
 - [ ] `npm run qa:payments21`
+- [ ] `npm run qa:exceptions`
 - [ ] `npm run qa:coreops`
 
 ## Base operacional minima
@@ -16,6 +17,12 @@
 ## Integracao e risco
 - [ ] Webhook assinado e idempotente validado
 - [ ] Reprocessamento de webhook validado
+- [ ] Excecoes de cancel/refund/chargeback validadas sem duplicidade
 - [ ] Rollback de provider testado
 - [ ] Evidencia registrada em `docs/P0_EVIDENCE_LOG.md`
 - [ ] Decisao registrada em `docs/CHANGELOG_GOVERNANCE.md`
+
+## Rollout controlado de termos (feature flags)
+- [ ] `dev`: `TERMS_ENFORCE_*` pode ficar `false` durante bootstrap
+- [ ] `hml`: ativar por etapa (`industry` -> `artist` -> `consumer`) com evidencia de aceite
+- [ ] `prod`: ativar somente apos aceite vigente e monitoramento de bloqueios `terms_not_accepted`

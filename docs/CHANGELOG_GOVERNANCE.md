@@ -539,3 +539,35 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `docs/P0_EVIDENCE_LOG.md`
   - `infra/mysql/init/001_payments.sql`
 
+### [2026-05-21] Fechamento de excecoes criticas (cancel/refund/chargeback) + alinhamento contratual
+- ID: GOV-0035
+- Status: `aprovada`
+- Dono da decisao: Engenharia + QA + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `pedidos-logistica`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/API_CONTRACTS.md`
+  - `docs/CHECKLIST_RELEASE_PAGAMENTOS.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+- Decisao:
+  - Implementar endpoints publicos de excecao: `POST /api/orders/:orderId/cancel`, `POST /api/refunds`, `POST /api/refunds/:refundId/approve`, `POST /api/refunds/:refundId/reject`, `POST /api/chargebacks/webhook`.
+  - Sincronizar `license_events` e `payment_splits` em cancelamento/reembolso/chargeback de forma idempotente.
+  - Consolidar contrato da API para remover ambiguidade entre promessa documental e comportamento real.
+- Contexto:
+  - Auditoria identificou lacuna critica entre contratos descritos e execucao existente.
+- Impacto esperado:
+  - Reducao de risco operacional em excecoes financeiras e maior rastreabilidade para cutover real.
+- Riscos conhecidos:
+  - Ambiente local pode exigir limpeza de processos Node quando ocorrer travamento do runner QA.
+- Plano de rollback:
+  - Desativar uso dos novos endpoints operacionais e manter fluxo principal de checkout/webhook sem excecoes ativas.
+- Documentos atualizados:
+  - `docs/API_CONTRACTS.md`
+  - `docs/CHECKLIST_RELEASE_PAGAMENTOS.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+

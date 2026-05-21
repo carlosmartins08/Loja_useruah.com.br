@@ -1185,6 +1185,282 @@ Abrir ticket vinculado a pedido do proprio cliente.
 ### AuditLog
 Obrigatorio: sim
 
+---
+
+## POST /api/orders/:orderId/cancel (implementacao ativa)
+
+### Objetivo
+Cancelar pedido em estado permitido e sincronizar efeitos financeiros quando houver pagamento aprovado.
+
+### Roles autorizados
+- `customer` (somente pedido proprio em `placed`)
+- `support_agent`
+- `platform_admin`
+
+### Machine consumida
+- Machine: `order`
+- Transicao: `placed -> cancelled`, `paid -> cancelled` (administrativo)
+
+### Payload
+```json
+{
+  "reason": "string"
+}
+```
+
+### Resposta de sucesso
+```json
+{
+  "ok": true,
+  "order": {
+    "orderId": "string",
+    "status": "cancelled"
+  },
+  "payment": {
+    "paymentId": "string",
+    "status": "refunded"
+  }
+}
+```
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 403 | `forbidden` | role sem permissao |
+| 404 | `not_found` | pedido inexistente |
+| 409 | `invalid_transition` | pedido fora de estado cancelavel |
+| 422 | `validation_error` | payload invalido |
+
+### Evento emitido
+- `order.cancelled`
+- `payment.refunded` (quando aplicavel)
+
+### AuditLog
+Obrigatorio: sim
+
+---
+
+## POST /api/refunds
+
+### Objetivo
+Abrir solicitacao de refund para pedido pago com idempotencia.
+
+### Roles autorizados
+- `support_agent`
+- `finance_admin`
+- `platform_admin`
+
+### Machine consumida
+- Machine: `refund`
+- Transicao: `none -> requested`
+
+### Payload
+```json
+{
+  "orderId": "string",
+  "reason": "string"
+}
+```
+
+### Headers obrigatorios
+- `x-idempotency-key`
+
+### Resposta de sucesso
+```json
+{
+  "ok": true,
+  "refund": {
+    "refundId": "string",
+    "status": "requested"
+  },
+  "reused": false
+}
+```
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 403 | `forbidden` | role sem permissao |
+| 404 | `not_found` | pedido inexistente |
+| 404 | `payment_not_found` | pedido sem pagamento |
+| 409 | `invalid_transition` | pagamento fora de `approved` |
+| 422 | `validation_error` | payload invalido ou sem idempotency key |
+
+### Evento emitido
+- `refund.requested`
+
+### AuditLog
+Obrigatorio: sim
+
+---
+
+## POST /api/refunds/:refundId/approve
+
+### Objetivo
+Aprovar refund solicitado e aplicar efeitos financeiros internos.
+
+### Roles autorizados
+- `finance_admin`
+- `platform_admin`
+
+### Machine consumida
+- Machine: `refund`
+- Transicao: `requested -> approved`
+
+### Resposta de sucesso
+```json
+{
+  "ok": true,
+  "refund": {
+    "refundId": "string",
+    "status": "approved"
+  }
+}
+```
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 403 | `forbidden` | role sem permissao |
+| 404 | `not_found` | refund inexistente |
+| 409 | `invalid_transition` | refund fora de `requested` |
+
+### Evento emitido
+- `refund.approved`
+- `payment.refunded`
+
+### AuditLog
+Obrigatorio: sim
+
+---
+
+## POST /api/refunds/:refundId/reject
+
+### Objetivo
+Rejeitar refund solicitado.
+
+### Roles autorizados
+- `finance_admin`
+- `platform_admin`
+
+### Machine consumida
+- Machine: `refund`
+- Transicao: `requested -> rejected`
+
+### Payload
+```json
+{
+  "reason": "string"
+}
+```
+
+### Resposta de sucesso
+```json
+{
+  "ok": true,
+  "refund": {
+    "refundId": "string",
+    "status": "rejected"
+  }
+}
+```
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 403 | `forbidden` | role sem permissao |
+| 404 | `not_found` | refund inexistente |
+| 409 | `invalid_transition` | refund fora de `requested` |
+| 422 | `validation_error` | motivo ausente |
+
+### Evento emitido
+- `refund.rejected`
+
+### AuditLog
+Obrigatorio: sim
+
+---
+
+## POST /api/chargebacks/webhook
+
+### Objetivo
+Registrar chargeback recebido por webhook e aplicar efeito financeiro idempotente.
+
+### Machine consumida
+- Machine: `chargeback`
+- Transicao: `none -> received`
+
+### Payload
+```json
+{
+  "eventId": "string",
+  "providerReference": "string",
+  "reason": "string"
+}
+```
+
+### Resposta de sucesso
+```json
+{
+  "ok": true,
+  "status": "processed",
+  "payment": {
+    "paymentId": "string",
+    "status": "chargeback"
+  }
+}
+```
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 404 | `payment_not_found` | provider reference inexistente |
+| 422 | `validation_error` | payload invalido |
+
+### Idempotencia/reconciliacao
+- Chave por `eventId` (ou `x-idempotency-key`).
+- Reenvio retorna `status=already_processed` sem duplicar impacto.
+
+### Observacoes
+- Chargeback nao sobrescreve `refund` ja aprovado; `refund` e `chargeback` permanecem trilhas separadas.
+
+---
+
+## POST /api/terms/accept
+
+### Objetivo
+Registrar aceite versionado de termos para gates de industria/artista/consumidor.
+
+### Payload
+```json
+{
+  "userId": "string",
+  "entityType": "industry|artist|consumer",
+  "entityId": "string",
+  "termType": "industry_base|artist_base|consumer_base",
+  "termVersion": "string"
+}
+```
+
+### Resposta de sucesso
+```json
+{
+  "ok": true,
+  "acceptance": {
+    "termType": "consumer_base",
+    "termVersion": "v1"
+  }
+}
+```
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 422 | `validation_error` | payload invalido |
+
+### Observacoes
+- Endpoint habilita rollout gradual via `TERMS_ENFORCE_INDUSTRY|ARTIST|CONSUMER`.
+
 ### Idempotencia/reconciliacao
 Nao aplicavel.
 

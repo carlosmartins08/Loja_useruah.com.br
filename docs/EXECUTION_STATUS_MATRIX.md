@@ -47,6 +47,12 @@ Mostrar, de forma operacional, o que já existe no projeto, onde está implement
   - `lib/payment-store.ts`
   - `lib/payment-service.ts`
   - `app/api/payments/status/[paymentId]/route.ts`
+- Excecoes operacionais (`cancel`, `refund`, `chargeback`) com idempotencia: `EXISTE`
+  - `app/api/orders/[orderId]/cancel/route.ts`
+  - `app/api/refunds/route.ts`
+  - `app/api/refunds/[refundId]/approve/route.ts`
+  - `app/api/refunds/[refundId]/reject/route.ts`
+  - `app/api/chargebacks/webhook/route.ts`
 
 ## 3) Pedidos e Logística
 - Fluxo UX checkout -> success: `EXISTE`
