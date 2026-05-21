@@ -1,0 +1,10 @@
+node_modules/
+.next/
+coverage/
+.DS_Store
+*.log
+.tmp-store/
+artifacts/
+tsconfig.tsbuildinfo
+.env*
+!.env.example

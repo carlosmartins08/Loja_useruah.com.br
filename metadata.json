@@ -1,0 +1,6 @@
+{
+  "name": "UseRuah | Moda Cristã e Conexão",
+  "description": "Conectando fé, arte e comunidades em uma plataforma de produtos personalizados sob demanda com zero desperdício.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

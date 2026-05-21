@@ -1,0 +1,94 @@
+﻿# Docs Hierarchy (Fonte Unica de Navegacao)
+
+Data de revisao: 2026-05-21
+
+## Objetivo
+Evitar retrabalho, duplicidade e conflito de interpretação sobre qual documento usar em cada decisão de produto, engenharia e operação.
+
+## Ordem de consulta (obrigatoria)
+1. `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+2. `docs/EXECUTION_OPERATING_TEMPLATE.md`
+3. Documento de domínio específico
+4. `docs/MVP_ROADMAP.md`
+5. `docs/ROUTE_DEFINITION_OF_DONE.md`
+6. `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+7. `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
+8. `docs/CHANGELOG_GOVERNANCE.md`
+9. `docs/DOCS_UNIFICATION_PLAN.md` (quando houver decisão de consolidar documentos)
+10. `docs/CYCLE_YYYY-MM-DD_YYYY-MM-DD_<DOMINIO>.md` (planejamento e execução semanal por domínio)
+
+## Qual documento usar por tipo de decisão
+
+### Governança e conflito documental
+- Usar: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+- Quando: houver dúvida de precedência, conflito entre docs ou criação de novo documento.
+
+### Sequenciamento por fase (produto/execução)
+- Usar: `docs/MVP_ROADMAP.md`
+- Quando: decidir o que entra agora vs depois.
+
+### Pagamentos
+- Usar: `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+- Quando: alterar checkout, webhook, status de pagamento, idempotência ou segurança de pagamento.
+
+### Pedidos e logística
+- Usar: `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
+- Quando: alterar estados de pedido, produção, envio, tracking e exceções.
+
+### Catálogo e curadoria
+- Usar: `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+- Quando: alterar submissão de arte, revisão, publicação e qualidade de catálogo.
+
+### Suporte e tickets
+- Usar: `docs/SUPPORT_TICKETS_DEFINITION_OF_DONE.md`
+- Quando: alterar intake, triagem, escalonamento, resolução e SLA.
+
+### Permissões e escopo de acesso
+- Usar: `docs/ROLES_MATRIX.md`
+- Quando: alterar RBAC, escopos de leitura/escrita, aprovações e auditoria de ações críticas.
+
+### Qualidade por rota e UX
+- Usar: `docs/ROUTE_DEFINITION_OF_DONE.md`
+- Quando: validar completude de rota e qualidade de experiência por página.
+
+### Template obrigatório de PR crítico
+- Usar: `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+- Quando: PR tocar estado, contrato, permissão, fluxo operacional ou regra de domínio.
+
+### Baseline de controle (COBIT/ITIL)
+- Usar: `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
+- Quando: classificar mudança, incidente, risco, problema, rollback e melhoria contínua.
+
+### Histórico de decisão
+- Usar: `docs/CHANGELOG_GOVERNANCE.md`
+- Quando: registrar decisão aprovada, impacto, risco e rollback.
+
+## Regra para criação de novo documento
+Criar novo documento apenas se:
+- [ ] O conteúdo não couber em nenhum documento de domínio já existente.
+- [ ] Houver owner explícito do novo documento.
+- [ ] Houver impacto recorrente (não pontual) no projeto.
+- [ ] O novo documento for referenciado no `EXECUTION_CONSOLIDATED_MASTER.md`.
+
+Se não atender os 4 critérios, atualizar documento existente.
+
+## Regra de atualização (anti-retrabalho)
+- Toda mudança de estado canônico deve atualizar primeiro o documento de domínio.
+- Toda mudança de contrato deve registrar compatibilidade/migration.
+- Toda decisão relevante deve entrar no `CHANGELOG_GOVERNANCE.md`.
+- Todo PR crítico deve citar o documento fonte e usar template de governança.
+
+## Sinais de alerta (erro de processo)
+Se qualquer item abaixo acontecer, pausar implementação e corrigir documentação:
+- Dois documentos definindo o mesmo estado com nomes diferentes.
+- PR sem documento fonte declarado.
+- Mudança de API sem plano de compatibilidade.
+- Regra de permissão definida só no frontend.
+
+## Resultado esperado
+- Menos retrabalho por interpretação.
+- Menos bug de fluxo por estado divergente.
+- Menos regressão por mudança não auditada.
+- Maior velocidade de evolução com disciplina de execução.
+
+Classificacao normativo/referencial: docs/DOCS_CLASSIFICATION.md

@@ -1,0 +1,149 @@
+﻿# Execution Consolidated Master (Fonte Unica de Governanca)
+
+Data de revisao: 2026-05-21
+
+## Objetivo
+Eliminar conflitos e duplicidades entre documentos, definindo fonte única por domínio, estados canônicos e regras de precedência para execução.
+
+## Regra de precedencia documental
+1. Documento de domínio específico (fonte primária).
+2. `docs/MVP_ROADMAP.md` (sequenciamento macro).
+3. `docs/ROUTE_DEFINITION_OF_DONE.md` (qualidade por rota/interface).
+4. `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md` (gate único de PR).
+5. `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md` (baseline de controle e operação).
+
+Se houver divergência entre documentos, prevalece o de domínio específico.
+
+## Precedência normativa — Máquinas de Estado
+O documento `docs/STATE_MACHINES.md` é a fonte normativa única para estados, transições, bloqueios e eventos de auditoria das entidades operacionais críticas.
+
+Em caso de conflito entre DoDs, checklists, documentação de rota ou qualquer outro documento, prevalece `docs/STATE_MACHINES.md`.
+
+Os demais documentos devem apenas referenciar a máquina de estados aplicável, sem duplicar regras de transição.
+
+## Fonte unica por dominio
+- Pagamentos: `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+- Pedidos e logística: `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
+- Catálogo e curadoria: `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+- Suporte e tickets: `docs/SUPPORT_TICKETS_DEFINITION_OF_DONE.md`
+- Contratos de API críticos: `docs/API_CONTRACTS.md`
+- Aceite e validacao QA: `docs/QA_ACCEPTANCE_TESTS.md`
+- Permissões (RBAC): `docs/ROLES_MATRIX.md`
+- Sequenciamento macro: `docs/MVP_ROADMAP.md`
+- Qualidade de rota/UI: `docs/ROUTE_DEFINITION_OF_DONE.md`
+
+## Estados canonicos oficiais
+Estados e transições canônicas das entidades operacionais devem seguir `docs/STATE_MACHINES.md`.
+
+## Contratos congelados (fase atual)
+Pagamento (Payment Deferred ativo):
+- Endpoints:
+  - `POST /api/payments/checkout`
+  - `GET /api/payments/status/[paymentId]`
+  - `POST /api/payments/webhook`
+- Campos obrigatórios:
+  - `paymentId`, `orderId`, `providerReference`, `status`, `method`, `amount`, `currency`
+- Segurança mínima:
+  - `x-idempotency-key` em checkout
+  - `x-signature` em webhook (quando `PAYMENT_WEBHOOK_SECRET` existir)
+
+## Anticonflito (obrigatorio)
+- Não replicar backlog de domínio dentro de `ROUTE_DEFINITION_OF_DONE.md`.
+- Não introduzir novo status sem atualizar explicitamente o documento de domínio correspondente.
+- Não alterar contrato de pagamento sem migration formal documentada.
+- Todo PR que tocar estados/contratos deve citar seção alterada do documento fonte.
+
+## Checklist de consistencia (antes de merge)
+- [ ] PR aponta documento fonte do domínio alterado.
+- [ ] Estados e nomes de campo permanecem canônicos.
+- [ ] Sem duplicar regra em dois docs diferentes com textos conflitantes.
+- [ ] Se houver exceção, decisão registrada com data e owner.
+
+## Owners sugeridos
+- RBAC/segurança: `platform_admin` + engenharia backend
+- Pagamentos: `finance_admin` + engenharia backend
+- Pedidos/logística: `production_operator` + operação
+- Catálogo/curadoria: `curator` + produto
+- Suporte/tickets: `support_agent` + operação
+
+## Observacao final
+Se um requisito novo não se encaixar claramente em um domínio, ele não deve ser implementado até o domínio responsável ser definido neste documento.
+
+Template oficial de PR para governança de execução: docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md
+Baseline oficial de governança operacional (COBIT + ITIL): docs/GOVERNANCE_COBIT_ITIL_BASELINE.md
+Template operacional oficial de execução semanal: docs/EXECUTION_OPERATING_TEMPLATE.md
+
+Registro oficial de decisoes: docs/CHANGELOG_GOVERNANCE.md
+
+Indice de navegacao documental: docs/README_DOCS_HIERARCHY.md
+
+Classificacao oficial de documentos: docs/DOCS_CLASSIFICATION.md
+
+Matriz de status atual (existe/parcial/ausente): docs/EXECUTION_STATUS_MATRIX.md
+Registro de evidências P0: docs/P0_EVIDENCE_LOG.md
+
+## Sistema anti-perda de execução (obrigatorio)
+Objetivo: impedir dispersão, conflito de prioridade e retrabalho por troca de contexto.
+
+### Regra 1: um domínio por vez
+- Limite de WIP: apenas 1 domínio ativo por sprint curta.
+- Domínio ativo atual deve ser explicitado no início de cada ciclo.
+- Itens de outros domínios entram somente como backlog, não como execução paralela.
+
+### Regra 2: sequência oficial de execução
+1. `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+2. `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
+3. `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+
+Motivo: fechar oferta vendável primeiro, depois operação de pedido/envio, depois infraestrutura financeira final.
+
+### Regra 3: ritual semanal fixo
+Segunda (planejamento):
+- Escolher domínio da semana.
+- Selecionar no máximo 10 itens do domínio.
+- Classificar cada item em `EXISTE`, `PARCIAL`, `AUSENTE`.
+- Priorizar execução em `PARCIAL` antes de `AUSENTE`.
+
+Terça a quinta (execução):
+- Entregar em blocos pequenos (1 PR por bloco funcional).
+- Proibido misturar domínio no mesmo PR.
+- Toda mudança sensível deve referenciar documento-fonte de domínio.
+
+Sexta (fechamento):
+- Atualizar `docs/EXECUTION_STATUS_MATRIX.md`.
+- Atualizar domínio executado com progresso real.
+- Registrar decisões e exceções em `docs/CHANGELOG_GOVERNANCE.md`.
+
+### Regra 4: definição de pronto por bloco
+- Código implementado.
+- Critério de aceite do domínio marcado.
+- Evidência mínima de teste (unit/integration/e2e conforme domínio).
+- Documentação sincronizada (domínio + status matrix + changelog quando houver decisão).
+
+### Regra 5: gatilhos de bloqueio (não executar)
+- Requisito sem domínio definido.
+- Mudança de status/contrato sem atualização do documento fonte.
+- PR com escopo misto entre domínios.
+
+## Gate mínimo de PR/Release para fluxos críticos
+Mudanças nos seguintes domínios exigem validação dos testes P0 aplicáveis em `docs/QA_ACCEPTANCE_TESTS.md`:
+
+- orders
+- payments
+- webhooks
+- production
+- payouts
+- refunds
+- chargebacks
+- checkout
+- PDP
+- RBAC
+- AuditLog
+- idempotência
+
+### Regras
+1. PR com alteração em fluxo crítico não pode ser aprovado com teste P0 aplicável pendente.
+2. Caso P0 seja considerado não aplicável, a justificativa deve ser objetiva e registrada no PR.
+3. Alterações em checkout, pagamento, webhook, produção ou financeiro exigem evidência mínima anexada.
+4. Falha em teste P0 bloqueia merge/release.
+5. Correções emergenciais podem seguir com exceção apenas se houver registro explícito do risco, responsável e plano de correção.

@@ -1,0 +1,61 @@
+name: Quality And Smoke
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  quality-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint + Typecheck
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Start App
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3000 &
+          echo $! > next.pid
+
+      - name: Wait For App
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3000 >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "App did not start in time"
+          exit 1
+
+      - name: Smoke Routes
+        run: |
+          curl -fsS http://127.0.0.1:3000 >/dev/null
+          curl -fsS http://127.0.0.1:3000/shop >/dev/null
+          curl -fsS http://127.0.0.1:3000/product/1 >/dev/null
+          curl -fsS http://127.0.0.1:3000/checkout >/dev/null
+
+      - name: Stop App
+        if: always()
+        run: |
+          if [ -f next.pid ]; then
+            kill "$(cat next.pid)" || true
+          fi

@@ -1,0 +1,203 @@
+import { existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
+import type { Pool, ResultSetHeader, RowDataPacket } from 'mysql2/promise';
+
+type MysqlModule = {
+  createPool: (config: {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+    database: string;
+    waitForConnections: boolean;
+    connectionLimit: number;
+    queueLimit: number;
+  }) => Pool;
+};
+
+let mysqlPool: Pool | null = null;
+let mysqlAvailable = true;
+let mysqlInitialized = false;
+
+function parseDatabaseUrl() {
+  const raw = process.env.DATABASE_URL;
+  if (!raw) return null;
+
+  try {
+    const parsed = new URL(raw);
+    if (parsed.protocol !== 'mysql:') return null;
+    return {
+      host: parsed.hostname,
+      port: parsed.port ? Number(parsed.port) : 3306,
+      user: decodeURIComponent(parsed.username),
+      password: decodeURIComponent(parsed.password),
+      database: parsed.pathname.replace(/^\//, ''),
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function ensureSchema(pool: Pool) {
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS orders (
+      order_id VARCHAR(64) PRIMARY KEY,
+      customer_id VARCHAR(64) NOT NULL,
+      items_json JSON NOT NULL,
+      total_amount DECIMAL(12, 2) NOT NULL,
+      status VARCHAR(24) NOT NULL,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL,
+      paid_at DATETIME(3) NULL
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS production_jobs (
+      production_job_id VARCHAR(64) PRIMARY KEY,
+      order_id VARCHAR(64) NOT NULL UNIQUE,
+      status VARCHAR(24) NOT NULL,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS shipments (
+      shipment_id VARCHAR(64) PRIMARY KEY,
+      order_id VARCHAR(64) NOT NULL UNIQUE,
+      tracking_code VARCHAR(128) NOT NULL,
+      carrier VARCHAR(64) NOT NULL,
+      status VARCHAR(24) NOT NULL,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS tickets (
+      ticket_id VARCHAR(64) PRIMARY KEY,
+      order_id VARCHAR(64) NOT NULL,
+      customer_id VARCHAR(64) NOT NULL,
+      subject VARCHAR(255) NOT NULL,
+      status VARCHAR(24) NOT NULL,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL,
+      messages_json JSON NOT NULL
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS commissions (
+      commission_id VARCHAR(64) PRIMARY KEY,
+      order_id VARCHAR(64) NOT NULL,
+      owner_id VARCHAR(64) NOT NULL,
+      owner_role VARCHAR(32) NOT NULL,
+      amount DECIMAL(12, 2) NOT NULL,
+      currency VARCHAR(8) NOT NULL,
+      status VARCHAR(24) NOT NULL,
+      source_key VARCHAR(128) NOT NULL UNIQUE,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS payouts (
+      payout_id VARCHAR(64) PRIMARY KEY,
+      owner_id VARCHAR(64) NOT NULL,
+      owner_role VARCHAR(32) NOT NULL,
+      amount DECIMAL(12, 2) NOT NULL,
+      currency VARCHAR(8) NOT NULL,
+      status VARCHAR(24) NOT NULL,
+      commission_ids_json JSON NOT NULL,
+      idempotency_key VARCHAR(128) NOT NULL UNIQUE,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS payments (
+      payment_id VARCHAR(64) PRIMARY KEY,
+      order_id VARCHAR(64) NOT NULL,
+      method VARCHAR(24) NOT NULL,
+      amount DECIMAL(12, 2) NOT NULL,
+      currency VARCHAR(8) NOT NULL,
+      status VARCHAR(24) NOT NULL,
+      provider_reference VARCHAR(128) NOT NULL UNIQUE,
+      created_at DATETIME(3) NOT NULL,
+      approved_at DATETIME(3) NULL
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS payment_idempotency (
+      idempotency_key VARCHAR(128) PRIMARY KEY,
+      payment_id VARCHAR(64) NOT NULL,
+      CONSTRAINT fk_payment_idempotency_payment
+        FOREIGN KEY (payment_id) REFERENCES payments(payment_id)
+        ON DELETE CASCADE
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS payment_events (
+      event_id VARCHAR(64) PRIMARY KEY,
+      payment_id VARCHAR(64) NOT NULL,
+      event_name VARCHAR(80) NOT NULL,
+      from_status VARCHAR(24) NOT NULL,
+      to_status VARCHAR(24) NOT NULL,
+      meta JSON NULL,
+      created_at DATETIME(3) NOT NULL,
+      CONSTRAINT fk_payment_events_payment
+        FOREIGN KEY (payment_id) REFERENCES payments(payment_id)
+        ON DELETE CASCADE
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS webhook_events (
+      event_id VARCHAR(128) PRIMARY KEY,
+      processed_at DATETIME(3) NOT NULL
+    )
+  `);
+}
+
+function ensureTmpDirForDrivers() {
+  const dataDir = join(process.cwd(), '.tmp-store');
+  if (!existsSync(dataDir)) {
+    mkdirSync(dataDir, { recursive: true });
+  }
+}
+
+export function shouldUseMysql() {
+  const mode = process.env.PAYMENT_PERSISTENCE?.toLowerCase() ?? 'sqlite';
+  return mode === 'mysql';
+}
+
+export async function getMysqlPool() {
+  if (!shouldUseMysql() || !mysqlAvailable) return null;
+  if (mysqlPool) return mysqlPool;
+
+  const config = parseDatabaseUrl();
+  if (!config) {
+    mysqlAvailable = false;
+    return null;
+  }
+
+  ensureTmpDirForDrivers();
+
+  try {
+    const mysql = (await import('mysql2/promise')) as MysqlModule;
+    mysqlPool = mysql.createPool({
+      ...config,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+    });
+
+    if (!mysqlInitialized) {
+      await ensureSchema(mysqlPool);
+      mysqlInitialized = true;
+    }
+    return mysqlPool;
+  } catch {
+    mysqlAvailable = false;
+    return null;
+  }
+}
+
+export type MysqlRow = RowDataPacket;
+export type MysqlResult = ResultSetHeader;

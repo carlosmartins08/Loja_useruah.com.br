@@ -1,0 +1,56 @@
+import type { OrderRecord } from '@/lib/order-store';
+
+export interface AccessActor {
+  actorId: string;
+  actorRole: string;
+}
+
+export function isRbacActive() {
+  return process.env.RBAC_ACTIVE === 'true';
+}
+
+export function getActorFromRequest(request: Request): AccessActor | null {
+  const actorId = request.headers.get('x-actor-id');
+  const actorRole = request.headers.get('x-actor-role');
+  if (!actorId || !actorRole) return null;
+  return { actorId, actorRole };
+}
+
+export function canReadOrder(order: OrderRecord, actor: AccessActor | null) {
+  if (!isRbacActive()) return true;
+  if (!actor) return false;
+
+  if (actor.actorRole === 'platform_admin' || actor.actorRole === 'support_agent') return true;
+  if (actor.actorRole === 'customer' && actor.actorId === order.customerId) return true;
+  return false;
+}
+
+export function canAccessSupportContext(actor: AccessActor | null) {
+  if (!actor) return false;
+  return actor.actorRole === 'support_agent' || actor.actorRole === 'platform_admin';
+}
+
+export function canReadTicketByCustomerId(customerId: string, actor: AccessActor | null) {
+  if (!isRbacActive()) return true;
+  if (!actor) return false;
+  if (actor.actorRole === 'support_agent' || actor.actorRole === 'platform_admin') return true;
+  return actor.actorRole === 'customer' && actor.actorId === customerId;
+}
+
+export function canCreateArtwork(actor: AccessActor | null) {
+  if (!isRbacActive()) return true;
+  if (!actor) return false;
+  return actor.actorRole === 'artist' || actor.actorRole === 'community_manager' || actor.actorRole === 'platform_admin';
+}
+
+export function canReviewArtwork(actor: AccessActor | null) {
+  if (!isRbacActive()) return true;
+  if (!actor) return false;
+  return actor.actorRole === 'curator' || actor.actorRole === 'platform_admin';
+}
+
+export function canManageCatalog(actor: AccessActor | null) {
+  if (!isRbacActive()) return true;
+  if (!actor) return false;
+  return actor.actorRole === 'curator' || actor.actorRole === 'platform_admin';
+}

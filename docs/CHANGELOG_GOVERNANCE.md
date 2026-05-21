@@ -1,0 +1,451 @@
+﻿# Changelog Governance (Decisoes Arquiteturais e Operacionais)
+
+Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou governanca documental, evitando perda de contexto e retrabalho.
+
+## Como usar
+- Criar uma entrada por decisÃ£o aprovada.
+- Sempre referenciar PR/commit e documento fonte do dominio.
+- Nao registrar tarefas; registrar decisoes e efeitos.
+
+## Template de entrada
+
+### [YYYY-MM-DD] Titulo curto da decisao
+- ID: GOV-XXXX
+- Status: `proposta | aprovada | revertida | substituida`
+- Dono da decisÃ£o:
+- PR/Commit de referÃªncia:
+- DomÃ­nio afetado:
+  - `pagamentos | pedidos-logistica | catalogo-curadoria | suporte-tickets | rbac | ui-rotas | qa`
+- Documento fonte afetado:
+- DecisÃ£o:
+- Contexto:
+- Impacto esperado:
+- Riscos conhecidos:
+- Plano de rollback:
+- Documentos atualizados:
+
+---
+
+## Entradas
+
+### [2026-05-21] Template operacional Ãºnico + reconciliaÃ§Ã£o docs x cÃ³digo
+- ID: GOV-0017
+- Status: `aprovada`
+- Dono da decisÃ£o: Plataforma/ExecuÃ§Ã£o
+- PR/Commit de referÃªncia: local workspace update
+- DomÃ­nio afetado:
+  - `ui-rotas`
+  - `pedidos-logistica`
+  - `suporte-tickets`
+  - `pagamentos`
+- Documento fonte afetado:
+  - `docs/EXECUTION_OPERATING_TEMPLATE.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+- DecisÃ£o:
+  - Instituir template operacional Ãºnico obrigatÃ³rio para planejamento, execuÃ§Ã£o e fechamento semanal.
+  - Tornar obrigatÃ³ria a reconciliaÃ§Ã£o docs x cÃ³digo no fechamento do ciclo.
+- Contexto:
+  - Risco recorrente de retrabalho por matriz desatualizada versus implementaÃ§Ã£o real.
+- Impacto esperado:
+  - ReduÃ§Ã£o de conflito entre execuÃ§Ã£o e documentaÃ§Ã£o.
+- Riscos conhecidos:
+  - DependÃªncia de disciplina semanal para manter matriz sincronizada.
+- Plano de rollback:
+  - Remover obrigatoriedade do template e voltar ao rito anterior (nÃ£o recomendado).
+- Documentos atualizados:
+  - `docs/EXECUTION_OPERATING_TEMPLATE.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+
+### [2026-05-21] Reorganizacao de governanca com baseline COBIT + ITIL
+- ID: GOV-0018
+- Status: `aprovada`
+- Dono da decisÃ£o: Plataforma/ExecuÃ§Ã£o
+- PR/Commit de referÃªncia: local workspace update
+- DomÃ­nio afetado:
+  - `ui-rotas`
+  - `rbac`
+  - `pagamentos`
+  - `pedidos-logistica`
+- Documento fonte afetado:
+  - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+  - `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
+- DecisÃ£o:
+  - Adotar baseline prÃ¡tico COBIT/ITIL para mudanÃ§a, risco, incidente, problema e evidÃªncia.
+  - Unificar gate de PR em template Ãºnico e rebaixar checklist frontend para redirecionamento.
+- Contexto:
+  - SobreposiÃ§Ã£o de checklists estava gerando fricÃ§Ã£o e inconsistÃªncia de aprovaÃ§Ã£o.
+- Impacto esperado:
+  - Menos duplicidade e maior rastreabilidade de decisÃ£o crÃ­tica.
+- Riscos conhecidos:
+  - AdaptaÃ§Ã£o inicial do time ao template Ãºnico.
+- Plano de rollback:
+  - Reativar checklist frontend separado e retirar classificaÃ§Ã£o de mudanÃ§a (nÃ£o recomendado).
+- Documentos atualizados:
+  - `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
+  - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+  - `docs/FRONTEND_PR_CHECKLIST.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/DOCS_UNIFICATION_PLAN.md`
+
+### [2026-05-21] Catalogo operacional sem mock na PDP
+- ID: GOV-0019
+- Status: `aprovada`
+- Dono da decisÃ£o: Produto + Engenharia
+- PR/Commit de referÃªncia: local workspace update
+- DomÃ­nio afetado:
+  - `catalogo-curadoria`
+  - `ui-rotas`
+- Documento fonte afetado:
+  - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+  - `docs/API_CONTRACTS.md`
+- DecisÃ£o:
+  - Implementar `CatalogItem` canÃ´nico e operaÃ§Ãµes de catÃ¡logo com trilha auditÃ¡vel.
+  - Substituir PDP mock por leitura exclusiva de `CatalogItem published`, com fallback `404`.
+- Contexto:
+  - InconsistÃªncia entre vitrine operacional e dados mock na rota de produto.
+- Impacto esperado:
+  - Fluxo de produto mais fiel ao estado real do catÃ¡logo.
+- Riscos conhecidos:
+  - Links legados poderiam retornar `404` sem bootstrap de itens publicados.
+- Plano de rollback:
+  - Reativar mock temporÃ¡rio na PDP (nÃ£o recomendado).
+- Documentos atualizados:
+  - `docs/API_CONTRACTS.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/CYCLE_2026-05-25_2026-05-29_CATALOG.md`
+
+### [2026-05-21] Shop e recomendacoes ligados ao catalogo publicado
+- ID: GOV-0020
+- Status: `aprovada`
+- Dono da decisÃ£o: Produto + Engenharia
+- PR/Commit de referÃªncia: local workspace update
+- DomÃ­nio afetado:
+  - `catalogo-curadoria`
+  - `ui-rotas`
+- Documento fonte afetado:
+  - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+  - `docs/ROUTE_DEFINITION_OF_DONE.md`
+- DecisÃ£o:
+  - Conectar `/shop` e recomendaÃ§Ãµes da PDP a `CatalogItem published`.
+  - Criar bootstrap de catÃ¡logo para compatibilidade de IDs legados `/product/1..6`.
+- Contexto:
+  - ApÃ³s remoÃ§Ã£o de mock da PDP, vitrine poderia quebrar sem catÃ¡logo publicado prÃ©-carregado.
+- Impacto esperado:
+  - Fluxo `shop -> product` estÃ¡vel em dev/staging com dados reais de catÃ¡logo.
+- Riscos conhecidos:
+  - DependÃªncia transitÃ³ria de bootstrap atÃ© catÃ¡logo definitivo ser preenchido.
+- Plano de rollback:
+  - Voltar fonte estÃ¡tica de shop/recomendaÃ§Ã£o temporariamente (nÃ£o recomendado).
+- Documentos atualizados:
+  - `docs/API_CONTRACTS.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/CYCLE_2026-05-25_2026-05-29_CATALOG.md`
+
+### [2026-05-21] Regra canonica de publicacao com etapa `ready`
+- ID: GOV-0021
+- Status: `aprovada`
+- Dono da decisÃ£o: Produto + Engenharia
+- PR/Commit de referÃªncia: local workspace update
+- DomÃ­nio afetado:
+  - `catalogo-curadoria`
+- Documento fonte afetado:
+  - `docs/STATE_MACHINES.md`
+  - `docs/API_CONTRACTS.md`
+- DecisÃ£o:
+  - Tornar `draft -> ready -> published -> archived` sequÃªncia obrigatÃ³ria da mÃ¡quina de catÃ¡logo.
+  - Bloquear `draft -> published` direto.
+- Contexto:
+  - PublicaÃ§Ã£o prematura de item ainda nÃ£o validado.
+- Impacto esperado:
+  - Maior controle de qualidade antes de exposiÃ§Ã£o pÃºblica.
+- Riscos conhecidos:
+  - Um passo adicional operacional para curadoria.
+- Plano de rollback:
+  - Permitir publicaÃ§Ã£o direta de `draft` (nÃ£o recomendado).
+- Documentos atualizados:
+  - `docs/STATE_MACHINES.md`
+  - `docs/API_CONTRACTS.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/CYCLE_2026-05-25_2026-05-29_CATALOG.md`
+
+### [2026-05-21] Reabertura controlada de item arquivado no catalogo
+- ID: GOV-0022
+- Status: `aprovada`
+- Dono da decisÃ£o: Produto + Engenharia
+- PR/Commit de referÃªncia: local workspace update
+- DomÃ­nio afetado:
+  - `catalogo-curadoria`
+- Documento fonte afetado:
+  - `docs/STATE_MACHINES.md`
+  - `docs/API_CONTRACTS.md`
+- DecisÃ£o:
+  - Implementar transiÃ§Ã£o `archived -> draft` com endpoint explÃ­cito e `reason` obrigatÃ³rio.
+- Contexto:
+  - Ciclo de manutenÃ§Ã£o de catÃ¡logo estava incompleto sem reabertura formal.
+- Impacto esperado:
+  - Novo ciclo de curadoria sem bypass manual de estado.
+- Riscos conhecidos:
+  - Uso indevido sem critÃ©rio de curadoria.
+- Plano de rollback:
+  - Remover endpoint de reabertura e manter arquivamento terminal (nÃ£o recomendado).
+- Documentos atualizados:
+  - `docs/STATE_MACHINES.md`
+  - `docs/API_CONTRACTS.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/CYCLE_2026-05-25_2026-05-29_CATALOG.md`
+
+### [2026-05-21] Evidencia P0 do ciclo completo de catalogo
+- ID: GOV-0023
+- Status: `aprovada`
+- Dono da decisÃ£o: Engenharia + QA
+- PR/Commit de referÃªncia: local workspace update
+- DomÃ­nio afetado:
+  - `catalogo-curadoria`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+- DecisÃ£o:
+  - Registrar evidÃªncia P0 do fluxo `bootstrap -> unpublish -> reopen -> ready -> publish`.
+  - Promover trilha de publicaÃ§Ã£o/despublicaÃ§Ã£o para `EXISTE`.
+- Contexto:
+  - Era necessÃ¡rio comprovar operaÃ§Ã£o completa alÃ©m da implementaÃ§Ã£o.
+- Impacto esperado:
+  - Menor risco de regressÃ£o no lifecycle de catÃ¡logo.
+- Riscos conhecidos:
+  - EvidÃªncia em local/dev precisa repetiÃ§Ã£o em staging antes de release.
+- Plano de rollback:
+  - Rebaixar status para `PARCIAL` se staging invalidar fluxo.
+- Documentos atualizados:
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/CYCLE_2026-05-25_2026-05-29_CATALOG.md`
+
+### [2026-05-21] Inicio formal da Fase 2.1 de pagamentos
+- ID: GOV-0024
+- Status: `aprovada`
+- Dono da decisÃ£o: Engenharia + QA
+- PR/Commit de referÃªncia: local workspace update
+- DomÃ­nio afetado:
+  - `pagamentos`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+- DecisÃ£o:
+  - Introduzir persistÃªncia relacional de pagamentos em sqlite local com fallback controlado.
+  - Introduzir adapter homologado `PAYMENT_PROVIDER=gateway_sandbox` preservando contrato atual.
+  - Executar evidÃªncia P0 do fluxo checkout+status+webhook com idempotÃªncia.
+- Contexto:
+  - Maior bloqueio para produÃ§Ã£o real era ausÃªncia de base relacional e adapter evolutivo.
+- Impacto esperado:
+  - Melhor reprodutibilidade do estado financeiro em desenvolvimento.
+  - Base pronta para troca progressiva para provedor real e banco gerenciado.
+- Riscos conhecidos:
+  - `node:sqlite` pode indisponÃ­vel em runtimes legados; fallback preserva operaÃ§Ã£o.
+- Plano de rollback:
+  - ForÃ§ar `PAYMENT_PERSISTENCE=dev_store` e `PAYMENT_PROVIDER=sandbox`.
+- Documentos atualizados:
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+
+### [2026-05-21] Trilha de eventos no status de pagamentos (fase 2.1)
+- ID: GOV-0025
+- Status: `aprovada`
+- Dono da decisao: Engenharia + QA
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+- Decisao:
+  - Persistir timeline de eventos por pagamento (`payment_events`) e expor no `GET /api/payments/status/[paymentId]`.
+  - Registrar eventos de checkout e webhook com `fromStatus`, `toStatus`, `createdAt` e `meta`.
+- Contexto:
+  - Faltava rastreabilidade detalhada no retorno de status para suporte e reconciliacao.
+- Impacto esperado:
+  - Diagnostico mais rapido de divergencias de status e menor risco de retrabalho em incidentes.
+- Riscos conhecidos:
+  - Crescimento de volume de eventos sem politica de retencao no ciclo local.
+- Plano de rollback:
+  - Interromper escrita/leitura de `payment_events` e manter somente status atual.
+- Documentos atualizados:
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+
+### [2026-05-21] Hardening de webhook com retry e politicas de retencao
+- ID: GOV-0026
+- Status: `aprovada`
+- Dono da decisao: Engenharia + QA
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+- Decisao:
+  - Aplicar retry controlado no processamento de webhook via `PAYMENT_WEBHOOK_MAX_RETRIES`.
+  - Aplicar retencao de idempotencia e timeline por `WEBHOOK_IDEMPOTENCY_RETENTION_DAYS` e `PAYMENT_EVENTS_RETENTION_DAYS`.
+- Contexto:
+  - Faltava politica operacional para evitar crescimento indefinido e reduzir falha transitoria.
+- Impacto esperado:
+  - Maior resiliencia sem alterar contrato externo de pagamentos.
+- Riscos conhecidos:
+  - Retry excessivo pode aumentar latencia de resposta do webhook; manter valor baixo.
+- Plano de rollback:
+  - Fixar retries em `1` e desativar prune por variavel para investigacao controlada.
+- Documentos atualizados:
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/ARCHITECTURE.md`
+
+### [2026-05-21] Baseline Docker local para banco e cutover sem retrabalho
+- ID: GOV-0027
+- Status: `aprovada`
+- Dono da decisao: Engenharia de Plataforma
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `dados`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/ARCHITECTURE.md`
+  - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
+- Decisao:
+  - Instituir `docker-compose.yml` com Postgres + Adminer para homologacao local.
+  - Versionar schema base de pagamentos em `infra/postgres/init/001_payments.sql` para preparar cutover de persistencia.
+- Contexto:
+  - Necessidade de preparar infraestrutura local hoje para reduzir custo de migracao de hospedagem depois.
+- Impacto esperado:
+  - Ambiente reprodutivel para banco relacional e transicao mais simples para servidor.
+- Riscos conhecidos:
+  - Credenciais de dev nao podem ser reutilizadas fora de ambiente local.
+- Plano de rollback:
+  - Operar temporariamente apenas em sqlite local mantendo contrato de API.
+- Documentos atualizados:
+  - `docs/ARCHITECTURE.md`
+  - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
+  - `.env.example`
+
+### [2026-05-21] Padrao oficial de banco local alterado para MySQL
+- ID: GOV-0028
+- Status: `aprovada`
+- Dono da decisao: Engenharia de Plataforma
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `dados`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/ARCHITECTURE.md`
+  - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
+- Decisao:
+  - Substituir baseline local de Postgres por MySQL no Docker Desktop.
+  - Substituir schema de init para `infra/mysql/init/001_payments.sql`.
+  - Atualizar `DATABASE_URL` de referencia para MySQL.
+- Contexto:
+  - Decisao de arquitetura do projeto define MySQL como banco alvo.
+- Impacto esperado:
+  - Eliminar retrabalho de dialeto SQL e reduzir risco no cutover para hospedagem.
+- Riscos conhecidos:
+  - Mudanca de banco exige adapter de persistencia MySQL na fase de cutover.
+- Plano de rollback:
+  - Reativar stack anterior apenas para investigacao local temporaria.
+- Documentos atualizados:
+  - `docker-compose.yml`
+  - `.env.example`
+  - `docs/ARCHITECTURE.md`
+  - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
+
+### [2026-05-21] Adapter MySQL implementado para pagamentos (com fallback)
+- ID: GOV-0029
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `dados`
+- Documento fonte afetado:
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+- Decisao:
+  - Implementar adapter MySQL na persistencia de pagamentos, eventos e idempotencia de webhook.
+  - Preservar fallback controlado para `sqlite` e `dev-store`.
+  - Tornar fluxo assíncrono no serviço/rotas de pagamento para suportar backend relacional real.
+- Contexto:
+  - Faltava execução real da decisão arquitetural de MySQL sem quebrar contrato.
+- Impacto esperado:
+  - Preparação efetiva para produção com MySQL sem refatorar endpoints.
+- Riscos conhecidos:
+  - Dependência de `DATABASE_URL` correto no ambiente de execução.
+- Plano de rollback:
+  - Forçar `PAYMENT_PERSISTENCE=sqlite` mantendo contrato e comportamento.
+- Documentos atualizados:
+  - `docs/P0_EVIDENCE_LOG.md`
+
+### [2026-05-21] Adapter MySQL expandido para fulfilment (orders/producao/shipments)
+- ID: GOV-0030
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pedidos-logistica`
+  - `pagamentos`
+  - `dados`
+- Documento fonte afetado:
+  - `docs/ARCHITECTURE.md`
+  - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+- Decisao:
+  - Migrar stores de `orders`, `production_jobs` e `shipments` para suporte MySQL com fallback.
+  - Ajustar rotas e servicos para assinatura assíncrona sem alterar contrato HTTP.
+- Contexto:
+  - Persistencia parcial em MySQL ainda gerava risco de comportamento divergente entre dominios acoplados.
+- Impacto esperado:
+  - Maior coerencia operacional para cutover de infraestrutura.
+- Riscos conhecidos:
+  - Maior superficie assíncrona no backend, exigindo disciplina de `await` em evolucoes futuras.
+- Plano de rollback:
+  - Forcar `PAYMENT_PERSISTENCE=sqlite` e manter fallback de stores locais.
+- Documentos atualizados:
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
+
+### [2026-05-21] MySQL estendido para suporte e financeiro
+- ID: GOV-0031
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `suporte-tickets`
+  - `pagamentos`
+  - `dados`
+- Documento fonte afetado:
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
+- Decisao:
+  - Migrar `ticket-store`, `commission-store` e `payout-store` para adapter MySQL com fallback.
+  - Ajustar rotas para consumo assíncrono mantendo contrato HTTP.
+  - Alinhar `init` SQL com todas as tabelas operacionais e financeiras atuais.
+- Contexto:
+  - Sem essa etapa, o projeto ainda ficava com dominio financeiro/suporte parcialmente fora do banco alvo.
+- Impacto esperado:
+  - Coerencia de persistencia entre atendimento, financeiro e operacao.
+- Riscos conhecidos:
+  - Necessidade de disciplina em novos endpoints para sempre `await` stores assíncronos.
+- Plano de rollback:
+  - Operar com fallback local mantendo API inalterada.
+- Documentos atualizados:
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `infra/mysql/init/001_payments.sql`
+
