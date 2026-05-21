@@ -55,6 +55,7 @@ Não repetir estados ou transições neste DoD. Qualquer alteração de fluxo de
 - [ ] Tokenização de método de pagamento.
 - [ ] Tratamento explícito de falhas transitórias e fallback seguro.
 - [ ] Mapeamento de eventos reais do provedor para `payment.paid|failed|pending`.
+- [ ] Executar cutover controlado seguindo `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`.
 
 ### Critérios de aceite
 - [ ] Homologação ponta a ponta no ambiente de testes do provedor.
@@ -104,4 +105,5 @@ Não repetir estados ou transições neste DoD. Qualquer alteração de fluxo de
 - `app/api/payments/webhook/route.ts`
 - `components/checkout/CheckoutPageView.tsx`
 - `components/checkout/sections/CheckoutStepTwoSection.tsx`
+- `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
 

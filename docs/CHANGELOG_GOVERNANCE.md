@@ -452,6 +452,33 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `docs/LOCAL_DOCKER_DATABASE_RUNBOOK.md`
   - `README.md`
 
+### [2026-05-21] Plano de cutover e rollback para gateway real de pagamentos
+- ID: GOV-0033
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Operacoes
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+- Decisao:
+  - Formalizar runbook obrigatorio para migracao `gateway_sandbox -> provedor real` sem quebra de contrato de API.
+  - Definir criterios de aceite, gatilhos de rollback e evidencias obrigatorias por PR de cutover.
+- Contexto:
+  - Proxima fase de execucao exige mudanca de adapter com risco operacional alto.
+- Impacto esperado:
+  - Reduzir risco de incidente no go-live financeiro e acelerar resposta em rollback.
+- Riscos conhecidos:
+  - Dependencia de disciplina operacional e monitoramento na janela de migracao.
+- Plano de rollback:
+  - Reverter `PAYMENT_PROVIDER` para `gateway_sandbox` e revalidar gates de QA.
+- Documentos atualizados:
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+
 ### [2026-05-21] MySQL estendido para suporte e financeiro
 - ID: GOV-0031
 - Status: `aprovada`
