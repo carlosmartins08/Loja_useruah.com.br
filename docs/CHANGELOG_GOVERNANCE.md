@@ -479,6 +479,37 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
   - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
 
+### [2026-05-21] Base enxuta operacional (fase 1) com split/licenciamento/termos
+- ID: GOV-0034
+- Status: `aprovada`
+- Dono da decisao: Produto + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `catalogo-curadoria`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/MODELO_OPERACIONAL_FISCAL_FINANCEIRO.md`
+  - `docs/CHECKLIST_RELEASE_PAGAMENTOS.md`
+- Decisao:
+  - Instituir base documental oficial para o modelo triangular (industria + artista + plataforma + consumidor).
+  - Implementar entidades internas `payment_splits`, `license_events` e `terms_acceptances` sem quebrar contrato publico.
+  - Habilitar gates de termos por feature flags para rollout gradual.
+- Contexto:
+  - Era necessario converter tese operacional em rastreabilidade tecnica minima antes do cutover real de pagamentos.
+- Impacto esperado:
+  - Maior defensabilidade operacional e financeira sem paralisar fluxos atuais.
+- Riscos conhecidos:
+  - Ativacao prematura de gates de termos sem onboarding de aceite pode bloquear operacao.
+- Plano de rollback:
+  - Manter `TERMS_ENFORCE_*` como `false` ate onboarding completo de aceite.
+- Documentos atualizados:
+  - `docs/MODELO_OPERACIONAL_FISCAL_FINANCEIRO.md`
+  - `docs/TERMO_INDUSTRIA_BASE.md`
+  - `docs/TERMO_ARTISTA_BASE.md`
+  - `docs/TERMO_CONSUMIDOR_BASE.md`
+  - `docs/CHECKLIST_RELEASE_PAGAMENTOS.md`
+
 ### [2026-05-21] MySQL estendido para suporte e financeiro
 - ID: GOV-0031
 - Status: `aprovada`

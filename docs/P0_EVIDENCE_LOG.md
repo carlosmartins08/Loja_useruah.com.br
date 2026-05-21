@@ -452,3 +452,26 @@ Escopo: fluxo operacional cruzado com RBAC em acoes de producao
 - `app/api/production-jobs/route.ts`
 - `app/api/production-jobs/[id]/start/route.ts`
 - `app/api/production-jobs/[id]/ship/route.ts`
+
+## P0 — Base Enxuta Operacional (Fase 1)
+
+Status: PASS  
+Data: 2026-05-21  
+Ambiente: local/dev  
+Escopo: decomposicao financeira por item + license_events + terms_acceptances + gates opcionais
+
+### Resultado
+- P0-F1-01 `npm run alert:critical`: PASS
+- P0-F1-02 `npm run check`: PASS
+- P0-F1-03 Regressao de contratos publicos (`orders/payments/catalog`) sem quebra: PASS
+- P0-F1-04 Persistencia interna de `payment_splits`: PASS
+- P0-F1-05 Geracao interna de `license_events` em pagamento aprovado: PASS
+- P0-F1-06 Gate de aceite de termos por feature flag: PASS
+
+### Evidencias tecnicas
+- Criadas tabelas internas: `terms_acceptances`, `payment_splits`, `license_events`.
+- Criado endpoint `POST /api/terms/accept` para versionamento de aceite.
+- `POST /api/catalog-items` pode exigir termo de industria (`TERMS_ENFORCE_INDUSTRY=true`).
+- `POST /api/artworks` pode exigir termo de artista (`TERMS_ENFORCE_ARTIST=true`).
+- `POST /api/orders` pode exigir termo de consumidor (`TERMS_ENFORCE_CONSUMER=true`).
+- Webhook de pagamento aprovado registra split e evento de licenciamento sem mudar payload publico.

@@ -127,6 +127,20 @@ Mostrar, de forma operacional, o que já existe no projeto, onde está implement
 - Histórico oficial de decisões: `EXISTE`
   - `docs/CHANGELOG_GOVERNANCE.md`
 
+## 8) Base Enxuta Operacional (Fase 1)
+- Modelo operacional/fiscal/financeiro unificado: `EXISTE`
+  - `docs/MODELO_OPERACIONAL_FISCAL_FINANCEIRO.md`
+- Termos base versionados (indústria/artista/consumidor): `EXISTE`
+  - `docs/TERMO_INDUSTRIA_BASE.md`
+  - `docs/TERMO_ARTISTA_BASE.md`
+  - `docs/TERMO_CONSUMIDOR_BASE.md`
+- Checklist de release de pagamentos reais: `EXISTE`
+  - `docs/CHECKLIST_RELEASE_PAGAMENTOS.md`
+- Entidades internas de suporte ao modelo (`payment_splits`, `license_events`, `terms_acceptances`): `EXISTE`
+  - `lib/payment-split-store.ts`
+  - `lib/license-event-store.ts`
+  - `lib/terms-acceptance-store.ts`
+
 ## 7) Documentos externos citados e não presentes no repositório
 - `docs/USERUAH_360_ARCHITECTURE.md`: `AUSENTE NO REPO`
 - `docs/FRONT_BACK_FUNCTION_MAP.md`: `AUSENTE NO REPO`
