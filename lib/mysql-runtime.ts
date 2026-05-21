@@ -153,6 +153,70 @@ async function ensureSchema(pool: Pool) {
       processed_at DATETIME(3) NOT NULL
     )
   `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS terms_acceptances (
+      acceptance_id VARCHAR(64) PRIMARY KEY,
+      user_id VARCHAR(64) NOT NULL,
+      entity_type VARCHAR(32) NOT NULL,
+      entity_id VARCHAR(64) NOT NULL,
+      term_type VARCHAR(64) NOT NULL,
+      term_version VARCHAR(32) NOT NULL,
+      accepted_at DATETIME(3) NOT NULL,
+      ip_address VARCHAR(64) NULL,
+      user_agent TEXT NULL,
+      INDEX idx_terms_user (user_id),
+      INDEX idx_terms_type_version (term_type, term_version)
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS payment_splits (
+      split_id VARCHAR(64) PRIMARY KEY,
+      order_id VARCHAR(64) NOT NULL,
+      order_item_id VARCHAR(64) NOT NULL,
+      payment_id VARCHAR(64) NOT NULL,
+      recipient_type VARCHAR(32) NOT NULL,
+      recipient_id VARCHAR(64) NOT NULL,
+      provider_recipient_id VARCHAR(128) NULL,
+      gross_amount DECIMAL(12, 2) NOT NULL,
+      split_amount DECIMAL(12, 2) NOT NULL,
+      split_percentage DECIMAL(8, 4) NOT NULL,
+      net_amount DECIMAL(12, 2) NOT NULL,
+      liable TINYINT(1) NOT NULL DEFAULT 0,
+      charge_processing_fee TINYINT(1) NOT NULL DEFAULT 0,
+      status VARCHAR(24) NOT NULL,
+      provider_reference VARCHAR(128) NOT NULL,
+      created_at DATETIME(3) NOT NULL,
+      updated_at DATETIME(3) NOT NULL,
+      INDEX idx_splits_payment (payment_id),
+      INDEX idx_splits_order (order_id)
+    )
+  `);
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS license_events (
+      license_event_id VARCHAR(64) PRIMARY KEY,
+      order_id VARCHAR(64) NOT NULL,
+      order_item_id VARCHAR(64) NOT NULL,
+      artist_id VARCHAR(64) NOT NULL,
+      artwork_id VARCHAR(64) NOT NULL,
+      supplier_id VARCHAR(64) NOT NULL,
+      product_id VARCHAR(64) NOT NULL,
+      buyer_id VARCHAR(64) NOT NULL,
+      license_type VARCHAR(64) NOT NULL,
+      quantity INT NOT NULL,
+      gross_sale_amount DECIMAL(12, 2) NOT NULL,
+      artist_percentage DECIMAL(8, 4) NOT NULL,
+      artist_license_amount DECIMAL(12, 2) NOT NULL,
+      platform_commission_amount DECIMAL(12, 2) NOT NULL,
+      supplier_amount DECIMAL(12, 2) NOT NULL,
+      payment_status VARCHAR(24) NOT NULL,
+      created_at DATETIME(3) NOT NULL,
+      paid_at DATETIME(3) NULL,
+      canceled_at DATETIME(3) NULL,
+      refunded_at DATETIME(3) NULL,
+      INDEX idx_license_order (order_id),
+      INDEX idx_license_artist (artist_id)
+    )
+  `);
 }
 
 function ensureTmpDirForDrivers() {

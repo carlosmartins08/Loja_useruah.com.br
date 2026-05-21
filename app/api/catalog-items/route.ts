@@ -3,6 +3,7 @@ import { appendAuditLog } from '@/lib/audit-log-store';
 import { canManageCatalog, getActorFromRequest } from '@/lib/access-control';
 import { createCatalogItem, listCatalogItems, type CatalogItemStatus } from '@/lib/catalog-item-store';
 import { getArtwork } from '@/lib/artwork-store';
+import { isTermsGateEnabledFor, validateTermsAcceptance } from '@/lib/terms-enforcement';
 
 interface CreateCatalogItemPayload {
   artworkId: string;
@@ -95,6 +96,12 @@ export async function POST(request: Request) {
   const actor = getActorFromRequest(request);
   if (!canManageCatalog(actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+  if (actor?.actorId && isTermsGateEnabledFor('industry')) {
+    const accepted = await validateTermsAcceptance({ userId: actor.actorId, termType: 'industry_base' });
+    if (!accepted) {
+      return NextResponse.json({ error: 'forbidden', detail: 'terms_not_accepted' }, { status: 403 });
+    }
   }
 
   const payload = await request.json().catch(() => null);

@@ -13,10 +13,21 @@ export type OrderStatus =
   | 'cancelled';
 
 export interface OrderItemRecord {
+  orderItemId: string;
   catalogItemId: string;
   variantId: string;
   quantity: number;
   unitPrice: number;
+  grossItemAmount: number;
+  supplierAmount: number;
+  artistLicenseAmount: number;
+  platformCommissionAmount: number;
+  gatewayFeeAmount: number;
+  shippingAmount: number;
+  taxReserveAmount: number;
+  supplierNetAmount: number;
+  artistNetAmount: number;
+  platformNetAmount: number;
 }
 
 export interface OrderRecord {
@@ -65,16 +76,57 @@ function rowToOrder(row: MysqlRow): OrderRecord {
 
 export async function createPlacedOrder(input: {
   customerId: string;
-  items: OrderItemRecord[];
+  items: Array<{
+    catalogItemId: string;
+    variantId: string;
+    quantity: number;
+    unitPrice: number;
+  }>;
 }): Promise<OrderRecord> {
   const now = new Date().toISOString();
-  const totalAmount = input.items.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
+  const supplierPct = Number(process.env.SUPPLIER_REVENUE_PCT ?? '0.7');
+  const artistPct = Number(process.env.ARTIST_LICENSE_PCT ?? '0.1');
+  const platformPct = Number(process.env.PLATFORM_COMMISSION_PCT ?? '0.15');
+  const gatewayPct = Number(process.env.GATEWAY_FEE_PCT ?? '0.05');
+  const shippingPct = Number(process.env.SHIPPING_PCT ?? '0');
+  const taxReservePct = Number(process.env.TAX_RESERVE_PCT ?? '0');
+  const round2 = (value: number) => Math.round(value * 100) / 100;
+
+  const items: OrderItemRecord[] = input.items.map((item) => {
+    const gross = round2(item.unitPrice * item.quantity);
+    const supplierAmount = round2(gross * supplierPct);
+    const artistLicenseAmount = round2(gross * artistPct);
+    const platformCommissionAmount = round2(gross * platformPct);
+    const gatewayFeeAmount = round2(gross * gatewayPct);
+    const shippingAmount = round2(gross * shippingPct);
+    const taxReserveAmount = round2(gross * taxReservePct);
+
+    return {
+      orderItemId: `ITEM-${randomUUID()}`,
+      catalogItemId: item.catalogItemId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      grossItemAmount: gross,
+      supplierAmount,
+      artistLicenseAmount,
+      platformCommissionAmount,
+      gatewayFeeAmount,
+      shippingAmount,
+      taxReserveAmount,
+      supplierNetAmount: round2(supplierAmount - gatewayFeeAmount - taxReserveAmount),
+      artistNetAmount: round2(artistLicenseAmount),
+      platformNetAmount: round2(platformCommissionAmount),
+    };
+  });
+
+  const totalAmount = items.reduce((acc, item) => acc + item.grossItemAmount, 0);
   const orderId = `ORD-${randomUUID()}`;
 
   const order: OrderRecord = {
     orderId,
     customerId: input.customerId,
-    items: input.items,
+    items,
     totalAmount,
     status: 'placed',
     createdAt: now,

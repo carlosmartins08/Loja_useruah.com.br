@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { createArtwork, listArtworks, type ArtworkStatus } from '@/lib/artwork-store';
 import { canCreateArtwork, canReviewArtwork, getActorFromRequest, isRbacActive } from '@/lib/access-control';
+import { isTermsGateEnabledFor, validateTermsAcceptance } from '@/lib/terms-enforcement';
 
 interface CreateArtworkPayload {
   sourceAsset: string;
@@ -61,6 +62,12 @@ export async function POST(request: Request) {
   const actor = getActorFromRequest(request);
   if (!canCreateArtwork(actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+  if (actor?.actorId && isTermsGateEnabledFor('artist')) {
+    const accepted = await validateTermsAcceptance({ userId: actor.actorId, termType: 'artist_base' });
+    if (!accepted) {
+      return NextResponse.json({ error: 'forbidden', detail: 'terms_not_accepted' }, { status: 403 });
+    }
   }
 
   const payload = await request.json().catch(() => null);

@@ -15,6 +15,10 @@ import { createCommissionPending } from '@/lib/commission-store';
 import { getOrder, updateOrderStatus } from '@/lib/order-store';
 import { createQueuedProductionJob } from '@/lib/production-store';
 import { isWebhookEventProcessed, markWebhookEventProcessed } from '@/lib/webhook-event-store';
+import { createPaymentSplits } from '@/lib/payment-split-store';
+import { createLicenseEvents } from '@/lib/license-event-store';
+import { getCatalogItem } from '@/lib/catalog-item-store';
+import { getArtwork } from '@/lib/artwork-store';
 
 export class PaymentFlowError extends Error {
   status: number;
@@ -169,6 +173,105 @@ export async function applyWebhookEvent(input: {
         reason: 'order.paid',
       });
     }
+
+    const supplierDefault = process.env.SUPPLIER_OWNER_DEFAULT_ID?.trim() || 'supplier-default';
+    const platformDefault = process.env.PLATFORM_OWNER_DEFAULT_ID?.trim() || 'platform-default';
+    const supplierPct = Number(process.env.SUPPLIER_REVENUE_PCT ?? '0.7');
+    const artistPct = Number(process.env.ARTIST_LICENSE_PCT ?? '0.1');
+    const platformPct = Number(process.env.PLATFORM_COMMISSION_PCT ?? '0.15');
+    const gatewayPct = Number(process.env.GATEWAY_FEE_PCT ?? '0.05');
+    const taxReservePct = Number(process.env.TAX_RESERVE_PCT ?? '0');
+    const round2 = (value: number) => Math.round(value * 100) / 100;
+    const splitRows = paidOrder.items.flatMap((item) => {
+      const gross = item.grossItemAmount || Number((item.unitPrice * item.quantity).toFixed(2));
+      const supplierAmount = item.supplierAmount ?? round2(gross * supplierPct);
+      const artistLicenseAmount = item.artistLicenseAmount ?? round2(gross * artistPct);
+      const platformCommissionAmount = item.platformCommissionAmount ?? round2(gross * platformPct);
+      const gatewayFeeAmount = item.gatewayFeeAmount ?? round2(gross * gatewayPct);
+      const taxReserveAmount = item.taxReserveAmount ?? round2(gross * taxReservePct);
+      const supplierNetAmount = item.supplierNetAmount ?? round2(supplierAmount - gatewayFeeAmount - taxReserveAmount);
+      const artistNetAmount = item.artistNetAmount ?? artistLicenseAmount;
+      const platformNetAmount = item.platformNetAmount ?? platformCommissionAmount;
+      return [
+        {
+          orderId: paidOrder.orderId,
+          orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
+          paymentId: updatedPayment.paymentId,
+          recipientType: 'supplier' as const,
+          recipientId: supplierDefault,
+          providerRecipientId: undefined,
+          grossAmount: gross,
+          splitAmount: supplierAmount,
+          splitPercentage: gross > 0 ? Number((supplierAmount / gross).toFixed(4)) : 0,
+          netAmount: supplierNetAmount,
+          liable: false,
+          chargeProcessingFee: true,
+          status: 'available' as const,
+          providerReference: updatedPayment.providerReference,
+        },
+        {
+          orderId: paidOrder.orderId,
+          orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
+          paymentId: updatedPayment.paymentId,
+          recipientType: 'artist' as const,
+          recipientId: process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default',
+          providerRecipientId: undefined,
+          grossAmount: gross,
+          splitAmount: artistLicenseAmount,
+          splitPercentage: gross > 0 ? Number((artistLicenseAmount / gross).toFixed(4)) : 0,
+          netAmount: artistNetAmount,
+          liable: false,
+          chargeProcessingFee: false,
+          status: 'available' as const,
+          providerReference: updatedPayment.providerReference,
+        },
+        {
+          orderId: paidOrder.orderId,
+          orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
+          paymentId: updatedPayment.paymentId,
+          recipientType: 'platform' as const,
+          recipientId: platformDefault,
+          providerRecipientId: undefined,
+          grossAmount: gross,
+          splitAmount: platformCommissionAmount,
+          splitPercentage: gross > 0 ? Number((platformCommissionAmount / gross).toFixed(4)) : 0,
+          netAmount: platformNetAmount,
+          liable: true,
+          chargeProcessingFee: false,
+          status: 'available' as const,
+          providerReference: updatedPayment.providerReference,
+        },
+      ];
+    });
+    await createPaymentSplits({ paymentId: updatedPayment.paymentId, rows: splitRows });
+
+    const licenseRows = paidOrder.items.map((item) => {
+      const catalog = getCatalogItem(item.catalogItemId);
+      const artwork = catalog ? getArtwork(catalog.artworkId) : null;
+      const gross = item.grossItemAmount || Number((item.unitPrice * item.quantity).toFixed(2));
+      const artistLicenseAmount = item.artistLicenseAmount ?? round2(gross * artistPct);
+      const platformCommissionAmount = item.platformCommissionAmount ?? round2(gross * platformPct);
+      const supplierAmount = item.supplierAmount ?? round2(gross * supplierPct);
+      return {
+        orderId: paidOrder.orderId,
+        orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
+        artistId: artwork?.authorId ?? (process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default'),
+        artworkId: catalog?.artworkId ?? 'artwork-unknown',
+        supplierId: supplierDefault,
+        productId: catalog?.productBaseId ?? item.catalogItemId,
+        buyerId: paidOrder.customerId,
+        licenseType: 'commercial_use' as const,
+        quantity: item.quantity,
+        grossSaleAmount: gross,
+        artistPercentage: gross > 0 ? Number((artistLicenseAmount / gross).toFixed(4)) : 0,
+        artistLicenseAmount,
+        platformCommissionAmount,
+        supplierAmount,
+        paymentStatus: 'approved' as const,
+        paidAt: new Date().toISOString(),
+      };
+    });
+    await createLicenseEvents(licenseRows);
 
     const commissionRate = Number(process.env.COMMISSION_RATE ?? '0.15');
     const ownerId = process.env.COMMISSION_OWNER_DEFAULT_ID ?? 'artist-default';

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { createPlacedOrder } from '@/lib/order-store';
+import { isTermsGateEnabledFor, validateTermsAcceptance } from '@/lib/terms-enforcement';
 
 interface OrderCreatePayload {
   items: Array<{
@@ -41,13 +42,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });
   }
 
+  const customerId = body.customer?.id ?? 'customer-session';
+  if (isTermsGateEnabledFor('consumer')) {
+    const accepted = await validateTermsAcceptance({ userId: customerId, termType: 'consumer_base' });
+    if (!accepted) {
+      return NextResponse.json({ error: 'forbidden', detail: 'terms_not_accepted' }, { status: 403 });
+    }
+  }
+
   const order = await createPlacedOrder({
-    customerId: body.customer?.id ?? 'customer-session',
+    customerId,
     items: body.items,
   });
 
   appendAuditLog({
-    actor_id: body.customer?.id ?? 'customer-session',
+    actor_id: customerId,
     actor_role: 'customer',
     action: 'order.placed',
     entity_type: 'Order',
