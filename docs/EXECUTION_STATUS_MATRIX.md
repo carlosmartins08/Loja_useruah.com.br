@@ -10,6 +10,11 @@ Mostrar, de forma operacional, o que já existe no projeto, onde está implement
 - `PARCIAL`: existe base/UX/sandbox, mas falta fechamento de produção.
 - `AUSENTE`: não implementado no código atual.
 
+## Alertas Criticos (nao perder de vista)
+- `CRIT-PAY-REAL-001`: gateway real de pagamento ainda nao homologado em producao.
+- `CRIT-PAY-REAL-002`: persistencia final de pagamentos em ambiente gerenciado ainda pendente.
+- Comando de revisao rapida: `npm run alert:critical`.
+
 ## 1) Produto e Checkout (UI/UX)
 - PDP com seções estratégicas: `EXISTE`
   - `components/product/ProductPageView.tsx`

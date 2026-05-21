@@ -55,6 +55,7 @@ Use este template em todo PR que altere fluxo, estado, contrato, permissao ou co
   - [ ] Nao se aplica
 
 ## 5) Evidencias de validacao
+- [ ] `npm run alert:critical` executado no inicio do ciclo/PR
 - [ ] `npm run check` passou
 - [ ] Fluxo funcional principal testado
 - [ ] Fluxo de erro/edge-case testado

@@ -27,6 +27,9 @@ jobs:
       - name: Lint + Typecheck
         run: npm run check
 
+      - name: Critical Alerts
+        run: npm run alert:critical
+
       - name: Build
         run: npm run build
 

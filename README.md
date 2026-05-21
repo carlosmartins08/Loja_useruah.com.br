@@ -21,6 +21,7 @@ Aplicação Next.js da loja UseRuah com foco em catálogo/curadoria, checkout, p
 - Qualidade:
   - `npm run check`
   - `npm run check:strict`
+  - `npm run alert:critical`
 - Build:
   - `npm run build`
   - `npm run start`
