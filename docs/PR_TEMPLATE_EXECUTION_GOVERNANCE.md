@@ -28,6 +28,7 @@ Use este template em todo PR que altere fluxo, estado, contrato, permissao ou co
 
 ## 2) Fonte unica consultada (obrigatorio)
 - Documento fonte do dominio (link/caminho):
+- Secao do `docs/CODEBASE_MAP.md` usada para localizacao tecnica:
 - Se houver divergencia encontrada, qual decisao foi adotada:
 - Referencia ao consolidado: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
 - Referencia de baseline de controle: `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
@@ -84,6 +85,7 @@ Use este template em todo PR que altere fluxo, estado, contrato, permissao ou co
 - Efeito esperado se falhar:
 - Plano de rollback objetivo:
 - Criterio de backout (quando reverter):
+- Tempo estimado de rollback (minutos):
 
 ## 9) Checklist anticonflito (gate)
 - [ ] Nao dupliquei regra em documento paralelo.
@@ -91,8 +93,11 @@ Use este template em todo PR que altere fluxo, estado, contrato, permissao ou co
 - [ ] Se alterei regra global, atualizei `docs/EXECUTION_CONSOLIDATED_MASTER.md`.
 - [ ] Se alterei rota/UI, alinhei `docs/ROUTE_DEFINITION_OF_DONE.md`.
 - [ ] Se alterei criterio de PR, alinhei este template e o baseline COBIT/ITIL.
+- [ ] Se alterei API/servico/store/componente critico, atualizei `docs/CODEBASE_MAP.md`.
 
 ## 10) Pos-merge (ITIL incidente/problema)
 - [ ] Nenhuma pendencia
 - [ ] Listar follow-ups com owner e prazo
-- [ ] Se `emergency`, abrir RCA com causa raiz e acao preventiva
+- [ ] Se `emergency`, abrir RCA em ate 24h com causa raiz, acao preventiva, owner e prazo
+- ID do incidente (se existir):
+- Link da RCA (obrigatorio para `emergency`):

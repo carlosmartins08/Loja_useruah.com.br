@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server';
 import { canAccessSupportContext, getActorFromRequest } from '@/lib/access-control';
-import { listAuditLogs } from '@/lib/audit-log-store';
-import { getOrder } from '@/lib/order-store';
-import { findPaymentByOrderId } from '@/lib/payment-store';
-import { getProductionJobByOrderId } from '@/lib/production-store';
-import { getShipmentByOrderId } from '@/lib/shipment-store';
-import { listTicketsByOrderId } from '@/lib/ticket-store';
+import { buildOrderOperationalView } from '@/lib/order-operational-view';
 
 export async function GET(request: Request, context: { params: Promise<{ orderId: string }> }) {
   const actor = getActorFromRequest(request);
@@ -14,62 +9,38 @@ export async function GET(request: Request, context: { params: Promise<{ orderId
   }
 
   const { orderId } = await context.params;
-  const order = await getOrder(orderId);
-  if (!order) {
+  const view = await buildOrderOperationalView(orderId, { includeTickets: true });
+  if (!view) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
-
-  const payment = await findPaymentByOrderId(orderId);
-  const production = await getProductionJobByOrderId(orderId);
-  const shipment = await getShipmentByOrderId(orderId);
-  const tickets = await listTicketsByOrderId(orderId);
-  const relatedIds = new Set<string>([
-    order.orderId,
-    payment?.paymentId ?? '',
-    production?.productionJobId ?? '',
-    shipment?.shipmentId ?? '',
-  ]);
-  const auditSummary = listAuditLogs()
-    .filter((entry) => relatedIds.has(entry.entity_id))
-    .filter(
-      (entry) =>
-        entry.entity_type === 'Order' ||
-        entry.entity_type === 'Payment' ||
-        entry.entity_type === 'ProductionJob' ||
-        entry.entity_type === 'Shipment'
-    )
-    .map((entry) => ({
-      action: entry.action,
-      createdAt: entry.created_at,
-    }));
 
   return NextResponse.json({
     ok: true,
     order: {
-      id: order.orderId,
-      status: order.status,
-      customerId: order.customerId,
-      createdAt: order.createdAt,
+      id: view.order.orderId,
+      status: view.order.status,
+      customerId: view.order.customerId,
+      createdAt: view.order.createdAt,
     },
-    payment: payment
+    payment: view.payment
       ? {
-          id: payment.paymentId,
-          status: payment.status,
+          id: view.payment.paymentId,
+          status: view.payment.status,
         }
       : null,
-    production: production
+    production: view.production
       ? {
-          id: production.productionJobId,
-          status: production.status,
+          id: view.production.productionJobId,
+          status: view.production.status,
         }
       : null,
-    shipment: shipment
+    shipment: view.shipment
       ? {
-          trackingCode: shipment.trackingCode,
-          carrier: shipment.carrier,
+          trackingCode: view.shipment.trackingCode,
+          carrier: view.shipment.carrier,
         }
       : null,
-    tickets: tickets.map((ticket) => ({
+    tickets: view.tickets.map((ticket) => ({
       ticketId: ticket.ticketId,
       orderId: ticket.orderId,
       customerId: ticket.customerId,
@@ -79,6 +50,6 @@ export async function GET(request: Request, context: { params: Promise<{ orderId
       updatedAt: ticket.updatedAt,
       messages: ticket.messages,
     })),
-    auditSummary,
+    auditSummary: view.auditSummary,
   });
 }

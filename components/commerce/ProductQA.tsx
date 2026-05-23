@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { MessageCircle, ThumbsUp } from 'lucide-react';
@@ -17,22 +17,22 @@ const QA_LIST: QAItem[] = [
     question: 'A modelagem é justa ou padrão?',
     answer: 'A Camiseta Respiro segue modelagem regular. Se preferir visual mais solto, recomendamos um tamanho acima.',
     author: 'Equipe UseRuah',
-    likes: 32
+    likes: 32,
   },
   {
     id: 'q2',
     question: 'A cor desbota nas primeiras lavagens?',
     answer: 'Com lavagem do avesso e secagem à sombra, a durabilidade da estampa e da cor tende a se manter bem.',
     author: 'Equipe UseRuah',
-    likes: 21
+    likes: 21,
   },
   {
     id: 'q3',
     question: 'Posso trocar por outro tamanho?',
     answer: 'Sim. Dentro do prazo de política de troca, você pode solicitar ajuste de tamanho.',
     author: 'Equipe UseRuah',
-    likes: 18
-  }
+    likes: 18,
+  },
 ];
 
 export function ProductQA() {

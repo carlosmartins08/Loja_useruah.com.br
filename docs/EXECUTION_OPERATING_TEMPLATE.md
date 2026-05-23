@@ -9,7 +9,7 @@ Executar com foco, sem tarefa incompleta e sem conflito entre documentação e c
 1. Escolher 1 domínio ativo da semana (WIP 1), conforme `docs/EXECUTION_CONSOLIDATED_MASTER.md`.
 2. Planejar até 10 itens pequenos (cada item com entrega verificável em 1-2 dias).
 3. Executar um item por vez usando o cartão operacional abaixo.
-4. Fechar a semana atualizando status matrix e changelog.
+4. Fechar a semana atualizando execution tracking e changelog.
 
 ## Cartão operacional único (copiar e preencher)
 
@@ -54,7 +54,7 @@ Executar com foco, sem tarefa incompleta e sem conflito entre documentação e c
 ### 6) Fechamento
 - Status final: `EXISTE | PARCIAL | AUSENTE`
 - Atualizações obrigatórias feitas:
-  - [ ] `docs/EXECUTION_STATUS_MATRIX.md`
+  - [ ] `docs/EXECUTION_TRACKING.md`
   - [ ] documento de domínio
   - [ ] `docs/CHANGELOG_GOVERNANCE.md` (se decisão)
 
@@ -68,16 +68,17 @@ Rodar antes de fechar semana:
 
 ```powershell
 rg --files app/api
-rg -n "AUSENTE|PARCIAL|EXISTE" docs/EXECUTION_STATUS_MATRIX.md
+rg -n "AUSENTE|PARCIAL|EXISTE" docs/EXECUTION_TRACKING.md
 rg -n "getMockProduct|readStoreFile|writeStoreFile|idempotency|webhook|AuditLog" app lib components
 ```
 
 Se houver conflito entre o que a matriz diz e o que o código mostra:
 - atualizar `docs/EXECUTION_STATUS_MATRIX.md` no mesmo ciclo
+- atualizar `docs/EXECUTION_TRACKING.md` no mesmo ciclo
 - registrar decisão em `docs/CHANGELOG_GOVERNANCE.md` se houver mudança de interpretação
 
 ## Pontas soltas já detectadas (2026-05-21)
-1. `docs/EXECUTION_STATUS_MATRIX.md` marca pedidos/logística backend como ausente, mas já existem APIs de pedido/produção/envio.
+1. `docs/EXECUTION_TRACKING.md` marca pedidos/logística backend como ausente, mas já existem APIs de pedido/produção/envio.
 2. O mesmo arquivo marca suporte/tickets backend como ausente, mas já existem endpoints de ticket e contexto de suporte.
 3. Persistência existe hoje por arquivo local (`.tmp-store`), não por banco relacional; classificação correta é `PARCIAL`, não `AUSENTE`.
 

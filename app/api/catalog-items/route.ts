@@ -89,7 +89,8 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const publicationStatus = parseStatus(searchParams.get('publicationStatus'));
   const artworkId = searchParams.get('artworkId') ?? undefined;
-  return NextResponse.json({ ok: true, items: listCatalogItems({ publicationStatus, artworkId }) });
+  const items = await listCatalogItems({ publicationStatus, artworkId });
+  return NextResponse.json({ ok: true, items });
 }
 
 export async function POST(request: Request) {
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_transition', detail: 'artwork_must_be_approved' }, { status: 409 });
   }
 
-  const { item, created } = createCatalogItem(payload);
+  const { item, created } = await createCatalogItem(payload);
   appendAuditLog({
     actor_id: actor?.actorId ?? 'unknown',
     actor_role: actor?.actorRole ?? 'unknown',

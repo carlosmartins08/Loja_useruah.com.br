@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -86,18 +86,18 @@ export function ProductInteractive({
                   <div className="flex flex-col gap-2">
                      <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-accent-gold" />
-                        <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent-gold font-bold">Revisão do Sopro Criativo</h3>
+                        <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent-gold font-bold">RevisÃ£o do Sopro Criativo</h3>
                      </div>
-                     <h2 className="text-4xl font-serif italic text-ruah-950">Validar Customização.</h2>
+                     <h2 className="text-4xl font-serif italic text-ruah-950">Validar CustomizaÃ§Ã£o.</h2>
                   </div>
 
                   <div className="flex flex-col gap-6 bg-ruah-50 rounded-3xl p-8 border border-ruah-100 font-bold">
                      {[
-                        { label: 'Peça', value: name },
+                        { label: 'PeÃ§a', value: name },
                         { label: 'Tamanho', value: size },
-                        { label: 'Cor da Fé', value: color },
+                        { label: 'Cor da FÃ©', value: color },
                         { label: 'Estamparia', value: printType },
-                        { label: 'Experiência', value: packaging },
+                        { label: 'ExperiÃªncia', value: packaging },
                         { label: 'Quantidade', value: quantity }
                      ].map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center pb-4 border-b border-ruah-100 last:border-0 last:pb-0">
@@ -109,19 +109,17 @@ export function ProductInteractive({
 
                   <div className="p-6 bg-accent-gold/5 rounded-2xl border border-accent-gold/20 flex flex-col gap-2">
                      <p className="text-[9px] text-accent-gold font-bold uppercase tracking-widest leading-relaxed">
-                        Ao confirmar, sua peça entra no <span className="underline">KPI de Produção de {productionDays} dias</span>. Não será possível alterar arte ou tamanho após o início do tear.
+                        Ao confirmar, sua peÃ§a entra no <span className="underline">KPI de ProduÃ§Ã£o de {productionDays} dias</span>. NÃ£o serÃ¡ possÃ­vel alterar arte ou tamanho apÃ³s o inÃ­cio do tear.
                      </p>
                   </div>
 
                   <div className="flex flex-col gap-4">
-                     <button 
-                       onClick={handleAddToCart}
+                     <button type="button" onClick={handleAddToCart}
                        className="w-full bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-accent-gold transition-all"
                      >
                         Confirmar e Soprar para o Carrinho
                      </button>
-                     <button 
-                       onClick={() => setIsReviewing(false)}
+                     <button type="button" onClick={() => setIsReviewing(false)}
                        className="w-full text-ruah-300 py-2 font-bold uppercase text-[9px] tracking-[0.2em] hover:text-ruah-950 transition-all font-bold"
                      >
                         Ajustar Detalhes
@@ -136,7 +134,7 @@ export function ProductInteractive({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse" />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-accent-gold">Produção Artesanal Sob Demanda</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-accent-gold">ProduÃ§Ã£o Artesanal Sob Demanda</span>
             </div>
           </div>
           <span className="text-5xl font-serif text-ruah-950 tracking-tighter">R$ {price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
@@ -152,10 +150,10 @@ export function ProductInteractive({
        {/* Production Timeline Display (BPMN Visualization) */}
        <div className="bg-ruah-950 text-white p-6 rounded-3xl flex flex-col gap-4 shadow-xl">
           <div className="flex justify-between items-center">
-             <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 italic">Prazo de Criação & Sopro</span>
+             <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 italic">Prazo de CriaÃ§Ã£o & Sopro</span>
              <div className="flex items-center gap-2">
                 <span className="text-lg font-serif italic">{productionDays}</span>
-                <span className="text-[8px] font-bold uppercase text-white/40">Dias Úteis</span>
+                <span className="text-[8px] font-bold uppercase text-white/40">Dias Ãšteis</span>
              </div>
           </div>
           <div className="flex gap-1 h-1.5">
@@ -164,23 +162,22 @@ export function ProductInteractive({
              <div className="flex-[1] bg-white/10 rounded-full" />
           </div>
           <div className="flex justify-between text-[8px] font-bold uppercase tracking-widest">
-             <span className="text-accent-gold">Produção ({productionDays}d)</span>
-             <span className="text-white/40">Logística (2d)</span>
+             <span className="text-accent-gold">ProduÃ§Ã£o ({productionDays}d)</span>
+             <span className="text-white/40">LogÃ­stica (2d)</span>
           </div>
        </div>
 
        <div className="flex flex-col gap-8">
           {/* Color Selection */}
           <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ruah-400 mb-4">Paleta de Fé (Cores)</h3>
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ruah-400 mb-4">Paleta de FÃ© (Cores)</h3>
             <div className="flex gap-3">
                {[
                  { name: 'Off White', bg: 'bg-[#F5F5F0]' },
                  { name: 'Preto Ruah', bg: 'bg-[#1A1A1A]' },
                  { name: 'Terra Cota', bg: 'bg-[#A45C40]' }
                ].map(c => (
-                 <button 
-                 key={c.name}
+                 <button type="button" key={c.name}
                   onClick={() => {
                     setColor(c.name);
                     onColorChange?.(c.name);
@@ -201,9 +198,8 @@ export function ProductInteractive({
           {/* Size Selection */}
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ruah-400">Tamanhos Disponíveis</h3>
-              <button 
-                onClick={() => setShowSizeGuide(true)}
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ruah-400">Tamanhos DisponÃ­veis</h3>
+              <button type="button" onClick={() => setShowSizeGuide(true)}
                 className="flex items-center gap-2 text-[9px] font-bold text-accent-gold uppercase tracking-widest group"
               >
                 <Ruler size={14} />
@@ -212,8 +208,7 @@ export function ProductInteractive({
             </div>
             <div className="flex gap-3">
                {['P', 'M', 'G', 'GG', 'XG'].map(s => (
-                 <button 
-                  key={s}
+                 <button type="button" key={s}
                   onClick={() => setSize(s)}
                   className={`w-12 h-12 rounded-xl text-[10px] font-bold tracking-widest transition-all border flex items-center justify-center ${
                     size === s 
@@ -229,11 +224,10 @@ export function ProductInteractive({
 
           {/* Print Technique */}
           <div>
-             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ruah-400 mb-4">Técnica de Estamparia</h3>
+             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ruah-400 mb-4">TÃ©cnica de Estamparia</h3>
              <div className="flex flex-wrap gap-3">
                 {['Serigrafia', 'Bordado', 'Digital DTG'].map(p => (
-                  <button 
-                   key={p}
+                  <button type="button" key={p}
                    onClick={() => setPrintType(p)}
                    className={`px-6 py-3 rounded-xl text-[10px] font-bold tracking-widest transition-all border ${
                      printType === p 
@@ -249,11 +243,10 @@ export function ProductInteractive({
 
           {/* Packaging Selection (T.1.2.a critical) */}
           <div>
-             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ruah-400 mb-4">Experiência de Recebimento (Embalagem)</h3>
+             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ruah-400 mb-4">ExperiÃªncia de Recebimento (Embalagem)</h3>
              <div className="flex gap-4">
                 {['Pack Respiro', 'Gift Experience'].map(pkg => (
-                  <button 
-                   key={pkg}
+                  <button type="button" key={pkg}
                    onClick={() => setPackaging(pkg)}
                    className={`flex-1 p-5 rounded-2xl border-2 transition-all text-left flex flex-col gap-2 ${
                      packaging === pkg 
@@ -263,7 +256,7 @@ export function ProductInteractive({
                   >
                     <span className={`text-[10px] font-bold uppercase tracking-widest ${packaging === pkg ? 'text-accent-gold' : 'text-ruah-950'}`}>{pkg}</span>
                     <span className="text-[8px] font-medium text-ruah-400 uppercase tracking-wider">
-                      {pkg === 'Pack Respiro' ? 'Minimalismo e proteção essencial' : 'Unboxing premium com cartão autoral'}
+                      {pkg === 'Pack Respiro' ? 'Minimalismo e proteÃ§Ã£o essencial' : 'Unboxing premium com cartÃ£o autoral'}
                     </span>
                   </button>
                 ))}
@@ -274,23 +267,21 @@ export function ProductInteractive({
        <div className="flex flex-col gap-4">
           <div className="p-6 border border-dashed border-ruah-200 rounded-3xl bg-ruah-50/30">
              <p className="text-[9px] font-bold text-ruah-400 uppercase tracking-widest leading-loose">
-                <span className="text-ruah-950">MANIFESTO DE PRODUÇÃO</span>: Seu pedido será soprado por mãos humanas. O prazo de {productionDays} dias garante a cura da estampa e a perfeição do acabamento.
+                <span className="text-ruah-950">MANIFESTO DE PRODUÃ‡ÃƒO</span>: Seu pedido serÃ¡ soprado por mÃ£os humanas. O prazo de {productionDays} dias garante a cura da estampa e a perfeiÃ§Ã£o do acabamento.
              </p>
           </div>
           <div className="flex items-center gap-4 bg-ruah-50 rounded-2xl p-2 px-4 self-start">
-             <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-colors text-ruah-950"><Minus size={14} /></button>
+             <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-colors text-ruah-950"><Minus size={14} /></button>
              <span className="font-mono font-bold w-4 text-center text-ruah-950">{quantity}</span>
-             <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-colors text-ruah-950"><Plus size={14} /></button>
+             <button type="button" onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-colors text-ruah-950"><Plus size={14} /></button>
           </div>
-          <button 
-            onClick={() => setIsReviewing(true)}
+          <button type="button" onClick={() => setIsReviewing(true)}
             className="w-full bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-[11px] tracking-[0.3em] hover:bg-accent-gold transition-all active:scale-[0.98] shadow-2xl flex items-center justify-center gap-3 group"
           >
              CONFIRMAR E SOPRAR 
              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </button>
-          <button 
-            id="buy-now"
+          <button type="button" id="buy-now"
             onClick={handleBuyNow}
             className="w-full bg-white border border-ruah-100 py-6 rounded-2xl font-bold uppercase text-[11px] tracking-[0.3em] hover:border-accent-gold transition-all active:scale-[0.98] text-ruah-950 flex items-center justify-center gap-3"
           >
@@ -298,15 +289,13 @@ export function ProductInteractive({
              Comprar Agora
           </button>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button
-              onClick={() => handleInstantCheckout('pix')}
+            <button type="button" onClick={() => handleInstantCheckout('pix')}
               className="w-full bg-accent-gold text-white py-4 rounded-2xl font-bold uppercase text-[9px] tracking-[0.2em] hover:brightness-105 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               <QrCode size={16} />
               1 Clique Pix
             </button>
-            <button
-              onClick={() => handleInstantCheckout('wallet')}
+            <button type="button" onClick={() => handleInstantCheckout('wallet')}
               className="w-full bg-ruah-950 text-white py-4 rounded-2xl font-bold uppercase text-[9px] tracking-[0.2em] hover:bg-ruah-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               <Wallet size={16} />
@@ -331,8 +320,7 @@ export function WhatsAppSticky() {
     <div className="fixed bottom-24 md:bottom-10 right-6 md:right-10 z-[40]">
        <a 
         href="https://wa.me/5511999999999" 
-        target="_blank" 
-        className="w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform active:scale-95 group"
+        target="_blank" rel="noopener noreferrer" className="w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform active:scale-95 group"
        >
          <Zap size={24} className="fill-current" />
          <div className="absolute right-full mr-4 bg-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest text-ruah-950 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-ruah-100">
@@ -342,3 +330,4 @@ export function WhatsAppSticky() {
     </div>
   );
 }
+

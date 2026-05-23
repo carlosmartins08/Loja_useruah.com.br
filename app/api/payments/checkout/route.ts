@@ -1,11 +1,13 @@
 ﻿import { NextResponse } from 'next/server';
 import { createPaymentWithIdempotency, PaymentFlowError } from '@/lib/payment-service';
 import type { CheckoutPaymentPayload } from '@/lib/payments';
+import { getPaymentGateway } from '@/lib/payment-gateway-registry';
 
 function isValidPayload(payload: unknown): payload is CheckoutPaymentPayload {
   if (!payload || typeof payload !== 'object') return false;
   const obj = payload as Record<string, unknown>;
   const methodValid = obj.method === 'card' || obj.method === 'pix' || obj.method === 'wallet';
+  const providerValid = obj.provider === undefined || (typeof obj.provider === 'string' && Boolean(getPaymentGateway(obj.provider)));
   const orderValid = typeof obj.orderId === 'string' && obj.orderId.length > 0;
   const amountValid = typeof obj.amount === 'number' && obj.amount > 0;
   const currencyValid = obj.currency === 'BRL';
@@ -25,7 +27,7 @@ function isValidPayload(payload: unknown): payload is CheckoutPaymentPayload {
       );
     });
 
-  return orderValid && methodValid && amountValid && currencyValid && itemsValid;
+  return orderValid && methodValid && providerValid && amountValid && currencyValid && itemsValid;
 }
 
 function getIdempotencyKey(request: Request) {

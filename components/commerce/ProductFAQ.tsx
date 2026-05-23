@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -13,20 +13,20 @@ interface FAQItem {
 const DEFAULT_FAQS: FAQItem[] = [
   {
     q: 'Qual tecido é usado na Camiseta Respiro?',
-    a: 'Usamos malha 100% algodão fio 30.1 penteado premium, com toque macio e bom caimento para uso diário.'
+    a: 'Usamos malha 100% algodão fio 30.1 penteado premium, com toque macio e bom caimento para uso diário.',
   },
   {
     q: 'Como funciona o prazo de produção e entrega?',
-    a: 'A peça é produzida sob demanda. O prazo combina produção artesanal e logística, com previsão exibida antes do checkout.'
+    a: 'A peça é produzida sob demanda. O prazo combina produção artesanal e logística, com previsão exibida antes do checkout.',
   },
   {
     q: 'A estampa desbota com o tempo?',
-    a: 'Usamos serigrafia premium e DTG com boa resistência. Seguindo o guia de lavagem, a durabilidade da estampa é alta.'
+    a: 'Usamos serigrafia premium e DTG com boa resistência. Seguindo o guia de lavagem, a durabilidade da estampa é alta.',
   },
   {
     q: 'Posso trocar se o tamanho não servir?',
-    a: 'Sim. Você pode solicitar troca dentro da política vigente. Recomendamos usar o guia de medidas antes de finalizar a compra.'
-  }
+    a: 'Sim. Você pode solicitar troca dentro da política vigente. Recomendamos usar o guia de medidas antes de finalizar a compra.',
+  },
 ];
 
 export function ProductFAQ() {
@@ -50,7 +50,13 @@ export function ProductFAQ() {
       <div className="flex flex-col gap-4">
         {DEFAULT_FAQS.map((item, i) => (
           <div key={i} className="bg-white border border-ruah-100 rounded-3xl overflow-hidden group hover:border-accent-gold/40 transition-all">
-            <button onClick={() => toggleItem(i)} className="w-full p-8 flex items-center justify-between text-left">
+            <button
+              type="button"
+              aria-expanded={openItems.includes(i)}
+              aria-controls={`faq-answer-${i}`}
+              onClick={() => toggleItem(i)}
+              className="w-full p-8 flex items-center justify-between text-left"
+            >
               <span className="text-[11px] font-bold uppercase tracking-widest leading-loose max-w-[80%]">{item.q}</span>
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
@@ -62,7 +68,7 @@ export function ProductFAQ() {
             </button>
             <AnimatePresence>
               {openItems.includes(i) && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                <motion.div id={`faq-answer-${i}`} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                   <div className="px-8 pb-8">
                     <div className="h-px bg-ruah-50 mb-8" />
                     <p className="text-[10px] text-ruah-500 font-medium uppercase tracking-widest leading-loose">{item.a}</p>

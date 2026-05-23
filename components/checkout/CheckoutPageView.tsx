@@ -10,6 +10,8 @@ import { CheckoutStepTwoSection } from '@/components/checkout/sections/CheckoutS
 import { CheckoutSuccessCard } from '@/components/checkout/sections/CheckoutSuccessCard';
 import type { PaymentMethod, PaymentRecord } from '@/lib/payments';
 import type { OrderRecord } from '@/lib/order-store';
+import { HttpRequestError, postJson } from '@/lib/http-client';
+import { useUser } from '@/context/UserContext';
 
 export function CheckoutPageView() {
   const { cart, total, subtotal, location, gifting, setGifting, clearCart } = useCart();
@@ -19,6 +21,7 @@ export function CheckoutPageView() {
   const [checkoutError, setCheckoutError] = React.useState<string | null>(null);
   const [paymentSummary, setPaymentSummary] = React.useState<PaymentRecord | null>(null);
   const requestKeyRef = React.useRef<string | null>(null);
+  const { isAuthenticated } = useUser();
 
   if (cart.length === 0 && !isProcessing && step !== 3) {
     return (
@@ -36,16 +39,19 @@ export function CheckoutPageView() {
   const deliveryDate = new Date();
   deliveryDate.setDate(deliveryDate.getDate() + composedDeadline);
 
-  const handleFinish = async (method: PaymentMethod) => {
+  const handleFinish = async (method: PaymentMethod, provider: PaymentRecord['provider']) => {
+    if (!isAuthenticated) {
+      setCheckoutError('Sua sessão expirou. Faça login novamente para concluir o pagamento.');
+      window.location.href = '/login';
+      return;
+    }
+
     setIsProcessing(true);
     setCheckoutError(null);
     if (!requestKeyRef.current) requestKeyRef.current = crypto.randomUUID();
 
     try {
-      const orderResponse = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const orderPayload = await postJson<{ order: OrderRecord }>('/api/orders', {
           customer: { id: 'customer-session' },
           items: cart.map((item) => ({
             catalogItemId: item.id,
@@ -53,21 +59,15 @@ export function CheckoutPageView() {
             quantity: item.quantity,
             unitPrice: item.price,
           })),
-        }),
-      });
+        }
+      );
 
-      if (!orderResponse.ok) {
-        throw new Error('Falha ao criar pedido');
-      }
-
-      const orderPayload = (await orderResponse.json()) as { order: OrderRecord };
-
-      const response = await fetch('/api/payments/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-idempotency-key': requestKeyRef.current },
-        body: JSON.stringify({
+      const payload = await postJson<{ payment: PaymentRecord }>(
+        '/api/payments/checkout',
+        {
           orderId: orderPayload.order.orderId,
           method,
+          provider,
           amount: total,
           currency: 'BRL',
           items: cart.map((item) => ({
@@ -77,14 +77,9 @@ export function CheckoutPageView() {
             unitPrice: item.price,
             spec: item.spec,
           })),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha ao iniciar pagamento');
-      }
-
-      const payload = (await response.json()) as { payment: PaymentRecord };
+        },
+        { headers: { 'x-idempotency-key': requestKeyRef.current ?? '' } }
+      );
 
       setPaymentSummary(payload.payment);
       clearCart();
@@ -92,7 +87,20 @@ export function CheckoutPageView() {
       requestKeyRef.current = null;
     } catch (error) {
       console.error(error);
-      setCheckoutError('Não foi possível concluir o pagamento agora. Tente novamente.');
+      if (error instanceof HttpRequestError) {
+        if (error.status === 401 || error.status === 403) {
+          setCheckoutError('Sua sessão expirou. Faça login novamente para concluir o pagamento.');
+          window.location.href = '/login';
+        } else if (error.status === 409) {
+          setCheckoutError('Não foi possível processar este pedido no estado atual. Revise seu carrinho e tente novamente.');
+        } else if (error.status >= 500) {
+          setCheckoutError('Instabilidade temporária no pagamento. Tente novamente em instantes.');
+        } else {
+          setCheckoutError('Não foi possível concluir o pagamento agora. Tente novamente.');
+        }
+      } else {
+        setCheckoutError('Não foi possível concluir o pagamento agora. Tente novamente.');
+      }
     } finally {
       setIsProcessing(false);
     }

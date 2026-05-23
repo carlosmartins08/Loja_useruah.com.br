@@ -26,7 +26,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const result = markCatalogItemReady({ catalogItemId: id, reason: payload.reason });
+  const result = await markCatalogItemReady({ catalogItemId: id, reason: payload.reason });
   if (result.kind === 'not_found') return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (result.kind === 'invalid_transition') return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });
   if (result.kind === 'already_ready') return NextResponse.json({ ok: true, item: result.item, reused: true });

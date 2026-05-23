@@ -41,6 +41,14 @@ export interface OrderRecord {
   paidAt?: string;
 }
 
+function safePct(raw: string | undefined, fallback: number) {
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) return fallback;
+  if (parsed < 0) return 0;
+  if (parsed > 1) return 1;
+  return parsed;
+}
+
 type OrderStoreState = Record<string, OrderRecord>;
 
 function readOrders(): OrderStoreState {
@@ -84,12 +92,12 @@ export async function createPlacedOrder(input: {
   }>;
 }): Promise<OrderRecord> {
   const now = new Date().toISOString();
-  const supplierPct = Number(process.env.SUPPLIER_REVENUE_PCT ?? '0.7');
-  const artistPct = Number(process.env.ARTIST_LICENSE_PCT ?? '0.1');
-  const platformPct = Number(process.env.PLATFORM_COMMISSION_PCT ?? '0.15');
-  const gatewayPct = Number(process.env.GATEWAY_FEE_PCT ?? '0.05');
-  const shippingPct = Number(process.env.SHIPPING_PCT ?? '0');
-  const taxReservePct = Number(process.env.TAX_RESERVE_PCT ?? '0');
+  const supplierPct = safePct(process.env.SUPPLIER_REVENUE_PCT, 0.7);
+  const artistPct = safePct(process.env.ARTIST_LICENSE_PCT, 0.1);
+  const platformPct = safePct(process.env.PLATFORM_COMMISSION_PCT, 0.15);
+  const gatewayPct = safePct(process.env.GATEWAY_FEE_PCT, 0.05);
+  const shippingPct = safePct(process.env.SHIPPING_PCT, 0);
+  const taxReservePct = safePct(process.env.TAX_RESERVE_PCT, 0);
   const round2 = (value: number) => Math.round(value * 100) / 100;
 
   const items: OrderItemRecord[] = input.items.map((item) => {
@@ -167,6 +175,29 @@ export async function getOrder(orderId: string) {
 
   const state = readOrders();
   return state[orderId] ?? null;
+}
+
+export async function listOrders(filters?: { customerId?: string }) {
+  const mysql = await getMysqlPool();
+  if (mysql && shouldUseMysql()) {
+    if (filters?.customerId) {
+      const [rows] = await mysql.execute<MysqlRow[]>(
+        `SELECT * FROM orders WHERE customer_id = ? ORDER BY created_at DESC`,
+        [filters.customerId]
+      );
+      return rows.map(rowToOrder);
+    }
+
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM orders ORDER BY created_at DESC`);
+    return rows.map(rowToOrder);
+  }
+
+  const state = readOrders();
+  const items = Object.values(state).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  if (filters?.customerId) {
+    return items.filter((item) => item.customerId === filters.customerId);
+  }
+  return items;
 }
 
 export async function updateOrderStatus(orderId: string, nextStatus: OrderStatus) {

@@ -19,7 +19,8 @@ export function Header() {
   const [isProfilePhotoModalOpen, setIsProfilePhotoModalOpen] = React.useState(false);
   const [mobileTab, setMobileTab] = React.useState<'category' | 'corporate'>('category');
   const { setIsCartOpen, cart, location } = useCart();
-  const { profilePhoto, setProfilePhoto } = useUser();
+  const { profilePhoto, setProfilePhoto, userRole } = useUser();
+  const accountHref = userRole === 'customer' ? '/account' : '/admin';
   
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -142,9 +143,14 @@ export function Header() {
 
             {/* Logo (Centered on Desktop) */}
             <Link href="/" className="md:absolute md:left-1/2 md:-translate-x-1/2 group" id="logo-link">
-               <span className="font-serif text-2xl md:text-3xl tracking-tighter transition-colors group-hover:text-accent-gold uppercase font-black">
-                 UseRuah
-               </span>
+               <Image
+                 src="/brand/logo-wordmark-dark.svg"
+                 alt="UseRuah"
+                 width={220}
+                 height={58}
+                 priority
+                 className="h-7 md:h-9 w-auto"
+               />
             </Link>
 
             {/* Right Actions */}
@@ -164,7 +170,7 @@ export function Header() {
                >
                  <Search size={18} className="text-ruah-800" />
                </button>
-               <Link href="/account" className="p-1 hover:bg-ruah-50 rounded-full transition-colors relative group/user" id="btn-account">
+               <Link href={accountHref} className="p-1 hover:bg-ruah-50 rounded-full transition-colors relative group/user" id="btn-account">
                  <div className="w-8 h-8 rounded-full overflow-hidden relative border border-ruah-100 group-hover/user:border-accent-gold transition-colors">
                     {profilePhoto ? (
                       <Image src={profilePhoto} alt="User Profile" fill className="object-cover" />
@@ -218,7 +224,13 @@ export function Header() {
             >
               <div className="p-10 flex justify-between items-center border-b border-ruah-50">
                 <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                  <span className="font-serif text-3xl tracking-tighter uppercase font-black">UseRuah</span>
+                  <Image
+                    src="/brand/logo-wordmark-dark.svg"
+                    alt="UseRuah"
+                    width={180}
+                    height={48}
+                    className="h-8 w-auto"
+                  />
                 </Link>
                 <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-ruah-50 rounded-full transition-colors">
                   <X size={24} />

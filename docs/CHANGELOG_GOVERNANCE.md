@@ -22,11 +22,382 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 - Impacto esperado:
 - Riscos conhecidos:
 - Plano de rollback:
+- Tipo de mudanca (COBIT/ITIL): `standard | normal | emergency`
+- ID do incidente (obrigatorio para `emergency`):
+- RCA (obrigatorio para `emergency`):
+- Prazo RCA (obrigatorio para `emergency`, maximo 24h pos-merge):
 - Documentos atualizados:
 
 ---
 
 ## Entradas
+
+### [2026-05-23] Ativacao P3 por provider com gate unico executavel
+- ID: GOV-0049
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Criar orquestrador `npm run qa:provider:activate` para executar em sequencia: `check -> alert:critical -> providers:ready -> smoke do provider alvo -> qa:payments21 -> qa:exceptions`.
+  - Tornar `alert:critical` dinamico por ambiente para refletir bloqueio real e nao mensagem estatica.
+- Contexto:
+  - Execucao manual por passos estava sujeita a ordem incorreta e evidencias incompletas.
+- Impacto esperado:
+  - Menor risco de erro operacional no pre-cutover e rastreabilidade mais forte de aprovacao de gateway real.
+- Riscos conhecidos:
+  - Continua dependente de credenciais reais e banco MySQL habilitado no ambiente alvo.
+- Plano de rollback:
+  - Voltar para execucao manual de comandos mantendo scripts de smoke individuais.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Base multi-gateway com escolha de provider no checkout
+- ID: GOV-0048
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Produto
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `api-contracts`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Permitir selecao de provider no checkout mantendo contrato unico de API.
+  - Registrar provider no pagamento e preparar webhook multi-provider.
+- Contexto:
+  - Necessidade de suportar Inter, InfinitePay, Mercado Pago, Pagar.me, Cielo e Stripe sem acoplamento no frontend.
+- Impacto esperado:
+  - Menor retrabalho para entrada de novos gateways e melhor controle operacional por provider.
+- Riscos conhecidos:
+  - Adapters reais por provider ainda dependem de credenciais e homologacao dedicadas.
+- Plano de rollback:
+  - Fixar provider padrao (`sandbox`/`gateway_sandbox`) no checkout e ignorar campo `provider`.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Fechamento da Onda 3 e liberacao formal de P3/P4
+- ID: GOV-0047
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `suporte-tickets`
+  - `pedidos-logistica`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Concluir Onda 3 com fluxo operacional completo de suporte interno.
+  - Registrar evidencias de QA de dominio em PASS (`qa:coreops` e `qa:exceptions`).
+  - Liberar abertura de P3 (gateway real/cutover) e P4 (hardening final, apos P3).
+- Contexto:
+  - Validacao de dominio foi executada com sucesso fora do sandbox apos bloqueio local de `spawn EPERM`.
+- Impacto esperado:
+  - Continuidade sem retrabalho para homologacao de pagamento real e fechamento de producao.
+- Riscos conhecidos:
+  - P3 segue dependente de credenciais reais e janela de homologacao controlada.
+- Plano de rollback:
+  - Retornar para provider sandbox e manter gates de dominio como bloqueio de release.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Onda 3 funcional aplicada com excecao documentada de QA de dominio
+- ID: GOV-0046
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `suporte-tickets`
+  - `ui-rotas`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Consolidar fluxo interno `ticket -> pedido -> contexto -> resposta` em rota dedicada de suporte (`/admin/support/[orderId]`).
+  - Registrar excecao de gate moderado para `qa:coreops` e `qa:exceptions` por bloqueio de ambiente local.
+- Contexto:
+  - Nesta maquina, `next dev` e `next build` falham com `spawn EPERM`, impedindo bootstrap automatizado do servidor pelos runners de QA de dominio.
+  - Tentativa de contorno com execucao direta contra `QA_BASE_URL=http://localhost:3000` tambem falhou por `500` no servidor ativo em `POST /api/orders`.
+- Impacto esperado:
+  - Jornada operacional interna fica coerente por role e sem dependência de endpoint JSON cru.
+  - Governanca mantém rastreabilidade da pendencia de QA com dono e prazo.
+- Riscos conhecidos:
+  - Fluxos cross-domain sem evidência automatizada local até rerun em ambiente liberado e servidor saudável.
+- Plano de rollback:
+  - Reverter navegação para busca anterior e suspender uso da nova rota operacional.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Fechamento de gate das Ondas 1 e 2 com evidencias operacionais
+- ID: GOV-0045
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `rbac`
+  - `pagamentos`
+  - `suporte-tickets`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`
+  - `docs/CHECKOUT_PAYMENT_EDGE_CASES_REPORT.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Formalizar Onda 1 (Workflow/RBAC) e Onda 2 (Checkout/Payment) como concluídas nesta fase local.
+  - Registrar execução de gate obrigatório com `npm run pr:premerge` em PASS.
+- Contexto:
+  - Plano em 3 ondas exige fechamento por gate antes de avançar, com prova objetiva de execução e documentação.
+- Impacto esperado:
+  - Redução de retrabalho por falta de trilha e aumento de previsibilidade para continuidade da Onda 3.
+- Riscos conhecidos:
+  - Onda 3 ainda depende de expansão funcional do atendimento operacional e validações de domínio dedicadas.
+- Plano de rollback:
+  - Reverter endurecimentos de sessão/checkout e restauração de rotas anteriores caso haja bloqueio operacional inesperado.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`
+  - `docs/CHECKOUT_PAYMENT_EDGE_CASES_REPORT.md`
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Fechamento dos achados medios de frontend (encoding + suporte operacional interno)
+- ID: GOV-0044
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Produto
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `ui-rotas`
+  - `suporte-tickets`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`
+- Decisao:
+  - Corrigir strings com encoding corrompido no catalogo de categoria.
+  - Substituir destino de suporte no admin para rota operacional interna (`/admin/support`) em vez de pagina institucional.
+- Contexto:
+  - Achados medios indicavam risco de experiencia inconsistente e mistura de jornada interna com jornada de cliente.
+- Impacto esperado:
+  - Melhor qualidade visual e isolamento funcional entre operacao interna e experiencia do consumidor.
+- Riscos conhecidos:
+  - Pagina de suporte interno ainda e MVP e pode exigir evolucao de filtros e contexto 360.
+- Plano de rollback:
+  - Reverter link para rota anterior e manter suporte institucional temporariamente.
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Institucionalizacao do checklist oficial de revisao de tela frontend
+- ID: GOV-0043
+- Status: `aprovada`
+- Dono da decisao: Produto + Frontend + QA
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `ui-rotas`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Publicar checklist oficial de revisao de telas com 6 pilares:
+    - visual
+    - codigo
+    - funcional
+    - a11y/SEO
+    - seguranca/perfil
+    - gates tecnicos de pre-merge
+- Contexto:
+  - Necessidade de prevenir regressao em cadeia apos mudancas de frontend e acesso por perfil.
+- Impacto esperado:
+  - Revisao mais previsivel e menor risco de quebra entre UX, seguranca e operacao.
+- Riscos conhecidos:
+  - Sem disciplina de uso, o checklist vira apenas documentacao passiva.
+- Plano de rollback:
+  - Rebaixar checklist para referencia nao obrigatoria (nao recomendado).
+- Documentos atualizados:
+  - `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Bloqueio automatico de merge via gate unificado no CI
+- ID: GOV-0042
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+- Decisao:
+  - Tornar `npm run pr:premerge` etapa obrigatoria no workflow de PR.
+  - Configurar `EXECUTED_CHECKS=check,pr:gate,pr:impact` no CI para validar o gate de impacto.
+- Contexto:
+  - Era necessario transformar o fluxo recomendado em bloqueio tecnico real de merge.
+- Impacto esperado:
+  - PR sem validacao completa deixa de ser mergeavel automaticamente.
+- Riscos conhecidos:
+  - Ajustes futuros do `pr:impact` podem exigir alinhamento de variaveis no workflow.
+- Plano de rollback:
+  - Reverter workflow para checks separados mantendo `check` como gate minimo.
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Fluxo unico obrigatorio de pre-merge
+- ID: GOV-0041
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+- Decisao:
+  - Instituir comando unico `npm run pr:premerge` com cadeia obrigatoria:
+    - `npm run check`
+    - `npm run pr:gate`
+    - `npm run pr:impact`
+- Contexto:
+  - Fluxos manuais permitiam execucao parcial de gates e aumento de risco de regressao.
+- Impacto esperado:
+  - Padronizacao de validacao antes de merge e menor dependencia de memoria operacional.
+- Riscos conhecidos:
+  - Pipeline/rotina local precisa garantir preenchimento de `EXECUTED_CHECKS` para `pr:impact`.
+- Plano de rollback:
+  - Voltar a execucao separada de gates e manter `pr:impact` apenas como recomendacao.
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Gate preventivo de impacto por dominio critico (anti-efeito domino)
+- ID: GOV-0040
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `qa`
+  - `pagamentos`
+  - `pedidos-logistica`
+  - `rbac`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+- Decisao:
+  - Criar gate automatico de impacto (`npm run pr:impact`) que detecta dominio afetado por arquivos alterados.
+  - Exigir checks minimos por dominio via `EXECUTED_CHECKS` para evitar merge sem cobertura adequada.
+- Contexto:
+  - Mudancas estruturais podiam causar regressao em cadeia sem evidencia proporcional ao risco.
+- Impacto esperado:
+  - Antecipacao de impacto e bloqueio preventivo de PR com validacao insuficiente.
+- Riscos conhecidos:
+  - Requer disciplina de pipeline para preencher `EXECUTED_CHECKS` com checks realmente executados.
+- Plano de rollback:
+  - Desativar `pr:impact` temporariamente mantendo `pr:gate` ate ajuste de pipeline.
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Hardening estrutural de dados + reconciliacao operacional automatizada
+- ID: GOV-0039
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `dados`
+  - `pedidos-logistica`
+  - `pagamentos`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/QA_ACCEPTANCE_TESTS.md`
+- Decisao:
+  - Fortalecer schema MySQL com FKs explicitas entre entidades operacionais e financeiras.
+  - Adicionar indices de consulta por status e referencia para reduzir custo de query operacional.
+  - Criar reconciliacao automatizada API x banco (`npm run qa:reconcile:ops`) para detectar drift de estado.
+- Contexto:
+  - Persistencia sem constraints suficientes aumenta risco de dados inconsistentes e divergencia entre API e banco.
+- Impacto esperado:
+  - Maior consistencia relacional e detecao precoce de divergencia operacional.
+- Riscos conhecidos:
+  - Aplicacao de FKs em base ja populada pode exigir saneamento previo em ambiente legado.
+- Plano de rollback:
+  - Reverter constraints novas e manter checagem por reconciliacao ate saneamento de dados.
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Read-model operacional unico + gate automatico para mudanca critica
+- ID: GOV-0038
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pedidos-logistica`
+  - `suporte-tickets`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+- Decisao:
+  - Consolidar agregacao operacional em um read-model unico (`lib/order-operational-view.ts`).
+  - Fazer `GET /api/orders/:orderId/status` e `GET /api/support/orders/:orderId/context` consumirem a mesma fonte agregada.
+  - Criar gate automatico `npm run pr:gate` para bloquear mudanca critica sem atualizacao de governanca e metadados minimos de PR.
+- Contexto:
+  - Havia risco de divergencia entre endpoints que reportam estado operacional do mesmo pedido.
+- Impacto esperado:
+  - Reducao de drift entre API de status e API de suporte.
+  - Menor chance de merge critico sem rastreabilidade documental.
+- Riscos conhecidos:
+  - `pr:gate` depende de convencao de `git diff` e variaveis de ambiente no fluxo de PR.
+- Plano de rollback:
+  - Reverter consumo do read-model por endpoint e desativar gate automatico temporariamente.
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Continuidade P3/P4 com precheck de homologacao e SEO runtime
+- ID: GOV-0037
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `ui-rotas`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Introduzir precheck executavel para cutover P3 (`npm run p3:precheck`) com validacao de variaveis criticas de homologacao.
+  - Instituir template de evidencia obrigatoria para cutover/rollback em homologacao.
+  - Corrigir metadados com encoding e finalizar assets SEO runtime via `icon`, `apple-icon` e `opengraph-image` do Next.
+- Contexto:
+  - P3 depende de execucao controlada em ambiente real; P4 tinha lacunas de metadata e assets de social/brand.
+- Impacto esperado:
+  - Menor risco de cutover sem evidencias e melhoria de consistencia de preview social/SEO.
+- Riscos conhecidos:
+  - P3 continua bloqueado ate disponibilizacao de credenciais e endpoint real de homologacao.
+- Plano de rollback:
+  - Reverter provider para sandbox e manter assets previos caso haja regressao visual.
+- Documentos atualizados:
+  - `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
 
 ### [2026-05-21] Template operacional Ãºnico + reconciliaÃ§Ã£o docs x cÃ³digo
 - ID: GOV-0017

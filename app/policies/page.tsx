@@ -4,10 +4,14 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ShieldCheck, RefreshCcw, Banknote, Calendar, Check, X, Info, FileText, ArrowRight, Factory, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import { Header } from '@/components/navigation/Header';
+import { Footer } from '@/components/navigation/Footer';
 
 export default function PoliciesPage() {
   return (
-    <main className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans page-header-offset">
+      <Header />
+      <main>
        {/* Hero - Conscious Manifesto */}
        <section className="bg-ruah-950 text-white pt-40 pb-32 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1/3 h-full bg-accent-gold/5 blur-[120px]" />
@@ -180,6 +184,8 @@ export default function PoliciesPage() {
              </Link>
           </div>
        </section>
-    </main>
+      </main>
+      <Footer />
+    </div>
   );
 }

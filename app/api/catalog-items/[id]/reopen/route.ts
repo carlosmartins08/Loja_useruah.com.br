@@ -25,7 +25,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const result = reopenCatalogItem({ catalogItemId: id, reason: payload.reason });
+  const result = await reopenCatalogItem({ catalogItemId: id, reason: payload.reason });
   if (result.kind === 'not_found') return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (result.kind === 'missing_reason') return NextResponse.json({ error: 'validation_error', detail: 'reason_required' }, { status: 422 });
   if (result.kind !== 'updated') return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });

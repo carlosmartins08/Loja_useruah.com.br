@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
-import { createPlacedOrder } from '@/lib/order-store';
+import { createPlacedOrder, listOrders } from '@/lib/order-store';
 import { isTermsGateEnabledFor, validateTermsAcceptance } from '@/lib/terms-enforcement';
+import { findPaymentByOrderId } from '@/lib/payment-store';
+import { getProductionJobByOrderId } from '@/lib/production-store';
+import { getShipmentByOrderId } from '@/lib/shipment-store';
 
 interface OrderCreatePayload {
   items: Array<{
@@ -67,4 +70,29 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json({ ok: true, order }, { status: 201 });
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const customerId = searchParams.get('customerId')?.trim();
+  const orders = await listOrders(customerId ? { customerId } : undefined);
+
+  const rows = await Promise.all(
+    orders.map(async (order) => {
+      const [payment, production, shipment] = await Promise.all([
+        findPaymentByOrderId(order.orderId),
+        getProductionJobByOrderId(order.orderId),
+        getShipmentByOrderId(order.orderId),
+      ]);
+
+      return {
+        ...order,
+        paymentStatus: payment?.status ?? null,
+        productionStatus: production?.status ?? null,
+        shipmentStatus: shipment?.status ?? null,
+      };
+    })
+  );
+
+  return NextResponse.json({ ok: true, orders: rows });
 }

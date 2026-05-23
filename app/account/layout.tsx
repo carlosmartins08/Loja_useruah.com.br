@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   User, 
   Package, 
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Header } from '@/components/navigation/Header';
+import { useUser } from '@/context/UserContext';
 
 const NAV_ITEMS = [
   { href: '/account', label: 'Painel Geral', icon: User },
@@ -27,6 +28,18 @@ const NAV_ITEMS = [
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { userName, logout, isAuthenticated, isSessionReady } = useUser();
+
+  React.useEffect(() => {
+    if (isSessionReady && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [isAuthenticated, isSessionReady, router]);
+
+  if (!isSessionReady || !isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-ruah-50 page-header-offset">
@@ -40,7 +53,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                <div className="sticky top-40">
                   <div className="mb-12">
                      <span className="text-[10px] font-bold text-accent-gold uppercase tracking-widest block mb-1">Bem-vindo,</span>
-                     <h1 className="text-2xl font-serif uppercase italic leading-none text-ruah-950">Carlos Silva</h1>
+                     <h1 className="text-2xl font-serif uppercase italic leading-none text-ruah-950">{userName}</h1>
                   </div>
 
                   <nav className="flex flex-col gap-1">
@@ -65,7 +78,13 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                            </Link>
                         );
                      })}
-                     <button className="flex items-center gap-4 p-4 rounded-xl text-red-500/60 hover:text-red-500 hover:bg-red-50 transition-all mt-8">
+                     <button
+                       onClick={async () => {
+                         await logout();
+                         window.location.href = '/login';
+                       }}
+                       className="flex items-center gap-4 p-4 rounded-xl text-red-500/60 hover:text-red-500 hover:bg-red-50 transition-all mt-8"
+                     >
                         <LogOut size={18} />
                         <span className="text-[10px] font-bold uppercase tracking-widest">Sair da Conta</span>
                      </button>

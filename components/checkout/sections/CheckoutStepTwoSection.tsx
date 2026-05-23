@@ -4,21 +4,36 @@ import React from 'react';
 import Image from 'next/image';
 import { CreditCard, QrCode, Wallet } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import type { PaymentMethod } from '@/lib/payments';
+import type { PaymentMethod, PaymentProviderKey } from '@/lib/payments';
+import { getJson } from '@/lib/http-client';
 
 interface CheckoutStepTwoSectionProps {
   isActive: boolean;
   total: number;
   isProcessing: boolean;
-  onFinish: (method: PaymentMethod) => void;
+  onFinish: (method: PaymentMethod, provider: PaymentProviderKey) => void;
 }
 
 export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish }: CheckoutStepTwoSectionProps) {
   const searchParams = useSearchParams();
   const instantMethod = searchParams.get('instant');
   const [manualPaymentMethod, setManualPaymentMethod] = React.useState<PaymentMethod | null>(null);
+  const [provider, setProvider] = React.useState<PaymentProviderKey>('sandbox');
+  const [providers, setProviders] = React.useState<Array<{ key: PaymentProviderKey; label: string; methods: PaymentMethod[]; enabled: boolean }>>([]);
   const paymentMethod: PaymentMethod =
     manualPaymentMethod ?? (instantMethod === 'pix' ? 'pix' : instantMethod === 'wallet' ? 'wallet' : 'card');
+  const availableProviders = React.useMemo(
+    () => providers.filter((item) => item.enabled && item.methods.includes(paymentMethod)),
+    [providers, paymentMethod]
+  );
+  const effectiveProvider: PaymentProviderKey =
+    availableProviders.find((item) => item.key === provider)?.key ?? availableProviders[0]?.key ?? 'sandbox';
+
+  React.useEffect(() => {
+    getJson<{ providers: Array<{ key: PaymentProviderKey; label: string; methods: PaymentMethod[]; enabled: boolean }> }>('/api/payments/providers')
+      .then((response) => setProviders(response.providers))
+      .catch(() => setProviders([{ key: 'sandbox', label: 'Sandbox interno', methods: ['card', 'pix', 'wallet'], enabled: true }]));
+  }, []);
 
   return (
     <div className={`flex flex-col gap-8 transition-opacity ${isActive ? '' : 'opacity-40 pointer-events-none'}`}>
@@ -30,6 +45,8 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
       <div className="bg-white p-10 rounded-[2.5rem] border border-ruah-100 shadow-sm text-ruah-950 font-bold">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
           <button
+            type="button"
+            aria-pressed={paymentMethod === 'card'}
             onClick={() => setManualPaymentMethod('card')}
             className={`border-2 p-6 rounded-2xl flex flex-col items-center gap-3 transition-all ${paymentMethod === 'card' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-50'}`}
           >
@@ -37,6 +54,8 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
             <span className="text-[9px] font-bold uppercase tracking-widest">Cartão de Crédito</span>
           </button>
           <button
+            type="button"
+            aria-pressed={paymentMethod === 'pix'}
             onClick={() => setManualPaymentMethod('pix')}
             className={`border-2 p-6 rounded-2xl flex flex-col items-center gap-3 transition-all ${paymentMethod === 'pix' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-50'}`}
           >
@@ -44,6 +63,8 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
             <span className="text-[9px] font-bold uppercase tracking-widest">PIX (1 Clique)</span>
           </button>
           <button
+            type="button"
+            aria-pressed={paymentMethod === 'wallet'}
             onClick={() => setManualPaymentMethod('wallet')}
             className={`border-2 p-6 rounded-2xl flex flex-col items-center gap-3 transition-all ${paymentMethod === 'wallet' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-50'}`}
           >
@@ -56,16 +77,16 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
           <div className="grid grid-cols-1 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Número do Cartão</label>
-              <input type="text" placeholder="0000 0000 0000 0000" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
+              <input type="text" inputMode="numeric" autoComplete="cc-number" placeholder="0000 0000 0000 0000" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
             </div>
             <div className="grid grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
                 <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Validade</label>
-                <input type="text" placeholder="MM/AA" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
+                <input type="text" inputMode="numeric" autoComplete="cc-exp" placeholder="MM/AA" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">CVV</label>
-                <input type="text" placeholder="123" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
+                <input type="password" inputMode="numeric" autoComplete="cc-csc" placeholder="123" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
               </div>
             </div>
             <div className="flex flex-col gap-2">
@@ -88,9 +109,25 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
             </p>
           </div>
         )}
+
+        <div className="mt-8 flex flex-col gap-2">
+          <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Gateway de pagamento</label>
+          <select
+            value={effectiveProvider}
+            onChange={(event) => setProvider(event.target.value as PaymentProviderKey)}
+            className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all appearance-none cursor-pointer"
+          >
+            {availableProviders.map((item) => (
+              <option key={item.key} value={item.key}>
+                {item.label}
+              </option>
+            ))}
+            {availableProviders.length === 0 && <option value="sandbox">Sandbox interno</option>}
+          </select>
+        </div>
       </div>
 
-      <button onClick={() => onFinish(paymentMethod)} disabled={isProcessing} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-accent-gold transition-all relative overflow-hidden">
+      <button type="button" onClick={() => onFinish(paymentMethod, effectiveProvider)} disabled={isProcessing} aria-busy={isProcessing} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-accent-gold transition-all relative overflow-hidden">
         {isProcessing
           ? 'PROCESSANDO...'
           : paymentMethod === 'card'

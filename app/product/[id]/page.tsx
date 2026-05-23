@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+﻿import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ProductPageView } from '@/components/product/ProductPageView';
 import { buildProductJsonLd, mapCatalogItemToProductPageModel } from '@/components/product/product-data';
@@ -8,15 +8,15 @@ interface ProductPageParams {
   id: string;
 }
 
-function getPublishedProduct(id: string) {
-  const item = getCatalogItem(id);
+async function getPublishedProduct(id: string) {
+  const item = await getCatalogItem(id);
   if (!item || item.publicationStatus !== 'published') return null;
   return mapCatalogItemToProductPageModel(item);
 }
 
 export async function generateMetadata({ params }: { params: Promise<ProductPageParams> }): Promise<Metadata> {
   const { id } = await params;
-  const product = getPublishedProduct(id);
+  const product = await getPublishedProduct(id);
   if (!product) {
     return {
       title: 'Produto não encontrado | UseRuah',
@@ -35,10 +35,11 @@ export async function generateMetadata({ params }: { params: Promise<ProductPage
 
 export default async function ProductPage({ params }: { params: Promise<ProductPageParams> }) {
   const { id } = await params;
-  const product = getPublishedProduct(id);
+  const product = await getPublishedProduct(id);
   if (!product) notFound();
 
-  const recommendations = listCatalogItems({ publicationStatus: 'published' })
+  const catalog = await listCatalogItems({ publicationStatus: 'published' });
+  const recommendations = catalog
     .filter((item) => item.catalogItemId !== id)
     .slice(0, 3)
     .map((item) => ({

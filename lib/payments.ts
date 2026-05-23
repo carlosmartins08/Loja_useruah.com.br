@@ -1,4 +1,14 @@
 export type PaymentMethod = 'card' | 'pix' | 'wallet';
+export type PaymentProviderKey =
+  | 'sandbox'
+  | 'gateway_sandbox'
+  | 'gateway_real'
+  | 'inter'
+  | 'infinitepay'
+  | 'mercadopago'
+  | 'pagarme'
+  | 'cielo'
+  | 'stripe';
 export type PaymentStatus =
   | 'created'
   | 'processing'
@@ -12,6 +22,7 @@ export type PaymentStatus =
 export interface CheckoutPaymentPayload {
   orderId: string;
   method: PaymentMethod;
+  provider?: PaymentProviderKey;
   amount: number;
   currency: 'BRL';
   items: Array<{
@@ -26,6 +37,7 @@ export interface CheckoutPaymentPayload {
 export interface PaymentRecord {
   paymentId: string;
   orderId: string;
+  provider: PaymentProviderKey;
   method: PaymentMethod;
   amount: number;
   currency: 'BRL';

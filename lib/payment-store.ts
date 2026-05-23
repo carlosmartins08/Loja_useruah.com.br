@@ -22,6 +22,7 @@ type SqliteDb = {
 
 let sqliteDb: SqliteDb | null = null;
 let sqliteAvailable = true;
+let mysqlProviderColumnReady = false;
 
 function shouldUseSqlite() {
   const mode = process.env.PAYMENT_PERSISTENCE?.toLowerCase() ?? 'sqlite';
@@ -43,6 +44,7 @@ function getSqliteDb(): SqliteDb | null {
       CREATE TABLE IF NOT EXISTS payments (
         payment_id TEXT PRIMARY KEY,
         order_id TEXT NOT NULL,
+        provider TEXT NOT NULL,
         method TEXT NOT NULL,
         amount REAL NOT NULL,
         currency TEXT NOT NULL,
@@ -52,6 +54,11 @@ function getSqliteDb(): SqliteDb | null {
         approved_at TEXT
       );
     `);
+    try {
+      db.exec(`ALTER TABLE payments ADD COLUMN provider TEXT NOT NULL DEFAULT 'sandbox';`);
+    } catch {
+      // column already exists
+    }
     db.exec(`
       CREATE TABLE IF NOT EXISTS payment_idempotency (
         idempotency_key TEXT PRIMARY KEY,
@@ -89,6 +96,7 @@ function rowToPaymentRecord(row: Record<string, unknown>): PaymentRecord {
   return {
     paymentId: String(row.payment_id),
     orderId: String(row.order_id),
+    provider: (row.provider ? String(row.provider) : 'sandbox') as PaymentRecord['provider'],
     method: row.method as PaymentRecord['method'],
     amount: Number(row.amount),
     currency: 'BRL',
@@ -113,6 +121,7 @@ function mysqlRowToPaymentRecord(row: MysqlRow): PaymentRecord {
   return {
     paymentId: String(row.payment_id),
     orderId: String(row.order_id),
+    provider: (row.provider ? String(row.provider) : 'sandbox') as PaymentRecord['provider'],
     method: row.method as PaymentRecord['method'],
     amount: Number(row.amount),
     currency: 'BRL',
@@ -126,6 +135,7 @@ function mysqlRowToPaymentRecord(row: MysqlRow): PaymentRecord {
 export async function createPaymentRecord(input: {
   payload: CheckoutPaymentPayload;
   orderId: string;
+  provider: PaymentRecord['provider'];
   providerReference: string;
   status: PaymentStatus;
 }): Promise<PaymentRecord> {
@@ -133,6 +143,7 @@ export async function createPaymentRecord(input: {
   const record: PaymentRecord = {
     paymentId,
     orderId: input.orderId,
+    provider: input.provider,
     method: input.payload.method,
     amount: input.payload.amount,
     currency: input.payload.currency,
@@ -144,12 +155,22 @@ export async function createPaymentRecord(input: {
 
   const mysql = await getMysqlPool();
   if (mysql && shouldUseMysql()) {
+    if (!mysqlProviderColumnReady) {
+      try {
+        await mysql.execute<MysqlResult>(`ALTER TABLE payments ADD COLUMN provider VARCHAR(32) NOT NULL DEFAULT 'sandbox'`);
+      } catch {
+        // ignore when column already exists
+      } finally {
+        mysqlProviderColumnReady = true;
+      }
+    }
     await mysql.execute<MysqlResult>(
-      `INSERT INTO payments (payment_id, order_id, method, amount, currency, status, provider_reference, created_at, approved_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO payments (payment_id, order_id, provider, method, amount, currency, status, provider_reference, created_at, approved_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         record.paymentId,
         record.orderId,
+        record.provider,
         record.method,
         record.amount,
         record.currency,
@@ -165,11 +186,12 @@ export async function createPaymentRecord(input: {
   const db = getSqliteDb();
   if (db) {
     db.prepare(
-      `INSERT INTO payments (payment_id, order_id, method, amount, currency, status, provider_reference, created_at, approved_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO payments (payment_id, order_id, provider, method, amount, currency, status, provider_reference, created_at, approved_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(
       record.paymentId,
       record.orderId,
+      record.provider,
       record.method,
       record.amount,
       record.currency,

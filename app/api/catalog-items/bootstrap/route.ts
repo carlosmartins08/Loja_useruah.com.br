@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { canManageCatalog, getActorFromRequest } from '@/lib/access-control';
 import { createCatalogItem, markCatalogItemReady, publishCatalogItem } from '@/lib/catalog-item-store';
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const { item, created } = createCatalogItem({
+    const { item, created } = await createCatalogItem({
       catalogItemId: seed.id,
       artworkId,
       productBaseId: `BASE-${seed.id}`,
@@ -65,8 +65,8 @@ export async function POST(request: Request) {
       tags: ['Seed', seed.segment === 'base' ? 'Volume' : 'Autoral'],
     });
 
-    markCatalogItemReady({ catalogItemId: item.catalogItemId, reason: 'bootstrap_seed_ready' });
-    const published = publishCatalogItem({ catalogItemId: item.catalogItemId, reason: 'bootstrap_seed' });
+    await markCatalogItemReady({ catalogItemId: item.catalogItemId, reason: 'bootstrap_seed_ready' });
+    const published = await publishCatalogItem({ catalogItemId: item.catalogItemId, reason: 'bootstrap_seed' });
     results.push({ catalogItemId: item.catalogItemId, created, published: published.kind === 'updated' || published.kind === 'already_published' });
   }
 

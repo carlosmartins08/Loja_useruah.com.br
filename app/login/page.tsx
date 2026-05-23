@@ -4,18 +4,26 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Mail, Lock, ArrowRight, Github, Chrome as Google } from 'lucide-react';
+import { useUser } from '@/context/UserContext';
+import { postJson } from '@/lib/http-client';
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+  const { refreshSession } = useUser();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
-    setTimeout(() => {
+    try {
+      await postJson('/api/auth/login', { email, password });
+      await refreshSession();
       window.location.href = '/account';
-    }, 1500);
+    } catch (error) {
+      console.error(error);
+      setIsLoggingIn(false);
+    }
   };
 
   return (

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, ArrowRight, Truck, RefreshCcw, ShieldCheck, Mail, Phone, MessageSquare, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { Header } from '@/components/navigation/Header';
+import { Footer } from '@/components/navigation/Footer';
 
 const FAQ_CATEGORIES = [
   {
@@ -53,7 +55,9 @@ export default function HelpCenterPage() {
   })).filter(cat => cat.questions.length > 0);
 
   return (
-    <main className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white page-header-offset">
+      <Header />
+      <main>
        {/* Hero Section */}
        <section className="bg-ruah-950 text-white pt-40 pb-24 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1/3 h-full bg-accent-gold/10 blur-[120px] -skew-x-12" />
@@ -215,6 +219,8 @@ export default function HelpCenterPage() {
              </div>
           </div>
        </section>
-    </main>
+      </main>
+      <Footer />
+    </div>
   );
 }

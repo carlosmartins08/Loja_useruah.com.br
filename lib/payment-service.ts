@@ -10,6 +10,8 @@ import {
 } from '@/lib/payment-store';
 import { getPaymentProvider } from '@/lib/payment-provider';
 import type { CheckoutPaymentPayload, PaymentRecord, PaymentStatus } from '@/lib/payments';
+import { getPaymentGateway } from '@/lib/payment-gateway-registry';
+import { getPaymentConnectorConfigPlain } from '@/lib/payment-connector-store';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { createCommissionPending } from '@/lib/commission-store';
 import { getOrder, updateOrderStatus } from '@/lib/order-store';
@@ -65,10 +67,21 @@ export async function createPaymentWithIdempotency(
     throw new PaymentFlowError(409, 'invalid_transition');
   }
 
-  const provider = getPaymentProvider();
+  const selectedProvider = payload.provider ?? ((process.env.PAYMENT_PROVIDER?.toLowerCase() as PaymentRecord['provider'] | undefined) ?? 'sandbox');
+  const gateway = getPaymentGateway(selectedProvider);
+  const connector = await getPaymentConnectorConfigPlain(selectedProvider);
+  const enabledByConnector = connector ? connector.enabled : gateway?.enabled ?? false;
+  if (!gateway || !enabledByConnector) {
+    throw new PaymentFlowError(422, 'provider_not_available');
+  }
+  if (!gateway.methods.includes(payload.method)) {
+    throw new PaymentFlowError(422, 'provider_method_not_supported');
+  }
+
+  const provider = getPaymentProvider(selectedProvider);
   const charge = await provider.createCharge(payload);
   await appendIntegrationLog({
-    provider: process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox',
+    provider: selectedProvider,
     action: 'create_charge',
     requestPayload: {
       orderId: payload.orderId,
@@ -89,6 +102,7 @@ export async function createPaymentWithIdempotency(
   const payment = await createPaymentRecord({
     payload,
     orderId: order.orderId,
+    provider: selectedProvider,
     providerReference: charge.providerReference,
     status: charge.status,
   });
@@ -194,7 +208,7 @@ export async function applyWebhookEvent(input: {
       });
     }
 
-    const providerName = process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox';
+    const providerName = updatedPayment.provider;
     const supplierDefault = process.env.SUPPLIER_OWNER_DEFAULT_ID?.trim() || 'supplier-default';
     const platformDefault = process.env.PLATFORM_OWNER_DEFAULT_ID?.trim() || 'platform-default';
     const artistDefault = process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default';
@@ -282,8 +296,8 @@ export async function applyWebhookEvent(input: {
     });
     await createPaymentSplits({ paymentId: updatedPayment.paymentId, rows: splitRows });
 
-    const licenseRows = paidOrder.items.map((item) => {
-      const catalog = getCatalogItem(item.catalogItemId);
+    const licenseRows = await Promise.all(paidOrder.items.map(async (item) => {
+      const catalog = await getCatalogItem(item.catalogItemId);
       const artwork = catalog ? getArtwork(catalog.artworkId) : null;
       const gross = item.grossItemAmount || Number((item.unitPrice * item.quantity).toFixed(2));
       const artistLicenseAmount = item.artistLicenseAmount ?? round2(gross * artistPct);
@@ -307,7 +321,7 @@ export async function applyWebhookEvent(input: {
         paymentStatus: 'approved' as const,
         paidAt: new Date().toISOString(),
       };
-    });
+    }));
     await createLicenseEvents(licenseRows);
 
     const commissionRate = Number(process.env.COMMISSION_RATE ?? '0.15');

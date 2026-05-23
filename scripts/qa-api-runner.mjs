@@ -1,4 +1,4 @@
-import net from 'node:net';
+﻿import net from 'node:net';
 import { spawn } from 'node:child_process';
 
 const PORT = Number(process.env.QA_PORT ?? 3200);
@@ -85,22 +85,34 @@ function killProcessTree(child) {
   });
 }
 
+function spawnNpm(args) {
+  const npmExecPath = process.env.npm_execpath;
+  if (npmExecPath) {
+    return spawn(process.execPath, [npmExecPath, ...args], {
+      stdio: 'inherit',
+      windowsHide: process.platform === 'win32',
+      detached: process.platform !== 'win32',
+    });
+  }
+
+  return spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', args, {
+    stdio: 'inherit',
+    windowsHide: process.platform === 'win32',
+    detached: process.platform !== 'win32',
+  });
+}
+
 async function main() {
   const portAlreadyOpen = await isPortOpen(PORT);
-  const startCmd = QA_SERVER_MODE === 'start' ? `npm run start -- -p ${PORT}` : `npm run dev -- -p ${PORT}`;
-  const server = portAlreadyOpen
-    ? null
-    : spawn(startCmd, [], {
-        shell: true,
-        stdio: 'inherit',
-        detached: process.platform !== 'win32',
-      });
+  const startArgs = QA_SERVER_MODE === 'start' ? ['run', 'start', '--', '-p', String(PORT)] : ['run', 'dev', '--', '-p', String(PORT)];
+  const server = portAlreadyOpen ? null : spawnNpm(startArgs);
 
   try {
     await waitForPort(PORT);
     const qa = spawn(process.execPath, [QA_SCRIPT], {
       stdio: 'inherit',
       env: { ...process.env, QA_BASE_URL: BASE_URL },
+      windowsHide: process.platform === 'win32',
     });
 
     const exitCode = await new Promise((resolve, reject) => {

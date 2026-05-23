@@ -55,11 +55,11 @@ export function CheckoutStepOneSection({
 
       <div className="bg-white p-10 rounded-[2.5rem] border border-ruah-100 flex flex-col gap-8">
         <div className="flex gap-4">
-          <button onClick={() => onSelectAddress('home')} className={`p-6 rounded-2xl border transition-all text-left flex-1 ${selectedAddress === 'home' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-100'}`}>
+          <button type="button" aria-pressed={selectedAddress === 'home'} onClick={() => onSelectAddress('home')} className={`p-6 rounded-2xl border transition-all text-left flex-1 ${selectedAddress === 'home' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-100'}`}>
             <h4 className="text-[10px] font-bold uppercase mb-1 text-ruah-950 font-bold">Entregar na Toca</h4>
             <p className="text-[9px] text-ruah-400 uppercase tracking-widest">Endereço Principal Cadastrado</p>
           </button>
-          <button onClick={() => onSelectAddress('work')} className={`p-6 rounded-2xl border transition-all text-left flex-1 ${selectedAddress === 'work' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-100'}`}>
+          <button type="button" aria-pressed={selectedAddress === 'work'} onClick={() => onSelectAddress('work')} className={`p-6 rounded-2xl border transition-all text-left flex-1 ${selectedAddress === 'work' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-100'}`}>
             <h4 className="text-[10px] font-bold uppercase mb-1 text-ruah-950 font-bold">Presente/Outro</h4>
             <p className="text-[9px] text-ruah-400 uppercase tracking-widest">Novo Ponto de Sopro</p>
           </button>
@@ -68,11 +68,11 @@ export function CheckoutStepOneSection({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-ruah-950 font-bold">
           <div className="flex flex-col gap-2">
             <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">CEP</label>
-            <input type="text" placeholder="00000-000" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
+            <input type="text" inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Destinatário</label>
-            <input type="text" placeholder="Nome de quem recebe" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
+            <input type="text" autoComplete="name" placeholder="Nome de quem recebe" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
           </div>
         </div>
       </div>
@@ -88,7 +88,7 @@ export function CheckoutStepOneSection({
               <p className="text-[9px] text-ruah-400 uppercase tracking-widest">Unboxing premium com cartão autoral.</p>
             </div>
           </div>
-          <button onClick={onToggleGift} className={`w-12 h-6 rounded-full transition-all relative ${gifting.isGift ? 'bg-accent-gold' : 'bg-ruah-200'}`}>
+          <button type="button" aria-pressed={gifting.isGift} aria-label="Ativar experiência de presente" onClick={onToggleGift} className={`w-12 h-6 rounded-full transition-all relative ${gifting.isGift ? 'bg-accent-gold' : 'bg-ruah-200'}`}>
             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${gifting.isGift ? 'left-7' : 'left-1'}`} />
           </button>
         </div>
@@ -108,7 +108,7 @@ export function CheckoutStepOneSection({
         )}
       </div>
 
-      <button onClick={onContinue} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-accent-gold transition-all shadow-fancy">
+      <button type="button" onClick={onContinue} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-accent-gold transition-all shadow-fancy">
         Ir para Pagamento Seguro
       </button>
     </div>

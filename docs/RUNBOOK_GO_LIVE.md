@@ -8,6 +8,8 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
 - `CRIT-PAY-REAL-001` deve estar resolvido antes de venda real.
 - `CRIT-PAY-REAL-002` deve estar resolvido antes de venda real.
 - Sem esses dois itens, pode haver vitrine/pre-lancamento, mas sem captura financeira real.
+- Sem `docs/EXECUTION_TRACKING.md` atualizado com status + evidencias P0, release bloqueado.
+- Sem plano de rollback testado (<30 min), release bloqueado.
 
 ## Quadro de Status (preencher diariamente)
 | Etapa | Dono | Status (`TODO`/`DOING`/`DONE`/`BLOCKED`) | Evidencia |
@@ -63,6 +65,8 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
 2. Rodar gates obrigatorios.
 - Dono: Engenharia + QA
 - Comandos:
+  - `npm run qa:providers:ready`
+  - smoke dedicado do provider escolhido (`qa:inter:smoke|qa:infinitepay:smoke|qa:mercadopago:smoke|qa:pagarme:smoke|qa:cielo:smoke|qa:stripe:smoke`)
   - `npm run alert:critical`
   - `npm run check`
   - `npm run qa:payments21`
@@ -132,7 +136,13 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
   - escalar trafego ou manter rampa com base em dados dos 2 primeiros dias
 
 ## Evidencias obrigatorias
-- `docs/P0_EVIDENCE_LOG.md` atualizado
+- `docs/EXECUTION_TRACKING.md` atualizado
 - `docs/CHANGELOG_GOVERNANCE.md` atualizado
-- `docs/EXECUTION_STATUS_MATRIX.md` atualizado
 - Referencia operacional: `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+
+## Gate COBIT/ITIL de liberacao (Go/No-Go)
+- [ ] Tipo de mudanca declarado (`standard|normal|emergency`) no PR principal.
+- [ ] Risco e rollback documentados no PR principal.
+- [ ] `docs/EXECUTION_TRACKING.md` atualizado no mesmo ciclo.
+- [ ] Evidencia P0 vinculada ao escopo da release.
+- [ ] Se houve `emergency`, RCA aberta em ate 24h.

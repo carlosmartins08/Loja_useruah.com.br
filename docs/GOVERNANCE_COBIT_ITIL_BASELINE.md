@@ -33,6 +33,18 @@ Aplicar governanca pratica para reduzir retrabalho, mudanca sem controle e perda
 4. Falha P0 aplicavel bloqueia merge/release.
 5. Divergencia doc x codigo deve ser corrigida no mesmo ciclo.
 
+## Controles executaveis (obrigatorios)
+1. Gate de mudanca (BAI06 / Change Enablement):
+- PR critico sem tipo de mudanca, risco e rollback = bloqueado.
+2. Registro unico de mudanca:
+- Toda mudanca critica deve gerar entrada no `docs/CHANGELOG_GOVERNANCE.md`.
+3. Gate de liberacao (BAI07 / Service Validation and Testing):
+- Sem `docs/EXECUTION_TRACKING.md` atualizado e evidencia P0, nao liberar.
+4. Pos-incidente (DSS02 + DSS03 / Incident + Problem):
+- Se `emergency`, RCA obrigatorio em ate 24 horas apos merge.
+5. Monitoramento (MEA01):
+- KPIs semanais obrigatorios no `docs/EXECUTION_TRACKING.md`.
+
 ## Artefatos oficiais do baseline
 - Template de PR unico: `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
 - Consolidado de regras: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
@@ -45,3 +57,8 @@ Aplicar governanca pratica para reduzir retrabalho, mudanca sem controle e perda
 - Incidentes recorrentes sem RCA fechado.
 - Divergencias docs x codigo encontradas por ciclo.
 - Lead time de mudanca por tipo (`standard|normal|emergency`).
+
+## KPIs minimos semanais (operacao)
+- `% PR critico com checklist completo`.
+- `% release com evidencia P0 vinculada`.
+- `tempo medio de rollback testado`.

@@ -14,6 +14,8 @@ import {
   Zap
 } from 'lucide-react';
 import Link from 'next/link';
+import { useUser } from '@/context/UserContext';
+import type { UserRole } from '@/lib/auth-session';
 
 const modules = [
   {
@@ -51,10 +53,38 @@ const modules = [
     href: '#',
     color: 'text-ruah-400',
     bg: 'bg-ruah-100'
-  }
+  },
+  {
+    id: 6,
+    title: 'Suporte & Atendimento',
+    description: 'Central de ajuda operacional e acompanhamento de pedidos para suporte.',
+    icon: Users,
+    href: '/admin/support',
+    color: 'text-purple-500',
+    bg: 'bg-purple-500/10'
+  },
+  {
+    id: 7,
+    title: 'Conectores Pagamento',
+    description: 'Gestão self-service de credenciais e teste de integração por gateway.',
+    icon: ShieldCheck,
+    href: '/admin/payments/connectors',
+    color: 'text-emerald-500',
+    bg: 'bg-emerald-500/10'
+  },
 ];
 
+function isModuleAllowed(role: UserRole, moduleId: number) {
+  if (role === 'platform_admin') return true;
+  if (role === 'production_operator') return moduleId === 4;
+  if (role === 'support_agent') return moduleId === 6;
+  return false;
+}
+
 export default function AdminHub() {
+  const { userRole } = useUser();
+  const allowedModules = modules.filter((module) => isModuleAllowed(userRole, module.id));
+
   return (
     <div className="min-h-screen bg-ruah-25 font-sans p-6 md:p-12">
       <div className="max-w-7xl mx-auto">
@@ -77,7 +107,7 @@ export default function AdminHub() {
 
         {/* Modules Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {modules.map((module, idx) => (
+          {allowedModules.map((module, idx) => (
             <motion.div
               key={module.id}
               initial={{ opacity: 0, y: 20 }}

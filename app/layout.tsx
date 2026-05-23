@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next';
+﻿import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const viewport: Viewport = {
@@ -31,13 +31,24 @@ export const metadata: Metadata = {
     siteName: 'UseRuah',
     images: [
       {
-        url: 'https://useruah.com.br/og-image.jpg',
+        url: 'https://useruah.com.br/opengraph-image',
         width: 1200,
         height: 630,
         alt: 'UseRuah Moda Cristã',
       },
     ],
-  }
+  },
+  icons: {
+    icon: [{ url: '/icon' }],
+    shortcut: ['/icon'],
+    apple: [{ url: '/apple-icon' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'UseRuah | Moda Cristã com Propósito',
+    description: 'Conectando a comunidade cristã através da moda autoral e design com propósito.',
+    images: ['https://useruah.com.br/opengraph-image'],
+  },
 };
 
 import { Suspense } from 'react';
@@ -79,3 +90,4 @@ export default function RootLayout({
     </html>
   );
 }
+

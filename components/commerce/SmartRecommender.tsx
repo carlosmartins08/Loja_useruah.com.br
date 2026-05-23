@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
@@ -52,3 +52,4 @@ export function SmartRecommender({ recommendations }: { recommendations: SmartRe
     </div>
   );
 }
+

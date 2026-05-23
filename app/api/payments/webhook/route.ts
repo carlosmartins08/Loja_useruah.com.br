@@ -7,6 +7,18 @@ interface WebhookPayload {
   eventId?: string;
   providerReference: string;
   event: 'payment.approved' | 'payment.failed' | 'payment.pending';
+  provider?: string;
+}
+
+function inferProviderName(request: Request, body: WebhookPayload) {
+  const fromHeader = request.headers.get('x-provider')?.trim().toLowerCase();
+  if (fromHeader) return fromHeader;
+  if (typeof body.provider === 'string' && body.provider.trim()) return body.provider.trim().toLowerCase();
+  const ref = body.providerReference?.toLowerCase() ?? '';
+  const known = ['inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe', 'gateway_real', 'gateway_sandbox', 'sandbox'];
+  const byPrefix = known.find((item) => ref.startsWith(`${item}_`));
+  if (byPrefix) return byPrefix;
+  return process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox';
 }
 
 export async function POST(request: Request) {
@@ -26,7 +38,7 @@ export async function POST(request: Request) {
 
   try {
     const eventId = body.eventId || idempotencyKey || '';
-    const providerName = process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox';
+    const providerName = inferProviderName(request, body);
     const eventRegistration = await registerProviderWebhookEvent({
       provider: providerName,
       eventType: body.event,
@@ -99,7 +111,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true, payment: result.payment });
   } catch (error) {
-    const providerName = process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox';
+    const providerName = inferProviderName(request, body);
     const eventId = body.eventId || idempotencyKey || '';
     await markProviderWebhookEventProcessed({
       provider: providerName,

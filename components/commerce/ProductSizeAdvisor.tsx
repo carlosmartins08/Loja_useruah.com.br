@@ -46,6 +46,9 @@ export function ProductSizeAdvisor() {
   const valid = Number.isFinite(parsedHeight) && Number.isFinite(parsedWeight) && parsedHeight > 130 && parsedHeight < 230 && parsedWeight > 35 && parsedWeight < 220;
 
   const recommendation = valid ? recommendSize(parsedHeight, parsedWeight, preference) : null;
+  const heightId = React.useId();
+  const weightId = React.useId();
+  const errorId = React.useId();
 
   return (
     <section className="py-20 bg-white border-y border-ruah-100">
@@ -60,11 +63,33 @@ export function ProductSizeAdvisor() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="flex flex-col gap-2">
               <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-500">Altura (cm)</span>
-              <input value={height} onChange={(e) => setHeight(e.target.value)} className="h-11 rounded-xl border border-ruah-100 bg-white px-3 text-sm font-bold text-ruah-950 outline-none focus:border-accent-gold" />
+              <input
+                id={heightId}
+                type="number"
+                inputMode="numeric"
+                min={131}
+                max={229}
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                aria-invalid={!valid}
+                aria-describedby={!valid ? errorId : undefined}
+                className="h-11 rounded-xl border border-ruah-100 bg-white px-3 text-sm font-bold text-ruah-950 outline-none focus:border-accent-gold"
+              />
             </label>
             <label className="flex flex-col gap-2">
               <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-500">Peso (kg)</span>
-              <input value={weight} onChange={(e) => setWeight(e.target.value)} className="h-11 rounded-xl border border-ruah-100 bg-white px-3 text-sm font-bold text-ruah-950 outline-none focus:border-accent-gold" />
+              <input
+                id={weightId}
+                type="number"
+                inputMode="numeric"
+                min={36}
+                max={219}
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                aria-invalid={!valid}
+                aria-describedby={!valid ? errorId : undefined}
+                className="h-11 rounded-xl border border-ruah-100 bg-white px-3 text-sm font-bold text-ruah-950 outline-none focus:border-accent-gold"
+              />
             </label>
           </div>
 
@@ -72,7 +97,9 @@ export function ProductSizeAdvisor() {
             {(['ajustado', 'regular', 'solto'] as FitPreference[]).map((option) => (
               <button
                 key={option}
+                type="button"
                 onClick={() => setPreference(option)}
+                aria-pressed={preference === option}
                 className={`px-4 py-2 rounded-full text-[9px] font-bold uppercase tracking-widest border ${preference === option ? 'bg-ruah-950 text-white border-ruah-950' : 'bg-white text-ruah-500 border-ruah-100'}`}
               >
                 {option}
@@ -87,7 +114,9 @@ export function ProductSizeAdvisor() {
               <p className="text-[10px] font-medium uppercase tracking-widest text-ruah-500 leading-loose mt-3">{recommendation.note}</p>
             </div>
           ) : (
-            <p className="text-[10px] font-bold uppercase tracking-widest text-red-600">Preencha valores válidos para calcular a recomendação.</p>
+            <p id={errorId} className="text-[10px] font-bold uppercase tracking-widest text-red-600">
+              Preencha valores válidos para calcular a recomendação.
+            </p>
           )}
         </div>
       </div>

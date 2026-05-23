@@ -1,4 +1,4 @@
-import 'server-only';
+﻿import 'server-only';
 
 import { listCatalogItems, type CatalogItemRecord } from '@/lib/catalog-item-store';
 import type { ShopProduct } from '@/components/shop/shop-data';
@@ -15,6 +15,7 @@ function mapCatalogItemToShopProduct(item: CatalogItemRecord): ShopProduct {
   };
 }
 
-export function getPublishedShopProducts(): ShopProduct[] {
-  return listCatalogItems({ publicationStatus: 'published' }).map(mapCatalogItemToShopProduct);
+export async function getPublishedShopProducts(): Promise<ShopProduct[]> {
+  const items = await listCatalogItems({ publicationStatus: 'published' });
+  return items.map(mapCatalogItemToShopProduct);
 }

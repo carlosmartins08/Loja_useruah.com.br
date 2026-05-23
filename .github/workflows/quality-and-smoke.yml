@@ -24,8 +24,10 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Lint + Typecheck
-        run: npm run check
+      - name: Pre-Merge Gate
+        env:
+          EXECUTED_CHECKS: check,pr:gate,pr:impact
+        run: npm run pr:premerge
 
       - name: Critical Alerts
         run: npm run alert:critical

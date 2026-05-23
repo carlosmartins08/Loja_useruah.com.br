@@ -8,6 +8,7 @@ import { ProductionTimeline, OrderStatus } from '@/components/commerce/Productio
 import Image from 'next/image';
 import { useUser } from '@/context/UserContext';
 import { ProfilePhotoModal } from '@/components/navigation/ProfilePhotoModal';
+import { useRouter } from 'next/navigation';
 
 const MOCK_ORDERS = [
   {
@@ -32,8 +33,28 @@ const MOCK_ORDERS = [
 
 export default function AccountPage() {
   const [selectedOrder, setSelectedOrder] = React.useState(MOCK_ORDERS[0]);
-  const { profilePhoto, setProfilePhoto, userName } = useUser();
+  const { profilePhoto, setProfilePhoto, userName, userRole, isAuthenticated, isSessionReady } = useUser();
   const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (!isSessionReady) return;
+    if (!isAuthenticated) {
+      router.replace('/login');
+      return;
+    }
+    if (userRole === 'platform_admin' || userRole === 'support_agent' || userRole === 'production_operator') {
+      router.replace('/admin');
+    }
+  }, [isAuthenticated, isSessionReady, userRole, router]);
+
+  if (!isSessionReady || !isAuthenticated) {
+    return null;
+  }
+
+  if (userRole === 'platform_admin' || userRole === 'support_agent' || userRole === 'production_operator') {
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-ruah-50">

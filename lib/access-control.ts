@@ -1,4 +1,6 @@
 import type { OrderRecord } from '@/lib/order-store';
+import { decodeSessionToken } from '@/lib/session-token';
+import { isUserRole } from '@/lib/auth-session';
 
 export interface AccessActor {
   actorId: string;
@@ -10,6 +12,26 @@ export function isRbacActive() {
 }
 
 export function getActorFromRequest(request: Request): AccessActor | null {
+  const cookieHeader = request.headers.get('cookie');
+  const sessionToken = cookieHeader
+    ?.split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith('ruah_session='))
+    ?.slice('ruah_session='.length);
+
+  const session = decodeSessionToken(sessionToken);
+  if (session && isUserRole(session.userRole)) {
+    return {
+      actorId: session.userId,
+      actorRole: session.userRole,
+    };
+  }
+
+  const allowHeaderFallback = process.env.NODE_ENV !== 'production' || process.env.ALLOW_HEADER_ACTOR_FALLBACK === 'true';
+  if (!allowHeaderFallback) {
+    return null;
+  }
+
   const actorId = request.headers.get('x-actor-id');
   const actorRole = request.headers.get('x-actor-role');
   if (!actorId || !actorRole) return null;

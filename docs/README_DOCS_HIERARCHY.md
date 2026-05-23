@@ -9,19 +9,24 @@ Evitar retrabalho, duplicidade e conflito de interpretação sobre qual document
 1. `docs/EXECUTION_CONSOLIDATED_MASTER.md`
 2. `docs/EXECUTION_OPERATING_TEMPLATE.md`
 3. Documento de domínio específico
-4. `docs/MVP_ROADMAP.md`
-5. `docs/ROUTE_DEFINITION_OF_DONE.md`
-6. `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
-7. `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
-8. `docs/CHANGELOG_GOVERNANCE.md`
-9. `docs/DOCS_UNIFICATION_PLAN.md` (quando houver decisão de consolidar documentos)
-10. `docs/CYCLE_YYYY-MM-DD_YYYY-MM-DD_<DOMINIO>.md` (planejamento e execução semanal por domínio)
+4. `docs/CODEBASE_MAP.md` (localizacao tecnica no codigo)
+5. `docs/MVP_ROADMAP.md`
+6. `docs/ROUTE_DEFINITION_OF_DONE.md`
+7. `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+8. `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
+9. `docs/CHANGELOG_GOVERNANCE.md`
+10. `docs/DOCS_UNIFICATION_PLAN.md` (quando houver decisão de consolidar documentos)
+11. `docs/EXECUTION_TRACKING.md` (planejamento e execucao semanal por dominio)
 
 ## Qual documento usar por tipo de decisão
 
 ### Governança e conflito documental
 - Usar: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
 - Quando: houver dúvida de precedência, conflito entre docs ou criação de novo documento.
+
+### Localizacao tecnica no codigo
+- Usar: `docs/CODEBASE_MAP.md`
+- Quando: precisar localizar rapidamente endpoint, servico, store, componente ou script de QA por dominio.
 
 ### Sequenciamento por fase (produto/execução)
 - Usar: `docs/MVP_ROADMAP.md`
@@ -77,6 +82,7 @@ Se não atender os 4 critérios, atualizar documento existente.
 - Toda mudança de contrato deve registrar compatibilidade/migration.
 - Toda decisão relevante deve entrar no `CHANGELOG_GOVERNANCE.md`.
 - Todo PR crítico deve citar o documento fonte e usar template de governança.
+- Toda mudanca estrutural no codigo (API/servico/store/componente critico) deve atualizar `docs/CODEBASE_MAP.md`.
 
 ## Sinais de alerta (erro de processo)
 Se qualquer item abaixo acontecer, pausar implementação e corrigir documentação:

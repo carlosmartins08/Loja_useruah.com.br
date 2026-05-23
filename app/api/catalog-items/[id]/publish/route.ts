@@ -27,7 +27,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const current = getCatalogItem(id);
+  const current = await getCatalogItem(id);
   if (!current) return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
   const artwork = getArtwork(current.artworkId);
@@ -39,7 +39,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: 'invalid_transition', detail: 'artwork_must_be_approved' }, { status: 409 });
   }
 
-  const result = publishCatalogItem({ catalogItemId: id, reason: payload.reason });
+  const result = await publishCatalogItem({ catalogItemId: id, reason: payload.reason });
   if (result.kind === 'not_found') return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (result.kind === 'invalid_transition') return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });
   if (result.kind === 'already_published') return NextResponse.json({ ok: true, item: result.item, reused: true });

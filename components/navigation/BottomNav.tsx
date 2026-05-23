@@ -6,18 +6,21 @@ import { usePathname } from 'next/navigation';
 import { motion } from 'motion/react';
 import { Home, ShoppingBag, Search, ShoppingCart, User, Sparkles } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useUser } from '@/context/UserContext';
 
 export function BottomNav() {
   const pathname = usePathname();
   const { setIsCartOpen, cart } = useCart();
+  const { userRole } = useUser();
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const accountHref = userRole === 'customer' ? '/account' : '/admin';
 
   const navItems = [
     { label: 'Início', icon: Home, href: '/' },
     { label: 'Shop', icon: ShoppingBag, href: '/shop' },
     { label: 'IA Style', icon: Sparkles, href: '#', isAi: true },
     { label: 'Cart', icon: ShoppingCart, onClick: () => setIsCartOpen(true), badge: cartItemCount },
-    { label: 'Conta', icon: User, href: '/account' },
+    { label: 'Conta', icon: User, href: accountHref },
   ];
 
   return (

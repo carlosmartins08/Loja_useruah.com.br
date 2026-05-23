@@ -31,6 +31,7 @@ Os demais documentos devem apenas referenciar a máquina de estados aplicável, 
 - Permissões (RBAC): `docs/ROLES_MATRIX.md`
 - Sequenciamento macro: `docs/MVP_ROADMAP.md`
 - Qualidade de rota/UI: `docs/ROUTE_DEFINITION_OF_DONE.md`
+- Localizacao tecnica no codigo: `docs/CODEBASE_MAP.md`
 
 ## Estados canonicos oficiais
 Estados e transições canônicas das entidades operacionais devem seguir `docs/STATE_MACHINES.md`.
@@ -52,6 +53,7 @@ Pagamento (Payment Deferred ativo):
 - Não introduzir novo status sem atualizar explicitamente o documento de domínio correspondente.
 - Não alterar contrato de pagamento sem migration formal documentada.
 - Todo PR que tocar estados/contratos deve citar seção alterada do documento fonte.
+- Toda alteracao estrutural de codigo deve atualizar `docs/CODEBASE_MAP.md` no mesmo PR.
 
 ## Checklist de consistencia (antes de merge)
 - [ ] PR aponta documento fonte do domínio alterado.
@@ -79,8 +81,10 @@ Indice de navegacao documental: docs/README_DOCS_HIERARCHY.md
 
 Classificacao oficial de documentos: docs/DOCS_CLASSIFICATION.md
 
-Matriz de status atual (existe/parcial/ausente): docs/EXECUTION_STATUS_MATRIX.md
-Registro de evidências P0: docs/P0_EVIDENCE_LOG.md
+Matriz de status atual (existe/parcial/ausente): docs/EXECUTION_TRACKING.md
+Registro de evidências P0: docs/EXECUTION_TRACKING.md
+Plano mestre de continuidade tecnica: docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md
+Checklist oficial de revisao de telas frontend: docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md
 
 ## Sistema anti-perda de execução (obrigatorio)
 Objetivo: impedir dispersão, conflito de prioridade e retrabalho por troca de contexto.
@@ -110,7 +114,7 @@ Terça a quinta (execução):
 - Toda mudança sensível deve referenciar documento-fonte de domínio.
 
 Sexta (fechamento):
-- Atualizar `docs/EXECUTION_STATUS_MATRIX.md`.
+- Atualizar `docs/EXECUTION_TRACKING.md`.
 - Atualizar domínio executado com progresso real.
 - Registrar decisões e exceções em `docs/CHANGELOG_GOVERNANCE.md`.
 
@@ -147,3 +151,5 @@ Mudanças nos seguintes domínios exigem validação dos testes P0 aplicáveis e
 3. Alterações em checkout, pagamento, webhook, produção ou financeiro exigem evidência mínima anexada.
 4. Falha em teste P0 bloqueia merge/release.
 5. Correções emergenciais podem seguir com exceção apenas se houver registro explícito do risco, responsável e plano de correção.
+6. Release sem `docs/EXECUTION_TRACKING.md` atualizado no ciclo é bloqueado.
+7. Mudanca `emergency` exige RCA registrada em ate 24h.

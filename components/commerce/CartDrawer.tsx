@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -11,6 +11,17 @@ export function CartDrawer() {
   const { isCartOpen, setIsCartOpen, cart, removeFromCart, updateQuantity, total, subtotal, discount, location } = useCart();
   const freeShippingThreshold = 3000;
   const progress = Math.min((total / freeShippingThreshold) * 100, 100);
+
+  React.useEffect(() => {
+    if (!isCartOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsCartOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isCartOpen, setIsCartOpen]);
 
   return (
     <AnimatePresence>
@@ -31,6 +42,9 @@ export function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Carrinho de compras"
             className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[101] flex flex-col"
           >
             {/* Header */}
@@ -42,8 +56,7 @@ export function CartDrawer() {
                   {cart.length} peças
                 </span>
               </div>
-              <button 
-                onClick={() => setIsCartOpen(false)}
+              <button type="button" onClick={() => setIsCartOpen(false)}
                 className="w-10 h-10 flex items-center justify-center hover:bg-ruah-50 rounded-full transition-colors"
               >
                 <X size={20} />
@@ -80,8 +93,7 @@ export function CartDrawer() {
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
                   <ShoppingBag size={48} className="mb-4" />
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em]">Seu carrinho está vazio</p>
-                  <button 
-                    onClick={() => setIsCartOpen(false)}
+                  <button type="button" onClick={() => setIsCartOpen(false)}
                     className="mt-6 text-[10px] font-bold border-b border-ruah-950 pb-1"
                   >
                     Continuar Explorando
@@ -105,8 +117,7 @@ export function CartDrawer() {
                           <h3 className="text-xs font-bold uppercase tracking-tight text-ruah-950 group-hover:text-accent-gold transition-colors">
                             {item.name}
                           </h3>
-                          <button 
-                            onClick={() => removeFromCart(item.id)}
+                          <button type="button" onClick={() => removeFromCart(item.id)}
                             className="text-ruah-300 hover:text-red-500 transition-colors"
                           >
                             <Trash2 size={14} />
@@ -131,15 +142,13 @@ export function CartDrawer() {
                         
                         <div className="flex items-center justify-between mt-auto">
                           <div className="flex items-center gap-4 bg-ruah-50 rounded-full px-3 py-1">
-                            <button 
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}
                               className="text-ruah-400 hover:text-ruah-950"
                             >
                               <Minus size={12} />
                             </button>
                             <span className="text-xs font-mono font-bold w-4 text-center">{item.quantity}</span>
-                            <button 
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}
                               className="text-ruah-400 hover:text-ruah-950"
                             >
                               <Plus size={12} />
@@ -170,7 +179,7 @@ export function CartDrawer() {
                               <span className="text-[10px] font-bold uppercase tracking-tight text-ruah-950">{acc.name}</span>
                               <span className="text-[9px] font-mono text-accent-gold">R$ {acc.price.toLocaleString('pt-BR')}</span>
                            </div>
-                           <button className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-ruah-400 hover:bg-accent-gold hover:text-white transition-all">
+                           <button type="button" className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-ruah-400 hover:bg-accent-gold hover:text-white transition-all">
                               <Plus size={14} />
                            </button>
                         </div>
@@ -214,8 +223,7 @@ export function CartDrawer() {
                   >
                     Confirmar Handover <ArrowRight size={16} />
                   </Link>
-                  <button 
-                    onClick={() => setIsCartOpen(false)}
+                  <button type="button" onClick={() => setIsCartOpen(false)}
                     className="w-full bg-white border border-ruah-100 py-4 rounded-xl font-bold uppercase text-[9px] tracking-[0.2em] text-ruah-400 hover:text-ruah-950 hover:border-ruah-200 transition-all font-bold"
                   >
                     Olhar Outras Peças
@@ -229,3 +237,4 @@ export function CartDrawer() {
     </AnimatePresence>
   );
 }
+
