@@ -1,10 +1,10 @@
-{
+﻿{
   "version": "2026-05-24-useruah-v4",
   "brand": "UseRuah",
   "strategy": {
-    "principle": "Personalização com regra: fato principal, próximo passo, limite real e camada humana quando o contexto permitir.",
-    "fallbackPolicy": "Se qualquer variável não estiver confiável, usar fallbackBody ou headlineBase.",
-    "ruahLayerPolicy": "Usar campos headlineRuah/bodyRuah apenas quando produto, coleção, intenção ou jornada indicarem fé, oração, arte devocional, presente significativo ou comunidade."
+    "principle": "PersonalizaÃ§Ã£o com regra: fato principal, prÃ³ximo passo, limite real e camada humana quando o contexto permitir.",
+    "fallbackPolicy": "Se qualquer variÃ¡vel nÃ£o estiver confiÃ¡vel, usar fallbackBody ou headlineBase.",
+    "ruahLayerPolicy": "Usar campos headlineRuah/bodyRuah apenas quando produto, coleÃ§Ã£o, intenÃ§Ã£o ou jornada indicarem fÃ©, oraÃ§Ã£o, arte devocional, presente significativo ou comunidade."
   },
   "messages": [
     {
@@ -14,10 +14,10 @@
       "rota": "/checkout",
       "momento": "acao de pagamento sem sessao valida",
       "persona": "customer",
-      "headline": "Sua sessão expirou",
-      "headlineContextual": "{firstName}, sua sessão expirou",
-      "body": "Entre novamente para concluir seu pedido com segurança.",
-      "fallbackBody": "Entre novamente para concluir seu pedido com segurança.",
+      "headline": "Sua sessÃ£o expirou",
+      "headlineContextual": "{firstName}, sua sessÃ£o expirou",
+      "body": "Entre novamente para concluir seu pedido com seguranÃ§a.",
+      "fallbackBody": "Entre novamente para concluir seu pedido com seguranÃ§a.",
       "variables": [
         "firstName"
       ],
@@ -32,7 +32,7 @@
       "rota": "/checkout",
       "momento": "pedido em estado invalido para pagamento",
       "persona": "customer",
-      "headline": "Não foi possível seguir com o pagamento",
+      "headline": "NÃ£o foi possÃ­vel seguir com o pagamento",
       "headlineContextual": "{firstName}, precisamos revisar seu pedido",
       "body": "Revise o carrinho e tente novamente. Se o problema continuar, nosso suporte pode ajudar.",
       "fallbackBody": "Revise o carrinho e tente novamente. Se o problema continuar, fale com o suporte.",
@@ -51,10 +51,10 @@
       "rota": "/checkout",
       "momento": "erro 5xx no pagamento",
       "persona": "customer",
-      "headline": "Pagamento instável no momento",
+      "headline": "Pagamento instÃ¡vel no momento",
       "headlineContextual": "{firstName}, o pagamento oscilou por aqui",
-      "body": "Tivemos uma instabilidade temporária. Tente novamente em instantes.",
-      "fallbackBody": "Tivemos uma instabilidade temporária. Tente novamente em instantes.",
+      "body": "Tivemos uma instabilidade temporÃ¡ria. Tente novamente em instantes.",
+      "fallbackBody": "Tivemos uma instabilidade temporÃ¡ria. Tente novamente em instantes.",
       "variables": [
         "firstName",
         "requestId"
@@ -70,16 +70,16 @@
       "rota": "/checkout",
       "momento": "falha generica de pagamento",
       "persona": "customer",
-      "headline": "Não conseguimos concluir o pagamento",
-      "headlineContextual": "{firstName}, o pagamento não foi concluído",
-      "body": "Tente novamente ou escolha outro método de pagamento para finalizar sua compra.",
-      "fallbackBody": "Tente novamente ou escolha outro método de pagamento para finalizar sua compra.",
+      "headline": "NÃ£o conseguimos concluir o pagamento",
+      "headlineContextual": "{firstName}, o pagamento nÃ£o foi concluÃ­do",
+      "body": "Tente novamente ou escolha outro mÃ©todo de pagamento para finalizar sua compra.",
+      "fallbackBody": "Tente novamente ou escolha outro mÃ©todo de pagamento para finalizar sua compra.",
       "variables": [
         "firstName",
         "paymentMethod"
       ],
       "ctaPrimary": "Tentar novamente",
-      "ctaSecondary": "Escolher outro método",
+      "ctaSecondary": "Escolher outro mÃ©todo",
       "restricoes": "nao atribuir culpa ao cliente; nao confirmar pedido como aprovado"
     },
     {
@@ -91,11 +91,11 @@
       "persona": "customer",
       "headline": "Recebemos sua escolha com carinho",
       "headlineContextual": "{firstName}, recebemos sua escolha com carinho",
-      "headlineRuah": "{firstName}, recebemos sua oração em forma de arte",
-      "body": "Seu pedido {orderId} foi criado. A confirmação final depende da aprovação do pagamento.",
-      "bodyContextual": "Seu pedido {orderId} foi criado e vamos acompanhar cada etapa com atenção.",
-      "bodyRuah": "Sua escolha foi registrada com cuidado. Assim que o pagamento for confirmado, seguimos para a próxima etapa.",
-      "fallbackBody": "Seu pedido foi criado e vamos acompanhar cada etapa com atenção.",
+      "headlineRuah": "{firstName}, recebemos sua oraÃ§Ã£o em forma de arte",
+      "body": "Seu pedido {orderId} foi criado. A confirmaÃ§Ã£o final depende da aprovaÃ§Ã£o do pagamento.",
+      "bodyContextual": "Seu pedido {orderId} foi criado e vamos acompanhar cada etapa com atenÃ§Ã£o.",
+      "bodyRuah": "Sua escolha foi registrada com cuidado. Assim que o pagamento for confirmado, seguimos para a prÃ³xima etapa.",
+      "fallbackBody": "Seu pedido foi criado e vamos acompanhar cada etapa com atenÃ§Ã£o.",
       "variables": [
         "firstName",
         "orderId",
@@ -103,7 +103,7 @@
       ],
       "ctaPrimary": "Acompanhar pedido",
       "ctaSecondary": "Continuar comprando",
-      "regraUsoRuah": "usar headlineRuah/bodyRuah quando o pedido tiver item com oração, arte devocional ou coleção cristã explícita",
+      "regraUsoRuah": "usar headlineRuah/bodyRuah quando o pedido tiver item com oraÃ§Ã£o, arte devocional ou coleÃ§Ã£o cristÃ£ explÃ­cita",
       "restricoes": "nao dizer pedido confirmado se pagamento ainda depender de aprovacao; nao prometer producao imediata"
     },
     {
@@ -113,13 +113,13 @@
       "rota": "/account/orders",
       "momento": "pedido enviado",
       "persona": "customer",
-      "headline": "Seu pedido já está a caminho",
-      "headlineContextual": "{firstName}, seu pedido já está a caminho",
-      "headlineRuah": "{firstName}, sua escolha com significado já está a caminho",
-      "body": "Seu pedido {orderId} foi enviado. Acompanhe o rastreio para ver as atualizações da transportadora.",
+      "headline": "Seu pedido jÃ¡ estÃ¡ a caminho",
+      "headlineContextual": "{firstName}, seu pedido jÃ¡ estÃ¡ a caminho",
+      "headlineRuah": "{firstName}, sua escolha com significado jÃ¡ estÃ¡ a caminho",
+      "body": "Seu pedido {orderId} foi enviado. Acompanhe o rastreio para ver as atualizaÃ§Ãµes da transportadora.",
       "bodyContextual": "Seu pedido {orderId} foi enviado pela {carrier}. Use o rastreio para acompanhar a entrega.",
-      "bodyRuah": "A peça que carrega sua mensagem já foi enviada. Acompanhe o rastreio para ver as próximas atualizações.",
-      "fallbackBody": "Seu pedido já está a caminho. Acompanhe o rastreio para ver as atualizações da entrega.",
+      "bodyRuah": "A peÃ§a que carrega sua mensagem jÃ¡ foi enviada. Acompanhe o rastreio para ver as prÃ³ximas atualizaÃ§Ãµes.",
+      "fallbackBody": "Seu pedido jÃ¡ estÃ¡ a caminho. Acompanhe o rastreio para ver as atualizaÃ§Ãµes da entrega.",
       "variables": [
         "firstName",
         "orderId",
@@ -129,7 +129,7 @@
       ],
       "ctaPrimary": "Rastrear pedido",
       "ctaSecondary": "Ver detalhes",
-      "regraUsoRuah": "usar bodyRuah quando o pedido tiver produto de fé, presente significativo ou coleção devocional",
+      "regraUsoRuah": "usar bodyRuah quando o pedido tiver produto de fÃ©, presente significativo ou coleÃ§Ã£o devocional",
       "restricoes": "nao prometer prazo fixo sem informacao da transportadora; usar carrier e trackingCode apenas se validados"
     },
     {
@@ -141,9 +141,9 @@
       "persona": "customer",
       "headline": "Reembolso aprovado",
       "headlineContextual": "{firstName}, seu reembolso foi aprovado",
-      "body": "O reembolso do pedido {orderId} foi aprovado e seguirá para processamento.",
-      "bodyContextual": "O valor seguirá para processamento conforme o método de pagamento usado na compra.",
-      "fallbackBody": "Seu reembolso foi aprovado e seguirá para processamento.",
+      "body": "O reembolso do pedido {orderId} foi aprovado e seguirÃ¡ para processamento.",
+      "bodyContextual": "O valor seguirÃ¡ para processamento conforme o mÃ©todo de pagamento usado na compra.",
+      "fallbackBody": "Seu reembolso foi aprovado e seguirÃ¡ para processamento.",
       "variables": [
         "firstName",
         "orderId",
@@ -164,11 +164,11 @@
       "persona": "customer",
       "headline": "Recebemos sua mensagem",
       "headlineContextual": "{firstName}, recebemos sua mensagem",
-      "headlineRuah": "{firstName}, sua mensagem será tratada com cuidado",
-      "body": "Abrimos seu atendimento {ticketId}. Nossa equipe vai analisar tudo com atenção.",
-      "bodyContextual": "Abrimos seu atendimento {ticketId}. Guarde esse número para acompanhar a conversa.",
-      "bodyRuah": "Sua mensagem chegou até nós. Vamos analisar o caso com atenção e continuar a conversa pelo atendimento.",
-      "fallbackBody": "Recebemos sua mensagem. Vamos analisar tudo com atenção.",
+      "headlineRuah": "{firstName}, sua mensagem serÃ¡ tratada com cuidado",
+      "body": "Abrimos seu atendimento {ticketId}. Nossa equipe vai analisar tudo com atenÃ§Ã£o.",
+      "bodyContextual": "Abrimos seu atendimento {ticketId}. Guarde esse nÃºmero para acompanhar a conversa.",
+      "bodyRuah": "Sua mensagem chegou atÃ© nÃ³s. Vamos analisar o caso com atenÃ§Ã£o e continuar a conversa pelo atendimento.",
+      "fallbackBody": "Recebemos sua mensagem. Vamos analisar tudo com atenÃ§Ã£o.",
       "variables": [
         "firstName",
         "ticketId",
@@ -177,7 +177,7 @@
       ],
       "ctaPrimary": "Acompanhar ticket",
       "ctaSecondary": "Voltar para pedidos",
-      "regraUsoRuah": "usar headlineRuah/bodyRuah quando o cliente estiver em situação sensível de suporte, troca, dúvida ou pós-compra",
+      "regraUsoRuah": "usar headlineRuah/bodyRuah quando o cliente estiver em situaÃ§Ã£o sensÃ­vel de suporte, troca, dÃºvida ou pÃ³s-compra",
       "restricoes": "nao prometer resposta imediata sem SLA definido; nao usar linguagem robotica; nao encerrar conversa automaticamente"
     }
   ]

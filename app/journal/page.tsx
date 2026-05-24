@@ -40,7 +40,7 @@ export default function JournalPage() {
                className="mb-12"
              />
              <div className="max-w-4xl">
-                <span className="tech-label text-accent-blue mb-8 block">Lumina Journal</span>
+                <span className="tech-label text-accent-blue mb-8 block">UseRuah Journal</span>
                 <h1 className="text-7xl lg:text-9xl font-serif leading-[0.85] tracking-tighter uppercase mb-16 italic">
                    A CIÊNCIA <br /> DA <span className="not-italic">LUZ.</span>
                 </h1>

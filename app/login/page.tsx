@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -6,23 +6,30 @@ import Image from 'next/image';
 import { motion } from 'motion/react';
 import { Mail, Lock, ArrowRight, Github, Chrome as Google } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
-import { postJson } from '@/lib/http-client';
+import { HttpRequestError, postJson } from '@/lib/http-client';
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+  const [loginError, setLoginError] = React.useState<string | null>(null);
   const { refreshSession } = useUser();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
+    setLoginError(null);
     try {
       await postJson('/api/auth/login', { email, password });
       await refreshSession();
       window.location.href = '/account';
     } catch (error) {
       console.error(error);
+      if (error instanceof HttpRequestError && error.status === 401) {
+        setLoginError('E-mail ou senha invalidos. Revise os dados e tente novamente.');
+      } else {
+        setLoginError('Nao foi possivel entrar agora. Tente novamente em instantes.');
+      }
       setIsLoggingIn(false);
     }
   };
@@ -87,6 +94,7 @@ export default function LoginPage() {
             >
               {isLoggingIn ? 'SOPRANDO...' : 'ENTRAR NO MOVIMENTO'} <ArrowRight size={16} />
             </button>
+            {loginError && <p className="text-[10px] font-bold uppercase tracking-widest text-red-600">{loginError}</p>}
 
             <div className="relative flex items-center justify-center my-4">
                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-ruah-50"></div></div>
@@ -113,8 +121,9 @@ export default function LoginPage() {
       </main>
 
       <footer className="p-12 text-center">
-         <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-ruah-300">USERUAH &copy; 2026</p>
+         <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-ruah-300">UseRuah &copy; 2026</p>
       </footer>
     </div>
   );
 }
+

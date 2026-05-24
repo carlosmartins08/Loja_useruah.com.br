@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -28,9 +28,9 @@ export function CheckoutPageView() {
   if (cart.length === 0 && !isProcessing && step !== 3) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-8 text-center">
-        <h1 className="text-4xl font-serif mb-8 text-ruah-950">Seu carrinho está vazio.</h1>
+        <h1 className="text-4xl font-serif mb-8 text-ruah-950">Seu carrinho estç vazio.</h1>
         <Link href="/shop" className="bg-ruah-950 text-white px-12 py-5 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-accent-gold transition-all">
-          Voltar para a Coleção
+          Voltar para a Coleçço
         </Link>
       </div>
     );
@@ -43,7 +43,7 @@ export function CheckoutPageView() {
 
   const handleFinish = async (method: PaymentMethod, provider: PaymentRecord['provider']) => {
     if (!isAuthenticated) {
-      setCheckoutError(t('checkout_session_expired')?.body ?? 'Sua sessão expirou. Faça login novamente para concluir o pagamento.');
+      setCheckoutError(t('checkout_session_expired')?.body ?? 'Sua sessço expirou. Faça login novamente para concluir o pagamento.');
       window.location.href = '/login';
       return;
     }
@@ -91,17 +91,17 @@ export function CheckoutPageView() {
       console.error(error);
       if (error instanceof HttpRequestError) {
         if (error.status === 401 || error.status === 403) {
-          setCheckoutError(t('checkout_session_expired')?.body ?? 'Sua sessão expirou. Faça login novamente para concluir o pagamento.');
+          setCheckoutError(t('checkout_session_expired')?.body ?? 'Sua sessço expirou. Faça login novamente para concluir o pagamento.');
           window.location.href = '/login';
         } else if (error.status === 409) {
-          setCheckoutError(t('checkout_invalid_state')?.body ?? 'Não foi possível processar este pedido no estado atual. Revise seu carrinho e tente novamente.');
+          setCheckoutError(t('checkout_invalid_state')?.body ?? 'Nço foi possçvel processar este pedido no estado atual. Revise seu carrinho e tente novamente.');
         } else if (error.status >= 500) {
-          setCheckoutError(t('checkout_temporary_instability')?.body ?? 'Instabilidade temporária no pagamento. Tente novamente em instantes.');
+          setCheckoutError(t('checkout_temporary_instability')?.body ?? 'Instabilidade temporçria no pagamento. Tente novamente em instantes.');
         } else {
-          setCheckoutError(t('checkout_payment_generic_error')?.body ?? 'Não foi possível concluir o pagamento agora. Tente novamente.');
+          setCheckoutError(t('checkout_payment_generic_error')?.body ?? 'Nço foi possçvel concluir o pagamento agora. Tente novamente.');
         }
       } else {
-        setCheckoutError(t('checkout_payment_generic_error')?.body ?? 'Não foi possível concluir o pagamento agora. Tente novamente.');
+        setCheckoutError(t('checkout_payment_generic_error')?.body ?? 'Nço foi possçvel concluir o pagamento agora. Tente novamente.');
       }
     } finally {
       setIsProcessing(false);
@@ -120,10 +120,10 @@ export function CheckoutPageView() {
                 <CheckoutSuccessCard orderId={paymentSummary?.orderId} />
                 {paymentSummary && (
                   <div className="bg-white border border-ruah-100 rounded-2xl p-6">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-ruah-400">Resumo da transação</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-ruah-950 mt-3">Pedido: {paymentSummary.orderId}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-ruah-950 mt-1">Pagamento: {paymentSummary.paymentId}</p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-ruah-950 mt-1">Status: {paymentSummary.status}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ruah-400">Resumo da transaçço</p>
+                    <p className="text-sm font-semibold text-ruah-950 mt-3">Pedido: {paymentSummary.orderId}</p>
+                    <p className="text-sm font-semibold text-ruah-950 mt-1">Pagamento: {paymentSummary.paymentId}</p>
+                    <p className="text-sm font-semibold text-ruah-950 mt-1">Status: {paymentSummary.status}</p>
                   </div>
                 )}
               </>
@@ -144,7 +144,7 @@ export function CheckoutPageView() {
                   onContinue={() => setStep(2)}
                 />
                 <CheckoutStepTwoSection isActive={step === 2} total={total} isProcessing={isProcessing} onFinish={handleFinish} />
-                {checkoutError && <p className="text-[10px] font-bold uppercase tracking-widest text-red-600">{checkoutError}</p>}
+                {checkoutError && <p role="alert" className="text-sm font-semibold text-red-600">{checkoutError}</p>}
               </>
             )}
           </div>
@@ -154,8 +154,12 @@ export function CheckoutPageView() {
       </main>
 
       <footer className="py-12 border-t border-ruah-100 text-center opacity-20">
-        <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-950">&copy; 2026 USERUAH | PRIVACIDADE & SEGURANÇA</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-ruah-950">&copy; 2026 UseRuah | Privacidade e Segurança</span>
       </footer>
     </div>
   );
 }
+
+
+
+

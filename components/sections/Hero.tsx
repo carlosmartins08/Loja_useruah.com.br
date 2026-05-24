@@ -92,7 +92,7 @@ export function Hero() {
             </div>
             
             <div className="flex flex-col gap-6 lg:gap-4 px-2 lg:px-0">
-              <p className="text-sm lg:text-base text-ruah-500 leading-relaxed max-w-sm lg:max-w-xs font-medium uppercase tracking-tight">
+              <p className="text-base text-ruah-600 leading-relaxed max-w-sm lg:max-w-xs font-medium">
                 Cada oração é única, assim como você. O Projeto Ruah conecta sua fé com a criatividade para manifestar o Reino através de peças exclusivas.
               </p>
               <Link href="/quem-somos" className="text-[11px] font-bold uppercase tracking-[0.2em] text-ruah-950 border-b-2 border-accent-gold inline-block self-start pb-2 hover:text-accent-gold transition-colors">
@@ -106,7 +106,7 @@ export function Hero() {
       
       {/* Background Decorative Text */}
       <div className="absolute top-1/2 -right-[10vw] -translate-y-1/2 rotate-90 pointer-events-none opacity-[0.03]">
-        <span className="text-[30vw] font-serif uppercase whitespace-nowrap">USERUAH MODA</span>
+        <span className="text-[30vw] font-serif uppercase whitespace-nowrap">UseRuah</span>
       </div>
     </section>
   );

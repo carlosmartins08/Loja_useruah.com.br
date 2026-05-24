@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -306,9 +306,10 @@ export default function RegisterPage() {
       {/* Footer */}
       <footer className="p-12 border-t border-ruah-100 text-center bg-white">
         <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-ruah-300">
-          USERUAH &copy; 2026 | CONECTANDO FÉ & ARTE | TODOS OS DIREITOS RESERVADOS
+          UseRuah &copy; 2026 | CONECTANDO FÉ & ARTE | TODOS OS DIREITOS RESERVADOS
         </p>
       </footer>
     </div>
   );
 }
+

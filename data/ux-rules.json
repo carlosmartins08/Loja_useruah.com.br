@@ -1,0 +1,86 @@
+{
+  "version": "2026-05-24",
+  "exitIntent": {
+    "enabled": true,
+    "allowAnonymous": true,
+    "allowedUserRoles": ["customer"],
+    "sessionKey": "ur_exit_intent_shown",
+    "cooldownStorageKey": "ur_exit_intent_last_shown_at",
+    "cooldownMs": 604800000,
+    "disableOnTouchDevices": true,
+    "onlyWithCartItems": true,
+    "allowedRoutes": ["/", "/shop", "/cart", "/product/*", "/category/*"],
+    "headlineDefault": "NÃO SAIA SEM O PRÓXIMO NÍVEL.",
+    "bodyDefault": "Use o cupom {couponCode} para {discount} OFF na sua primeira compra.",
+    "couponCode": "LUMINA10",
+    "discount": "10%",
+    "variants": [
+      {
+        "id": "shop-intent",
+        "routeMatch": "/shop",
+        "badge": "Oferta de Descoberta",
+        "headline": "SUA PRÓXIMA PEÇA PODE ESTAR AQUI.",
+        "body": "Antes de sair, ative {discount} OFF com {couponCode} e finalize sua escolha com mais tranquilidade.",
+        "ctaPrimary": "Ativar desconto agora",
+        "ctaSecondary": "Continuar sem desconto"
+      },
+      {
+        "id": "cart-intent",
+        "routeMatch": "/cart",
+        "badge": "Oferta de Carrinho",
+        "headline": "SEU CARRINHO MERECE ESSE EMPURRÃO.",
+        "body": "Você já escolheu com cuidado. Use {couponCode} e ganhe {discount} OFF para concluir agora.",
+        "ctaPrimary": "Aplicar e finalizar",
+        "ctaSecondary": "Revisar carrinho"
+      },
+      {
+        "id": "product-intent",
+        "routeMatch": "/product/*",
+        "badge": "Oferta de Produto",
+        "headline": "ESSA PEÇA COMBINA COM A SUA JORNADA.",
+        "body": "Se a dúvida é o momento, use {couponCode} e leve com {discount} OFF hoje.",
+        "ctaPrimary": "Garantir desconto",
+        "ctaSecondary": "Continuar navegando"
+      },
+      {
+        "id": "category-intent",
+        "routeMatch": "/category/*",
+        "badge": "Oferta de Coleção",
+        "headline": "NÃO FECHE ANTES DE VER O MELHOR DA COLEÇÃO.",
+        "body": "Liberamos {discount} OFF com {couponCode} para você escolher com mais liberdade.",
+        "ctaPrimary": "Explorar com desconto",
+        "ctaSecondary": "Seguir sem oferta"
+      },
+      {
+        "id": "home-intent",
+        "routeMatch": "/",
+        "badge": "Oferta de Boas-vindas",
+        "headline": "SEU PRIMEIRO PASSO PODE VIR COM VANTAGEM.",
+        "body": "Ative {couponCode} e use {discount} OFF na sua primeira compra.",
+        "ctaPrimary": "Quero meu cupom",
+        "ctaSecondary": "Talvez depois"
+      }
+    ]
+  },
+  "journeyCritical": {
+    "requiredContentMessageIds": [
+      "checkout_session_expired",
+      "checkout_invalid_state",
+      "checkout_temporary_instability",
+      "checkout_payment_generic_error",
+      "checkout_success_title",
+      "order_shipped_success",
+      "refund_approved_success",
+      "ticket_created_success"
+    ],
+    "forbiddenExitIntentRoutes": [
+      "/checkout",
+      "/login",
+      "/register",
+      "/account/*",
+      "/admin/*"
+    ],
+    "requiredAllowedRolesForExitIntent": ["customer"],
+    "requireExitIntentAnonymousPolicy": true
+  }
+}

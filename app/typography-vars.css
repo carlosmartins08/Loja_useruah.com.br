@@ -1,0 +1,63 @@
+:root {
+  --ur-font-display-impact: "Fraunces", "Cooper Black", Georgia, serif;
+  --ur-font-editorial-serif: "Cormorant Garamond", "Libre Baskerville", Georgia, serif;
+  --ur-font-interface-sans: "Inter", "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ur-font-technical-mono: "IBM Plex Mono", "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --ur-type-hero-weight: 900;
+  --ur-type-hero-size: clamp(3rem, 8vw, 7rem);
+  --ur-type-hero-line: 0.92;
+  --ur-type-hero-track: -0.045em;
+
+  --ur-type-collection-weight: 800;
+  --ur-type-collection-size: clamp(2.4rem, 5vw, 4.5rem);
+  --ur-type-collection-line: 0.95;
+  --ur-type-collection-track: -0.035em;
+
+  --ur-type-editorial-weight: 700;
+  --ur-type-editorial-size: clamp(2.2rem, 4vw, 4rem);
+  --ur-type-editorial-line: 1.05;
+  --ur-type-editorial-track: -0.025em;
+
+  --ur-type-quote-weight: 600;
+  --ur-type-quote-size: clamp(1.7rem, 3vw, 3rem);
+  --ur-type-quote-line: 1.12;
+  --ur-type-quote-track: -0.015em;
+
+  --ur-type-body-weight: 400;
+  --ur-type-body-size: 1rem;
+  --ur-type-body-line: 1.65;
+  --ur-type-body-track: 0;
+
+  --ur-type-product-weight: 700;
+  --ur-type-product-size: 1.5rem;
+  --ur-type-product-line: 1.2;
+  --ur-type-product-track: -0.015em;
+
+  --ur-type-cta-weight: 700;
+  --ur-type-cta-size: 0.95rem;
+  --ur-type-cta-line: 1;
+  --ur-type-cta-track: 0.02em;
+
+  --ur-type-eyebrow-weight: 600;
+  --ur-type-eyebrow-size: 0.78rem;
+  --ur-type-eyebrow-line: 1.2;
+  --ur-type-eyebrow-track: 0.08em;
+}
+
+.ur-type-hero {
+  font-family: var(--ur-font-display-impact);
+  font-size: var(--ur-type-hero-size);
+  line-height: var(--ur-type-hero-line);
+  letter-spacing: var(--ur-type-hero-track);
+  font-weight: var(--ur-type-hero-weight);
+}
+
+.ur-type-eyebrow {
+  font-family: var(--ur-font-technical-mono);
+  font-size: var(--ur-type-eyebrow-size);
+  line-height: var(--ur-type-eyebrow-line);
+  letter-spacing: var(--ur-type-eyebrow-track);
+  font-weight: var(--ur-type-eyebrow-weight);
+  text-transform: uppercase;
+}

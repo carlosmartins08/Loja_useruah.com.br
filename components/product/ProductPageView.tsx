@@ -45,7 +45,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
               <div className="flex flex-col gap-4">
                 <span className="font-serif text-3xl italic tracking-tighter uppercase mb-4 text-ruah-950">UseRuah.</span>
                 <h1 className="text-6xl lg:text-8xl font-serif leading-[0.8] tracking-tighter uppercase italic font-black">Respiro <br /> <span className="not-italic">Ruah.</span></h1>
-                <p className="text-[10px] font-bold text-ruah-400 uppercase tracking-[0.3em] leading-relaxed max-w-[200px] mt-4">Moda que conecta. Design que comunica os valores do Reino de forma autoral.</p>
+                <p className="text-sm font-semibold text-ruah-500 leading-relaxed max-w-[260px] mt-4">Moda que conecta. Design que comunica os valores do Reino de forma autoral.</p>
               </div>
 
               <div className="flex flex-col gap-6 pt-8 border-t border-ruah-100">
@@ -55,7 +55,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
                   </div>
                   <div className="flex flex-col">
                     <span className="text-lg font-serif italic text-ruah-950">4.9</span>
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-ruah-300">41 avaliações de irmãos</span>
+                    <span className="text-xs font-semibold text-ruah-400">41 avaliações de irmãos</span>
                   </div>
                 </div>
               </div>
@@ -108,9 +108,9 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
       <section className="py-24 bg-white">
         <div className="section-container grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="bg-ruah-50 rounded-3xl p-8 border border-ruah-100">
-            <span className="text-[9px] font-black text-accent-gold uppercase tracking-widest">Ficha técnica</span>
+            <span className="text-xs font-black text-accent-gold uppercase tracking-[0.18em]">Ficha técnica</span>
             <h2 className="text-3xl font-serif italic uppercase text-ruah-950 mt-4">Detalhes do produto</h2>
-            <ul className="mt-6 flex flex-col gap-4 text-[10px] font-bold uppercase tracking-widest text-ruah-500">
+            <ul className="mt-6 flex flex-col gap-4 text-sm font-semibold text-ruah-600">
               <li><span className="text-ruah-950">Caimento:</span> {product.fit}</li>
               <li><span className="text-ruah-950">Tecido:</span> {product.fabric}</li>
               <li><span className="text-ruah-950">Estampa:</span> {product.printTypeDescription}</li>
@@ -139,13 +139,13 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
               <div className="flex flex-col gap-6">
                 <span className="tech-label text-accent-gold font-black">Base de Respiro</span>
                 <h2 className="text-4xl font-serif italic uppercase leading-tight font-black text-ruah-950">AJUDA & <br /> SUPORTE.</h2>
-                <p className="text-xs font-bold text-ruah-400 uppercase tracking-widest leading-loose">Sua jornada sem dúvidas. Encontre respostas para as questões mais frequentes da nossa plataforma.</p>
+                <p className="text-sm font-medium text-ruah-500 leading-relaxed">Sua jornada sem dúvidas. Encontre respostas para as questões mais frequentes da nossa plataforma.</p>
               </div>
               <div className="flex flex-col gap-4">
-                <Link href="/help-center" className="flex items-center justify-between p-6 bg-ruah-50 rounded-2xl text-[9px] font-bold uppercase tracking-widest hover:bg-ruah-950 hover:text-white transition-all group">
+                <Link href="/help-center" className="flex items-center justify-between p-6 bg-ruah-50 rounded-2xl text-sm font-semibold hover:bg-ruah-950 hover:text-white transition-all group">
                   Central de Ajuda <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link href="/policies" className="flex items-center justify-between p-6 bg-ruah-50 rounded-2xl text-[9px] font-bold uppercase tracking-widest hover:bg-ruah-950 hover:text-white transition-all group">
+                <Link href="/policies" className="flex items-center justify-between p-6 bg-ruah-50 rounded-2xl text-sm font-semibold hover:bg-ruah-950 hover:text-white transition-all group">
                   Políticas de Amor <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>

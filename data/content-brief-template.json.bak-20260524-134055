@@ -1,0 +1,170 @@
+﻿{
+  "version": "2026-05-24-useruah-v4",
+  "brand": "UseRuah",
+  "strategy": {
+    "principle": "A UseRuah conversa como quem reconhece a pessoa, entende o momento e cuida de uma escolha que carrega significado.",
+    "levels": {
+      "essencial": "Fato principal, prÃ³ximo passo e limite real. Usar em todas as mensagens.",
+      "contextual": "Usar dados confiÃ¡veis como nome, pedido, status, canal e contexto da jornada.",
+      "premium": "Adicionar essÃªncia UseRuah quando o produto, a coleÃ§Ã£o ou a intenÃ§Ã£o tiver relaÃ§Ã£o clara com oraÃ§Ã£o, arte, fÃ©, presente ou expressÃ£o cristÃ£."
+    },
+    "rules": [
+      "Nunca usar variÃ¡vel que nÃ£o esteja 100% confiÃ¡vel.",
+      "Nunca prometer prazo, aprovaÃ§Ã£o, produÃ§Ã£o, entrega ou reembolso sem confirmaÃ§Ã£o operacional.",
+      "Usar a camada Ruah apenas quando o contexto justificar.",
+      "Em erro, pagamento, reembolso e falha tÃ©cnica, priorizar clareza e soluÃ§Ã£o antes da emoÃ§Ã£o.",
+      "Evitar linguagem religiosa forÃ§ada em mensagens transacionais.",
+      "Usar fallbacks elegantes sempre que faltar dado."
+    ]
+  },
+  "instructions": {
+    "headlineMax": 90,
+    "bodyShortMax": 140,
+    "bodyLongMax": 280,
+    "buttonMax": 24,
+    "personalization": {
+      "base": "Mensagem segura para qualquer cliente.",
+      "contextual": "Mensagem com variÃ¡veis confiÃ¡veis e contexto da jornada.",
+      "ruah": "Mensagem com camada de fÃ©, arte, oraÃ§Ã£o, significado ou comunidade, quando aplicÃ¡vel."
+    }
+  },
+  "items": [
+    {
+      "id": "home_hero_primary",
+      "screen": "/",
+      "block": "hero",
+      "momento": "primeira dobra",
+      "persona": "cliente_novo",
+      "objetivo": "explicar proposta de valor e levar para shop",
+      "nivel": "premium",
+      "headline": "Vista uma oraÃ§Ã£o. Carregue uma mensagem.",
+      "headlineContextual": "{firstName}, encontre uma peÃ§a que converse com a sua fÃ©",
+      "headlineRuah": "Vista uma oraÃ§Ã£o que traduz fÃ© em arte",
+      "bodyShort": "Camisetas cristÃ£s criadas para transformar o cotidiano em expressÃ£o de fÃ©, beleza e propÃ³sito.",
+      "bodyLong": "A UseRuah une arte, tecnologia e espiritualidade para criar peÃ§as que ajudam vocÃª a expressar sua fÃ© com verdade, estilo e significado.",
+      "ctaPrimary": "Conhecer a loja",
+      "ctaSecondary": "Ver coleÃ§Ãµes",
+      "variables": [
+        "firstName"
+      ],
+      "fallbackSemVariavel": "Encontre uma peÃ§a que converse com a sua fÃ©.",
+      "regraUsoRuah": "usar headlineRuah quando a pÃ¡gina estiver apresentando coleÃ§Ã£o devocional, institucional ou produtos com oraÃ§Ã£o explÃ­cita",
+      "restricoes": "nao prometer transformaÃ§Ã£o espiritual; evitar tom de pregaÃ§Ã£o; manter clareza comercial"
+    },
+    {
+      "id": "home_benefits_quality",
+      "screen": "/",
+      "block": "beneficios",
+      "momento": "apos hero",
+      "persona": "cliente_novo",
+      "objetivo": "reduzir duvida de qualidade",
+      "nivel": "contextual",
+      "headline": "Feita para vestir bem e comunicar melhor",
+      "headlineContextual": "Qualidade para acompanhar sua rotina",
+      "headlineRuah": "Uma mensagem de fÃ© tambÃ©m merece acabamento de qualidade",
+      "bodyShort": "Selecionamos produtos com conforto, boa apresentaÃ§Ã£o e cuidado nos detalhes para valorizar a mensagem que vocÃª escolheu.",
+      "bodyLong": "Cada peÃ§a precisa unir significado, conforto e acabamento. Por isso, cuidamos da escolha dos produtos, da arte e da experiÃªncia de compra.",
+      "ctaPrimary": "",
+      "ctaSecondary": "",
+      "variables": [],
+      "fallbackSemVariavel": "Produtos com conforto, boa apresentaÃ§Ã£o e cuidado nos detalhes.",
+      "regraUsoRuah": "usar headlineRuah em pÃ¡ginas de produto, coleÃ§Ã£o ou benefÃ­cio associado Ã  qualidade da peÃ§a",
+      "restricoes": "nao prometer qualidade absoluta sem especificacao tecnica; evitar comparar com concorrentes sem prova"
+    },
+    {
+      "id": "pdp_material_and_care",
+      "screen": "/product/[id]",
+      "block": "detalhes_tecnicos",
+      "momento": "meio da pagina",
+      "persona": "cliente_decidindo",
+      "objetivo": "aumentar confianca para compra",
+      "nivel": "premium",
+      "headline": "Detalhes para escolher com seguranÃ§a",
+      "headlineContextual": "{firstName}, veja os detalhes antes de decidir",
+      "headlineRuah": "Uma escolha com significado merece atenÃ§Ã£o aos detalhes",
+      "bodyShort": "Confira material, modelagem, cuidados e informaÃ§Ãµes da peÃ§a antes de concluir sua compra.",
+      "bodyLong": "Antes de escolher, veja as informaÃ§Ãµes de material, modelagem, acabamento e cuidados. Assim, vocÃª compra com mais seguranÃ§a e recebe uma peÃ§a alinhada ao que espera.",
+      "ctaPrimary": "Adicionar ao carrinho",
+      "ctaSecondary": "",
+      "variables": [
+        "firstName",
+        "productName"
+      ],
+      "fallbackSemVariavel": "Confira os detalhes da peÃ§a antes de concluir sua compra.",
+      "regraUsoRuah": "usar headlineRuah quando o produto tiver mensagem de fÃ©, oraÃ§Ã£o, arte devocional ou coleÃ§Ã£o cristÃ£",
+      "restricoes": "nao prometer caimento perfeito; nao ocultar limitaÃ§Ãµes de tamanho, troca ou variaÃ§Ã£o de cor"
+    },
+    {
+      "id": "checkout_confirmation",
+      "screen": "/checkout",
+      "block": "confirmacao",
+      "momento": "apos pedido e pagamento iniciados",
+      "persona": "cliente_em_compra",
+      "objetivo": "confirmar status e orientar proximo passo",
+      "nivel": "contextual",
+      "headline": "Recebemos sua escolha com carinho",
+      "headlineContextual": "{firstName}, recebemos sua escolha com carinho",
+      "headlineRuah": "{firstName}, recebemos sua oraÃ§Ã£o em forma de arte",
+      "bodyShort": "Seu pedido foi criado. A confirmaÃ§Ã£o final depende da aprovaÃ§Ã£o do pagamento.",
+      "bodyLong": "Seu pedido foi criado e vamos acompanhar cada etapa com atenÃ§Ã£o. A confirmaÃ§Ã£o final depende da aprovaÃ§Ã£o do pagamento.",
+      "ctaPrimary": "Ver meu pedido",
+      "ctaSecondary": "Continuar comprando",
+      "variables": [
+        "firstName",
+        "orderId",
+        "paymentMethod"
+      ],
+      "fallbackSemVariavel": "Recebemos sua escolha com carinho. Seu pedido foi criado e vamos acompanhar cada etapa.",
+      "regraUsoRuah": "usar headlineRuah apenas quando o item comprado estiver associado a oraÃ§Ã£o, arte devocional ou coleÃ§Ã£o cristÃ£ explÃ­cita",
+      "restricoes": "nao confirmar pagamento, producao ou envio antes da validacao operacional"
+    },
+    {
+      "id": "orders_shipped_notification",
+      "screen": "/account/orders",
+      "block": "status_envio",
+      "momento": "pedido enviado",
+      "persona": "cliente_pos_compra",
+      "objetivo": "informar envio e incentivar rastreio",
+      "nivel": "contextual",
+      "headline": "Seu pedido jÃ¡ estÃ¡ a caminho",
+      "headlineContextual": "{firstName}, seu pedido jÃ¡ estÃ¡ a caminho",
+      "headlineRuah": "{firstName}, sua escolha com significado jÃ¡ estÃ¡ a caminho",
+      "bodyShort": "Acompanhe o rastreio para ver as prÃ³ximas atualizaÃ§Ãµes da transportadora.",
+      "bodyLong": "Boa notÃ­cia: seu pedido foi enviado. Use o rastreio para acompanhar as atualizaÃ§Ãµes da transportadora.",
+      "ctaPrimary": "Rastrear pedido",
+      "ctaSecondary": "Ver detalhes",
+      "variables": [
+        "firstName",
+        "orderId",
+        "trackingCode",
+        "carrier",
+        "trackingUrl"
+      ],
+      "fallbackSemVariavel": "Seu pedido jÃ¡ estÃ¡ a caminho. Acompanhe as prÃ³ximas atualizaÃ§Ãµes da entrega.",
+      "regraUsoRuah": "usar headlineRuah quando o pedido tiver produto devocional, presente significativo ou coleÃ§Ã£o de fÃ©",
+      "restricoes": "nao prometer prazo fixo sem dado da transportadora; informar apenas rastreio validado"
+    },
+    {
+      "id": "helpcenter_faq_intro",
+      "screen": "/help-center",
+      "block": "faq_intro",
+      "momento": "topo da secao faq",
+      "persona": "cliente_com_duvida",
+      "objetivo": "organizar expectativas e autoatendimento",
+      "nivel": "essencial",
+      "headline": "Como podemos ajudar vocÃª?",
+      "headlineContextual": "{firstName}, vamos ajudar vocÃª a encontrar uma resposta",
+      "headlineRuah": "Sua dÃºvida tambÃ©m merece cuidado",
+      "bodyShort": "Reunimos respostas sobre pedidos, pagamentos, trocas, entregas e atendimento.",
+      "bodyLong": "Encontre orientaÃ§Ãµes sobre pedidos, pagamentos, trocas, entregas e atendimento. Se ainda precisar, nossa equipe pode continuar a conversa com vocÃª.",
+      "ctaPrimary": "Buscar resposta",
+      "ctaSecondary": "Falar com suporte",
+      "variables": [
+        "firstName"
+      ],
+      "fallbackSemVariavel": "Vamos ajudar vocÃª a encontrar uma resposta.",
+      "regraUsoRuah": "usar headlineRuah em contextos de acolhimento, dÃºvida recorrente ou pÃ¡gina de suporte humanizado",
+      "restricoes": "nao prometer resposta imediata sem SLA definido; nao substituir politicas oficiais"
+    }
+  ]
+}

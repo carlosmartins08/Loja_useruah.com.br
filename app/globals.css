@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./typography-vars.css";
 
 @theme {
   --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
@@ -29,8 +30,24 @@
 
   body {
     @apply font-sans antialiased text-gray-900 bg-white;
+    font-size: var(--ur-type-body-size);
+    line-height: max(var(--ur-type-body-line), 1.5);
+    letter-spacing: var(--ur-type-body-track);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  a, button, input, select, textarea {
+    font: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-gold);
+    outline-offset: 2px;
+  }
+
+  a {
+    text-underline-offset: 0.14em;
   }
   
   h1, h2, h3, h4, .font-serif {

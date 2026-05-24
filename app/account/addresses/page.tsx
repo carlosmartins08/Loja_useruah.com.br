@@ -14,11 +14,11 @@ export default function Addresses() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
          <div>
             <h2 className="text-4xl font-serif italic uppercase leading-none text-ruah-950">Endereços</h2>
-            <p className="text-[10px] font-bold text-ruah-400 uppercase tracking-widest mt-4">Gerencie seus locais de entrega para agilizar o sopro.</p>
+            <p className="text-sm font-medium text-ruah-500 mt-4">Gerencie seus locais de entrega para agilizar o sopro.</p>
          </div>
          <button className="flex items-center gap-3 bg-ruah-950 text-white px-8 py-5 rounded-2xl hover:bg-accent-gold transition-all w-full sm:w-auto justify-center">
             <Plus size={16} />
-            <span className="text-[9px] font-bold uppercase tracking-widest">Novo Endereço</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.1em]">Novo Endereço</span>
          </button>
       </div>
 
@@ -38,9 +38,9 @@ export default function Addresses() {
                <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-xl font-serif italic text-ruah-950">{addr.label}</span>
-                    {addr.default && <span className="px-2 py-0.5 bg-accent-gold/10 text-accent-gold text-[7px] font-bold uppercase tracking-widest rounded-full">Padrão</span>}
+                    {addr.default && <span className="px-2 py-0.5 bg-accent-gold/10 text-accent-gold text-xs font-semibold uppercase tracking-[0.08em] rounded-full">Padrão</span>}
                   </div>
-                  <p className="text-[11px] font-medium text-ruah-500 uppercase tracking-wider leading-relaxed">
+                  <p className="text-sm font-medium text-ruah-600 leading-relaxed">
                      {addr.street}<br />
                      {addr.city}, {addr.state} - {addr.zip}
                   </p>
@@ -51,3 +51,4 @@ export default function Addresses() {
     </div>
   );
 }
+

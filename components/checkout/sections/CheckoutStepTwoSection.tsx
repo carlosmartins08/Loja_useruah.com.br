@@ -62,7 +62,7 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
             className={`border-2 p-6 rounded-2xl flex flex-col items-center gap-3 transition-all ${paymentMethod === 'card' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-50'}`}
           >
             <CreditCard className={paymentMethod === 'card' ? 'text-accent-gold' : 'text-ruah-300'} />
-            <span className="text-[9px] font-bold uppercase tracking-widest">Cartão de Crédito</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.12em]">Cartão de crédito</span>
           </button>
           <button
             type="button"
@@ -71,7 +71,7 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
             className={`border-2 p-6 rounded-2xl flex flex-col items-center gap-3 transition-all ${paymentMethod === 'pix' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-50'}`}
           >
             <QrCode className={paymentMethod === 'pix' ? 'text-accent-gold' : 'text-ruah-300'} />
-            <span className="text-[9px] font-bold uppercase tracking-widest">PIX (1 Clique)</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.12em]">Pix (1 clique)</span>
           </button>
           <button
             type="button"
@@ -80,28 +80,28 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
             className={`border-2 p-6 rounded-2xl flex flex-col items-center gap-3 transition-all ${paymentMethod === 'wallet' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-50'}`}
           >
             <Wallet className={paymentMethod === 'wallet' ? 'text-accent-gold' : 'text-ruah-300'} />
-            <span className="text-[9px] font-bold uppercase tracking-widest">Carteira Digital</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.12em]">Carteira digital</span>
           </button>
         </div>
 
         {paymentMethod === 'card' ? (
           <div className="grid grid-cols-1 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Número do Cartão</label>
+              <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Número do cartão</label>
               <input type="text" inputMode="numeric" autoComplete="cc-number" placeholder="0000 0000 0000 0000" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
             </div>
             <div className="grid grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Validade</label>
+                <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Validade</label>
                 <input type="text" inputMode="numeric" autoComplete="cc-exp" placeholder="MM/AA" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">CVV</label>
+                <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">CVV</label>
                 <input type="password" inputMode="numeric" autoComplete="cc-csc" placeholder="123" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Parcelamento</label>
+              <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Parcelamento</label>
               <select className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all appearance-none cursor-pointer">
                 <option>10x de R$ {(total / 10).toLocaleString('pt-BR')} sem juros</option>
                 <option>À vista com 5% de desconto</option>
@@ -110,19 +110,19 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
           </div>
         ) : (
           <div className="rounded-2xl border border-accent-gold/40 bg-accent-gold/5 p-6">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-ruah-950">
+            <p className="text-sm font-semibold text-ruah-950">
               {paymentMethod === 'pix'
                 ? 'Pagamento instantâneo via Pix habilitado para este pedido.'
                 : 'Pagamento instantâneo via carteira digital habilitado para este pedido.'}
             </p>
-            <p className="text-[9px] font-bold uppercase tracking-widest text-ruah-400 mt-2">
+            <p className="text-xs font-medium text-ruah-500 mt-2">
               Confirme para finalizar em fluxo de 1 clique com fallback para checkout padrão.
             </p>
           </div>
         )}
 
         <div className="mt-8 flex flex-col gap-2">
-          <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Gateway de pagamento</label>
+          <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Gateway de pagamento</label>
           <select
             value={effectiveProvider}
             onChange={(event) => setProvider(event.target.value as PaymentProviderKey)}

@@ -113,9 +113,9 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12 text-white/20">
           <div className="flex flex-col gap-3">
-             <span className="text-[8px] font-bold uppercase tracking-[0.4em]">&copy; 2026 USERUAH MODA CRISTÃ E CONEXÃO LTDA.</span>
+             <span className="text-[8px] font-bold uppercase tracking-[0.4em]">&copy; 2026 UseRuah Moda Cristã e Conexão LTDA.</span>
              <span className="text-[8px] font-medium uppercase tracking-[0.3em] max-w-2xl leading-relaxed">
-               USERUAH - O SOPRO QUE NOS CONECTA. 
+               UseRuah - O sopro que nos conecta. 
                O USO DESTE SITE IMPLICA NA ACEITAÇÃO DOS TERMOS E CONDIÇÕES.
              </span>
           </div>

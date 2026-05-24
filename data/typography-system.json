@@ -1,0 +1,27 @@
+{
+  "version": "2026-05-24",
+  "schemaVersion": "1.0",
+  "brand": "UseRuah",
+  "principle": "Forca, alma, clareza e sistema em equilibrio.",
+  "rules": {
+    "doNotRebuildWordmarkAsText": true,
+    "maxFamiliesPerPiece": 2,
+    "forbiddenPatterns": [
+      "display-em-paragrafo-longo",
+      "serif-fina-em-texto-pequeno-mobile",
+      "mono-em-oracao-longa",
+      "script-religiosa-generica"
+    ]
+  },
+  "channels": {
+    "site": ["interfaceSans", "editorialSerif", "technicalMono"],
+    "pdp": ["technicalMono", "interfaceSans", "editorialSerif"],
+    "blog": ["technicalMono", "editorialSerif", "interfaceSans"],
+    "social": ["displayImpact", "editorialSerif", "interfaceSans", "technicalMono"],
+    "prints": ["displayImpact", "editorialSerif", "technicalMono"]
+  },
+  "assets": {
+    "wordmarkDark": "/brand/SVG/logo-wordmark-dark.svg",
+    "wordmarkLight": "/brand/SVG/logo-wordmark-light.svg"
+  }
+}

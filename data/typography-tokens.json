@@ -1,0 +1,91 @@
+{
+  "version": "2026-05-24",
+  "schemaVersion": "1.0",
+  "families": {
+    "displayImpact": {
+      "slug": "display-impact",
+      "fontFamily": "\"Fraunces\", \"Cooper Black\", Georgia, serif",
+      "usage": "campanha, hero, colecao, impacto"
+    },
+    "editorialSerif": {
+      "slug": "editorial-serif",
+      "fontFamily": "\"Cormorant Garamond\", \"Libre Baskerville\", Georgia, serif",
+      "usage": "oracao, manifesto, editorial, citacao"
+    },
+    "interfaceSans": {
+      "slug": "interface-sans",
+      "fontFamily": "\"Inter\", \"Manrope\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      "usage": "navegacao, descricao, checkout, faq, leitura funcional"
+    },
+    "technicalMono": {
+      "slug": "technical-mono",
+      "fontFamily": "\"IBM Plex Mono\", \"Space Mono\", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+      "usage": "sku, tag, microcopy, eyebrow, detalhe tecnico"
+    }
+  },
+  "roles": {
+    "hero": {
+      "family": "displayImpact",
+      "weight": 900,
+      "size": "clamp(3rem, 8vw, 7rem)",
+      "lineHeight": 0.92,
+      "letterSpacing": "-0.045em"
+    },
+    "collectionTitle": {
+      "family": "displayImpact",
+      "weight": 800,
+      "size": "clamp(2.4rem, 5vw, 4.5rem)",
+      "lineHeight": 0.95,
+      "letterSpacing": "-0.035em"
+    },
+    "editorialTitle": {
+      "family": "editorialSerif",
+      "weight": 700,
+      "size": "clamp(2.2rem, 4vw, 4rem)",
+      "lineHeight": 1.05,
+      "letterSpacing": "-0.025em"
+    },
+    "quote": {
+      "family": "editorialSerif",
+      "weight": 600,
+      "size": "clamp(1.7rem, 3vw, 3rem)",
+      "lineHeight": 1.12,
+      "letterSpacing": "-0.015em"
+    },
+    "body": {
+      "family": "interfaceSans",
+      "weight": 400,
+      "size": "1rem",
+      "lineHeight": 1.65,
+      "letterSpacing": "0em"
+    },
+    "productName": {
+      "family": "interfaceSans",
+      "weight": 700,
+      "size": "1.5rem",
+      "lineHeight": 1.2,
+      "letterSpacing": "-0.015em"
+    },
+    "cta": {
+      "family": "interfaceSans",
+      "weight": 700,
+      "size": "0.95rem",
+      "lineHeight": 1,
+      "letterSpacing": "0.02em"
+    },
+    "eyebrow": {
+      "family": "technicalMono",
+      "weight": 600,
+      "size": "0.78rem",
+      "lineHeight": 1.2,
+      "letterSpacing": "0.08em",
+      "uppercase": true
+    }
+  },
+  "constraints": {
+    "maxFamiliesPerScreen": 2,
+    "minBodySizePxMobile": 16,
+    "minBodyLineHeight": 1.5,
+    "fontDisplay": "swap"
+  }
+}
