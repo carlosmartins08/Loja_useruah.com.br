@@ -1,3 +1,5 @@
+import { providerConfigState } from './_provider-config.mjs';
+
 const PROVIDERS = ['inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe'];
 
 function hasValue(key) {
@@ -5,25 +7,26 @@ function hasValue(key) {
   return Boolean(value && String(value).trim());
 }
 
-function isTrue(key) {
-  return String(process.env[key] ?? '').trim().toLowerCase() === 'true';
-}
-
-function providerVars(provider) {
-  const upper = provider.toUpperCase();
-  if (provider === 'inter') {
-    return [`PAYMENT_ENABLE_${upper}`, `PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_TOKEN_URL`, `PAYMENT_${upper}_CLIENT_ID`, `PAYMENT_${upper}_CLIENT_SECRET`];
-  }
-  if (provider === 'cielo') {
-    return [`PAYMENT_ENABLE_${upper}`, `PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_API_KEY`, `PAYMENT_${upper}_MERCHANT_ID`];
-  }
-  return [`PAYMENT_ENABLE_${upper}`, `PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_API_KEY`];
-}
-
 function isProviderReady(provider) {
-  const vars = providerVars(provider);
-  if (!isTrue(vars[0])) return false;
-  return vars.every(hasValue);
+  const required =
+    provider === 'inter'
+      ? [
+          { env: 'PAYMENT_INTER_BASE_URL', setting: 'baseUrl' },
+          { env: 'PAYMENT_INTER_TOKEN_URL', setting: 'tokenUrl' },
+          { env: 'PAYMENT_INTER_CLIENT_ID', setting: 'clientId' },
+          { env: 'PAYMENT_INTER_CLIENT_SECRET', setting: 'clientSecret' },
+        ]
+      : provider === 'cielo'
+        ? [
+            { env: 'PAYMENT_CIELO_BASE_URL', setting: 'baseUrl' },
+            { env: 'PAYMENT_CIELO_API_KEY', setting: 'apiKey' },
+            { env: 'PAYMENT_CIELO_MERCHANT_ID', setting: 'merchantId' },
+          ]
+        : [
+            { env: `PAYMENT_${provider.toUpperCase()}_BASE_URL`, setting: 'baseUrl' },
+            { env: `PAYMENT_${provider.toUpperCase()}_API_KEY`, setting: 'apiKey' },
+          ];
+  return providerConfigState(provider, required).configured;
 }
 
 const readyProviders = PROVIDERS.filter(isProviderReady);
@@ -35,9 +38,8 @@ if (readyProviders.length === 0) {
   alerts.push({
     id: 'CRIT-PAY-REAL-001',
     title: 'Gateway real ainda nao pronto para homologacao',
-    why: 'Nenhum provider real habilitado com credenciais completas no ambiente atual.',
+    why: 'Nenhum provider real com credenciais completas no ambiente atual.',
     unblock: [
-      'Habilitar pelo menos 1 provider real com PAYMENT_ENABLE_<PROVIDER>=true',
       'Preencher variaveis obrigatorias do provider escolhido',
       'Rodar smoke dedicado do provider e depois qa:payments21',
     ],

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     siteName: 'UseRuah',
     images: [
       {
-        url: 'https://useruah.com.br/opengraph-image',
+        url: 'https://useruah.com.br/brand/92ppi/logo-wordmark-dark1200x630.jpg',
         width: 1200,
         height: 630,
         alt: 'UseRuah Moda Cristã',
@@ -39,15 +39,18 @@ export const metadata: Metadata = {
     ],
   },
   icons: {
-    icon: [{ url: '/icon' }],
-    shortcut: ['/icon'],
-    apple: [{ url: '/apple-icon' }],
+    icon: [
+      { url: '/brand/92ppi/logo-mark-dark16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/brand/92ppi/logo-mark-dark32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    shortcut: ['/brand/92ppi/logo-mark-dark32x32.png'],
+    apple: [{ url: '/brand/92ppi/logo-mark-dark180x180.png', sizes: '180x180', type: 'image/png' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'UseRuah | Moda Cristã com Propósito',
     description: 'Conectando a comunidade cristã através da moda autoral e design com propósito.',
-    images: ['https://useruah.com.br/opengraph-image'],
+    images: ['https://useruah.com.br/brand/92ppi/logo-wordmark-dark1200x630.jpg'],
   },
 };
 

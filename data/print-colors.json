@@ -1,0 +1,129 @@
+﻿{
+  "version": "2026-05-24",
+  "schemaVersion": "2.0",
+  "description": "Cores de estampa Use Ruah. Usar para artes aplicadas em produtos, mockups dinâmicos e validação de contraste.",
+  "colors": [
+    {
+      "name": "Preto Ruah",
+      "displayName": "Preto Ruah",
+      "slug": "print-preto",
+      "cssVar": "--ur-print-preto",
+      "brandToken": "preto-ruah",
+      "hex": "#050505",
+      "rgb": [
+        5,
+        5,
+        5
+      ],
+      "usage": "pecas claras",
+      "recommendedSurfaces": [
+        "offwhite-oracao",
+        "areia-serena"
+      ],
+      "productionNote": "Aplicar em peças claras quando a arte precisar de máxima leitura."
+    },
+    {
+      "name": "Off-white Oracao",
+      "displayName": "Off-white Oração",
+      "slug": "print-offwhite",
+      "cssVar": "--ur-print-offwhite",
+      "brandToken": "offwhite-oracao",
+      "hex": "#F8F5EE",
+      "rgb": [
+        248,
+        245,
+        238
+      ],
+      "usage": "pecas escuras",
+      "recommendedSurfaces": [
+        "preto-presenca",
+        "terracota-humana",
+        "azul-silencio"
+      ],
+      "productionNote": "Aplicar em peças escuras para manter o campo espiritual e o contraste."
+    },
+    {
+      "name": "Areia Claro",
+      "displayName": "Areia Claro",
+      "slug": "print-areia",
+      "cssVar": "--ur-print-areia",
+      "brandToken": "areia-liturgica",
+      "hex": "#D6C0A0",
+      "rgb": [
+        214,
+        192,
+        160
+      ],
+      "usage": "pecas pretas e azuis",
+      "recommendedSurfaces": [
+        "preto-presenca",
+        "azul-silencio"
+      ],
+      "productionNote": "Boa alternativa ao off-white quando a estampa precisa parecer mais quente e menos dura."
+    },
+    {
+      "name": "Terracota",
+      "displayName": "Terracota",
+      "slug": "print-terracota",
+      "cssVar": "--ur-print-terracota",
+      "brandToken": "terracota-humana",
+      "hex": "#A95F45",
+      "rgb": [
+        169,
+        95,
+        69
+      ],
+      "usage": "detalhes e colecoes especificas",
+      "recommendedSurfaces": [
+        "offwhite-oracao",
+        "areia-serena"
+      ],
+      "productionNote": "Usar com parcimônia. Evitar em textos muito pequenos ou em fundos médios."
+    },
+    {
+      "name": "Dourado Fosco Visual",
+      "displayName": "Dourado Fosco Visual",
+      "slug": "print-dourado-fosco",
+      "cssVar": "--ur-print-dourado-fosco",
+      "brandToken": "dourado-fosco",
+      "hex": "#B89B5E",
+      "rgb": [
+        184,
+        155,
+        94
+      ],
+      "usage": "detalhes premium sob controle",
+      "recommendedSurfaces": [
+        "preto-presenca",
+        "azul-silencio"
+      ],
+      "isMetallic": false,
+      "productionNote": "Cor visual fosca. Não representa tinta metálica, foil ou acabamento especial salvo briefing técnico."
+    }
+  ],
+  "rules": {
+    "lightPieces": [
+      "print-preto",
+      "print-terracota"
+    ],
+    "darkPieces": [
+      "print-offwhite",
+      "print-areia",
+      "print-dourado-fosco"
+    ],
+    "terracotaPieces": [
+      "print-offwhite",
+      "print-preto"
+    ],
+    "azulProfundidadePieces": [
+      "print-offwhite",
+      "print-areia",
+      "print-dourado-fosco"
+    ],
+    "avoid": [
+      "print-terracota sobre terracota-humana",
+      "print-dourado-fosco em textos pequenos",
+      "qualquer combinacao que falhe em leitura mobile ou miniatura"
+    ]
+  }
+}

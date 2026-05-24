@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Instagram, MessageSquare, Shield, Globe, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import { Instagram, Shield, Globe, ArrowRight } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -16,7 +17,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-24 pb-24 border-b border-white/5">
           {/* Brand Column */}
           <div className="flex flex-col gap-8 col-span-1 lg:col-span-1">
-            <span className="font-serif text-4xl text-white uppercase tracking-tighter font-black">UseRuah.</span>
+            <Image
+              src="/brand/SVG/logo-wordmark-light.svg"
+              alt="UseRuah"
+              width={180}
+              height={48}
+              className="h-auto w-[180px]"
+              priority
+            />
             <p className="text-[10px] font-bold text-white/30 leading-relaxed uppercase tracking-[0.3em]">
               Expressão de fé através da moda. Conectando consumidores, artistas e comunidades em um respiro de arte e propósito.
             </p>

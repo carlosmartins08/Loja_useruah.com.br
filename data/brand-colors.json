@@ -1,0 +1,167 @@
+﻿{
+  "version": "2026-05-24",
+  "schemaVersion": "2.0",
+  "description": "Tokens cromáticos institucionais da marca Use Ruah. Usar estes tokens em interface, identidade, embalagem, social e documentação.",
+  "colors": [
+    {
+      "name": "Preto Ruah",
+      "displayName": "Preto Ruah",
+      "slug": "preto-ruah",
+      "cssVar": "--ur-color-preto-ruah",
+      "hex": "#050505",
+      "rgb": [
+        5,
+        5,
+        5
+      ],
+      "role": "primary-dark",
+      "usage": "logo, texto, contraste, autoridade",
+      "recommendedFor": [
+        "logo-dark",
+        "texto-principal",
+        "fundos-de-impacto",
+        "posts-urbanos"
+      ]
+    },
+    {
+      "name": "Off-white Oracao",
+      "displayName": "Off-white Oração",
+      "slug": "offwhite-oracao",
+      "cssVar": "--ur-color-offwhite-oracao",
+      "hex": "#F8F5EE",
+      "rgb": [
+        248,
+        245,
+        238
+      ],
+      "role": "primary-light",
+      "usage": "fundo, respiro, interface clara",
+      "recommendedFor": [
+        "background",
+        "cards-claros",
+        "embalagem",
+        "respiro-editorial"
+      ]
+    },
+    {
+      "name": "Areia Liturgica",
+      "displayName": "Areia Litúrgica",
+      "slug": "areia-liturgica",
+      "cssVar": "--ur-color-areia-liturgica",
+      "hex": "#D6C0A0",
+      "rgb": [
+        214,
+        192,
+        160
+      ],
+      "role": "neutral-warm",
+      "usage": "fundos secundarios, embalagem, cards",
+      "recommendedFor": [
+        "cards",
+        "tags",
+        "fundos-secundarios",
+        "mockups-editoriais"
+      ]
+    },
+    {
+      "name": "Terracota Humana",
+      "displayName": "Terracota Humana",
+      "slug": "terracota-humana",
+      "cssVar": "--ur-color-terracota-humana",
+      "hex": "#A95F45",
+      "rgb": [
+        169,
+        95,
+        69
+      ],
+      "role": "accent-warm",
+      "usage": "destaque, CTA secundario, colecao",
+      "recommendedFor": [
+        "cta-secundario",
+        "selos",
+        "detalhes-de-campanha",
+        "colecoes-quentes"
+      ]
+    },
+    {
+      "name": "Azul Profundidade",
+      "displayName": "Azul Profundidade",
+      "slug": "azul-profundidade",
+      "cssVar": "--ur-color-azul-profundidade",
+      "hex": "#172C36",
+      "rgb": [
+        23,
+        44,
+        54
+      ],
+      "role": "deep-background",
+      "usage": "formacao, blog, rodape, fundo escuro",
+      "recommendedFor": [
+        "blog",
+        "editora",
+        "rodape",
+        "conteudo-formativo"
+      ]
+    },
+    {
+      "name": "Verde Oliva",
+      "displayName": "Verde Oliva",
+      "slug": "verde-oliva",
+      "cssVar": "--ur-color-verde-oliva",
+      "hex": "#75806B",
+      "rgb": [
+        117,
+        128,
+        107
+      ],
+      "role": "organic-neutral",
+      "usage": "natureza, cotidiano, sustentabilidade",
+      "recommendedFor": [
+        "linha-cotidiano",
+        "sustentabilidade",
+        "detalhes-organicos"
+      ]
+    },
+    {
+      "name": "Dourado Fosco",
+      "displayName": "Dourado Fosco",
+      "slug": "dourado-fosco",
+      "cssVar": "--ur-color-dourado-fosco",
+      "hex": "#B89B5E",
+      "rgb": [
+        184,
+        155,
+        94
+      ],
+      "role": "premium-detail",
+      "usage": "detalhe premium, selo, linhas finas",
+      "recommendedFor": [
+        "selos",
+        "linhas-finas",
+        "acabamento-visual",
+        "detalhes-liturgicos"
+      ],
+      "productionNote": "Token visual. Não implica acabamento metálico, foil ou tinta especial sem especificação de produção."
+    },
+    {
+      "name": "Kraft Natural",
+      "displayName": "Kraft Natural",
+      "slug": "kraft-natural",
+      "cssVar": "--ur-color-kraft-natural",
+      "hex": "#C8A06E",
+      "rgb": [
+        200,
+        160,
+        110
+      ],
+      "role": "material-packaging",
+      "usage": "embalagem, tag, papel, textura",
+      "recommendedFor": [
+        "tag-pendente",
+        "embalagem",
+        "papel",
+        "textura-material"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+﻿{
+  "version": "2026-05-24",
+  "schemaVersion": "2.0",
+  "description": "Cores comerciais de produto Use Ruah. Conecta nome de loja, token de marca, fornecedor, contraste, mockup e estampas permitidas.",
+  "phases": {
+    "phase1": [
+      "offwhite-oracao",
+      "preto-presenca",
+      "areia-serena"
+    ],
+    "phase2": [
+      "terracota-humana",
+      "azul-silencio",
+      "verde-oliva"
+    ]
+  },
+  "colors": [
+    {
+      "colorName": "Off-white Oracao",
+      "displayName": "Off-white Oração",
+      "colorSlug": "offwhite-oracao",
+      "brandToken": "offwhite-oracao",
+      "displayHex": "#F8F5EE",
+      "rgb": [
+        248,
+        245,
+        238
+      ],
+      "supplierColorName": "Off White",
+      "supplierColorCode": "DIM-OFF-001",
+      "supplierValidated": false,
+      "textColor": "#050505",
+      "textColorSmall": "#050505",
+      "logoVariant": "dark",
+      "status": "active",
+      "phase": "phase1",
+      "allowedPrints": [
+        "print-preto",
+        "print-terracota"
+      ],
+      "recommendedPrint": "print-preto",
+      "mockupFolder": "offwhite-oracao",
+      "swatchBorder": "#D6C0A0"
+    },
+    {
+      "colorName": "Preto Presenca",
+      "displayName": "Preto Presença",
+      "colorSlug": "preto-presenca",
+      "brandToken": "preto-ruah",
+      "displayHex": "#050505",
+      "rgb": [
+        5,
+        5,
+        5
+      ],
+      "supplierColorName": "Preto",
+      "supplierColorCode": "DIM-PRE-001",
+      "supplierValidated": false,
+      "textColor": "#F8F5EE",
+      "textColorSmall": "#FFFFFF",
+      "logoVariant": "light",
+      "status": "active",
+      "phase": "phase1",
+      "allowedPrints": [
+        "print-offwhite",
+        "print-areia",
+        "print-dourado-fosco"
+      ],
+      "recommendedPrint": "print-offwhite",
+      "mockupFolder": "preto-presenca",
+      "swatchBorder": "#050505"
+    },
+    {
+      "colorName": "Areia Serena",
+      "displayName": "Areia Serena",
+      "colorSlug": "areia-serena",
+      "brandToken": "areia-liturgica",
+      "displayHex": "#D6C0A0",
+      "rgb": [
+        214,
+        192,
+        160
+      ],
+      "supplierColorName": "Areia",
+      "supplierColorCode": "DIM-ARE-001",
+      "supplierValidated": false,
+      "textColor": "#050505",
+      "textColorSmall": "#050505",
+      "logoVariant": "dark",
+      "status": "active",
+      "phase": "phase1",
+      "allowedPrints": [
+        "print-preto",
+        "print-terracota"
+      ],
+      "recommendedPrint": "print-preto",
+      "mockupFolder": "areia-serena",
+      "swatchBorder": "#B89B5E"
+    },
+    {
+      "colorName": "Terracota Humana",
+      "displayName": "Terracota Humana",
+      "colorSlug": "terracota-humana",
+      "brandToken": "terracota-humana",
+      "displayHex": "#A95F45",
+      "rgb": [
+        169,
+        95,
+        69
+      ],
+      "supplierColorName": "Terracota",
+      "supplierColorCode": "DIM-TER-001",
+      "supplierValidated": false,
+      "textColor": "#F8F5EE",
+      "textColorSmall": "#FFFFFF",
+      "logoVariant": "light",
+      "status": "planned",
+      "phase": "phase2",
+      "allowedPrints": [
+        "print-offwhite",
+        "print-preto"
+      ],
+      "recommendedPrint": "print-offwhite",
+      "mockupFolder": "terracota-humana",
+      "swatchBorder": "#A95F45",
+      "contrastNote": "Usar branco puro em textos pequenos se a interface indicar baixa legibilidade."
+    },
+    {
+      "colorName": "Azul Silencio",
+      "displayName": "Azul Silêncio",
+      "colorSlug": "azul-silencio",
+      "brandToken": "azul-profundidade",
+      "displayHex": "#172C36",
+      "rgb": [
+        23,
+        44,
+        54
+      ],
+      "supplierColorName": "Azul Marinho",
+      "supplierColorCode": "DIM-AZU-001",
+      "supplierValidated": false,
+      "textColor": "#F8F5EE",
+      "textColorSmall": "#FFFFFF",
+      "logoVariant": "light",
+      "status": "planned",
+      "phase": "phase2",
+      "allowedPrints": [
+        "print-offwhite",
+        "print-areia",
+        "print-dourado-fosco"
+      ],
+      "recommendedPrint": "print-offwhite",
+      "mockupFolder": "azul-silencio",
+      "swatchBorder": "#172C36"
+    },
+    {
+      "colorName": "Verde Oliva",
+      "displayName": "Verde Oliva",
+      "colorSlug": "verde-oliva",
+      "brandToken": "verde-oliva",
+      "displayHex": "#75806B",
+      "rgb": [
+        117,
+        128,
+        107
+      ],
+      "supplierColorName": "Oliva",
+      "supplierColorCode": "DIM-OLI-001",
+      "supplierValidated": false,
+      "textColor": "#050505",
+      "textColorSmall": "#050505",
+      "logoVariant": "dark",
+      "status": "planned",
+      "phase": "phase2",
+      "allowedPrints": [
+        "print-preto",
+        "print-offwhite"
+      ],
+      "recommendedPrint": "print-preto",
+      "mockupFolder": "verde-oliva",
+      "swatchBorder": "#75806B",
+      "contrastNote": "Validar contraste físico com fornecedor antes de liberar estampa preta em tecido real."
+    }
+  ],
+  "mockupPathTemplate": "/assets/products/mockups/{productSlug}/{colorSlug}/mockup-{productSlug}-{colorSlug}-{view}.png",
+  "views": [
+    "front",
+    "back",
+    "left-3q",
+    "right-3q",
+    "side",
+    "detail-gola",
+    "detail-manga",
+    "detail-tecido"
+  ]
+}

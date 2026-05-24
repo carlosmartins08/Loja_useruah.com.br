@@ -30,7 +30,7 @@ export function HomePage() {
     '@type': 'Organization',
     name: 'UseRuah',
     url: 'https://useruah.com.br',
-    logo: 'https://useruah.com.br/brand/logo-wordmark-dark.svg',
+    logo: 'https://useruah.com.br/brand/SVG/logo-wordmark-dark.svg',
     description: 'Moda cristã e produtos personalizados sob demanda.',
     address: {
       '@type': 'PostalAddress',

@@ -11,7 +11,7 @@ import {
 import { getPaymentProvider } from '@/lib/payment-provider';
 import type { CheckoutPaymentPayload, PaymentRecord, PaymentStatus } from '@/lib/payments';
 import { getPaymentGateway } from '@/lib/payment-gateway-registry';
-import { getPaymentConnectorConfigPlain } from '@/lib/payment-connector-store';
+import { getPaymentConnectorConfigPlain, resolveDefaultPaymentProvider } from '@/lib/payment-connector-store';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { createCommissionPending } from '@/lib/commission-store';
 import { getOrder, updateOrderStatus } from '@/lib/order-store';
@@ -67,7 +67,7 @@ export async function createPaymentWithIdempotency(
     throw new PaymentFlowError(409, 'invalid_transition');
   }
 
-  const selectedProvider = payload.provider ?? ((process.env.PAYMENT_PROVIDER?.toLowerCase() as PaymentRecord['provider'] | undefined) ?? 'sandbox');
+  const selectedProvider = payload.provider ?? (await resolveDefaultPaymentProvider('sandbox'));
   const gateway = getPaymentGateway(selectedProvider);
   const connector = await getPaymentConnectorConfigPlain(selectedProvider);
   const enabledByConnector = connector ? connector.enabled : gateway?.enabled ?? false;

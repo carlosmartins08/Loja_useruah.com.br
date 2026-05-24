@@ -168,6 +168,14 @@ CREATE TABLE IF NOT EXISTS payment_connector_configs (
   updated_by VARCHAR(64) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS payment_connector_preferences (
+  id VARCHAR(32) PRIMARY KEY,
+  default_provider VARCHAR(32) NULL,
+  previous_default_provider VARCHAR(32) NULL,
+  updated_at DATETIME(3) NOT NULL,
+  updated_by VARCHAR(64) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS refunds (
   refund_id VARCHAR(64) PRIMARY KEY,
   order_id VARCHAR(64) NOT NULL,

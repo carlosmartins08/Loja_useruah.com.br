@@ -19,7 +19,8 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
   const instantMethod = searchParams.get('instant');
   const [manualPaymentMethod, setManualPaymentMethod] = React.useState<PaymentMethod | null>(null);
   const [provider, setProvider] = React.useState<PaymentProviderKey>('sandbox');
-  const [providers, setProviders] = React.useState<Array<{ key: PaymentProviderKey; label: string; methods: PaymentMethod[]; enabled: boolean }>>([]);
+  const [defaultProvider, setDefaultProvider] = React.useState<PaymentProviderKey | null>(null);
+  const [providers, setProviders] = React.useState<Array<{ key: PaymentProviderKey; label: string; methods: PaymentMethod[]; enabled: boolean; isDefault?: boolean }>>([]);
   const paymentMethod: PaymentMethod =
     manualPaymentMethod ?? (instantMethod === 'pix' ? 'pix' : instantMethod === 'wallet' ? 'wallet' : 'card');
   const availableProviders = React.useMemo(
@@ -27,12 +28,22 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
     [providers, paymentMethod]
   );
   const effectiveProvider: PaymentProviderKey =
-    availableProviders.find((item) => item.key === provider)?.key ?? availableProviders[0]?.key ?? 'sandbox';
+    availableProviders.find((item) => item.key === provider)?.key ??
+    availableProviders.find((item) => item.key === defaultProvider)?.key ??
+    availableProviders[0]?.key ??
+    'sandbox';
 
   React.useEffect(() => {
-    getJson<{ providers: Array<{ key: PaymentProviderKey; label: string; methods: PaymentMethod[]; enabled: boolean }> }>('/api/payments/providers')
-      .then((response) => setProviders(response.providers))
-      .catch(() => setProviders([{ key: 'sandbox', label: 'Sandbox interno', methods: ['card', 'pix', 'wallet'], enabled: true }]));
+    getJson<{ providers: Array<{ key: PaymentProviderKey; label: string; methods: PaymentMethod[]; enabled: boolean; isDefault?: boolean }>; defaultProvider?: PaymentProviderKey | null }>(
+      '/api/payments/providers'
+    )
+      .then((response) => {
+        setProviders(response.providers);
+        setDefaultProvider(response.defaultProvider ?? null);
+      })
+      .catch(() =>
+        setProviders([{ key: 'sandbox', label: 'Sandbox interno', methods: ['card', 'pix', 'wallet'], enabled: true, isDefault: true }])
+      );
   }, []);
 
   return (
@@ -119,7 +130,7 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
           >
             {availableProviders.map((item) => (
               <option key={item.key} value={item.key}>
-                {item.label}
+                {item.isDefault ? `${item.label} (Padrao)` : item.label}
               </option>
             ))}
             {availableProviders.length === 0 && <option value="sandbox">Sandbox interno</option>}

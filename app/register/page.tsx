@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ChevronRight, 
@@ -66,7 +67,9 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       {/* Header */}
       <header className="px-8 py-10 flex justify-between items-center border-b border-ruah-100 bg-white">
-        <Link href="/" className="text-2xl font-serif font-black tracking-tighter text-ruah-950 italic">USERUAH</Link>
+        <Link href="/" aria-label="UseRuah">
+          <Image src="/brand/SVG/logo-wordmark-dark.svg" alt="UseRuah" width={180} height={48} className="h-auto w-[180px]" priority />
+        </Link>
         <Link href="/login" className="text-[10px] font-bold uppercase tracking-widest text-ruah-400 hover:text-ruah-950 transition-colors">
           Já tenho acesso
         </Link>

@@ -1,0 +1,26 @@
+﻿{
+  "version": "2026-05-24",
+  "schemaVersion": "2.0",
+  "brand": "Use Ruah",
+  "description": "Sistema cromático consolidado para identidade, produtos, estampas, mockups e desenvolvimento.",
+  "files": {
+    "brandColors": "brand-colors.v2.json",
+    "printColors": "print-colors.v2.json",
+    "productColors": "product-colors.v2.json"
+  },
+  "integrationRules": {
+    "logoVariantBySurface": {
+      "light": "dark",
+      "dark": "light",
+      "medium": "validate-contrast"
+    },
+    "startWithProductColors": [
+      "offwhite-oracao",
+      "preto-presenca",
+      "areia-serena"
+    ],
+    "doNotCreateLogoColorVariants": true,
+    "doNotUseDouradoAsMetallicByDefault": true,
+    "requireSupplierValidationBeforeProduction": true
+  }
+}

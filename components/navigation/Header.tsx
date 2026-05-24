@@ -144,7 +144,7 @@ export function Header() {
             {/* Logo (Centered on Desktop) */}
             <Link href="/" className="md:absolute md:left-1/2 md:-translate-x-1/2 group" id="logo-link">
                <Image
-                 src="/brand/logo-wordmark-dark.svg"
+                 src="/brand/SVG/logo-wordmark-dark.svg"
                  alt="UseRuah"
                  width={220}
                  height={58}
@@ -225,7 +225,7 @@ export function Header() {
               <div className="p-10 flex justify-between items-center border-b border-ruah-50">
                 <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
                   <Image
-                    src="/brand/logo-wordmark-dark.svg"
+                    src="/brand/SVG/logo-wordmark-dark.svg"
                     alt="UseRuah"
                     width={180}
                     height={48}

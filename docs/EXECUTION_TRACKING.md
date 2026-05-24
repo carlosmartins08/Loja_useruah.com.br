@@ -6,6 +6,8 @@ Data de revisao: 2026-05-23
 
 - Ativacao P3 por provider consolidada em comando unico: `npm run qa:provider:activate` (sequencia gate + smoke + regressao).
 - Alertas criticos agora sao dinâmicos por ambiente (`scripts/critical-alerts.mjs`) e nao mais texto estatico.
+- Regra self-service unificada para todos os providers aplicada: habilitacao via painel de conectores, sem dependencia de `PAYMENT_ENABLE_*`.
+- Painel de conectores com requisitos dinamicos por provider e bloqueio de ativacao incompleta (`lib/payment-provider-requirements.ts` + `app/api/admin/payment-connectors/route.ts` + `app/admin/payments/connectors/page.tsx`).
 
 - P0 Estrutural: `CONCLUIDO`
   - Fonte unica de schema consolidada em `infra/mysql/init/001_payments.sql`.

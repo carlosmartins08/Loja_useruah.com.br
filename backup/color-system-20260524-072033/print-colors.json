@@ -1,0 +1,16 @@
+{
+  "version": "2026-05-24",
+  "colors": [
+    { "name": "Preto Ruah", "slug": "print-preto", "hex": "#050505", "usage": "pecas claras" },
+    { "name": "Off-white Oracao", "slug": "print-offwhite", "hex": "#F8F5EE", "usage": "pecas escuras" },
+    { "name": "Areia Claro", "slug": "print-areia", "hex": "#D6C0A0", "usage": "pecas pretas e azuis" },
+    { "name": "Terracota", "slug": "print-terracota", "hex": "#A95F45", "usage": "detalhes e colecoes especificas" },
+    { "name": "Dourado Fosco", "slug": "print-dourado-fosco", "hex": "#B89B5E", "usage": "detalhes premium sob controle" }
+  ],
+  "rules": {
+    "lightPieces": ["print-preto", "print-terracota"],
+    "darkPieces": ["print-offwhite", "print-areia", "print-dourado-fosco"],
+    "terracotaPieces": ["print-offwhite", "print-preto"],
+    "azulProfundidadePieces": ["print-offwhite", "print-areia", "print-dourado-fosco"]
+  }
+}

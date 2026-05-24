@@ -32,6 +32,64 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-05-23] Matriz unica de requisitos por provider no painel self-service
+- ID: GOV-0051
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `ui-rotas`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Criar fonte unica de requisitos por provider (`lib/payment-provider-requirements.ts`).
+  - Expor requisitos no endpoint admin de conectores e renderizar campos dinamicos por gateway no painel.
+  - Bloquear `enabled=true` quando faltar campo obrigatorio do provider.
+- Contexto:
+  - Autonomia real exige que o usuario siga passos guiados por provider sem depender de conhecimento tecnico de env.
+- Impacto esperado:
+  - Menos erro de configuracao e onboarding consistente para todos os meios de pagamento.
+- Riscos conhecidos:
+  - Mudancas futuras em requisitos de API do provider exigem atualizar a matriz central.
+- Plano de rollback:
+  - Voltar para formulario generico fixo sem bloqueio de obrigatoriedade por provider.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-05-23] Padrao self-service unificado para todos os providers (sem flag por provider)
+- ID: GOV-0050
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Remover dependencia de `PAYMENT_ENABLE_*` por provider no fluxo operacional.
+  - Consolidar habilitacao via painel self-service (`/admin/payments/connectors`) e manter env apenas para credenciais/runtime.
+  - Alinhar scripts de readiness/requirements/critical para a mesma regra.
+- Contexto:
+  - Dependencia de flag tecnica por provider contradizia o objetivo de operacao sem desenvolvedor.
+- Impacto esperado:
+  - Menos friccao de ativacao e menos divergencia entre UI, painel e QA.
+- Riscos conhecidos:
+  - Ambiente sem credenciais ainda bloqueia P3, mas com diagnostico objetivo.
+- Plano de rollback:
+  - Reintroduzir validacao por env em scripts somente se houver requisito regulatorio explicito.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_TRACKING.md`
+
 ### [2026-05-23] Ativacao P3 por provider com gate unico executavel
 - ID: GOV-0049
 - Status: `aprovada`

@@ -12,6 +12,7 @@ import type { PaymentMethod, PaymentRecord } from '@/lib/payments';
 import type { OrderRecord } from '@/lib/order-store';
 import { HttpRequestError, postJson } from '@/lib/http-client';
 import { useUser } from '@/context/UserContext';
+import { renderContentMessage } from '@/lib/content-messages';
 
 export function CheckoutPageView() {
   const { cart, total, subtotal, location, gifting, setGifting, clearCart } = useCart();
@@ -22,6 +23,7 @@ export function CheckoutPageView() {
   const [paymentSummary, setPaymentSummary] = React.useState<PaymentRecord | null>(null);
   const requestKeyRef = React.useRef<string | null>(null);
   const { isAuthenticated } = useUser();
+  const t = (id: string, vars?: Record<string, string | number>) => renderContentMessage(id, vars);
 
   if (cart.length === 0 && !isProcessing && step !== 3) {
     return (
@@ -41,7 +43,7 @@ export function CheckoutPageView() {
 
   const handleFinish = async (method: PaymentMethod, provider: PaymentRecord['provider']) => {
     if (!isAuthenticated) {
-      setCheckoutError('Sua sessão expirou. Faça login novamente para concluir o pagamento.');
+      setCheckoutError(t('checkout_session_expired')?.body ?? 'Sua sessão expirou. Faça login novamente para concluir o pagamento.');
       window.location.href = '/login';
       return;
     }
@@ -89,17 +91,17 @@ export function CheckoutPageView() {
       console.error(error);
       if (error instanceof HttpRequestError) {
         if (error.status === 401 || error.status === 403) {
-          setCheckoutError('Sua sessão expirou. Faça login novamente para concluir o pagamento.');
+          setCheckoutError(t('checkout_session_expired')?.body ?? 'Sua sessão expirou. Faça login novamente para concluir o pagamento.');
           window.location.href = '/login';
         } else if (error.status === 409) {
-          setCheckoutError('Não foi possível processar este pedido no estado atual. Revise seu carrinho e tente novamente.');
+          setCheckoutError(t('checkout_invalid_state')?.body ?? 'Não foi possível processar este pedido no estado atual. Revise seu carrinho e tente novamente.');
         } else if (error.status >= 500) {
-          setCheckoutError('Instabilidade temporária no pagamento. Tente novamente em instantes.');
+          setCheckoutError(t('checkout_temporary_instability')?.body ?? 'Instabilidade temporária no pagamento. Tente novamente em instantes.');
         } else {
-          setCheckoutError('Não foi possível concluir o pagamento agora. Tente novamente.');
+          setCheckoutError(t('checkout_payment_generic_error')?.body ?? 'Não foi possível concluir o pagamento agora. Tente novamente.');
         }
       } else {
-        setCheckoutError('Não foi possível concluir o pagamento agora. Tente novamente.');
+        setCheckoutError(t('checkout_payment_generic_error')?.body ?? 'Não foi possível concluir o pagamento agora. Tente novamente.');
       }
     } finally {
       setIsProcessing(false);
@@ -115,7 +117,7 @@ export function CheckoutPageView() {
           <div className="lg:col-span-7 flex flex-col gap-12">
             {step === 3 ? (
               <>
-                <CheckoutSuccessCard />
+                <CheckoutSuccessCard orderId={paymentSummary?.orderId} />
                 {paymentSummary && (
                   <div className="bg-white border border-ruah-100 rounded-2xl p-6">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-ruah-400">Resumo da transação</p>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'motion/react';
 import { Mail, Lock, ArrowRight, Github, Chrome as Google } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
@@ -29,7 +30,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       <header className="px-8 py-10 flex justify-center items-center border-b border-ruah-100 bg-white">
-        <Link href="/" className="text-2xl font-serif font-black tracking-tighter text-ruah-950 italic">USERUAH</Link>
+        <Link href="/" aria-label="UseRuah">
+          <Image src="/brand/SVG/logo-wordmark-dark.svg" alt="UseRuah" width={180} height={48} className="h-auto w-[180px]" priority />
+        </Link>
       </header>
 
       <main className="flex-1 flex items-center justify-center p-6">
