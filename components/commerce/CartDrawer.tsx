@@ -52,7 +52,7 @@ export function CartDrawer() {
               <div className="flex items-center gap-3">
                 <ShoppingBag size={20} className="text-accent-gold" />
                 <h2 className="text-lg font-serif italic uppercase tracking-tighter">Seu Carrinho</h2>
-                <span className="bg-ruah-50 text-ruah-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-ruah-50 text-ruah-400 text-xs font-bold px-2 py-0.5 rounded-full">
                   {cart.length} peças
                 </span>
               </div>
@@ -68,11 +68,11 @@ export function CartDrawer() {
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-2">
                    <Truck size={12} className={total >= 3000 ? 'text-green-500' : 'text-accent-gold'} />
-                   <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-400">
+                   <span className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-400">
                      {total >= 3000 ? 'Frete Grátis Liberado!' : `Faltam R$ ${(3000 - total).toLocaleString('pt-BR')} para frete grátis`}
                    </span>
                 </div>
-                <span className="text-[9px] font-mono font-bold text-ruah-300">{Math.round(Math.min((total/3000)*100, 100))}%</span>
+                <span className="text-xs font-mono font-bold text-ruah-300">{Math.round(Math.min((total/3000)*100, 100))}%</span>
               </div>
               <div className="h-1 w-full bg-ruah-100 rounded-full overflow-hidden">
                 <motion.div 
@@ -81,7 +81,7 @@ export function CartDrawer() {
                    className={`h-full transition-all duration-500 ${total >= 3000 ? 'bg-green-500' : 'bg-accent-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]'}`}
                 />
               </div>
-              <p className="text-[8px] text-ruah-300 uppercase tracking-widest mt-3 flex items-center gap-2 italic">
+              <p className="text-xs text-ruah-300 uppercase tracking-[0.1em] mt-3 flex items-center gap-2 italic">
                  <span className="w-1 h-1 bg-ruah-300 rounded-full" />
                  Handover Logístico: {location.region} (+{location.shippingDays}d úteis)
               </p>
@@ -92,9 +92,9 @@ export function CartDrawer() {
               {cart.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
                   <ShoppingBag size={48} className="mb-4" />
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em]">Seu carrinho está vazio</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em]">Seu carrinho está vazio</p>
                   <button type="button" onClick={() => setIsCartOpen(false)}
-                    className="mt-6 text-[10px] font-bold border-b border-ruah-950 pb-1"
+                    className="mt-6 text-xs font-bold border-b border-ruah-950 pb-1"
                   >
                     Continuar Explorando
                   </button>
@@ -107,7 +107,7 @@ export function CartDrawer() {
                       <div className="relative w-24 h-32 rounded-2xl overflow-hidden bg-ruah-50 border border-ruah-100 shadow-sm">
                         <Image src={item.image} alt={item.name} fill className="object-cover" referrerPolicy="no-referrer" />
                         {item.productionDays && (
-                          <div className="absolute top-2 left-2 bg-accent-gold text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-widest">
+                          <div className="absolute top-2 left-2 bg-accent-gold text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-[0.1em]">
                              Bespoke
                           </div>
                         )}
@@ -124,17 +124,17 @@ export function CartDrawer() {
                           </button>
                         </div>
                         <div className="flex flex-col gap-0.5 mb-4">
-                           <span className="text-[9px] font-bold text-ruah-400 uppercase tracking-widest">
+                           <span className="text-xs font-bold text-ruah-400 uppercase tracking-[0.1em]">
                              Sku: RH-{item.id.padStart(4, '0')} | {item.category || 'Ruah'}
                            </span>
                            {item.spec && (
-                             <span className="text-[8px] font-bold text-accent-gold uppercase tracking-widest flex items-center gap-1">
+                             <span className="text-xs font-bold text-accent-gold uppercase tracking-[0.1em] flex items-center gap-1">
                                 <span className="w-1 h-1 bg-accent-gold rounded-full" />
                                 Customização: {item.spec}
                              </span>
                            )}
                            {item.productionDays && (
-                             <span className="text-[8px] font-bold text-ruah-400 uppercase tracking-widest italic">
+                             <span className="text-xs font-bold text-ruah-400 uppercase tracking-[0.1em] italic">
                                 Sopro Criativo: {item.productionDays} dias úteis
                              </span>
                            )}
@@ -165,7 +165,7 @@ export function CartDrawer() {
 
                 {/* Upselling Section */}
                 <div className="pt-12 border-t border-ruah-50">
-                   <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-ruah-300 mb-6 font-bold">Complete sua Experiência</h4>
+                   <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-ruah-300 mb-6 font-bold">Complete sua Experiência</h4>
                    <div className="grid grid-cols-1 gap-4">
                       {[
                         { id: 'acc-4', name: 'Almofada Paz', price: 75, image: 'https://picsum.photos/seed/ruah-p5/100/100' },
@@ -176,8 +176,8 @@ export function CartDrawer() {
                               <Image src={acc.image} alt={acc.name} fill className="object-cover" />
                            </div>
                            <div className="flex-1 flex flex-col gap-0.5">
-                              <span className="text-[10px] font-bold uppercase tracking-tight text-ruah-950">{acc.name}</span>
-                              <span className="text-[9px] font-mono text-accent-gold">R$ {acc.price.toLocaleString('pt-BR')}</span>
+                              <span className="text-xs font-bold uppercase tracking-tight text-ruah-950">{acc.name}</span>
+                              <span className="text-xs font-mono text-accent-gold">R$ {acc.price.toLocaleString('pt-BR')}</span>
                            </div>
                            <button type="button" className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-ruah-400 hover:bg-accent-gold hover:text-white transition-all">
                               <Plus size={14} />
@@ -195,21 +195,21 @@ export function CartDrawer() {
               <div className="p-8 bg-white border-t border-ruah-100 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.05)]">
                 <div className="flex flex-col gap-4 mb-8">
                   <div className="flex justify-between items-center opacity-40 text-ruah-950 font-bold">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.3em]">Subtotal</span>
+                    <span className="text-xs font-bold uppercase tracking-[0.1em]">Subtotal</span>
                     <span className="text-sm font-mono tracking-tighter">
                       R$ {subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                   {discount > 0 && (
                     <div className="flex justify-between items-center text-green-600 font-bold">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.3em]">PROGRESSIVE VOL (OFF)</span>
+                      <span className="text-xs font-bold uppercase tracking-[0.1em]">PROGRESSIVE VOL (OFF)</span>
                       <span className="text-sm font-mono tracking-tighter">
                         - R$ {discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
                   )}
                   <div className="flex justify-between items-center pt-4 border-t border-ruah-50 text-ruah-950 font-bold">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-ruah-400">Total do Investimento</span>
+                    <span className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-400">Total do Investimento</span>
                     <span className="text-2xl font-serif italic tracking-tighter text-ruah-950">
                       R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
@@ -219,12 +219,12 @@ export function CartDrawer() {
                   <Link 
                     href="/checkout"
                     onClick={() => setIsCartOpen(false)}
-                    className="w-full bg-ruah-950 text-white py-5 rounded-2xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-accent-gold transition-all flex items-center justify-center gap-3 active:scale-[0.98] shadow-xl shadow-ruah-950/10"
+                    className="w-full bg-ruah-950 text-white py-5 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-gold transition-all flex items-center justify-center gap-3 active:scale-[0.98] shadow-xl shadow-ruah-950/10"
                   >
                     Confirmar Handover <ArrowRight size={16} />
                   </Link>
                   <button type="button" onClick={() => setIsCartOpen(false)}
-                    className="w-full bg-white border border-ruah-100 py-4 rounded-xl font-bold uppercase text-[9px] tracking-[0.2em] text-ruah-400 hover:text-ruah-950 hover:border-ruah-200 transition-all font-bold"
+                    className="w-full bg-white border border-ruah-100 py-4 rounded-xl font-bold uppercase text-xs tracking-[0.2em] text-ruah-400 hover:text-ruah-950 hover:border-ruah-200 transition-all font-bold"
                   >
                     Olhar Outras Peças
                   </button>
@@ -237,4 +237,5 @@ export function CartDrawer() {
     </AnimatePresence>
   );
 }
+
 

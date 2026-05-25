@@ -108,11 +108,12 @@ export function CheckoutStepOneSection({
         )}
       </div>
 
-      <button type="button" onClick={onContinue} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-accent-gold transition-all shadow-fancy">
+      <button type="button" onClick={onContinue} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-gold transition-all shadow-fancy">
         Ir para Pagamento Seguro
       </button>
     </div>
   );
 }
+
 
 

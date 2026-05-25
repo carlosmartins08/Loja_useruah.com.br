@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'motion/react';
@@ -9,6 +9,13 @@ import Image from 'next/image';
 import { useUser } from '@/context/UserContext';
 import { ProfilePhotoModal } from '@/components/navigation/ProfilePhotoModal';
 import { useRouter } from 'next/navigation';
+import type { UserRole } from '@/lib/auth-session';
+
+function resolveAdminHome(userRole: UserRole) {
+  if (userRole === 'production_operator') return '/admin/production';
+  if (userRole === 'support_agent') return '/admin/support';
+  return '/admin';
+}
 
 const MOCK_ORDERS = [
   {
@@ -17,7 +24,7 @@ const MOCK_ORDERS = [
     status: 'production' as OrderStatus,
     total: 'R$ 129,00',
     items: [
-      { name: 'Camiseta Ruah Signature', spec: 'G | Algodão Penteado | Branco', image: 'https://picsum.photos/seed/ruah1/200/200' }
+      { name: 'Camiseta Ruah Signature', spec: 'G | Algodao Penteado | Branco', image: 'https://picsum.photos/seed/ruah1/200/200' }
     ]
   },
   {
@@ -44,7 +51,7 @@ export default function AccountPage() {
       return;
     }
     if (userRole === 'platform_admin' || userRole === 'support_agent' || userRole === 'production_operator') {
-      router.replace('/admin');
+      router.replace(resolveAdminHome(userRole));
     }
   }, [isAuthenticated, isSessionReady, userRole, router]);
 
@@ -82,20 +89,20 @@ export default function AccountPage() {
                       )}
                       <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-bold">
                          <Camera size={24} className="text-white mb-1" />
-                         <span className="text-[8px] font-bold uppercase tracking-widest text-white">Alterar</span>
+                         <span className="text-xs font-semibold uppercase tracking-widest text-white">Alterar</span>
                       </div>
                    </div>
                    <div className="flex flex-col gap-6">
                       <span className="tech-label text-accent-gold whitespace-nowrap overflow-hidden">Painel de Comunidade</span>
-                      <h1 className="text-6xl lg:text-8xl font-serif leading-none italic uppercase">OLÁ, {userName}.</h1>
-                      <p className="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Gestão de Pedidos e Campanhas Ruah</p>
+                      <h1 className="text-6xl lg:text-8xl font-serif leading-none italic uppercase">OLA, {userName}.</h1>
+                      <p className="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Gestao de Pedidos e Campanhas Ruah</p>
                    </div>
                 </div>
                 <div className="flex gap-4">
-                   <button className="flex items-center gap-2 px-6 py-4 border border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-ruah-950 transition-all">
-                      <Settings size={14} /> Configurações
+                   <button className="flex items-center gap-2 px-6 py-4 border border-white/10 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-white hover:text-ruah-950 transition-all">
+                      <Settings size={14} /> Configuracoes
                    </button>
-                   <button className="flex items-center gap-2 px-6 py-4 bg-white text-ruah-950 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-accent-gold hover:text-white transition-all shadow-fancy">
+                   <button className="flex items-center gap-2 px-6 py-4 bg-white text-ruah-950 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-accent-gold hover:text-white transition-all shadow-fancy">
                       <LogOut size={14} /> Sair
                    </button>
                 </div>
@@ -109,7 +116,7 @@ export default function AccountPage() {
                 
                 {/* Sidebar - Orders List */}
                 <div className="lg:col-span-4 flex flex-col gap-8">
-                   <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-ruah-300">Seus Pedidos Ativos</h3>
+                   <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-300">Seus Pedidos Ativos</h3>
                    <div className="flex flex-col gap-4">
                       {MOCK_ORDERS.map((order) => (
                          <button 
@@ -126,10 +133,10 @@ export default function AccountPage() {
                                   <span className="text-[10px] font-bold text-accent-gold uppercase tracking-widest leading-none mb-1">#{order.id}</span>
                                   <span className="text-xs font-serif italic text-ruah-950">{order.date}</span>
                                </div>
-                               <span className={`text-[8px] font-bold uppercase px-2 py-1 rounded-md ${
+                               <span className={`text-xs font-semibold uppercase px-2 py-1 rounded-md ${
                                  order.status === 'production' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'
                                }`}>
-                                 {order.status === 'production' ? 'Em Produção' : 'Enviado'}
+                                 {order.status === 'production' ? 'Em Producao' : 'Enviado'}
                                </span>
                             </div>
                             <div className="flex -space-x-4 mb-6">
@@ -154,7 +161,7 @@ export default function AccountPage() {
                          <h4 className="text-2xl font-serif uppercase leading-tight italic">PRECISA DE <br /> AJUDA?</h4>
                       </div>
                       <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest leading-relaxed">
-                         Nossa equipe está pronta para ajudar com sua campanha ou pedido personalizado.
+                         Nossa equipe esta pronta para ajudar com sua campanha ou pedido personalizado.
                       </p>
                       <button className="bg-white text-ruah-950 w-full py-4 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-accent-gold hover:text-white transition-all">
                          Falar no WhatsApp
@@ -171,11 +178,11 @@ export default function AccountPage() {
                             <span className="tech-label text-accent-gold">#{selectedOrder.id}</span>
                          </div>
                          <p className="text-xs font-bold text-ruah-400 uppercase tracking-widest">
-                            {selectedOrder.items.length} ITEM • TOTAL {selectedOrder.total}
+                            {selectedOrder.items.length} ITEM â€¢ TOTAL {selectedOrder.total}
                          </p>
                       </div>
-                      <button className="flex items-center gap-3 px-6 py-4 bg-ruah-50 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-ruah-100 transition-all">
-                         <QrCode size={18} className="text-accent-gold" /> Comprovante de Produção
+                      <button className="flex items-center gap-3 px-6 py-4 bg-ruah-50 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-ruah-100 transition-all">
+                         <QrCode size={18} className="text-accent-gold" /> Comprovante de Producao
                       </button>
                    </div>
 
@@ -183,14 +190,14 @@ export default function AccountPage() {
                    <div className="flex flex-col gap-6">
                       <div className="flex items-center gap-3">
                          <Package size={20} className="text-accent-gold" />
-                         <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-ruah-950">Acompanhamento do Ciclo</h3>
+                         <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-950">Acompanhamento do Ciclo</h3>
                       </div>
                       <ProductionTimeline currentStatus={selectedOrder.status} />
                    </div>
 
                    {/* Items Drilldown */}
                    <div className="flex flex-col gap-8 mt-8">
-                      <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-ruah-300">Especificações dos Produtos</h3>
+                      <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-300">Especificacoes dos Produtos</h3>
                       <div className="flex flex-col gap-4">
                          {selectedOrder.items.map((item, i) => (
                             <div key={i} className="flex flex-col md:flex-row gap-8 p-10 bg-white border border-ruah-100 rounded-[2.5rem] group hover:border-accent-gold/30 transition-all">
@@ -207,11 +214,11 @@ export default function AccountPage() {
                                   </div>
                                   <div className="flex flex-wrap gap-4 mt-2">
                                      <div className="px-4 py-2 bg-ruah-50 rounded-lg">
-                                        <span className="text-[8px] font-bold text-ruah-300 uppercase block mb-1">Status Interno</span>
-                                        <span className="text-[10px] font-bold uppercase text-accent-gold">Em Confecção</span>
+                                        <span className="text-xs font-semibold text-ruah-300 uppercase block mb-1">Status Interno</span>
+                                        <span className="text-[10px] font-bold uppercase text-accent-gold">Em Confeccao</span>
                                      </div>
                                      <div className="px-4 py-2 bg-ruah-50 rounded-lg">
-                                        <span className="text-[8px] font-bold text-ruah-300 uppercase block mb-1">Previsão Despacho</span>
+                                        <span className="text-xs font-semibold text-ruah-300 uppercase block mb-1">Previsao Despacho</span>
                                         <span className="text-[10px] font-bold uppercase">12 Mai</span>
                                      </div>
                                   </div>
@@ -236,3 +243,5 @@ export default function AccountPage() {
     </main>
   );
 }
+
+

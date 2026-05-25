@@ -1,4 +1,4 @@
-export interface HomeFaqItem {
+﻿export interface HomeFaqItem {
   q: string;
   a: string;
 }
@@ -24,3 +24,4 @@ export interface HomeTestimonial {
   quote: string;
   image: string;
 }
+

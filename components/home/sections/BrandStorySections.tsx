@@ -17,7 +17,7 @@ export function BrandStorySections() {
         <div className="section-container relative z-10">
           <div className="flex flex-col items-center text-center mb-24">
             <span className="tech-label text-accent-gold mb-6">Manifesto de Escolha</span>
-            <h2 className="text-5xl lg:text-7xl text-white font-serif italic font-black uppercase tracking-tighter">Onde você <br /> respira?</h2>
+            <h2 className="text-5xl lg:text-7xl text-white font-serif italic font-semibold uppercase tracking-tighter">Onde você <br /> respira?</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -25,8 +25,8 @@ export function BrandStorySections() {
               <div key={persona.name} className="flex flex-col bg-white/5 border border-white/10 p-10 rounded-[3rem] hover:border-accent-gold/40 transition-all group">
                 <span className="text-5xl font-serif text-accent-gold italic font-black mb-6 opacity-30 group-hover:opacity-100 transition-opacity">{persona.icon}</span>
                 <h3 className="text-white text-3xl font-serif uppercase italic font-black mb-4">{persona.name}</h3>
-                <p className="text-white/40 text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-10 flex-1">{persona.desc}</p>
-                <Link href="/register" className="w-full py-4 text-center border border-white/20 rounded-2xl text-[10px] font-bold text-white uppercase tracking-[0.3em] group-hover:bg-accent-gold group-hover:border-accent-gold transition-all">
+                <p className="text-white/70 text-sm font-medium leading-relaxed mb-10 flex-1">{persona.desc}</p>
+                <Link href="/register" className="w-full py-4 text-center border border-white/20 rounded-2xl text-xs font-bold text-white uppercase tracking-[0.1em] group-hover:bg-accent-gold group-hover:border-accent-gold transition-all">
                   {persona.cta}
                 </Link>
               </div>
@@ -43,21 +43,21 @@ export function BrandStorySections() {
               <span className="tech-label text-accent-gold">Impacto Ruah</span>
               <h2 className="text-5xl lg:text-7xl font-serif font-black italic uppercase leading-[0.85] tracking-tighter">O Sopro da <br /> Criação.</h2>
               <div className="flex flex-col gap-6">
-                <p className="text-[12px] font-bold text-ruah-400 uppercase tracking-widest leading-loose">
+                <p className="text-base font-medium text-ruah-500 leading-relaxed">
                   O Projeto Ruah é uma iniciativa que transforma orações em arte. Cada produto carrega a essência de uma conexão profunda com o Criador, apoiando comunidades e evangelização em todo o Brasil.
                 </p>
                 <div className="grid grid-cols-2 gap-8 mt-4">
                   <div className="flex flex-col gap-2">
                     <span className="text-3xl font-serif italic font-black text-ruah-950">100%</span>
-                    <span className="text-[8px] font-bold text-ruah-300 uppercase tracking-widest">Genuinamente Brasileiro</span>
+                    <span className="text-xs font-semibold text-ruah-400 uppercase tracking-[0.1em]">Genuinamente Brasileiro</span>
                   </div>
                   <div className="flex flex-col gap-2">
                     <span className="text-3xl font-serif italic font-black text-ruah-950">Curadoria</span>
-                    <span className="text-[8px] font-bold text-ruah-300 uppercase tracking-widest">Arte & Espiritualidade</span>
+                    <span className="text-xs font-semibold text-ruah-400 uppercase tracking-[0.1em]">Arte & Espiritualidade</span>
                   </div>
                 </div>
               </div>
-              <Link href="/quem-somos" className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-accent-gold border-b border-accent-gold/20 pb-1 self-start">
+              <Link href="/quem-somos" className="flex items-center gap-4 text-xs font-bold uppercase tracking-[0.1em] text-accent-gold border-b border-accent-gold/20 pb-1 self-start">
                 Saiba Como Ajudamos Missões <Plus size={14} />
               </Link>
             </div>
@@ -82,7 +82,7 @@ export function BrandStorySections() {
             <p className="text-lg text-ruah-500 mb-12 max-w-md leading-relaxed">
               Moda cristã que vai além do vestuário. Conectamos sua fé com o design, criando peças que comunicam os valores do Reino.
             </p>
-            <Link href="/shop" className="bg-ruah-950 text-white rounded-full px-12 py-5 font-bold uppercase text-[10px] tracking-[0.2em] hover:bg-accent-gold transition-all active:scale-95 shadow-xl shadow-ruah-950/10">
+            <Link href="/shop" className="bg-ruah-950 text-white rounded-full px-12 py-5 font-bold uppercase text-xs tracking-[0.2em] hover:bg-accent-gold transition-all active:scale-95 shadow-xl shadow-ruah-950/10">
               Começar Jornada
             </Link>
           </div>
@@ -94,7 +94,7 @@ export function BrandStorySections() {
           <div className="flex flex-col gap-8">
             <span className="tech-label text-accent-gold">Nossa Identidade</span>
             <h2 className="text-5xl font-serif tracking-tight leading-tight uppercase font-black">CADA ORAÇÃO <br /> É ÚNICA, ASSIM <br /> COMO VOCÊ.</h2>
-            <div className="flex flex-col gap-6 text-ruah-500 font-medium uppercase text-[10px] tracking-widest leading-loose">
+            <div className="flex flex-col gap-6 text-ruah-500 font-medium text-sm leading-relaxed">
               <p>O Ruah nasceu para manifestar a beleza de Deus através do design. Acreditamos que a vestimenta pode ser um canal de evangelização silenciosa e poderosa.</p>
               <p>Unimos artistas e designers que respiram a Palavra para criar estampas que contam histórias de fé, esperança e caridade, conectando pessoas ao sagrado no dia a dia.</p>
               <Link href="/quem-somos" className="text-accent-gold font-bold border-b border-accent-gold/30 inline-block pb-1 mt-4 self-start">
@@ -106,7 +106,7 @@ export function BrandStorySections() {
             <Image src="https://picsum.photos/seed/ruah-manifesto/1000/600" alt="Comunidade Ruah" fill className="object-cover" referrerPolicy="no-referrer" />
             <div className="absolute inset-0 bg-ruah-950/20" />
             <div className="absolute bottom-10 left-10">
-              <span className="text-white text-3xl font-serif italic font-black uppercase tracking-tighter">Arte & Missão.</span>
+              <span className="text-white text-3xl font-serif italic font-semibold uppercase tracking-tighter">Arte & Missão.</span>
             </div>
           </div>
         </div>
@@ -114,5 +114,7 @@ export function BrandStorySections() {
     </>
   );
 }
+
+
 
 

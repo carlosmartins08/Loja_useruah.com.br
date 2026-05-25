@@ -1,4 +1,4 @@
-import { CheckCircle2 } from 'lucide-react';
+﻿import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { renderContentMessage } from '@/lib/content-messages';
 
@@ -13,9 +13,10 @@ export function CheckoutSuccessCard({ orderId }: { orderId?: string }) {
       <p className="text-sm font-medium uppercase tracking-widest text-ruah-400 mb-12 max-w-sm">
         {message?.body ?? 'Sua peca exclusiva entrou em producao artesanal com sucesso.'}
       </p>
-      <Link href="/account/orders" className="bg-ruah-950 text-white px-12 py-5 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-accent-gold transition-all">
+      <Link href="/account/orders" className="bg-ruah-950 text-white px-12 py-5 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-gold transition-all">
         {message?.ctaPrimary ?? 'Acompanhar pedido'}
       </Link>
     </div>
   );
 }
+

@@ -25,8 +25,8 @@ export function BackInStock({ productName }: { productName: string }) {
           <Bell size={18} />
         </div>
         <div className="flex flex-col">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-lumina-950">Aviso de Reposição</span>
-          <span className="text-[9px] text-lumina-400 font-medium uppercase tracking-widest">Seja o primeiro a saber</span>
+          <span className="text-xs font-bold uppercase tracking-[0.1em] text-lumina-950">Aviso de Reposição</span>
+          <span className="text-xs text-lumina-400 font-medium uppercase tracking-[0.1em]">Seja o primeiro a saber</span>
         </div>
       </div>
 
@@ -47,13 +47,13 @@ export function BackInStock({ productName }: { productName: string }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Seu e-mail"
-              className="bg-white border border-lumina-100 rounded-xl px-5 py-4 text-xs font-bold uppercase tracking-widest outline-none focus:border-accent-blue transition-colors"
+              className="bg-white border border-lumina-100 rounded-xl px-5 py-4 text-xs font-bold uppercase tracking-[0.1em] outline-none focus:border-accent-blue transition-colors"
             />
             <button
               type="submit"
               disabled={isSubmitting}
               aria-busy={isSubmitting}
-              className="bg-lumina-950 text-white font-bold uppercase text-[9px] tracking-[0.3em] py-4 rounded-xl hover:bg-accent-blue transition-all flex items-center justify-center gap-2 group"
+              className="bg-lumina-950 text-white font-bold uppercase text-xs tracking-[0.1em] py-4 rounded-xl hover:bg-accent-blue transition-all flex items-center justify-center gap-2 group"
             >
               {isSubmitting ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -75,8 +75,8 @@ export function BackInStock({ productName }: { productName: string }) {
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white mb-2">
               <Check size={24} />
             </div>
-            <h4 className="text-xs font-bold uppercase tracking-widest text-lumina-950">Monitoramento Ativo</h4>
-            <p className="text-[10px] text-lumina-400 font-medium uppercase tracking-widest leading-loose">
+            <h4 className="text-xs font-bold uppercase tracking-[0.1em] text-lumina-950">Monitoramento Ativo</h4>
+            <p className="text-xs text-lumina-400 font-medium uppercase tracking-[0.1em] leading-loose">
               Enviaremos um alerta técnico <br /> assim que o {productName} retornar.
             </p>
           </motion.div>
@@ -85,3 +85,4 @@ export function BackInStock({ productName }: { productName: string }) {
     </div>
   );
 }
+

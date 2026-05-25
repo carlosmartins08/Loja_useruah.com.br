@@ -76,12 +76,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   // Load from localStorage on mount
   React.useEffect(() => {
     const saved = localStorage.getItem('ruah_profile_photo');
-    const savedRole = localStorage.getItem('ruah_user_role');
     if (saved) {
       setTimeout(() => setProfilePhoto(saved), 0);
-    }
-    if (savedRole === 'platform_admin' || savedRole === 'support_agent' || savedRole === 'production_operator' || savedRole === 'customer') {
-      setTimeout(() => setUserRole(savedRole), 0);
     }
     setTimeout(() => {
       void refreshSession();

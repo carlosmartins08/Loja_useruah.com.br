@@ -38,13 +38,13 @@ export function Header() {
       <div className={`hidden md:block bg-ruah-950 text-white py-2 transition-all duration-500 overflow-hidden ${isScrolled ? 'h-0 py-0 opacity-0' : 'h-9 opacity-100'}`}>
          <div className="section-container flex justify-between items-center h-full">
             <div className="flex items-center gap-6">
-               <span className="text-[8px] font-bold uppercase tracking-[0.2em] opacity-40">UseRuah / Brasil</span>
-               <span className="text-[9px] font-bold uppercase tracking-widest text-accent-gold">Frete Grátis acima de R$ 200</span>
+               <span className="text-xs font-semibold uppercase tracking-[0.08em] opacity-60">UseRuah / Brasil</span>
+               <span className="text-xs font-semibold uppercase tracking-[0.08em] text-accent-gold">Frete Grátis acima de R$ 200</span>
             </div>
             <div className="flex items-center gap-6">
-               <Link href="/journal" className="text-[9px] font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">Journal</Link>
-               <Link href="/help-center" className="text-[9px] font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">Ajuda</Link>
-               <Link href="/policies" className="text-[9px] font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">Logística</Link>
+               <Link href="/journal" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Journal</Link>
+               <Link href="/help-center" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Ajuda</Link>
+               <Link href="/policies" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Logística</Link>
                <div className="h-3 w-px bg-white/10" />
                <div className="flex items-center gap-2 opacity-60">
                   <Globe size={10} />
@@ -82,7 +82,7 @@ export function Header() {
                      whileHover={{ y: -2 }}
                      className="flex items-center gap-2 cursor-pointer py-2 px-4 rounded-full hover:bg-ruah-50 group-hover:text-accent-gold transition-all duration-300"
                    >
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em]">Sopro Ruah</span>
+                      <span className="text-xs font-semibold uppercase tracking-[0.1em]">Sopro Ruah</span>
                       <ChevronDown size={10} className="group-hover:rotate-180 transition-transform duration-500" />
                    </motion.div>
                   
@@ -132,12 +132,12 @@ export function Header() {
                
                <motion.div whileHover={{ y: -2 }}>
                   <Link href="/shop" className="group flex items-center gap-2 py-2 px-4 rounded-full hover:bg-ruah-50 transition-all duration-300">
-                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ruah-950 group-hover:text-accent-gold transition-colors">Artistas</span>
+                     <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-950 group-hover:text-accent-gold transition-colors">Artistas</span>
                      <div className="w-1 h-1 rounded-full bg-accent-gold animate-pulse" />
                   </Link>
                </motion.div>
                <motion.div whileHover={{ y: -2 }}>
-                  <Link href="/journal" className="py-2 px-4 rounded-full hover:bg-ruah-50 text-[10px] font-black uppercase tracking-[0.2em] text-ruah-950 hover:text-accent-gold transition-all duration-300">Journal</Link>
+                  <Link href="/journal" className="py-2 px-4 rounded-full hover:bg-ruah-50 text-xs font-semibold uppercase tracking-[0.1em] text-ruah-950 hover:text-accent-gold transition-all duration-300">Journal</Link>
                </motion.div>
             </nav>
 
@@ -385,4 +385,6 @@ export function Header() {
     </header>
   );
 }
+
+
 

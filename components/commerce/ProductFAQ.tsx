@@ -57,7 +57,7 @@ export function ProductFAQ() {
               onClick={() => toggleItem(i)}
               className="w-full p-8 flex items-center justify-between text-left"
             >
-              <span className="text-[11px] font-bold uppercase tracking-widest leading-loose max-w-[80%]">{item.q}</span>
+              <span className="text-base font-semibold leading-relaxed max-w-[80%]">{item.q}</span>
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                   openItems.includes(i) ? 'bg-ruah-950 text-white' : 'bg-ruah-50 text-ruah-300'
@@ -71,7 +71,7 @@ export function ProductFAQ() {
                 <motion.div id={`faq-answer-${i}`} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                   <div className="px-8 pb-8">
                     <div className="h-px bg-ruah-50 mb-8" />
-                    <p className="text-[10px] text-ruah-500 font-medium uppercase tracking-widest leading-loose">{item.a}</p>
+                    <p className="text-sm text-ruah-600 font-medium leading-relaxed">{item.a}</p>
                   </div>
                 </motion.div>
               )}
@@ -86,13 +86,14 @@ export function ProductFAQ() {
           <ShieldCheck size={20} className="text-accent-gold" />
           <h4 className="text-sm font-serif italic uppercase">Garantia e Troca</h4>
         </div>
-        <p className="text-[9px] text-white/70 uppercase font-bold tracking-widest leading-relaxed relative z-10">
+        <p className="text-sm text-white/80 font-medium leading-relaxed relative z-10">
           Produção sob demanda com suporte pós-compra e política de troca transparente para assegurar sua experiência.
         </p>
-        <Link href="/policies" className="text-[8px] font-bold uppercase tracking-widest text-accent-gold border-b border-accent-gold/30 pb-1 self-start hover:border-accent-gold transition-all relative z-10">
+        <Link href="/policies" className="text-xs font-semibold uppercase tracking-[0.08em] text-accent-gold border-b border-accent-gold/30 pb-1 self-start hover:border-accent-gold transition-all relative z-10">
           Ver política completa
         </Link>
       </div>
     </div>
   );
 }
+

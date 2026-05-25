@@ -54,15 +54,15 @@ export function ProductSizeAdvisor() {
     <section className="py-20 bg-white border-y border-ruah-100">
       <div className="section-container grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <div className="flex flex-col gap-4">
-          <span className="text-[9px] font-black uppercase tracking-widest text-accent-gold">Provador virtual</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Provador virtual</span>
           <h2 className="text-4xl font-serif italic uppercase text-ruah-950">Recomendação de tamanho</h2>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-ruah-400">Informe medidas básicas para reduzir erro de escolha</p>
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-400">Informe medidas básicas para reduzir erro de escolha</p>
         </div>
 
         <div className="bg-ruah-50 rounded-3xl border border-ruah-100 p-6 flex flex-col gap-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="flex flex-col gap-2">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-500">Altura (cm)</span>
+              <span className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-500">Altura (cm)</span>
               <input
                 id={heightId}
                 type="number"
@@ -77,7 +77,7 @@ export function ProductSizeAdvisor() {
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-500">Peso (kg)</span>
+              <span className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-500">Peso (kg)</span>
               <input
                 id={weightId}
                 type="number"
@@ -100,7 +100,7 @@ export function ProductSizeAdvisor() {
                 type="button"
                 onClick={() => setPreference(option)}
                 aria-pressed={preference === option}
-                className={`px-4 py-2 rounded-full text-[9px] font-bold uppercase tracking-widest border ${preference === option ? 'bg-ruah-950 text-white border-ruah-950' : 'bg-white text-ruah-500 border-ruah-100'}`}
+                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-[0.1em] border ${preference === option ? 'bg-ruah-950 text-white border-ruah-950' : 'bg-white text-ruah-500 border-ruah-100'}`}
               >
                 {option}
               </button>
@@ -109,12 +109,12 @@ export function ProductSizeAdvisor() {
 
           {recommendation ? (
             <div className="rounded-2xl bg-white border border-ruah-100 p-5">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-ruah-400">Tamanho recomendado</p>
+              <p className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-400">Tamanho recomendado</p>
               <p className="text-4xl font-serif italic text-ruah-950 mt-2">{recommendation.size}</p>
-              <p className="text-[10px] font-medium uppercase tracking-widest text-ruah-500 leading-loose mt-3">{recommendation.note}</p>
+              <p className="text-xs font-medium uppercase tracking-[0.1em] text-ruah-500 leading-loose mt-3">{recommendation.note}</p>
             </div>
           ) : (
-            <p id={errorId} className="text-[10px] font-bold uppercase tracking-widest text-red-600">
+            <p id={errorId} className="text-xs font-bold uppercase tracking-[0.1em] text-red-600">
               Preencha valores válidos para calcular a recomendação.
             </p>
           )}
@@ -123,3 +123,4 @@ export function ProductSizeAdvisor() {
     </section>
   );
 }
+

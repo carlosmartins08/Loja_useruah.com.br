@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -62,7 +62,7 @@ export default function AdminSupportOrderContextPage() {
         return;
       }
       if (err instanceof HttpRequestError && err.status === 404) {
-        setError('Pedido não encontrado para contexto operacional.');
+        setError('Pedido nao encontrado para contexto operacional.');
       } else {
         setError('Falha ao carregar contexto operacional.');
       }
@@ -88,7 +88,7 @@ export default function AdminSupportOrderContextPage() {
       await loadContext();
     } catch (err) {
       if (err instanceof HttpRequestError && (err.status === 401 || err.status === 403)) {
-        setError('Sua sessão não permite responder ticket agora. Faça login novamente.');
+        setError('Sua sessao nao permite responder ticket agora. Faca login novamente.');
         router.replace('/login');
       } else {
         setError('Não foi possível registrar a resposta do ticket.');
@@ -106,13 +106,13 @@ export default function AdminSupportOrderContextPage() {
             <div className='flex items-center gap-3'>
               <LifeBuoy size={20} className='text-accent-gold' />
               <div>
-                <p className='text-[10px] font-bold uppercase tracking-widest text-ruah-400'>Atendimento operacional</p>
+                <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400'>Atendimento operacional</p>
                 <h1 className='text-2xl font-serif italic uppercase text-ruah-950'>Pedido {orderId}</h1>
               </div>
             </div>
             <Link
               href='/admin/support'
-              className='inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-ruah-500 hover:text-ruah-950 transition-colors'
+              className='inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500 hover:text-ruah-950 transition-colors'
             >
               <ArrowLeft size={14} />
               Voltar para busca
@@ -123,7 +123,7 @@ export default function AdminSupportOrderContextPage() {
         {loading && <p className='text-xs text-ruah-400 uppercase tracking-widest'>Carregando contexto...</p>}
 
         {error && (
-          <div className='bg-white border border-red-200 rounded-2xl p-4 flex items-center gap-2 text-red-700 text-xs font-bold uppercase tracking-widest'>
+          <div className='bg-white border border-red-200 rounded-2xl p-4 flex items-center gap-2 text-red-700 text-xs font-semibold uppercase tracking-[0.1em]'>
             <AlertCircle size={14} />
             {error}
           </div>
@@ -134,8 +134,8 @@ export default function AdminSupportOrderContextPage() {
             <section className='bg-white border border-ruah-100 rounded-3xl p-6 grid grid-cols-1 md:grid-cols-4 gap-4'>
               <StatusCard label='Pedido' value={context.order.status} />
               <StatusCard label='Pagamento' value={context.payment?.status ?? 'n/a'} />
-              <StatusCard label='Produção' value={context.production?.status ?? 'n/a'} />
-              <StatusCard label='Envio' value={context.shipment?.trackingCode ? 'rastreável' : 'n/a'} />
+              <StatusCard label='Producao' value={context.production?.status ?? 'n/a'} />
+              <StatusCard label='Envio' value={context.shipment?.trackingCode ? 'rastreavel' : 'n/a'} />
             </section>
 
             <section className='bg-white border border-ruah-100 rounded-3xl p-6 flex flex-col gap-4'>
@@ -149,16 +149,16 @@ export default function AdminSupportOrderContextPage() {
                   <article key={ticket.ticketId} className='border border-ruah-100 rounded-2xl p-4 flex flex-col gap-3'>
                     <div className='flex items-center justify-between gap-3'>
                       <div>
-                        <p className='text-[10px] font-bold uppercase tracking-widest text-accent-gold'>{ticket.ticketId}</p>
+                        <p className='text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold'>{ticket.ticketId}</p>
                         <p className='text-sm font-semibold text-ruah-950'>{ticket.subject}</p>
                       </div>
-                      <p className='text-[10px] font-bold uppercase tracking-widest text-ruah-500'>{ticket.status}</p>
+                      <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500'>{ticket.status}</p>
                     </div>
 
                     <div className='flex flex-col gap-2'>
                       {ticket.messages.map((message, index) => (
                         <div key={`${ticket.ticketId}-${index}`} className='text-xs text-ruah-700 bg-ruah-25 rounded-xl p-3'>
-                          <p className='font-semibold uppercase tracking-wide text-[10px] text-ruah-500'>
+                          <p className='font-semibold uppercase tracking-wide text-xs text-ruah-500'>
                             {message.actorRole} · {new Date(message.at).toLocaleString('pt-BR')}
                           </p>
                           <p className='mt-1'>{message.message}</p>
@@ -176,7 +176,7 @@ export default function AdminSupportOrderContextPage() {
                       <button
                         onClick={() => handleReply(ticket.ticketId)}
                         disabled={replyingTicketId === ticket.ticketId}
-                        className='px-5 py-3 rounded-xl bg-ruah-950 text-white text-xs font-bold uppercase tracking-widest hover:bg-accent-gold transition-all disabled:opacity-50'
+                        className='px-5 py-3 rounded-xl bg-ruah-950 text-white text-xs font-semibold uppercase tracking-[0.1em] hover:bg-accent-gold transition-all disabled:opacity-50'
                       >
                         <span className='inline-flex items-center gap-2'>
                           <Send size={14} />
@@ -200,9 +200,11 @@ function StatusCard({ label, value }: { label: string; value: string }) {
     <div className='border border-ruah-100 rounded-2xl p-4 flex items-center gap-3'>
       <CheckCircle2 size={16} className='text-accent-gold' />
       <div>
-        <p className='text-[10px] font-bold uppercase tracking-widest text-ruah-400'>{label}</p>
+        <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400'>{label}</p>
         <p className='text-sm font-semibold text-ruah-950 uppercase'>{value}</p>
       </div>
     </div>
   );
 }
+
+

@@ -37,14 +37,14 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
       <Header />
       <WhatsAppSticky />
 
-      <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-ruah-50">
+      <section className="relative min-h-[72vh] flex flex-col justify-start overflow-hidden bg-ruah-50 py-10 lg:py-16">
         <div className="section-container relative z-10">
           <Breadcrumbs items={[{ label: 'Coleções', href: '/shop' }, { label: product.name }]} className="mb-12" />
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-3 flex flex-col gap-12">
               <div className="flex flex-col gap-4">
                 <span className="font-serif text-3xl italic tracking-tighter uppercase mb-4 text-ruah-950">UseRuah.</span>
-                <h1 className="text-6xl lg:text-8xl font-serif leading-[0.8] tracking-tighter uppercase italic font-black">Respiro <br /> <span className="not-italic">Ruah.</span></h1>
+                <h1 className="text-5xl lg:text-7xl font-serif leading-[0.84] tracking-tighter uppercase italic font-black">Respiro <br /> <span className="not-italic">Ruah.</span></h1>
                 <p className="text-sm font-semibold text-ruah-500 leading-relaxed max-w-[260px] mt-4">Moda que conecta. Design que comunica os valores do Reino de forma autoral.</p>
               </div>
 
@@ -61,7 +61,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
               </div>
             </div>
 
-            <div className="lg:col-span-6 relative flex justify-center items-center py-20 lg:py-0">
+            <div className="lg:col-span-6 relative flex justify-center items-center py-8 lg:py-0">
               <div className="relative w-full aspect-square max-w-[500px]">
                 <div className="absolute inset-0 bg-white rounded-full shadow-glass border border-ruah-100 scale-[1.1] pointer-events-none" />
                 <div className="relative w-full h-full rounded-full overflow-hidden group">
@@ -106,8 +106,8 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
       </section>
 
       <section className="py-24 bg-white">
-        <div className="section-container grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="bg-ruah-50 rounded-3xl p-8 border border-ruah-100">
+        <div className="section-container grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div className="bg-ruah-50 rounded-3xl p-8 border border-ruah-100 self-start">
             <span className="text-xs font-black text-accent-gold uppercase tracking-[0.18em]">Ficha técnica</span>
             <h2 className="text-3xl font-serif italic uppercase text-ruah-950 mt-4">Detalhes do produto</h2>
             <ul className="mt-6 flex flex-col gap-4 text-sm font-semibold text-ruah-600">

@@ -138,12 +138,12 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
         </div>
       </div>
 
-      <button type="button" onClick={() => onFinish(paymentMethod, effectiveProvider)} disabled={isProcessing} aria-busy={isProcessing} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-accent-gold transition-all relative overflow-hidden">
+      <button type="button" onClick={() => onFinish(paymentMethod, effectiveProvider)} disabled={isProcessing} aria-busy={isProcessing} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-gold transition-all relative overflow-hidden">
         {isProcessing
-          ? 'PROCESSANDO...'
+          ? 'Processando...'
           : paymentMethod === 'card'
-            ? 'FINALIZAR TRANSAÇÃO DE VALOR'
-            : `FINALIZAR 1 CLIQUE ${paymentMethod === 'pix' ? 'PIX' : 'CARTEIRA'}`}
+            ? 'Finalizar pagamento'
+            : `Finalizar 1 clique ${paymentMethod === 'pix' ? 'PIX' : 'CARTEIRA'}`}
       </button>
 
       <div className="flex items-center justify-center gap-8 py-8 opacity-40 grayscale scale-90">
@@ -154,3 +154,4 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
     </div>
   );
 }
+

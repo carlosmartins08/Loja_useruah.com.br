@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -55,7 +55,7 @@ export function ProductCard({ id, name, category, price, image, badge }: Product
       <Link href={`/product/${id}`} className="block relative aspect-[3/4] rounded-[2.5rem] overflow-hidden mb-6 bg-ruah-50 shadow-subtle group-hover:shadow-xl transition-all duration-700" style={{ position: 'relative' }}>
         {badge && (
           <div className="absolute top-6 left-6 z-20">
-            <span className="px-4 py-1.5 bg-accent-gold text-white text-[8px] font-bold uppercase tracking-[0.2em] rounded-full shadow-lg">
+            <span className="px-4 py-1.5 bg-accent-gold text-white text-xs font-semibold uppercase tracking-[0.1em] rounded-full shadow-lg">
               {badge}
             </span>
           </div>
@@ -124,7 +124,7 @@ export function ProductCard({ id, name, category, price, image, badge }: Product
         </div>
 
         <div className="absolute bottom-6 left-6 z-10">
-          <span className="px-4 py-2 bg-white/90 backdrop-blur-md text-[8px] font-bold uppercase tracking-widest text-ruah-950 rounded-full border border-white/20">
+          <span className="px-4 py-2 bg-white/90 backdrop-blur-md text-xs font-semibold uppercase tracking-[0.08em] text-ruah-950 rounded-full border border-white/20">
             Ver Detalhes
           </span>
         </div>
@@ -148,13 +148,13 @@ export function ProductCard({ id, name, category, price, image, badge }: Product
         <div className="flex items-center justify-between gap-4">
            <div className="flex items-center gap-4">
              <span className="font-mono text-sm font-bold text-accent-gold">R$ {price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-             <span className="text-[10px] text-ruah-300 font-bold tracking-widest line-through">R$ {(price * 1.2).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}</span>
+             <span className="text-xs text-ruah-400 font-semibold tracking-[0.08em] line-through">R$ {(price * 1.2).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}</span>
            </div>
            
            <motion.button 
              onClick={handleAddToCart}
              whileTap={{ scale: 0.95 }}
-             className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+             className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-[0.08em] transition-all flex items-center gap-2 ${
                isAdded 
                ? 'bg-green-500 text-white' 
                : 'bg-ruah-25 text-ruah-950 hover:bg-ruah-950 hover:text-white border border-ruah-100'
@@ -181,7 +181,7 @@ export function ProductCard({ id, name, category, price, image, badge }: Product
                    className="flex items-center gap-2"
                  >
                    <Plus size={12} />
-                   <span>Adicionar à Sacola</span>
+                   <span>Adicionar à sacola</span>
                  </motion.div>
                )}
              </AnimatePresence>
@@ -191,3 +191,6 @@ export function ProductCard({ id, name, category, price, image, badge }: Product
     </motion.div>
   );
 }
+
+
+

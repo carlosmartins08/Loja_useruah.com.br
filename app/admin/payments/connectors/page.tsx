@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { AlertCircle, CheckCircle2, Plug, RefreshCw, Save, ShieldCheck } from 'lucide-react';
@@ -130,10 +130,10 @@ export default function AdminPaymentConnectorsPage() {
     setIsTesting(false);
     if (data.ok) {
       setTestPassed(true);
-      setStatus('Conexao validada com sucesso. Agora voce pode ativar.');
+      setStatus('Conexão validada com sucesso. Agora você pode ativar.');
     } else {
       setTestPassed(false);
-      setStatus(`Conexao falhou. Revise os dados e tente novamente. (${data.message ?? 'erro'})`);
+      setStatus(`Conexão falhou. Revise os dados e tente novamente. (${data.message ?? 'erro'})`);
     }
   };
 
@@ -166,7 +166,7 @@ export default function AdminPaymentConnectorsPage() {
     setIsSwitchingDefault(false);
     if (!response.ok) {
       const data = (await response.json().catch(() => null)) as { detail?: string } | null;
-      setStatus(data?.detail === 'no_previous_default' ? 'Nao existe gateway anterior para rollback.' : 'Falha ao executar rollback.');
+      setStatus(data?.detail === 'no_previous_default' ? 'Não existe gateway anterior para rollback.' : 'Falha ao executar rollback.');
       return;
     }
     setStatus('Rollback de gateway padrao concluido.');
@@ -189,14 +189,14 @@ export default function AdminPaymentConnectorsPage() {
       if (data?.detail === 'missing_required_settings' && Array.isArray(data.missing)) {
         setStatus(`Faltam campos obrigatorios: ${data.missing.join(', ')}.`);
       } else if (data?.detail === 'connection_test_failed') {
-        setStatus(`Nao foi possivel ativar. Teste de conexao falhou (${data.message ?? 'erro'}).`);
+        setStatus(`Não foi possível ativar. Teste de conexão falhou (${data.message ?? 'erro'}).`);
       } else {
         setStatus('Falha ao salvar configuracao.');
       }
       return;
     }
 
-    setStatus(enabled ? 'Provider ativado com seguranca.' : 'Configuracao salva.');
+    setStatus(enabled ? 'Gateway ativado com segurança.' : 'Configuração salva.');
     await load();
   };
 
@@ -206,30 +206,30 @@ export default function AdminPaymentConnectorsPage() {
         <header className='bg-white border border-ruah-100 rounded-3xl p-8'>
           <div className='flex items-center gap-3 mb-3'>
             <Plug size={18} className='text-accent-gold' />
-            <span className='text-[10px] font-bold uppercase tracking-widest text-ruah-400'>Pagamento em 3 Passos</span>
+            <span className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400'>Pagamento em 3 Passos</span>
           </div>
           <h1 className='text-3xl font-serif italic uppercase text-ruah-950'>Conectar Gateway</h1>
-          <p className='text-xs font-bold uppercase tracking-widest text-ruah-400 mt-3'>Escolha, preencha e ative com seguranca sem depender de desenvolvedor.</p>
+          <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400 mt-3'>Escolha, preencha e ative com seguranca sem depender de desenvolvedor.</p>
         </header>
 
         <section className='bg-white border border-ruah-100 rounded-3xl p-8 flex flex-col gap-6'>
           <div className='rounded-2xl border border-ruah-100 bg-ruah-25 p-5 flex flex-col gap-3'>
             <div className='flex items-center justify-between gap-3'>
-              <p className='text-[10px] font-bold uppercase tracking-widest text-ruah-500'>Controle operacional</p>
+              <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500'>Controle operacional</p>
               <button
                 type='button'
                 onClick={rollbackDefault}
                 disabled={isSwitchingDefault || !preference.previousDefaultProvider}
-                className='px-3 py-2 border border-ruah-200 rounded-xl text-[10px] font-bold uppercase tracking-widest disabled:opacity-50 inline-flex items-center gap-2'
+                className='px-3 py-2 border border-ruah-200 rounded-xl text-xs font-semibold uppercase tracking-[0.1em] disabled:opacity-50 inline-flex items-center gap-2'
               >
                 <RefreshCw size={12} />
                 Rollback padrao
               </button>
             </div>
-            <p className='text-xs font-bold uppercase tracking-widest text-ruah-700'>
+            <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-700'>
               Padrao atual: {preference.defaultProvider ?? 'nao definido'}
             </p>
-            <p className='text-[10px] font-bold uppercase tracking-widest text-ruah-400'>
+            <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400'>
               Anterior: {preference.previousDefaultProvider ?? 'nao disponivel'}
             </p>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
@@ -238,8 +238,8 @@ export default function AdminPaymentConnectorsPage() {
                 return (
                   <div key={`state-${item.key}`} className='rounded-xl border border-ruah-100 bg-white p-3 flex items-center justify-between gap-3'>
                     <div className='flex flex-col gap-1'>
-                      <p className='text-[10px] font-bold uppercase tracking-widest text-ruah-700'>{item.label}</p>
-                      <p className='text-[10px] font-bold uppercase tracking-widest text-ruah-400'>
+                      <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-700'>{item.label}</p>
+                      <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400'>
                         {config?.enabled ? 'ativo' : 'inativo'} {config?.isDefault ? '| padrao' : ''}
                       </p>
                     </div>
@@ -247,7 +247,7 @@ export default function AdminPaymentConnectorsPage() {
                       type='button'
                       onClick={() => void setAsDefault(item.key)}
                       disabled={isSwitchingDefault || !config?.enabled || Boolean(config?.isDefault)}
-                      className='px-3 py-2 border border-ruah-200 rounded-xl text-[10px] font-bold uppercase tracking-widest disabled:opacity-50 inline-flex items-center gap-2'
+                      className='px-3 py-2 border border-ruah-200 rounded-xl text-xs font-semibold uppercase tracking-[0.1em] disabled:opacity-50 inline-flex items-center gap-2'
                     >
                       <ShieldCheck size={12} />
                       Definir padrao
@@ -258,7 +258,7 @@ export default function AdminPaymentConnectorsPage() {
             </div>
           </div>
 
-          <div className='grid grid-cols-3 gap-2 text-[10px] font-bold uppercase tracking-widest'>
+          <div className='grid grid-cols-3 gap-2 text-xs font-semibold uppercase tracking-[0.1em]'>
             <div className={`rounded-xl p-3 text-center ${step >= 1 ? 'bg-ruah-950 text-white' : 'bg-ruah-50 text-ruah-500'}`}>1. Escolher</div>
             <div className={`rounded-xl p-3 text-center ${step >= 2 ? 'bg-ruah-950 text-white' : 'bg-ruah-50 text-ruah-500'}`}>2. Preencher</div>
             <div className={`rounded-xl p-3 text-center ${step >= 3 ? 'bg-ruah-950 text-white' : 'bg-ruah-50 text-ruah-500'}`}>3. Testar e Ativar</div>
@@ -266,7 +266,7 @@ export default function AdminPaymentConnectorsPage() {
 
           {step === 1 && (
             <div className='flex flex-col gap-4'>
-              <label className='text-[10px] font-bold uppercase tracking-widest text-ruah-500'>Escolha seu meio de pagamento</label>
+              <label className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500'>Escolha seu meio de pagamento</label>
               <select
                 value={provider}
                 onChange={(event) => {
@@ -286,7 +286,7 @@ export default function AdminPaymentConnectorsPage() {
                 type='button'
                 disabled={!canGoStep2}
                 onClick={() => setStep(2)}
-                className='px-4 py-3 bg-ruah-950 text-white rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-50'
+                className='px-4 py-3 bg-ruah-950 text-white rounded-xl text-xs font-semibold uppercase tracking-[0.1em] disabled:opacity-50'
               >
                 Continuar
               </button>
@@ -295,7 +295,7 @@ export default function AdminPaymentConnectorsPage() {
 
           {step === 2 && (
             <div className='flex flex-col gap-4'>
-              <label className='text-[10px] font-bold uppercase tracking-widest text-ruah-500'>Preencha os dados obrigatorios</label>
+              <label className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500'>Preencha os dados obrigatorios</label>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 {(providerRequirement?.fields ?? []).map((field) => (
                   <input
@@ -308,17 +308,17 @@ export default function AdminPaymentConnectorsPage() {
                 ))}
               </div>
               {missingRequired.length > 0 && (
-                <p className='text-xs font-bold uppercase tracking-widest text-amber-700'>Preencha todos os campos obrigatorios para continuar.</p>
+                <p className='text-xs font-semibold uppercase tracking-[0.1em] text-amber-700'>Preencha todos os campos obrigatorios para continuar.</p>
               )}
               <div className='flex gap-3'>
-                <button type='button' onClick={() => setStep(1)} className='px-4 py-3 border border-ruah-200 rounded-xl text-xs font-bold uppercase tracking-widest'>
+                <button type='button' onClick={() => setStep(1)} className='px-4 py-3 border border-ruah-200 rounded-xl text-xs font-semibold uppercase tracking-[0.1em]'>
                   Voltar
                 </button>
                 <button
                   type='button'
                   disabled={!canGoStep3}
                   onClick={() => setStep(3)}
-                  className='px-4 py-3 bg-ruah-950 text-white rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-50'
+                  className='px-4 py-3 bg-ruah-950 text-white rounded-xl text-xs font-semibold uppercase tracking-[0.1em] disabled:opacity-50'
                 >
                   Continuar
                 </button>
@@ -328,20 +328,20 @@ export default function AdminPaymentConnectorsPage() {
 
           {step === 3 && (
             <div className='flex flex-col gap-4'>
-              <label className='text-[10px] font-bold uppercase tracking-widest text-ruah-500'>Teste a conexao e ative</label>
-              <label className='flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-ruah-500'>
+              <label className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500'>Teste a conexao e ative</label>
+              <label className='flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500'>
                 <input type='checkbox' checked={enabled} onChange={(event) => setEnabled(event.target.checked)} />
                 Ativar no checkout apos validar conexao
               </label>
               <div className='flex gap-3'>
-                <button type='button' onClick={() => setStep(2)} className='px-4 py-3 border border-ruah-200 rounded-xl text-xs font-bold uppercase tracking-widest'>
+                <button type='button' onClick={() => setStep(2)} className='px-4 py-3 border border-ruah-200 rounded-xl text-xs font-semibold uppercase tracking-[0.1em]'>
                   Voltar
                 </button>
                 <button
                   type='button'
                   onClick={testConnection}
                   disabled={isTesting}
-                  className='px-4 py-3 border border-ruah-200 rounded-xl text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 disabled:opacity-50'
+                  className='px-4 py-3 border border-ruah-200 rounded-xl text-xs font-semibold uppercase tracking-[0.1em] inline-flex items-center gap-2 disabled:opacity-50'
                 >
                   <CheckCircle2 size={14} />
                   {isTesting ? 'Testando...' : 'Testar conexao'}
@@ -350,18 +350,18 @@ export default function AdminPaymentConnectorsPage() {
                   type='button'
                   onClick={save}
                   disabled={isSaving || (enabled && !testPassed)}
-                  className='px-4 py-3 bg-ruah-950 text-white rounded-xl text-xs font-bold uppercase tracking-widest inline-flex items-center gap-2 disabled:opacity-50'
+                  className='px-4 py-3 bg-ruah-950 text-white rounded-xl text-xs font-semibold uppercase tracking-[0.1em] inline-flex items-center gap-2 disabled:opacity-50'
                 >
                   <Save size={14} />
                   {isSaving ? 'Salvando...' : enabled ? 'Salvar e ativar' : 'Salvar'}
                 </button>
               </div>
-              {enabled && !testPassed && <p className='text-xs font-bold uppercase tracking-widest text-amber-700'>Ativacao segura exige teste de conexao aprovado.</p>}
+              {enabled && !testPassed && <p className='text-xs font-semibold uppercase tracking-[0.1em] text-amber-700'>Ativacao segura exige teste de conexao aprovado.</p>}
             </div>
           )}
 
           {status && (
-            <p className='text-xs font-bold uppercase tracking-widest text-ruah-500 inline-flex items-center gap-2'>
+            <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500 inline-flex items-center gap-2'>
               <AlertCircle size={14} />
               {status}
             </p>
@@ -371,3 +371,5 @@ export default function AdminPaymentConnectorsPage() {
     </main>
   );
 }
+
+

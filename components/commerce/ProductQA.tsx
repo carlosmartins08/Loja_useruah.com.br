@@ -47,29 +47,29 @@ export function ProductQA() {
     <section className="py-24 bg-ruah-50/40 border-y border-ruah-100">
       <div className="section-container flex flex-col gap-8">
         <div className="flex flex-col gap-3">
-          <span className="text-[9px] font-black uppercase tracking-widest text-accent-gold">Perguntas e respostas</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Perguntas e respostas</span>
           <h2 className="text-4xl font-serif italic uppercase text-ruah-950">Dúvidas públicas</h2>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-ruah-400">Respostas visíveis para acelerar decisão de compra</p>
+          <p className="text-sm font-medium text-ruah-500">Respostas visíveis para acelerar decisão de compra.</p>
         </div>
 
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar dúvida sobre tamanho, tecido, troca..."
-          className="w-full rounded-2xl border border-ruah-100 bg-white px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-ruah-500 outline-none focus:border-accent-gold"
+          className="w-full rounded-2xl border border-ruah-100 bg-white px-5 py-4 text-sm font-medium text-ruah-600 outline-none focus:border-accent-gold"
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {filtered.map((item) => (
             <article key={item.id} className="p-6 rounded-3xl border border-ruah-100 bg-white flex flex-col gap-4">
               <div className="flex items-start justify-between gap-3">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-ruah-950">{item.question}</p>
+                <p className="text-sm font-semibold text-ruah-950">{item.question}</p>
                 <MessageCircle size={16} className="text-accent-gold shrink-0" />
               </div>
-              <p className="text-[10px] font-medium uppercase tracking-widest leading-loose text-ruah-500">{item.answer}</p>
+              <p className="text-sm font-medium leading-relaxed text-ruah-600">{item.answer}</p>
               <div className="flex items-center justify-between pt-2 border-t border-ruah-50">
-                <span className="text-[8px] font-bold uppercase tracking-widest text-ruah-300">{item.author}</span>
-                <span className="text-[8px] font-bold uppercase tracking-widest text-ruah-400 flex items-center gap-1"><ThumbsUp size={12} /> {item.likes} úteis</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-ruah-400">{item.author}</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-ruah-500 flex items-center gap-1"><ThumbsUp size={12} /> {item.likes} úteis</span>
               </div>
             </article>
           ))}
@@ -78,3 +78,4 @@ export function ProductQA() {
     </section>
   );
 }
+

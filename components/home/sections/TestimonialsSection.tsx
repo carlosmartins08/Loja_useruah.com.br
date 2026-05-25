@@ -1,4 +1,4 @@
-import { HOME_TESTIMONIALS } from '@/components/home/home-data';
+﻿import { HOME_TESTIMONIALS } from '@/components/home/home-data';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
@@ -15,8 +15,8 @@ export function TestimonialsSection({ activeTestimonial, onNext, onPrev }: Testi
       <div className="section-container">
         <div className="flex flex-col items-center text-center mb-20">
           <span className="tech-label text-accent-gold mb-6">Sopro da Comunidade</span>
-          <h2 className="text-5xl lg:text-7xl font-serif italic font-black uppercase tracking-tighter text-ruah-950">
-            Vozes que <br /> Respiram F?.
+          <h2 className="text-5xl lg:text-7xl font-serif italic font-semibold uppercase tracking-tighter text-ruah-950">
+            Vozes que <br /> Respiram Fé.
           </h2>
         </div>
 
@@ -39,8 +39,8 @@ export function TestimonialsSection({ activeTestimonial, onNext, onPrev }: Testi
                     &quot;{HOME_TESTIMONIALS[activeTestimonial].quote}&quot;
                   </p>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-bold uppercase tracking-[0.3em] text-ruah-950">{HOME_TESTIMONIALS[activeTestimonial].name}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-accent-gold">{HOME_TESTIMONIALS[activeTestimonial].city}</span>
+                    <span className="text-sm font-bold uppercase tracking-[0.1em] text-ruah-950">{HOME_TESTIMONIALS[activeTestimonial].name}</span>
+                    <span className="text-xs font-bold uppercase tracking-[0.1em] text-accent-gold">{HOME_TESTIMONIALS[activeTestimonial].city}</span>
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -83,3 +83,4 @@ export function TestimonialsSection({ activeTestimonial, onNext, onPrev }: Testi
     </section>
   );
 }
+

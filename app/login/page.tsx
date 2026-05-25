@@ -7,6 +7,14 @@ import { motion } from 'motion/react';
 import { Mail, Lock, ArrowRight, Github, Chrome as Google } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { HttpRequestError, postJson } from '@/lib/http-client';
+import type { UserRole } from '@/lib/auth-session';
+
+function resolvePostLoginRoute(role: UserRole) {
+  if (role === 'platform_admin') return '/admin';
+  if (role === 'support_agent') return '/admin/support';
+  if (role === 'production_operator') return '/admin/production';
+  return '/account';
+}
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState('');
@@ -20,15 +28,15 @@ export default function LoginPage() {
     setIsLoggingIn(true);
     setLoginError(null);
     try {
-      await postJson('/api/auth/login', { email, password });
+      const payload = await postJson<{ ok: true; session: { userRole: UserRole } }>('/api/auth/login', { email, password });
       await refreshSession();
-      window.location.href = '/account';
+      window.location.href = resolvePostLoginRoute(payload.session.userRole);
     } catch (error) {
       console.error(error);
       if (error instanceof HttpRequestError && error.status === 401) {
         setLoginError('E-mail ou senha invalidos. Revise os dados e tente novamente.');
       } else {
-        setLoginError('Nao foi possivel entrar agora. Tente novamente em instantes.');
+        setLoginError('Não foi possível entrar agora. Tente novamente em instantes.');
       }
       setIsLoggingIn(false);
     }
@@ -126,4 +134,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
 

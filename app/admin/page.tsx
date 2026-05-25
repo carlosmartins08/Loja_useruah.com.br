@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'motion/react';
@@ -20,8 +20,8 @@ import type { UserRole } from '@/lib/auth-session';
 const modules = [
   {
     id: 1,
-    title: 'Captação de Valor',
-    description: 'Módulo 1: Front-end de vendas e validação de especificações.',
+    title: 'Captacao de Valor',
+    description: 'Modulo 1: Front-end de vendas e validaÃ§Ã£o de especificacoes.',
     icon: Zap,
     href: '/shop',
     color: 'text-accent-gold',
@@ -29,8 +29,8 @@ const modules = [
   },
   {
     id: 4,
-    title: 'Gestão Operacional',
-    description: 'Módulo 4: Portal do Parceiro, produção e controle de custos (CVu).',
+    title: 'Gestao Operacional',
+    description: 'Modulo 4: Portal do Parceiro, produÃ§Ã£o e controle de custos (CVu).',
     icon: Package,
     href: '/admin/production',
     color: 'text-blue-500',
@@ -38,8 +38,8 @@ const modules = [
   },
   {
     id: 5,
-    title: 'Análise Preditiva',
-    description: 'Módulo 5: Dashboard estratégico ELIV e KPIs de marca.',
+    title: 'Analise Preditiva',
+    description: 'Modulo 5: Dashboard estratÃ©gico ELIV e KPIs de marca.',
     icon: BarChart3,
     href: '/admin/eliv',
     color: 'text-green-500',
@@ -47,8 +47,8 @@ const modules = [
   },
   {
     id: 0,
-    title: 'Configurações ELIV',
-    description: 'Pilar I: Ajustes de fundamentação e variáveis de sistema.',
+    title: 'Configuracoes ELIV',
+    description: 'Pilar I: Ajustes de fundamentaÃ§Ã£o e variÃ¡veis de sistema.',
     icon: Settings,
     href: '#',
     color: 'text-ruah-400',
@@ -66,7 +66,7 @@ const modules = [
   {
     id: 7,
     title: 'Conectores Pagamento',
-    description: 'Gestão self-service de credenciais e teste de integração por gateway.',
+    description: 'Gestao self-service de credenciais e teste de integracao por gateway.',
     icon: ShieldCheck,
     href: '/admin/payments/connectors',
     color: 'text-emerald-500',
@@ -94,14 +94,14 @@ export default function AdminHub() {
              <div className="w-10 h-10 bg-ruah-950 rounded-xl flex items-center justify-center">
                 <Terminal className="text-accent-gold" size={20} />
              </div>
-             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-ruah-400">Sistema Integrado ELIV</span>
+             <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Sistema Integrado ELIV</span>
           </div>
           <h1 className="text-5xl font-serif font-black text-ruah-950 uppercase tracking-tighter leading-none mb-4">
             Painel de Controle <span className="text-accent-gold italic">Operacional</span>
           </h1>
           <p className="text-ruah-500 max-w-2xl font-medium">
-            Gerenciamento centralizado da Marca Própria. 
-            Sincronização em tempo real entre Consumidor, Parceiro e Análise Preditiva.
+            Gerenciamento centralizado da Marca Propria. 
+            Sincronizacao em tempo real entre Consumidor, Parceiro e Analise Preditiva.
           </p>
         </header>
 
@@ -124,7 +124,7 @@ export default function AdminHub() {
                     <p className="text-sm text-ruah-500 leading-relaxed">{module.description}</p>
                   </div>
                   <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-ruah-400 group-hover:text-accent-gold transition-colors">
-                    Acessar Módulo <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    Acessar Modulo <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </Link>
@@ -140,23 +140,23 @@ export default function AdminHub() {
             <div className="max-w-xl">
               <div className="flex items-center gap-2 mb-6">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent-gold">Fusão Industrial Ativa</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-accent-gold">Fusao Industrial Ativa</span>
               </div>
               <h2 className="text-4xl font-serif italic font-black mb-6 leading-tight">
                 Fluxo de pedidos estabilizado com taxa de qualidade de 98.4%.
               </h2>
               <p className="text-ruah-400 text-sm font-medium leading-relaxed">
-                As especificações operacionais do Módulo 1 estão sendo transmitidas via ELIV para o Módulo 4 sem divergências detectadas nos últimos 7 lotes.
+                As especificacoes operacionais do Modulo 1 estao sendo transmitidas via ELIV para o Modulo 4 sem divergencias detectadas nos ultimos 7 lotes.
               </p>
             </div>
             
             <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
               <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-sm">
-                <span className="text-[9px] font-bold text-ruah-400 uppercase tracking-widest block mb-2">Pedidos de Hoje</span>
+                <span className="text-xs font-semibold text-ruah-400 uppercase tracking-widest block mb-2">Pedidos de Hoje</span>
                 <span className="text-3xl font-black text-white">42</span>
               </div>
               <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-sm">
-                <span className="text-[9px] font-bold text-ruah-400 uppercase tracking-widest block mb-2">Agrupamento Lote</span>
+                <span className="text-xs font-semibold text-ruah-400 uppercase tracking-widest block mb-2">Agrupamento Lote</span>
                 <span className="text-3xl font-black text-accent-gold italic">Smart</span>
               </div>
             </div>
@@ -165,7 +165,7 @@ export default function AdminHub() {
 
         {/* Footer info */}
         <div className="mt-12 flex justify-between items-center border-t border-ruah-100 pt-8">
-           <span className="text-[10px] font-bold text-ruah-300 uppercase tracking-widest">© 2024 RUAH BRAZIL - Sistema ELIV v2.4</span>
+           <span className="text-[10px] font-bold text-ruah-300 uppercase tracking-widest">Â© 2024 RUAH BRAZIL - Sistema ELIV v2.4</span>
            <div className="flex gap-6">
              <span className="text-[10px] font-bold text-ruah-400 uppercase tracking-widest flex items-center gap-2">
                <ShieldCheck size={14} className="text-green-500" /> Protocolo Seguro
@@ -179,3 +179,5 @@ export default function AdminHub() {
     </div>
   );
 }
+
+

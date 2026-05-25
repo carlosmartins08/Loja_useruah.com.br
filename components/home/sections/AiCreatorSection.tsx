@@ -14,16 +14,16 @@ export function AiCreatorSection() {
               <span className="tech-label text-accent-gold">Ruah Lab AI</span>
             </div>
             <h2 className="text-6xl font-serif leading-[0.9] italic uppercase font-black tracking-tighter">
-              Sua F? <br /> em Código <br /> Criativo.
+              Sua Fé <br /> em Código <br /> Criativo.
             </h2>
-            <p className="text-[12px] font-bold text-ruah-400 leading-relaxed max-w-xs tracking-widest uppercase mb-4">
+            <p className="text-[12px] font-bold text-ruah-400 leading-relaxed max-w-xs tracking-[0.1em] uppercase mb-4">
               Nossa IA entende sua missão. Selecione seu grupo ou pastoral e deixe a tecnologia desenhar o sopro que falta.
             </p>
             <Link href="/shop" className="flex items-center gap-4 group">
               <div className="w-14 h-14 bg-ruah-950 text-white rounded-full flex items-center justify-center group-hover:bg-accent-gold transition-colors">
                 <ArrowRight size={20} />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] group-hover:text-accent-gold transition-colors">Abrir Estúdio AI</span>
+              <span className="text-xs font-bold uppercase tracking-[0.1em] group-hover:text-accent-gold transition-colors">Abrir Estúdio AI</span>
             </Link>
           </div>
           <div className="lg:col-span-6 relative aspect-square lg:aspect-video rounded-[3rem] overflow-hidden bg-ruah-50 border border-ruah-100 flex items-center justify-center group">
@@ -40,8 +40,8 @@ export function AiCreatorSection() {
                   <div key={i} className="w-2 h-2 rounded-full bg-accent-gold animate-pulse" style={{ animationDelay: `${i * 300}ms` }} />
                 ))}
               </div>
-              <p className="text-white text-[11px] font-bold leading-relaxed tracking-widest uppercase">
-                &quot;Gerando estampa para: <span className="text-accent-gold italic">Coroinhas São Jos?</span>. Aplicando técnica de gravura em tecido algodão 30.1...&quot;
+              <p className="text-white text-[11px] font-bold leading-relaxed tracking-[0.1em] uppercase">
+                &quot;Gerando estampa para: <span className="text-accent-gold italic">Coroinhas São José</span>. Aplicando técnica de gravura em tecido algodão 30.1...&quot;
               </p>
             </div>
           </div>
@@ -50,4 +50,5 @@ export function AiCreatorSection() {
     </section>
   );
 }
+
 

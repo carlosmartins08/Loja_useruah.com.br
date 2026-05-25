@@ -50,7 +50,7 @@ export default function AdminSupportPage() {
         <header className='bg-white border border-ruah-100 rounded-3xl p-8'>
           <div className='flex items-center gap-3 mb-3'>
             <LifeBuoy size={20} className='text-accent-gold' />
-            <span className='text-[10px] font-bold uppercase tracking-widest text-ruah-400'>Operação de Suporte</span>
+            <span className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400'>Operação de Suporte</span>
           </div>
           <h1 className='text-3xl font-serif italic uppercase text-ruah-950'>Central de Atendimento</h1>
           <p className='text-xs font-bold uppercase tracking-widest text-ruah-400 mt-3'>
@@ -101,17 +101,17 @@ export default function AdminSupportPage() {
               ) : (
                 tickets.map((ticket) => (
                   <div key={ticket.ticketId} className='border border-ruah-100 rounded-2xl p-5 flex flex-col gap-3'>
-                    <div className='flex items-center gap-2 text-accent-gold text-[10px] font-bold uppercase tracking-widest'>
+                    <div className='flex items-center gap-2 text-accent-gold text-xs font-semibold uppercase tracking-[0.1em]'>
                       <MessageSquare size={14} />
                       {ticket.ticketId}
                     </div>
                     <p className='text-sm font-semibold text-ruah-950'>{ticket.subject}</p>
-                    <p className='text-[10px] font-bold uppercase tracking-widest text-ruah-400'>
+                    <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400'>
                       Pedido: {ticket.orderId} | Cliente: {ticket.customerId} | Status: {ticket.status}
                     </p>
                     <Link
                       href={`/admin/support/${encodeURIComponent(ticket.orderId)}`}
-                      className='inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-accent-gold hover:opacity-80 transition-opacity'
+                      className='inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold hover:opacity-80 transition-opacity'
                     >
                       Abrir pedido e contexto operacional
                       <ArrowRight size={14} />
@@ -126,3 +126,5 @@ export default function AdminSupportPage() {
     </main>
   );
 }
+
+

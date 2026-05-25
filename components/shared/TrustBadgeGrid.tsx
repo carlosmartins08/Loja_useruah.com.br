@@ -18,8 +18,8 @@ export function TrustBadgeGrid({ items, iconSize = 16, compact = false }: TrustB
       {items.map((item, i) => (
         <div key={i} className="flex flex-col items-center text-center lg:items-start lg:text-left gap-2 group cursor-default">
           <item.icon size={iconSize} className="text-accent-gold mb-1 group-hover:scale-110 transition-transform" />
-          <span className="text-[10px] font-bold uppercase tracking-widest text-ruah-950">{item.label}</span>
-          <span className={`${compact ? 'text-[8px]' : 'text-[9px]'} text-ruah-300 font-bold uppercase tracking-[0.2em]`}>{item.detail}</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-950">{item.label}</span>
+          <span className={`${compact ? 'text-xs' : 'text-sm'} text-ruah-500 font-medium`}>{item.detail}</span>
         </div>
       ))}
     </div>

@@ -3,7 +3,7 @@
 export const HOME_FAQ: HomeFaqItem[] = [
   {
     q: 'O que significa Ruah?',
-    a: 'Ruah  um termo hebraico que significa sopro, vento ou espírito. Para nós, representa o fôlego de vida que o Criador sopra sobre cada obra de arte e sobre cada um de nós.',
+    a: 'Ruah é um termo hebraico que significa sopro, vento ou espírito. Para nós, representa o fôlego de vida que o Criador sopra sobre cada obra de arte e sobre cada um de nós.',
   },
   {
     q: 'Como funciona a produção sob demanda?',
@@ -21,7 +21,7 @@ export const HOME_FAQ: HomeFaqItem[] = [
 
 export const HOME_PRODUCTS: HomeProduct[] = [
   { id: '1', name: 'Camiseta Respiro', category: 'Autoral', price: 89.9, image: 'https://picsum.photos/seed/ruah-p1/800/1000', badge: 'Popular' },
-  { id: '2', name: 'Moletom F? Viva', category: 'Campanha', price: 159.9, image: 'https://picsum.photos/seed/ruah-p2/800/1000' },
+  { id: '2', name: 'Moletom Fé Viva', category: 'Campanha', price: 159.9, image: 'https://picsum.photos/seed/ruah-p2/800/1000' },
   { id: '3', name: 'Bolsa Sopro', category: 'Acessórios', price: 45, image: 'https://picsum.photos/seed/ruah-p3/800/1000', badge: 'Novo' },
   { id: '4', name: 'Camiseta Geração', category: 'Artistas', price: 95, image: 'https://picsum.photos/seed/ruah-p4/800/1000' },
 ];
@@ -58,5 +58,7 @@ export const HOME_TESTIMONIALS: HomeTestimonial[] = [
     image: 'https://picsum.photos/seed/ruah-user-4/200/200',
   },
 ];
+
+
 
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'motion/react';
@@ -14,11 +14,11 @@ interface TimelineStep {
 }
 
 const STEPS: TimelineStep[] = [
-  { id: 'received', label: 'Pedido Recebido', description: 'Pagamento e especificações técnicas confirmadas.', icon: Check },
-  { id: 'production', label: 'Em Produção', description: 'Corte de alumínio e montagem de componentes.', icon: Factory },
-  { id: 'quality', label: 'Controle de Qualidade', description: 'Testes de fotometria e inspeção de acabamento.', icon: ShieldCheck },
-  { id: 'ready', label: 'Pronto para Envio', description: 'Embalagem técnica e emissão de NF.', icon: Box },
-  { id: 'shipped', label: 'Despachado', description: 'Em trânsito para o seu endereço.', icon: Truck },
+  { id: 'received', label: 'Pedido Recebido', description: 'Pagamento e especificacoes tecnicas confirmadas.', icon: Check },
+  { id: 'production', label: 'Em Producao', description: 'Corte de aluminio e montagem de componentes.', icon: Factory },
+  { id: 'quality', label: 'Controle de Qualidade', description: 'Testes de fotometria e inspecao de acabamento.', icon: ShieldCheck },
+  { id: 'ready', label: 'Pronto para Envio', description: 'Embalagem tecnica e emissao de NF.', icon: Box },
+  { id: 'shipped', label: 'Despachado', description: 'Em transito para o seu endereco.', icon: Truck },
 ];
 
 export function ProductionTimeline({ currentStatus }: { currentStatus: OrderStatus }) {
@@ -55,7 +55,7 @@ export function ProductionTimeline({ currentStatus }: { currentStatus: OrderStat
                        <step.icon size={20} />
                     </div>
                     <div className="flex flex-col gap-1">
-                       <span className={`text-[10px] font-bold uppercase tracking-tight ${isActive ? 'text-accent-gold' : isCompleted ? 'text-ruah-950' : 'text-ruah-300'}`}>
+                       <span className={`text-xs font-bold uppercase tracking-tight ${isActive ? 'text-accent-gold' : isCompleted ? 'text-ruah-950' : 'text-ruah-300'}`}>
                           {step.label}
                        </span>
                     </div>
@@ -69,7 +69,7 @@ export function ProductionTimeline({ currentStatus }: { currentStatus: OrderStat
          <div className="bg-white rounded-3xl p-8 border border-ruah-100 shadow-subtle">
             <div className="flex items-center gap-4 mb-4">
                <div className="w-2 h-2 rounded-full bg-accent-gold animate-ping" />
-               <span className="text-[9px] font-bold uppercase tracking-widest text-accent-gold">Status do Respiro</span>
+               <span className="text-xs font-bold uppercase tracking-[0.1em] text-accent-gold">Status do Respiro</span>
             </div>
             <h4 className="text-xl font-serif uppercase italic mb-2">{currentStep.label}</h4>
             <p className="text-xs text-ruah-400 font-medium uppercase tracking-[0.05em] leading-relaxed">
@@ -79,8 +79,8 @@ export function ProductionTimeline({ currentStatus }: { currentStatus: OrderStat
             {currentStatus === 'production' && (
               <div className="mt-8 p-4 bg-ruah-50 rounded-xl border border-ruah-100 flex items-center gap-4">
                  <Factory size={18} className="text-accent-gold" />
-                 <p className="text-[9px] font-bold text-ruah-950 uppercase tracking-widest leading-relaxed">
-                    PROCESSO ARTESANAL: Sua peça está em fase de confecção manual.
+                 <p className="text-xs font-bold text-ruah-950 uppercase tracking-[0.1em] leading-relaxed">
+                    PROCESSO ARTESANAL: Sua peca esta em fase de confeccao manual.
                  </p>
               </div>
             )}
@@ -89,3 +89,5 @@ export function ProductionTimeline({ currentStatus }: { currentStatus: OrderStat
     </div>
   );
 }
+
+

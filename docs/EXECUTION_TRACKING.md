@@ -2,6 +2,11 @@
 
 Data de revisao: 2026-05-23
 
+Atualizacao adicional: 2026-05-25
+- Roadmap seguro de execucao para 2026-05-26 publicado em:
+  - `docs/ROADMAP_2026-05-26_SAFE_EXECUTION.md`
+- Pendencias abertas de 2026-05-25 foram consolidadas no roadmap com gatilho `GO/NO-GO` e fases bloqueantes.
+
 ## Status atual por onda (plano anti-retrabalho)
 
 - Ativacao P3 por provider consolidada em comando unico: `npm run qa:provider:activate` (sequencia gate + smoke + regressao).

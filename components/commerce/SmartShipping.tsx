@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Truck, MapPin, Loader2 } from 'lucide-react';
@@ -10,9 +10,9 @@ export function SmartShipping() {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setShippingInfo({
-        city: 'São Paulo, SP',
+        city: 'Sao Paulo, SP',
         days: 2,
-        price: 'Grátis'
+        price: 'Gratis'
       });
       setLoading(false);
     }, 600);
@@ -36,17 +36,17 @@ export function SmartShipping() {
         {loading ? (
           <div className="flex items-center gap-2">
             <Loader2 size={12} className="animate-spin text-ruah-300" />
-            <span className="text-[9px] font-bold text-ruah-300 uppercase tracking-widest">Calculando frete...</span>
+            <span className="text-xs font-bold text-ruah-300 uppercase tracking-[0.1em]">Calculando frete...</span>
           </div>
         ) : (
           <>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-ruah-950">Entrega para {shippingInfo?.city}</span>
+              <span className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-950">Entrega para {shippingInfo?.city}</span>
               <MapPin size={10} className="text-accent-gold" />
             </div>
-            <p className="text-[9px] text-ruah-500 font-medium uppercase tracking-widest">
-              Chega em até <span className="text-ruah-950 font-bold">{shippingInfo?.days} dias úteis</span> •
-              previsão <span className="text-ruah-950 font-bold">{estimatedDate}</span> • frete{' '}
+            <p className="text-xs text-ruah-500 font-medium uppercase tracking-[0.1em]">
+              Chega em ate <span className="text-ruah-950 font-bold">{shippingInfo?.days} dias uteis</span> •
+              previsao <span className="text-ruah-950 font-bold">{estimatedDate}</span> • frete{' '}
               <span className="text-green-600 font-bold">{shippingInfo?.price}</span>
             </p>
           </>
@@ -55,3 +55,5 @@ export function SmartShipping() {
     </div>
   );
 }
+
+

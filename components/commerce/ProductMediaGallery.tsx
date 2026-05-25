@@ -38,7 +38,7 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
             <Image src={active.src} alt={active.label} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover" />
             <button
               onClick={() => setZoomOpen(true)}
-              className="absolute bottom-4 right-4 flex items-center gap-2 bg-white/90 px-4 py-2 rounded-full text-[9px] font-bold uppercase tracking-widest text-ruah-950 border border-ruah-100 hover:border-accent-gold"
+              className="absolute bottom-4 right-4 flex items-center gap-2 bg-white/90 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-[0.08em] text-ruah-950 border border-ruah-100 hover:border-accent-gold"
             >
               <ZoomIn size={14} />
               Zoom da estampa
@@ -48,7 +48,7 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
 
         <div className="lg:col-span-5 flex flex-col gap-4">
           <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-accent-gold">Visualização do produto</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Visualização do produto</p>
             <h3 className="text-3xl font-serif italic uppercase text-ruah-950 mt-3">Detalhes e mockups</h3>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -61,7 +61,7 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
                 }`}
               >
                 <Image src={item.src} alt={item.label} fill sizes="(max-width: 1024px) 50vw, 20vw" className="object-cover" />
-                <span className="absolute left-2 bottom-2 text-[8px] font-bold uppercase tracking-widest bg-white/90 px-2 py-1 rounded-full text-ruah-950">
+                <span className="absolute left-2 bottom-2 text-xs font-semibold uppercase tracking-[0.08em] bg-white/90 px-2 py-1 rounded-full text-ruah-950">
                   {item.label}
                 </span>
               </button>
@@ -86,3 +86,4 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
     </section>
   );
 }
+

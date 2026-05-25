@@ -121,7 +121,7 @@ export function ExitIntent() {
               <div className="flex flex-col gap-4">
                  <span className="tech-label text-accent-blue">{badge}</span>
                  <h2 id="exit-intent-title" className="text-4xl lg:text-5xl font-serif leading-none italic uppercase">{headline}</h2>
-                 <p className="text-sm font-medium uppercase tracking-widest text-lumina-400 leading-relaxed max-w-xs mx-auto">
+                 <p className="text-sm font-medium uppercase tracking-[0.1em] text-lumina-400 leading-relaxed max-w-xs mx-auto">
                     {body.split(config.couponCode)[0]}
                     <span className="text-lumina-950 font-bold">{config.couponCode}</span>
                     {body.split(config.couponCode).slice(1).join(config.couponCode)}
@@ -130,14 +130,14 @@ export function ExitIntent() {
 
               <button 
                 onClick={() => setShow(false)}
-                className="w-full bg-lumina-950 text-white py-6 rounded-2xl font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-accent-blue transition-all"
+                className="w-full bg-lumina-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-blue transition-all"
               >
                  {ctaPrimary}
               </button>
 
               <button 
                  onClick={() => setShow(false)}
-                 className="text-[10px] font-bold text-lumina-300 uppercase tracking-widest border-b border-lumina-100 pb-1"
+                 className="text-xs font-bold text-lumina-300 uppercase tracking-[0.1em] border-b border-lumina-100 pb-1"
               >
                  {ctaSecondary}
               </button>
@@ -147,4 +147,5 @@ export function ExitIntent() {
     </AnimatePresence>
   );
 }
+
 
