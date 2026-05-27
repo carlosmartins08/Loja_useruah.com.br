@@ -60,7 +60,7 @@ export default function MyOrders() {
     <div className='flex flex-col gap-8'>
       <div className='mb-4'>
         <h2 className='text-4xl font-serif italic uppercase leading-none text-ruah-950'>Meus Pedidos</h2>
-        <p className='text-sm font-medium text-ruah-500 mt-4'>Acompanhe seu histórico de fé e arte.</p>
+        <p className='text-sm font-medium text-ruah-500 mt-4'>Acompanhe seu historico de fe e arte.</p>
       </div>
 
       <div className='flex flex-col gap-6'>
@@ -129,3 +129,5 @@ export default function MyOrders() {
     </div>
   );
 }
+
+

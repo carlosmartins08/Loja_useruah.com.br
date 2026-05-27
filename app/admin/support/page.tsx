@@ -33,8 +33,7 @@ export default function AdminSupportPage() {
       setTickets(response.tickets);
     } catch (err) {
       if (err instanceof HttpRequestError && (err.status === 401 || err.status === 403)) {
-        setError('Sessão inválida para atendimento. Faça login novamente.');
-        window.location.href = '/login';
+        setError('Sessão inválida para atendimento. Atualize a página para renovar a sessão.');
       } else {
         setError('Não foi possível consultar os tickets agora.');
       }

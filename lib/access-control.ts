@@ -1,6 +1,6 @@
 import type { OrderRecord } from '@/lib/order-store';
 import { decodeSessionToken } from '@/lib/session-token';
-import { isUserRole } from '@/lib/auth-session';
+import { normalizeAuthSession } from '@/lib/auth-session';
 
 export interface AccessActor {
   actorId: string;
@@ -19,11 +19,11 @@ export function getActorFromRequest(request: Request): AccessActor | null {
     .find((part) => part.startsWith('ruah_session='))
     ?.slice('ruah_session='.length);
 
-  const session = decodeSessionToken(sessionToken);
-  if (session && isUserRole(session.userRole)) {
+  const session = normalizeAuthSession(decodeSessionToken(sessionToken));
+  if (session) {
     return {
       actorId: session.userId,
-      actorRole: session.userRole,
+      actorRole: session.activeRole,
     };
   }
 

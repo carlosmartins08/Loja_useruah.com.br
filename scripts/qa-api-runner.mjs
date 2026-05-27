@@ -4,6 +4,7 @@ import { spawn } from 'node:child_process';
 const PORT = Number(process.env.QA_PORT ?? 3200);
 const QA_SCRIPT = process.env.QA_SCRIPT;
 const QA_SERVER_MODE = (process.env.QA_SERVER_MODE ?? 'dev').toLowerCase();
+const QA_REUSE_EXISTING = String(process.env.QA_REUSE_EXISTING ?? 'false').toLowerCase() === 'true';
 
 if (!QA_SCRIPT) {
   console.error('QA_SCRIPT is required (example: scripts/qa-catalog-lifecycle.mjs)');
@@ -86,25 +87,49 @@ function killProcessTree(child) {
 }
 
 function spawnNpm(args) {
-  const npmExecPath = process.env.npm_execpath;
-  if (npmExecPath) {
-    return spawn(process.execPath, [npmExecPath, ...args], {
+  if (process.platform === 'win32') {
+    return spawn('cmd.exe', ['/d', '/s', '/c', `npm ${args.join(' ')}`], {
       stdio: 'inherit',
-      windowsHide: process.platform === 'win32',
-      detached: process.platform !== 'win32',
+      windowsHide: true,
+      detached: false,
     });
   }
 
   return spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', args, {
     stdio: 'inherit',
-    windowsHide: process.platform === 'win32',
-    detached: process.platform !== 'win32',
+    windowsHide: false,
+    detached: false,
+  });
+}
+
+function waitForExit(child) {
+  return new Promise((resolve, reject) => {
+    child.on('error', reject);
+    child.on('exit', (code) => resolve(code ?? 1));
   });
 }
 
 async function main() {
   const portAlreadyOpen = await isPortOpen(PORT);
+  if (portAlreadyOpen && !QA_REUSE_EXISTING) {
+    console.error(
+      [
+        `QA runner aborted: localhost:${PORT} is already in use.`,
+        'Use a dedicated free port (QA_PORT) or set QA_REUSE_EXISTING=true if you explicitly want to reuse an existing server.',
+      ].join('\n')
+    );
+    process.exit(1);
+  }
+
   const startArgs = QA_SERVER_MODE === 'start' ? ['run', 'start', '--', '-p', String(PORT)] : ['run', 'dev', '--', '-p', String(PORT)];
+  if (!portAlreadyOpen && QA_SERVER_MODE === 'start') {
+    const build = spawnNpm(['run', 'build']);
+    const buildExit = await waitForExit(build);
+    if (buildExit !== 0) {
+      console.error('QA runner aborted: production build failed before start mode.');
+      process.exit(buildExit);
+    }
+  }
   const server = portAlreadyOpen ? null : spawnNpm(startArgs);
 
   try {
@@ -115,10 +140,7 @@ async function main() {
       windowsHide: process.platform === 'win32',
     });
 
-    const exitCode = await new Promise((resolve, reject) => {
-      qa.on('exit', (code) => resolve(code ?? 1));
-      qa.on('error', reject);
-    });
+    const exitCode = await waitForExit(qa);
 
     if (exitCode !== 0) {
       process.exit(exitCode);

@@ -38,8 +38,7 @@ export function CheckoutPageView() {
 
   const maxProductionDays = cart.reduce((max, item) => Math.max(max, item.productionDays || 7), 0);
   const composedDeadline = maxProductionDays + location.shippingDays;
-  const deliveryDate = new Date();
-  deliveryDate.setDate(deliveryDate.getDate() + composedDeadline);
+  const deliveryDateLabel = `em ${composedDeadline} dias úteis`;
 
   const handleFinish = async (method: PaymentMethod, provider: PaymentRecord['provider']) => {
     if (!isAuthenticated) {
@@ -131,7 +130,7 @@ export function CheckoutPageView() {
                 <CheckoutStepOneSection
                   isActive={step === 1}
                   region={location.region}
-                  deliveryDateLabel={deliveryDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}
+                  deliveryDateLabel={deliveryDateLabel}
                   maxProductionDays={maxProductionDays}
                   shippingDays={location.shippingDays}
                   composedDeadline={composedDeadline}

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Factory, Search, Filter, CheckCircle2, AlertCircle } from 'lucide-react';
-import { getJson } from '@/lib/http-client';
+import { getJson, HttpRequestError } from '@/lib/http-client';
 
 interface ProductionJob {
   productionJobId: string;
@@ -24,6 +24,7 @@ const STATUS_LABEL: Record<ProductionJob['status'], string> = {
 export default function MerchantProductionPage() {
   const [jobs, setJobs] = React.useState<ProductionJob[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let active = true;
@@ -31,6 +32,14 @@ export default function MerchantProductionPage() {
       .then((data) => {
         if (!active) return;
         setJobs(data.jobs);
+      })
+      .catch((err) => {
+        if (!active) return;
+        if (err instanceof HttpRequestError && (err.status === 401 || err.status === 403)) {
+          setError('Sessão inválida para produção. Atualize a página para renovar a sessão.');
+          return;
+        }
+        setError('Não foi possível carregar a fila de produção.');
       })
       .finally(() => {
         if (!active) return;
@@ -100,6 +109,8 @@ export default function MerchantProductionPage() {
 
             {loading ? (
               <div className='text-xs text-ruah-400 uppercase tracking-widest px-4'>Carregando fila...</div>
+            ) : error ? (
+              <div className='text-xs text-red-600 uppercase tracking-widest px-4'>{error}</div>
             ) : jobs.length === 0 ? (
               <div className='text-xs text-ruah-400 uppercase tracking-widest px-4'>Nenhum job na fila.</div>
             ) : (

@@ -7,6 +7,139 @@ Atualizacao adicional: 2026-05-25
   - `docs/ROADMAP_2026-05-26_SAFE_EXECUTION.md`
 - Pendencias abertas de 2026-05-25 foram consolidadas no roadmap com gatilho `GO/NO-GO` e fases bloqueantes.
 
+Atualizacao adicional: 2026-05-26 (Fase 2 - compatibilidade de sessao)
+- Modelo de sessao estendido com compatibilidade para:
+  - `roles[]`
+  - `activeRole`
+  - preservacao de `userRole` legado para retrocompatibilidade
+- Normalizacao central de sessao criada em `lib/auth-session.ts` (`normalizeAuthSession`).
+- Fluxo de auth atualizado sem quebra de contrato:
+  - `app/api/auth/session/route.ts` passa a normalizar payload legado/novo.
+  - `lib/auth-local-users.ts` passa a emitir `roles[]` e `activeRole`.
+  - `lib/access-control.ts` passa a usar `activeRole` como fonte de autorizacao.
+- Evidencias de gate apos fase 2:
+  - `npm run check:strict`: PASS (2026-05-26)
+  - `npm run qa:ux:journeys`: PASS (2026-05-26)
+  - `qa:coreops` em porta limpa (`3320`): PASS (2026-05-26)
+  - `qa:functional` em porta limpa (`3316`): PASS (2026-05-26)
+
+Atualizacao adicional: 2026-05-26 (Fase 3 - hardening de guardas)
+- Guardas de acesso reforcados nas rotas criticas:
+  - `/login`: sessao ativa agora exibe decisao explicita (continuar com conta atual, trocar conta, ou cadastrar), sem redirecionamento forcado.
+  - `/account/*`: layout de conta agora bloqueia roles administrativos e redireciona para home correta por role.
+  - `/admin/production`: tratamento explicito de `401/403` com fallback para login.
+  - `/admin/payments/connectors`: tratamento explicito de `401/403` em load/teste para evitar estado silencioso sem permissao.
+- QA operacional ajustado para previsibilidade:
+  - `qa:coreops` agora explicita `ALLOW_HEADER_ACTOR_FALLBACK=true` no comando local para evitar falso negativo quando RBAC esta ativo em ambiente de teste.
+- Evidencias de gate apos fase 3:
+  - `npm run check:strict`: PASS (2026-05-26)
+  - `npm run qa:ux:journeys`: PASS (2026-05-26)
+  - `qa:coreops` em porta limpa (`3324`): PASS (2026-05-26)
+  - `qa:functional` em modo `start` e porta limpa (`3319`): PASS (2026-05-26)
+
+Atualizacao adicional: 2026-05-26 (Fase 4 - gate final de liberacao)
+- Gate final executado com evidencias:
+  - `npm run check:strict`: PASS (2026-05-26)
+  - `npm run qa:ux:journeys`: PASS (2026-05-26)
+  - `qa:coreops` em porta limpa (`3325`): PASS (2026-05-26)
+  - `qa:functional` em modo `start` e porta limpa (`3327`): PASS (2026-05-26)
+- Observacao operacional:
+  - ambiente `next dev` apresentou intermitencias de cache/hot-reload durante algumas rodadas; validacao final foi consolidada em execucao limpa e reproduzivel.
+  - `qa:functional` reporta diagnosticos de frontend (`React #418` minificado em contexto de hidratacao e recursos 404 nao criticos), sem quebra das jornadas funcionais validadas.
+- Veredito de release interno: `GO` para continuidade do roadmap com monitoramento dos diagnosticos frontend em backlog de hardening.
+
+Atualizacao adicional: 2026-05-26 (Checkpoint de coerencia RBAC runtime - 4 papeis ativos)
+- Escopo validado no runtime atual: `customer`, `support_agent`, `production_operator`, `platform_admin`.
+- Confirmacao de arquitetura:
+  - guardas de acesso concentrados em `app/account/layout.tsx` e `app/admin/layout.tsx`;
+  - sem duplicacao de redirecionamento de RBAC em paginas filhas de dominio (`app/account/*`, `app/admin/*`).
+- Evidencias de validacao do checkpoint:
+  - `npm run check:strict`: PASS (2026-05-26)
+  - `npm run qa:ux:journeys`: PASS (2026-05-26)
+
+Atualizacao adicional: 2026-05-26 (Execucao ponta a ponta - gates funcionais em serie)
+- Execucao fim-a-fim concluida em portas limpas e sequenciais:
+  - `qa:coreops` (`QA_PORT=3336`): PASS
+  - `qa:functional` (`QA_PORT=3337`): PASS
+- Causa raiz de falha intermitente identificada e mitigada:
+  - execucao paralela de dois `next dev` no mesmo workspace gerou instabilidade de cache `.next` (erros `ENOENT pack.gz` e `TypeError ... reading 'call'`).
+  - mitigacao aplicada: limpar `.next` e executar gates em serie (um runner por vez).
+
+Atualizacao adicional: 2026-05-26 (Validacao em modo producao `start`)
+- Validacao em runtime de producao concluida com execucao serial:
+  - `qa:functional` (`QA_SERVER_MODE=start`, `QA_PORT=3339`): PASS
+  - `qa:coreops` (`QA_SERVER_MODE=start`, `QA_PORT=3340`): PASS
+- Observacoes nao bloqueantes:
+  - warning de `metadataBase` ausente em metadata (OpenGraph/Twitter) durante build/start.
+  - diagnostico recorrente `React #418` em execucao minificada do `qa:functional` (sem quebra das jornadas validadas).
+
+Atualizacao adicional: 2026-05-26 (Fechamento dos pontos identificados de hardening)
+- `metadataBase` configurado em `app/layout.tsx` com URL canonica de producao para remover warning de metadata em build/start.
+- Checkout ajustado para evitar dependencia de data dinamica no SSR em etapa de entrega:
+  - `components/checkout/CheckoutPageView.tsx` agora usa previsao deterministica por prazo (`em X dias úteis`) na renderizacao inicial.
+- Evidencias apos ajuste:
+  - `npm run check:strict`: PASS (2026-05-26)
+  - `qa:functional` em `start` (`QA_PORT=3341`): PASS
+  - `qa:functional` em `dev` (`QA_PORT=3342`): PASS
+- Investigacao do diagnostico `React #418`:
+  - causa raiz identificada: hidratação divergente de carrinho entre SSR e cliente por leitura de `localStorage` no estado inicial de render em `context/CartContext.tsx`.
+  - correcao aplicada: carga do carrinho movida para pos-mount (assíncrona), com escrita em `localStorage` condicionada a `isCartHydrated`.
+  - instrumentacao de diagnostico em `scripts/qa-functional.mjs` para incluir URL em `pageerror`.
+  - evidencia final apos correcao:
+    - `npm run check:strict`: PASS (2026-05-26)
+    - `qa:functional` em `start` (`QA_PORT=3344`): PASS sem `diagnostics`
+    - `qa:coreops` em `start` (`QA_PORT=3345`): PASS
+
+Atualizacao adicional: 2026-05-26 (Expansao de papeis no runtime - fase inicial concluida)
+- Modelo de sessao/autenticacao local expandido para incluir papeis de negocio:
+  - `finance_admin`
+  - `artist`
+  - `community_manager`
+- Ajustes de navegacao/RBAC aplicados:
+  - `lib/auth-session.ts`: `UserRole` e validacao de roles atualizados.
+  - `lib/auth-local-users.ts`: usuarios de desenvolvimento adicionais para os novos papeis.
+  - `lib/access-routing.ts`: `finance_admin` tratado como papel administrativo; `artist/community_manager` com home em `/account`.
+- Evidencias de validacao apos expansao:
+  - `npm run check:strict`: PASS (2026-05-26)
+  - `qa:functional` em `start` (`QA_PORT=3346`): PASS
+  - `qa:coreops` em `start` (`QA_PORT=3347`): PASS
+
+Atualizacao adicional: 2026-05-27 (P3 cutover real - status de bloqueio objetivo)
+- Diagnostico de bloqueio executado:
+  - `npm run alert:critical`: FAIL (`CRIT-PAY-REAL-001` e `CRIT-PAY-REAL-002`)
+  - `npm run qa:providers:ready`: `NOT_READY` (0 providers configurados)
+- Bloqueios atuais para concluir 100% de producao:
+  - nenhum provider real com credenciais completas no ambiente atual;
+  - persistencia final MySQL gerenciada nao configurada (`PAYMENT_PERSISTENCE=mysql` + `DATABASE_URL` mysql).
+- Pendencias minimas para destravar P3:
+  - escolher provider oficial (Inter / InfinitePay / Mercado Pago / Pagar.me / Cielo / Stripe);
+  - configurar variaveis obrigatorias do provider escolhido;
+  - configurar persistencia MySQL gerenciada;
+  - executar smoke do provider + `qa:payments21` + `qa:coreops` em ambiente de homolog.
+  - `npm run p3:precheck`: FAIL (`missing_global_env`) com faltas em `HML_BASE_URL`, `PAYMENT_PROVIDER`, `PAYMENT_WEBHOOK_SECRET`.
+- Pacote de ativacao imediata preparado:
+  - `docs/P3_ENV_READY_TO_FILL.md` com bloco pronto de `.env` (copiar/colar), matriz por provider e sequencia de validacao.
+  - `.env.p3.template` criado para setup rapido.
+  - `p3:plug`/`p3:plug:run` criados para dry-run e execucao sequencial de P3.
+  - `go:preflight`/`go:preflight:run` criados para preflight de go-live em comando unico.
+  - Execucao real `npm run p3:plug:run` validada: bloqueio ocorreu corretamente em `p3:precheck` por falta de env global.
+
+Atualizacao adicional: 2026-05-27 (Execucao de pontos nao bloqueados enquanto P3 fica por ultimo)
+- Ajustes aplicados de UX/RBAC sem dependencia de credenciais:
+  - `app/admin/page.tsx`: correcoes de textos com encoding residual e habilitacao de modulos para `finance_admin`.
+  - `app/account/orders/page.tsx`: normalizacao de copy com encoding estavel.
+  - `scripts/qa-functional.mjs`: suite `guest_navigation` aceita fluxo valido `Shop -> /account` ou `Shop -> /login` para visitante sem sessao.
+- Evidencias:
+  - `npm run check:strict`: PASS (2026-05-27)
+  - `qa:functional` em `start` (`QA_PORT=3349`): PASS
+- Ajuste adicional de robustez:
+  - `scripts/qa-functional.mjs`: normalizacao de textos de output com encoding estavel e aceitacao explicita de redirecionamento valido `Shop -> /login` para visitante.
+- Evidencias apos ajuste:
+  - `npm run check:strict`: PASS (2026-05-27)
+  - `qa:functional` em `start` (`QA_PORT=3350`): PASS
+- Observacao:
+  - `npm run qa:reconcile:ops` depende de `RECON_BASE_URL|QA_BASE_URL` + `DATABASE_URL`; mantido para execucao assim que ambiente de reconciliacao estiver disponivel.
+
 ## Status atual por onda (plano anti-retrabalho)
 
 - Ativacao P3 por provider consolidada em comando unico: `npm run qa:provider:activate` (sequencia gate + smoke + regressao).
@@ -33,6 +166,7 @@ Atualizacao adicional: 2026-05-25
   - Endpoints `orders/:orderId/status` e `support/orders/:orderId/context` passaram a consumir a mesma fonte agregada.
 - P3 Gateway real e cutover: `PENDENTE` (bloqueado pelos alertas `CRIT-PAY-REAL-001/002`).
 - P4 Hardening final: `PENDENTE`.
+- Regra de arquitetura formalizada: guardas de acesso devem ficar concentrados nos `layout.tsx` de dominio (ex.: `app/account/layout.tsx`, `app/admin/layout.tsx`), evitando duplicacao de regra em `page.tsx`.
 - Plano mestre de continuidade tecnica publicado: `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`.
 - Gate automatico de mudanca critica criado: `npm run pr:gate` (`scripts/critical-pr-gate.mjs`).
 - Integridade de dados reforcada no schema MySQL com FKs e indices operacionais em `infra/mysql/init/001_payments.sql`.

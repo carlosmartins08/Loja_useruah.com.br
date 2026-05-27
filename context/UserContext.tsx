@@ -38,7 +38,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
       const payload = (await response.json()) as {
         authenticated: boolean;
-        session: null | { userId: string; userName: string; userEmail: string; userRole: UserRole };
+        session: null | { userId: string; userName: string; userEmail: string; userRole: UserRole; roles?: UserRole[]; activeRole?: UserRole };
       };
 
       if (!payload.authenticated || !payload.session) {
@@ -48,11 +48,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
 
       setIsAuthenticated(true);
-      setUserRole(payload.session.userRole);
+      const sessionRole = payload.session.activeRole ?? payload.session.userRole;
+      setUserRole(sessionRole);
       setUserName(payload.session.userName);
       setUserEmail(payload.session.userEmail);
       setUserId(payload.session.userId);
-      localStorage.setItem('ruah_user_role', payload.session.userRole);
+      localStorage.setItem('ruah_user_role', sessionRole);
     } catch {
       // best effort hydration from backend session
     } finally {

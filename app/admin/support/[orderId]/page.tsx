@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { AlertCircle, ArrowLeft, CheckCircle2, LifeBuoy, Send } from 'lucide-react';
 import { getJson, HttpRequestError, postJson } from '@/lib/http-client';
 
@@ -40,7 +40,6 @@ interface SupportContextResponse {
 
 export default function AdminSupportOrderContextPage() {
   const params = useParams<{ orderId: string }>();
-  const router = useRouter();
   const orderId = String(params?.orderId ?? '');
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -57,8 +56,7 @@ export default function AdminSupportOrderContextPage() {
       setContext(data);
     } catch (err) {
       if (err instanceof HttpRequestError && (err.status === 401 || err.status === 403)) {
-        setError('Sessão inválida para atendimento. Faça login novamente.');
-        router.replace('/login');
+        setError('Sessão inválida para atendimento. Atualize a página para renovar a sessão.');
         return;
       }
       if (err instanceof HttpRequestError && err.status === 404) {
@@ -70,7 +68,7 @@ export default function AdminSupportOrderContextPage() {
     } finally {
       setLoading(false);
     }
-  }, [orderId, router]);
+  }, [orderId]);
 
   React.useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -88,8 +86,7 @@ export default function AdminSupportOrderContextPage() {
       await loadContext();
     } catch (err) {
       if (err instanceof HttpRequestError && (err.status === 401 || err.status === 403)) {
-        setError('Sua sessao nao permite responder ticket agora. Faca login novamente.');
-        router.replace('/login');
+        setError('Sua sessão não permite responder ticket agora. Atualize a página para renovar a sessão.');
       } else {
         setError('Não foi possível registrar a resposta do ticket.');
       }

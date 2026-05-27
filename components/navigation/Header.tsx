@@ -10,6 +10,7 @@ import { useUser } from '@/context/UserContext';
 import { SearchOverlay } from './SearchOverlay';
 import { VirtualAssistant } from '@/components/ai/VirtualAssistant';
 import { ProfilePhotoModal } from './ProfilePhotoModal';
+import { resolveHomeByRole } from '@/lib/access-routing';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -20,7 +21,7 @@ export function Header() {
   const [mobileTab, setMobileTab] = React.useState<'category' | 'corporate'>('category');
   const { setIsCartOpen, cart, location } = useCart();
   const { profilePhoto, setProfilePhoto, userRole } = useUser();
-  const accountHref = userRole === 'customer' ? '/account' : '/admin';
+  const accountHref = resolveHomeByRole(userRole);
   
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 

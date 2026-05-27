@@ -1,20 +1,11 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { isUserRole, type AuthSession } from '@/lib/auth-session';
+import { normalizeAuthSession, type AuthSession } from '@/lib/auth-session';
 import { decodeSessionToken } from '@/lib/session-token';
 
 function parseSession(raw: string | undefined): AuthSession | null {
   const parsed = decodeSessionToken(raw);
-  if (!parsed) return null;
-  if (
-    typeof parsed.userId !== 'string' ||
-    typeof parsed.userName !== 'string' ||
-    typeof parsed.userEmail !== 'string' ||
-    !isUserRole(parsed.userRole)
-  ) {
-    return null;
-  }
-  return parsed;
+  return normalizeAuthSession(parsed);
 }
 
 export async function GET() {

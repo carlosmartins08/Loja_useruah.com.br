@@ -81,7 +81,12 @@ export default function AdminPaymentConnectorsPage() {
 
   const load = React.useCallback(async () => {
     const response = await fetch('/api/admin/payment-connectors', { cache: 'no-store' });
-    if (!response.ok) return;
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        setStatus('Sessão inválida para gestão de pagamentos. Atualize a página para renovar a sessão.');
+      }
+      return;
+    }
     const data = (await response.json()) as {
       registry: RegistryItem[];
       configs: ConfigItem[];
@@ -121,19 +126,26 @@ export default function AdminPaymentConnectorsPage() {
     setStatus(null);
     setIsTesting(true);
     setTestPassed(false);
-    const response = await fetch('/api/admin/payment-connectors/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ provider, settings }),
-    });
-    const data = (await response.json()) as { ok: boolean; message?: string; statusCode?: number };
-    setIsTesting(false);
-    if (data.ok) {
-      setTestPassed(true);
-      setStatus('Conexão validada com sucesso. Agora você pode ativar.');
-    } else {
-      setTestPassed(false);
-      setStatus(`Conexão falhou. Revise os dados e tente novamente. (${data.message ?? 'erro'})`);
+    try {
+      const response = await fetch('/api/admin/payment-connectors/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, settings }),
+      });
+      if (response.status === 401 || response.status === 403) {
+        setStatus('Sessão inválida para gestão de pagamentos. Atualize a página para renovar a sessão.');
+        return;
+      }
+      const data = (await response.json()) as { ok: boolean; message?: string; statusCode?: number };
+      if (data.ok) {
+        setTestPassed(true);
+        setStatus('Conexão validada com sucesso. Agora você pode ativar.');
+      } else {
+        setTestPassed(false);
+        setStatus(`Conexão falhou. Revise os dados e tente novamente. (${data.message ?? 'erro'})`);
+      }
+    } finally {
+      setIsTesting(false);
     }
   };
 

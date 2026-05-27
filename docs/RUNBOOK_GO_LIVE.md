@@ -64,6 +64,9 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
 
 2. Rodar gates obrigatorios.
 - Dono: Engenharia + QA
+- Atalho automatizado (preflight completo):
+  - dry-run: `npm run go:preflight`
+  - execucao: `npm run go:preflight:run`
 - Comandos:
   - `npm run qa:providers:ready`
   - smoke dedicado do provider escolhido (`qa:inter:smoke|qa:infinitepay:smoke|qa:mercadopago:smoke|qa:pagarme:smoke|qa:cielo:smoke|qa:stripe:smoke`)

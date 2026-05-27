@@ -41,26 +41,32 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('ruah-cart');
-      if (savedCart) {
-        try {
-          return JSON.parse(savedCart);
-        } catch (e) {
-          console.error('Failed to parse cart', e);
-        }
-      }
-    }
-    return [];
-  });
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartHydrated, setIsCartHydrated] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [gifting, setGifting] = useState({ isGift: false, message: '', premiumPackage: false });
   const [location] = useState({ region: 'São Paulo', shippingDays: 2 });
 
   useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem('ruah-cart');
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart) as CartItem[];
+        if (Array.isArray(parsed)) {
+          setTimeout(() => setCart(parsed), 0);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse cart', e);
+    } finally {
+      setTimeout(() => setIsCartHydrated(true), 0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isCartHydrated) return;
     localStorage.setItem('ruah-cart', JSON.stringify(cart));
-  }, [cart]);
+  }, [cart, isCartHydrated]);
 
   const addToCart = (item: CartItem) => {
     setCart((prev) => {

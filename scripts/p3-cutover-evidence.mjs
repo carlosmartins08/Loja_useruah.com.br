@@ -15,12 +15,12 @@ function req(keys) {
 function providerRequirements(provider) {
   const upper = provider.toUpperCase();
   if (provider === 'inter') {
-    return [`PAYMENT_ENABLE_${upper}`, `PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_TOKEN_URL`, `PAYMENT_${upper}_CLIENT_ID`, `PAYMENT_${upper}_CLIENT_SECRET`];
+    return [`PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_TOKEN_URL`, `PAYMENT_${upper}_CLIENT_ID`, `PAYMENT_${upper}_CLIENT_SECRET`];
   }
   if (provider === 'cielo') {
-    return [`PAYMENT_ENABLE_${upper}`, `PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_API_KEY`, `PAYMENT_${upper}_MERCHANT_ID`];
+    return [`PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_API_KEY`, `PAYMENT_${upper}_MERCHANT_ID`];
   }
-  return [`PAYMENT_ENABLE_${upper}`, `PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_API_KEY`];
+  return [`PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_API_KEY`];
 }
 
 const missingGlobal = req(['HML_BASE_URL', 'PAYMENT_PROVIDER', 'PAYMENT_WEBHOOK_SECRET']);
@@ -29,10 +29,11 @@ if (missingGlobal.length > 0) {
   process.exit(1);
 }
 
-if (process.env.PAYMENT_PROVIDER !== 'gateway_real') {
+const providerMode = String(process.env.PAYMENT_PROVIDER ?? '').trim().toLowerCase();
+if (providerMode !== 'gateway_real' && !PROVIDERS.includes(providerMode)) {
   console.error(
     JSON.stringify(
-      { status: 'FAIL', reason: 'invalid_provider_mode', expected: 'gateway_real', got: process.env.PAYMENT_PROVIDER },
+      { status: 'FAIL', reason: 'invalid_provider_mode', expected: ['gateway_real', ...PROVIDERS], got: process.env.PAYMENT_PROVIDER },
       null,
       2
     )
@@ -40,7 +41,8 @@ if (process.env.PAYMENT_PROVIDER !== 'gateway_real') {
   process.exit(1);
 }
 
-const targetProvider = String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
+const targetProvider =
+  providerMode === 'gateway_real' ? String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase() : providerMode;
 if (!PROVIDERS.includes(targetProvider)) {
   console.error(
     JSON.stringify(

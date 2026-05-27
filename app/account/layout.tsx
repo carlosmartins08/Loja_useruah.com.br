@@ -7,6 +7,7 @@ import { User, Package, MapPin, Heart, Wallet, RefreshCcw, LogOut, ChevronRight 
 import { motion } from 'motion/react';
 import { Header } from '@/components/navigation/Header';
 import { useUser } from '@/context/UserContext';
+import { isAdminRole, resolveHomeByRole } from '@/lib/access-routing';
 
 const NAV_ITEMS = [
   { href: '/account', label: 'Painel Geral', icon: User },
@@ -20,17 +21,23 @@ const NAV_ITEMS = [
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { userName, logout, isAuthenticated, isSessionReady } = useUser();
+  const { userName, userRole, logout, isAuthenticated, isSessionReady } = useUser();
 
   React.useEffect(() => {
-    if (isSessionReady && !isAuthenticated) {
+    if (!isSessionReady) return;
+    if (!isAuthenticated) {
       router.replace('/login');
+      return;
     }
-  }, [isAuthenticated, isSessionReady, router]);
+    if (isAdminRole(userRole)) {
+      router.replace(resolveHomeByRole(userRole));
+    }
+  }, [isAuthenticated, isSessionReady, router, userRole]);
 
   if (!isSessionReady || !isAuthenticated) {
     return null;
   }
+  if (isAdminRole(userRole)) return null;
 
   return (
     <div className="min-h-screen bg-ruah-50 page-header-offset">

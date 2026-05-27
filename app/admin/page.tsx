@@ -21,7 +21,7 @@ const modules = [
   {
     id: 1,
     title: 'Captacao de Valor',
-    description: 'Modulo 1: Front-end de vendas e validaÃ§Ã£o de especificacoes.',
+    description: 'Modulo 1: Front-end de vendas e validacao de especificacoes.',
     icon: Zap,
     href: '/shop',
     color: 'text-accent-gold',
@@ -30,7 +30,7 @@ const modules = [
   {
     id: 4,
     title: 'Gestao Operacional',
-    description: 'Modulo 4: Portal do Parceiro, produÃ§Ã£o e controle de custos (CVu).',
+    description: 'Modulo 4: Portal do Parceiro, producao e controle de custos (CVu).',
     icon: Package,
     href: '/admin/production',
     color: 'text-blue-500',
@@ -39,7 +39,7 @@ const modules = [
   {
     id: 5,
     title: 'Analise Preditiva',
-    description: 'Modulo 5: Dashboard estratÃ©gico ELIV e KPIs de marca.',
+    description: 'Modulo 5: Dashboard estrategico ELIV e KPIs de marca.',
     icon: BarChart3,
     href: '/admin/eliv',
     color: 'text-green-500',
@@ -48,7 +48,7 @@ const modules = [
   {
     id: 0,
     title: 'Configuracoes ELIV',
-    description: 'Pilar I: Ajustes de fundamentaÃ§Ã£o e variÃ¡veis de sistema.',
+    description: 'Pilar I: Ajustes de fundamentacao e variaveis de sistema.',
     icon: Settings,
     href: '#',
     color: 'text-ruah-400',
@@ -76,6 +76,7 @@ const modules = [
 
 function isModuleAllowed(role: UserRole, moduleId: number) {
   if (role === 'platform_admin') return true;
+  if (role === 'finance_admin') return moduleId === 7 || moduleId === 6 || moduleId === 5;
   if (role === 'production_operator') return moduleId === 4;
   if (role === 'support_agent') return moduleId === 6;
   return false;
@@ -165,7 +166,7 @@ export default function AdminHub() {
 
         {/* Footer info */}
         <div className="mt-12 flex justify-between items-center border-t border-ruah-100 pt-8">
-           <span className="text-[10px] font-bold text-ruah-300 uppercase tracking-widest">Â© 2024 RUAH BRAZIL - Sistema ELIV v2.4</span>
+           <span className="text-[10px] font-bold text-ruah-300 uppercase tracking-widest">© 2024 RUAH BRAZIL - Sistema ELIV v2.4</span>
            <div className="flex gap-6">
              <span className="text-[10px] font-bold text-ruah-400 uppercase tracking-widest flex items-center gap-2">
                <ShieldCheck size={14} className="text-green-500" /> Protocolo Seguro

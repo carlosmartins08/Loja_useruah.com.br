@@ -37,6 +37,27 @@ const DEV_USERS: LocalAuthUser[] = [
     userName: 'Producao Demo',
     userRole: 'production_operator',
   },
+  {
+    email: 'finance@useruah.com.br',
+    password: 'finance123',
+    userId: 'usr:finance@useruah.com.br',
+    userName: 'Financeiro Demo',
+    userRole: 'finance_admin',
+  },
+  {
+    email: 'artist@useruah.com.br',
+    password: 'artist123',
+    userId: 'usr:artist@useruah.com.br',
+    userName: 'Artista Demo',
+    userRole: 'artist',
+  },
+  {
+    email: 'community@useruah.com.br',
+    password: 'community123',
+    userId: 'usr:community@useruah.com.br',
+    userName: 'Community Demo',
+    userRole: 'community_manager',
+  },
 ];
 
 function loadUsersFromEnv(): LocalAuthUser[] {
@@ -53,7 +74,10 @@ function loadUsersFromEnv(): LocalAuthUser[] {
         (row.userRole === 'customer' ||
           row.userRole === 'platform_admin' ||
           row.userRole === 'support_agent' ||
-          row.userRole === 'production_operator')
+          row.userRole === 'production_operator' ||
+          row.userRole === 'finance_admin' ||
+          row.userRole === 'artist' ||
+          row.userRole === 'community_manager')
     );
   } catch {
     return [];
@@ -76,5 +100,7 @@ export function authenticateLocalUser(email: string, password: string): AuthSess
     userName: user.userName,
     userEmail: user.email.toLowerCase(),
     userRole: user.userRole,
+    roles: [user.userRole],
+    activeRole: user.userRole,
   };
 }

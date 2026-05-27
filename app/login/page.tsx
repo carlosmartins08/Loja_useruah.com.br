@@ -8,29 +8,23 @@ import { Mail, Lock, ArrowRight, Github, Chrome as Google } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { HttpRequestError, postJson } from '@/lib/http-client';
 import type { UserRole } from '@/lib/auth-session';
-
-function resolvePostLoginRoute(role: UserRole) {
-  if (role === 'platform_admin') return '/admin';
-  if (role === 'support_agent') return '/admin/support';
-  if (role === 'production_operator') return '/admin/production';
-  return '/account';
-}
+import { resolveHomeByRole } from '@/lib/access-routing';
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
   const [loginError, setLoginError] = React.useState<string | null>(null);
-  const { refreshSession } = useUser();
+  const { refreshSession, isAuthenticated, userRole, userName, userEmail, logout } = useUser();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
     setLoginError(null);
     try {
-      const payload = await postJson<{ ok: true; session: { userRole: UserRole } }>('/api/auth/login', { email, password });
+      const payload = await postJson<{ ok: true; session: { userRole: UserRole; activeRole?: UserRole } }>('/api/auth/login', { email, password });
       await refreshSession();
-      window.location.href = resolvePostLoginRoute(payload.session.userRole);
+      window.location.href = resolveHomeByRole(payload.session.activeRole ?? payload.session.userRole);
     } catch (error) {
       console.error(error);
       if (error instanceof HttpRequestError && error.status === 401) {
@@ -41,6 +35,49 @@ export default function LoginPage() {
       setIsLoggingIn(false);
     }
   };
+
+  if (isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
+        <header className="px-8 py-10 flex justify-center items-center border-b border-ruah-100 bg-white">
+          <Link href="/" aria-label="UseRuah">
+            <Image src="/brand/SVG/logo-wordmark-dark.svg" alt="UseRuah" width={180} height={48} className="h-auto w-[180px]" priority />
+          </Link>
+        </header>
+        <main className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-md bg-white p-10 rounded-[3rem] border border-ruah-100 shadow-fancy flex flex-col gap-6">
+            <h1 className="text-3xl font-serif italic text-ruah-950">Sessão já ativa.</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">
+              Você está conectado como {userName} ({userEmail}).
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = resolveHomeByRole(userRole);
+                }}
+                className="w-full bg-ruah-950 text-white py-4 rounded-2xl font-bold uppercase text-[10px] tracking-[0.2em] hover:bg-accent-gold transition-all"
+              >
+                Continuar com esta conta
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await logout();
+                }}
+                className="w-full border border-ruah-200 text-ruah-700 py-4 rounded-2xl font-bold uppercase text-[10px] tracking-[0.2em] hover:bg-ruah-50 transition-all"
+              >
+                Entrar com outra conta
+              </button>
+              <Link href="/register" className="text-center text-[10px] font-bold uppercase tracking-widest text-accent-gold">
+                Quero me cadastrar
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col">

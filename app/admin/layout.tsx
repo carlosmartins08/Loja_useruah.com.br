@@ -3,20 +3,7 @@
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
-import type { UserRole } from '@/lib/auth-session';
-
-function resolveAdminHome(userRole: 'platform_admin' | 'support_agent' | 'production_operator') {
-  if (userRole === 'production_operator') return '/admin/production';
-  if (userRole === 'support_agent') return '/admin/support';
-  return '/admin';
-}
-
-function isAllowedAdminPath(userRole: UserRole, pathname: string) {
-  if (userRole === 'platform_admin') return true;
-  if (userRole === 'production_operator') return pathname === '/admin/production';
-  if (userRole === 'support_agent') return pathname === '/admin/support';
-  return false;
-}
+import { isAdminRole, isAllowedAdminPath, resolveHomeByRole } from '@/lib/access-routing';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -30,19 +17,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return;
     }
 
-    if (userRole === 'customer') {
-      router.replace('/account');
+    if (!isAdminRole(userRole)) {
+      router.replace(resolveHomeByRole(userRole));
       return;
     }
 
-    const adminHome = resolveAdminHome(userRole);
+    const adminHome = resolveHomeByRole(userRole);
     if (!isAllowedAdminPath(userRole, pathname)) {
       router.replace(adminHome);
     }
   }, [isAuthenticated, isSessionReady, pathname, router, userRole]);
 
   if (!isSessionReady || !isAuthenticated) return null;
-  if (userRole === 'customer') return null;
+  if (!isAdminRole(userRole)) return null;
   if (!isAllowedAdminPath(userRole, pathname)) return null;
 
   return <>{children}</>;

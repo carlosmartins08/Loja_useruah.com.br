@@ -7,13 +7,14 @@ import { motion } from 'motion/react';
 import { Home, ShoppingBag, ShoppingCart, User, Sparkles } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useUser } from '@/context/UserContext';
+import { resolveHomeByRole } from '@/lib/access-routing';
 
 export function BottomNav() {
   const pathname = usePathname();
   const { setIsCartOpen, cart } = useCart();
   const { userRole } = useUser();
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const accountHref = userRole === 'customer' ? '/account' : '/admin';
+  const accountHref = resolveHomeByRole(userRole);
 
   const navItems = [
     { label: 'Início', icon: Home, href: '/' },

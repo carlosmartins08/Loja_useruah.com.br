@@ -8,6 +8,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://useruah.com.br'),
   title: {
     default: 'UseRuah | Moda Cristã com Propósito',
     template: '%s | UseRuah'
