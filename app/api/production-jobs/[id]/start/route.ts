@@ -3,6 +3,7 @@ import { appendAuditLog } from '@/lib/audit-log-store';
 import { canOperateProduction, getActorFromRequest } from '@/lib/access-control';
 import { getOrder, updateOrderStatus } from '@/lib/order-store';
 import { getProductionJobById, updateProductionJobStatus } from '@/lib/production-store';
+import { dispatchProductionToSupplier } from '@/lib/supplier-production-dispatch';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const actor = getActorFromRequest(request);
@@ -27,6 +28,18 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
   if (order.status !== 'paid') {
     return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });
+  }
+
+  const dispatchResult = await dispatchProductionToSupplier({ job, order });
+  if (!dispatchResult.ok && dispatchResult.blocking) {
+    return NextResponse.json(
+      {
+        error: 'supplier_dispatch_failed',
+        detail: dispatchResult.dispatch.errorMessage ?? 'unknown',
+        dispatch: dispatchResult.dispatch,
+      },
+      { status: 502 }
+    );
   }
 
   const updatedJob = await updateProductionJobStatus(job.productionJobId, 'in_progress');
@@ -61,5 +74,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     reason: 'production_started',
   });
 
-  return NextResponse.json({ ok: true, job: updatedJob, order: updatedOrder });
+  return NextResponse.json({ ok: true, job: updatedJob, order: updatedOrder, dispatch: dispatchResult.dispatch });
 }

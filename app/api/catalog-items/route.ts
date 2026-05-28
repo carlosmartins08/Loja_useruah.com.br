@@ -26,6 +26,11 @@ interface CreateCatalogItemPayload {
   category?: 'Autoral' | 'Campanhas' | 'Fardamento' | 'Acessórios';
   segment?: 'Base' | 'Customizada';
   tags?: string[];
+  pricingPolicy?: {
+    minPrice: number;
+    suggestedPrice: number;
+    promoPriceFloor: number;
+  };
 }
 
 function parseStatus(input: string | null): CatalogItemStatus | undefined {
@@ -76,16 +81,33 @@ function isValidPayload(payload: unknown): payload is CreateCatalogItemPayload {
   );
   if (!variantsOk) return false;
 
-  if (body.category !== undefined && body.category !== 'Autoral' && body.category !== 'Campanhas' && body.category !== 'Fardamento' && body.category !== 'Acessórios') {
-    return false;
+  if (body.segment !== undefined && body.segment !== 'Base' && body.segment !== 'Customizada') return false;
+  if (body.tags !== undefined && (!Array.isArray(body.tags) || !body.tags.every((tag) => typeof tag === 'string'))) return false;
+
+  if (body.pricingPolicy !== undefined) {
+    if (typeof body.pricingPolicy !== 'object' || body.pricingPolicy === null) return false;
+    const pricing = body.pricingPolicy as Record<string, unknown>;
+    if (typeof pricing.minPrice !== 'number' || pricing.minPrice <= 0) return false;
+    if (typeof pricing.suggestedPrice !== 'number' || pricing.suggestedPrice <= 0) return false;
+    if (typeof pricing.promoPriceFloor !== 'number' || pricing.promoPriceFloor <= 0) return false;
   }
-  if (body.segment !== undefined && body.segment !== 'Base' && body.segment !== 'Customizada') {
-    return false;
-  }
-  if (body.tags !== undefined && (!Array.isArray(body.tags) || !body.tags.every((tag) => typeof tag === 'string'))) {
-    return false;
-  }
+
   return true;
+}
+
+function buildPricingPolicy(payload: CreateCatalogItemPayload) {
+  const minVariantPrice = Math.min(...payload.variants.map((row) => row.price));
+  const policy = payload.pricingPolicy ?? {
+    minPrice: Number((minVariantPrice * 0.9).toFixed(2)),
+    suggestedPrice: Number(payload.price.toFixed(2)),
+    promoPriceFloor: Number((minVariantPrice * 0.95).toFixed(2)),
+  };
+
+  return {
+    minPrice: Number(policy.minPrice.toFixed(2)),
+    suggestedPrice: Number(policy.suggestedPrice.toFixed(2)),
+    promoPriceFloor: Number(policy.promoPriceFloor.toFixed(2)),
+  };
 }
 
 export async function GET(request: Request) {
@@ -119,6 +141,34 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_transition', detail: 'artwork_must_be_approved' }, { status: 409 });
   }
 
+  const applicability = artwork.metadata.applicability;
+  if (applicability?.allowedProductBaseIds?.length && !applicability.allowedProductBaseIds.includes(payload.productBaseId)) {
+    return NextResponse.json({ error: 'validation_error', detail: 'artwork_not_allowed_for_product_base' }, { status: 422 });
+  }
+  if (applicability?.blockedProductBaseIds?.includes(payload.productBaseId)) {
+    return NextResponse.json({ error: 'validation_error', detail: 'artwork_blocked_for_product_base' }, { status: 422 });
+  }
+  if (applicability?.allowedCategories?.length && payload.category && !applicability.allowedCategories.includes(payload.category)) {
+    return NextResponse.json({ error: 'validation_error', detail: 'artwork_not_allowed_for_category' }, { status: 422 });
+  }
+  if (applicability?.allowedFits?.length && !applicability.allowedFits.includes(payload.fit)) {
+    return NextResponse.json({ error: 'validation_error', detail: 'artwork_not_allowed_for_fit' }, { status: 422 });
+  }
+  if (
+    applicability?.allowedPrintTypes?.length &&
+    !applicability.allowedPrintTypes.some((row) => row.toLowerCase() === payload.printTypeDescription.toLowerCase())
+  ) {
+    return NextResponse.json({ error: 'validation_error', detail: 'artwork_not_allowed_for_print_type' }, { status: 422 });
+  }
+
+  const pricingPolicy = buildPricingPolicy(payload);
+  if (pricingPolicy.promoPriceFloor < pricingPolicy.minPrice) {
+    return NextResponse.json({ error: 'validation_error', detail: 'promo_floor_below_min_price' }, { status: 422 });
+  }
+  if (payload.price < pricingPolicy.minPrice) {
+    return NextResponse.json({ error: 'validation_error', detail: 'catalog_price_below_min_price' }, { status: 422 });
+  }
+
   const supplierFieldProbe = {
     priceTable: payload.price,
     productionLeadTime: payload.variants.length,
@@ -128,7 +178,7 @@ export async function POST(request: Request) {
   const impactSensitive = detectImpactSensitiveFields('supplier', ['priceTable', 'materialSpec', 'productionLeadTime']);
 
   const initialStatus: CatalogItemStatus = impactSensitive.length > 0 ? 'pending_review' : 'draft';
-  const { item, created } = await createCatalogItem({ ...payload, initialStatus });
+  const { item, created } = await createCatalogItem({ ...payload, pricingPolicy, initialStatus });
   const impactReview =
     impactSensitive.length > 0
       ? createImpactReview({

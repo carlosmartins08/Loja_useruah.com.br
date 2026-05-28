@@ -219,7 +219,15 @@ export async function updateCommissionStatus(commissionId: string, status: Commi
 
 export async function reconcileCommissionAvailabilityForOrder(orderId: string) {
   const order = await getOrder(orderId);
-  if (!order || order.status !== 'shipped') return [];
+  if (!order) return [];
+  if (order.status !== 'shipped' && order.status !== 'delivered' && order.status !== 'closed') return [];
+  if (!order.paidAt) return [];
+
+  const holdDaysRaw = Number(process.env.PAYOUT_SECURITY_WINDOW_DAYS ?? '7');
+  const holdDays = Number.isFinite(holdDaysRaw) && holdDaysRaw >= 0 ? holdDaysRaw : 7;
+  const holdMs = holdDays * 24 * 60 * 60 * 1000;
+  const releaseAt = new Date(order.paidAt).getTime() + holdMs;
+  if (Date.now() < releaseAt) return [];
 
   const rows = await listCommissionsByOrderId(orderId);
   const changed: CommissionRecord[] = [];

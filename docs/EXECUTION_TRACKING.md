@@ -2,6 +2,21 @@
 
 Data de revisao: 2026-05-23
 
+Atualizacao adicional: 2026-05-28 (Prova E2E de go-live + auditoria de ponto cego)
+- Runner unico de prova E2E de go-live criado:
+  - `npm run go:e2e:proof` (dry-run)
+  - `npm run go:e2e:proof:run` (execucao completa)
+- Auditorias adicionadas ao fluxo oficial:
+  - `npm run qa:blindspots`:
+    - detecta duplicidade de variaveis em `.env` e `.env.example`;
+    - detecta colisao de shape de rotas em `app/api`;
+    - detecta rotas administrativas sem guarda minima;
+    - valida presenca de docs obrigatorios de governanca.
+  - `npm run qa:matrix:audit`:
+    - valida inconsistencias criticas de matriz (`registration` e `catalog`) via endpoint admin.
+- Runbook operacional publicado:
+  - `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md`.
+
 Atualizacao adicional: 2026-05-27 (expansao do framework de review sensivel para campaign)
 - Dominio `campaign_growth` adicionado ao framework unico de review sensivel.
 - Novo ciclo de campanhas implementado com estados e trilha auditada:

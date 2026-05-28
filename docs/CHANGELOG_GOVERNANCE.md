@@ -32,6 +32,37 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-05-28] Prova E2E de go-live com auditoria automatica de ponto cego
+- ID: GOV-0052
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `qa`
+  - `ui-rotas`
+  - `rbac`
+- Documento fonte afetado:
+  - `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Instituir prova executavel unica de readiness (`go:e2e:proof:run`) para gate de subida.
+  - Adicionar auditoria automatica de ponto cego (`qa:blindspots`) com foco em duplicidade de configuracao, colisao de rota API e guarda minima de rota admin.
+  - Adicionar auditoria de matriz em runtime (`qa:matrix:audit`) como bloqueio operacional de release.
+- Contexto:
+  - Era necessario transformar preocupacao de “ponto cego” em validacao objetiva e repetivel.
+- Impacto esperado:
+  - Menos liberacao por percepcao e mais liberacao por evidencias tecnicas.
+- Riscos conhecidos:
+  - Auditoria estatica nao cobre 100% dos cenarios dinamicos de producao.
+- Plano de rollback:
+  - Voltar para execucao manual dos gates individuais sem runner consolidado.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `package.json`
+
 ### [2026-05-23] Matriz unica de requisitos por provider no painel self-service
 - ID: GOV-0051
 - Status: `aprovada`

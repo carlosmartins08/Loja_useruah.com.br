@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { canManageRegistrationStatus, canSendRegistrationReminder } from '@/lib/role-matrix/permission-matrix';
-import { patchRegistrationMetadata, setRegistrationStatus } from '@/lib/registration-store';
-import type { RegistrationStatus } from '@/lib/role-matrix/registration-matrix';
+import { getRegistrationByUserId, patchRegistrationMetadata, setRegistrationStatus } from '@/lib/registration-store';
+import { evaluateRequiredFieldsCompletion, type RegistrationStatus } from '@/lib/role-matrix/registration-matrix';
 
 interface ActionPayload {
   action: 'send_reminder' | 'set_status';
@@ -79,6 +79,23 @@ export async function PATCH(request: Request, context: { params: Promise<{ userI
 
   if (isRbacActive() && !canManageRegistrationStatus(actor.actorRole)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+  if (payload.action === 'set_status' && (payload.status === 'approved' || payload.status === 'active')) {
+    const registration = await getRegistrationByUserId(userId);
+    if (!registration) return NextResponse.json({ error: 'not_found' }, { status: 404 });
+    const source = {
+      ...registration.metadata,
+      name: registration.fullName,
+      email: registration.email,
+      termsAccepted: registration.metadata.termsAccepted ?? true,
+    };
+    const completion = evaluateRequiredFieldsCompletion(registration.role, source);
+    if (!completion.complete) {
+      return NextResponse.json(
+        { error: 'validation_error', detail: 'registration_matrix_incomplete', missingFields: completion.missing },
+        { status: 422 }
+      );
+    }
   }
   const result = await setRegistrationStatus({ userId, status: payload.status! });
   if (result.kind === 'not_found') return NextResponse.json({ error: 'not_found' }, { status: 404 });

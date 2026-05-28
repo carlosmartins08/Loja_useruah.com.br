@@ -3,6 +3,25 @@ import { createDecipheriv, createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+function loadDotEnvFile() {
+  const file = join(process.cwd(), '.env');
+  if (!existsSync(file)) return;
+  const raw = readFileSync(file, 'utf8');
+  const lines = raw.split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const idx = trimmed.indexOf('=');
+    if (idx <= 0) continue;
+    const key = trimmed.slice(0, idx).trim();
+    if (!key) continue;
+    const value = trimmed.slice(idx + 1).trim();
+    process.env[key] = value;
+  }
+}
+
+loadDotEnvFile();
+
 function hasValue(value) {
   return Boolean(value && String(value).trim());
 }
@@ -56,4 +75,3 @@ export function providerConfigState(provider, requiredMappings) {
     configured: missing.length === 0,
   };
 }
-

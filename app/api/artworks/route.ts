@@ -10,6 +10,13 @@ interface CreateArtworkPayload {
     theme: string;
     category: string;
     tags: string[];
+    applicability?: {
+      allowedProductBaseIds?: string[];
+      allowedCategories?: string[];
+      allowedFits?: Array<'slim' | 'regular' | 'oversized'>;
+      allowedPrintTypes?: string[];
+      blockedProductBaseIds?: string[];
+    };
   };
 }
 
@@ -17,6 +24,23 @@ function isValidCreatePayload(payload: unknown): payload is CreateArtworkPayload
   if (!payload || typeof payload !== 'object') return false;
   const body = payload as Record<string, unknown>;
   const metadata = body.metadata as Record<string, unknown> | undefined;
+  if (!metadata) return false;
+  const applicability = metadata.applicability as Record<string, unknown> | undefined;
+  if (applicability) {
+    const arrayOfStrings = (value: unknown) => Array.isArray(value) && value.every((row) => typeof row === 'string' && row.trim().length > 0);
+    if (applicability.allowedProductBaseIds !== undefined && !arrayOfStrings(applicability.allowedProductBaseIds)) return false;
+    if (applicability.allowedCategories !== undefined && !arrayOfStrings(applicability.allowedCategories)) return false;
+    if (
+      applicability.allowedFits !== undefined &&
+      (!Array.isArray(applicability.allowedFits) ||
+        !applicability.allowedFits.every((fit) => fit === 'slim' || fit === 'regular' || fit === 'oversized'))
+    ) {
+      return false;
+    }
+    if (applicability.allowedPrintTypes !== undefined && !arrayOfStrings(applicability.allowedPrintTypes)) return false;
+    if (applicability.blockedProductBaseIds !== undefined && !arrayOfStrings(applicability.blockedProductBaseIds)) return false;
+  }
+
   return (
     typeof body.sourceAsset === 'string' &&
     body.sourceAsset.trim().length > 0 &&

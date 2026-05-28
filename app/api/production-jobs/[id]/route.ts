@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getProductionJobById } from '@/lib/production-store';
 import { getOrder } from '@/lib/order-store';
+import { getSupplierDispatchByProductionJobId } from '@/lib/supplier-dispatch-store';
 
 export async function GET(_: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
@@ -9,6 +10,7 @@ export async function GET(_: Request, context: { params: Promise<{ id: string }>
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
   const order = await getOrder(job.orderId);
+  const dispatch = getSupplierDispatchByProductionJobId(job.productionJobId);
   const operationalContext = order
     ? {
         supplierIds: Array.from(new Set(order.items.map((item) => item.supplierId))),
@@ -22,5 +24,5 @@ export async function GET(_: Request, context: { params: Promise<{ id: string }>
         })),
       }
     : null;
-  return NextResponse.json({ ok: true, job, operationalContext });
+  return NextResponse.json({ ok: true, job, operationalContext, dispatch });
 }

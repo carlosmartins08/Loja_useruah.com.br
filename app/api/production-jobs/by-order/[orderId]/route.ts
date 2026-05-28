@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getProductionJobByOrderId } from '@/lib/production-store';
 import { getOrder } from '@/lib/order-store';
+import { getSupplierDispatchByProductionJobId } from '@/lib/supplier-dispatch-store';
 
 export async function GET(_: Request, context: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await context.params;
@@ -8,6 +9,7 @@ export async function GET(_: Request, context: { params: Promise<{ orderId: stri
   if (!job) {
     return NextResponse.json({ ok: true, job: null });
   }
+  const dispatch = getSupplierDispatchByProductionJobId(job.productionJobId);
   const order = await getOrder(orderId);
   const operationalContext = order
     ? {
@@ -22,5 +24,5 @@ export async function GET(_: Request, context: { params: Promise<{ orderId: stri
         })),
       }
     : null;
-  return NextResponse.json({ ok: true, job, operationalContext });
+  return NextResponse.json({ ok: true, job, operationalContext, dispatch });
 }

@@ -1,7 +1,7 @@
 import type { UserRole } from '@/lib/auth-session';
 import type { TermType } from '@/lib/terms-acceptance-store';
 import type { RegistrationPersona } from '@/lib/registration-store';
-import type { RegistrationStatus } from '@/lib/role-matrix/registration-matrix';
+import { evaluateRequiredFieldsCompletion, type RegistrationStatus } from '@/lib/role-matrix/registration-matrix';
 
 export interface RegistrationPayloadLike {
   persona: RegistrationPersona;
@@ -30,13 +30,8 @@ const REQUIRED_BY_PERSONA: Record<RegistrationPersona, string[]> = {
   SOPRO: ['artisticName', 'creativeEmail', 'portfolioUrl', 'password', 'termsAccepted'],
 };
 
-export function normalizeTermVersion(termType: TermType) {
-  if (termType === 'artist_base') return process.env.TERM_VERSION_ARTIST_BASE?.trim() || 'v1';
-  if (termType === 'industry_base') return process.env.TERM_VERSION_INDUSTRY_BASE?.trim() || 'v1';
-  return process.env.TERM_VERSION_CONSUMER_BASE?.trim() || 'v1';
-}
-
-export function resolveRegistrationStatus(payload: RegistrationPayloadLike): RegistrationStatus {
+function buildSource(payload: RegistrationPayloadLike) {
+  const role = PERSONA_ROLE[payload.persona];
   const source = {
     ...payload.draft,
     fullName: payload.fullName,
@@ -45,10 +40,41 @@ export function resolveRegistrationStatus(payload: RegistrationPayloadLike): Reg
     termsAccepted: payload.termsAccepted,
   } as Record<string, unknown>;
 
-  const complete = REQUIRED_BY_PERSONA[payload.persona].every((field) => {
+  // Mirror keys expected by role matrix to avoid drift between persona and role contracts.
+  source.name = source.name ?? payload.fullName;
+  source.displayName = source.displayName ?? source.artisticName ?? payload.fullName;
+  source.organizationName = source.organizationName ?? source.institutionName;
+  source.responsibleName = source.responsibleName ?? source.leaderName;
+  source.phone = source.phone ?? source.whatsapp;
+  source.bio = source.bio ?? source.artistBio ?? '';
+  source.payoutRecipient = source.payoutRecipient ?? source.pixKey ?? source.bankAccount ?? '';
+  source.termsAccepted = payload.termsAccepted;
+
+  return { role, source };
+}
+
+export function evaluateRegistrationCompleteness(payload: RegistrationPayloadLike) {
+  const { role, source } = buildSource(payload);
+  const personaMissing = REQUIRED_BY_PERSONA[payload.persona].filter((field) => {
     const value = source[field];
-    if (typeof value === 'string') return value.trim().length > 0;
-    return value === true;
+    if (typeof value === 'string') return value.trim().length === 0;
+    return value !== true;
   });
-  return complete ? 'active' : 'incomplete';
+  const roleCompletion = evaluateRequiredFieldsCompletion(role, source);
+  const missing = Array.from(new Set([...personaMissing, ...roleCompletion.missing]));
+  return {
+    complete: missing.length === 0,
+    missing,
+  };
+}
+
+export function normalizeTermVersion(termType: TermType) {
+  if (termType === 'artist_base') return process.env.TERM_VERSION_ARTIST_BASE?.trim() || 'v1';
+  if (termType === 'industry_base') return process.env.TERM_VERSION_INDUSTRY_BASE?.trim() || 'v1';
+  return process.env.TERM_VERSION_CONSUMER_BASE?.trim() || 'v1';
+}
+
+export function resolveRegistrationStatus(payload: RegistrationPayloadLike): RegistrationStatus {
+  const completeness = evaluateRegistrationCompleteness(payload);
+  return completeness.complete ? 'active' : 'incomplete';
 }

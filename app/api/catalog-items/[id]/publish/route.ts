@@ -45,6 +45,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
   const current = await getCatalogItem(id);
   if (!current) return NextResponse.json({ error: 'not_found' }, { status: 404 });
+  if (current.publicationStatus === 'published') {
+    return NextResponse.json({ ok: true, item: current, reused: true });
+  }
 
   const artwork = getArtwork(current.artworkId);
   if (!artwork) return NextResponse.json({ error: 'artwork_not_found' }, { status: 404 });
@@ -53,6 +56,27 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
   if (artwork.status !== 'approved') {
     return NextResponse.json({ error: 'invalid_transition', detail: 'artwork_must_be_approved' }, { status: 409 });
+  }
+  const applicability = artwork.metadata.applicability;
+  if (applicability?.allowedProductBaseIds?.length && !applicability.allowedProductBaseIds.includes(current.productBaseId)) {
+    return NextResponse.json({ error: 'invalid_transition', detail: 'artwork_not_allowed_for_product_base' }, { status: 409 });
+  }
+  if (applicability?.blockedProductBaseIds?.includes(current.productBaseId)) {
+    return NextResponse.json({ error: 'invalid_transition', detail: 'artwork_blocked_for_product_base' }, { status: 409 });
+  }
+  const policy = current.pricingPolicy;
+  if (!policy) {
+    return NextResponse.json({ error: 'invalid_transition', detail: 'pricing_policy_required' }, { status: 409 });
+  }
+  if (policy.promoPriceFloor < policy.minPrice) {
+    return NextResponse.json({ error: 'invalid_transition', detail: 'promo_floor_below_min_price' }, { status: 409 });
+  }
+  if (current.price < policy.minPrice) {
+    return NextResponse.json({ error: 'invalid_transition', detail: 'catalog_price_below_min_price' }, { status: 409 });
+  }
+  const variantBelowMin = current.variants.some((row) => row.price < policy.minPrice);
+  if (variantBelowMin) {
+    return NextResponse.json({ error: 'invalid_transition', detail: 'variant_price_below_min_price' }, { status: 409 });
   }
 
   const result = await publishCatalogItem({ catalogItemId: id, reason: payload.reason });

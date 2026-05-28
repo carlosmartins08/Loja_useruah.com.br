@@ -3,6 +3,7 @@ import { appendAuditLog } from '@/lib/audit-log-store';
 import { canManageCatalog, getActorFromRequest } from '@/lib/access-control';
 import { createCatalogItem, markCatalogItemReady, publishCatalogItem } from '@/lib/catalog-item-store';
 import { upsertApprovedArtwork } from '@/lib/artwork-store';
+import { approveImpactReview, createImpactReview, getPendingImpactReviewByEntity } from '@/lib/impact-review-store';
 
 const SEED_ITEMS = [
   { id: '1', name: 'Camiseta Respiro', price: 89.9, category: 'autoral', segment: 'customizada', image: 'https://picsum.photos/seed/ruah-p1/1000/1000' },
@@ -63,6 +64,33 @@ export async function POST(request: Request) {
       category: seed.category === 'autoral' ? 'Autoral' : seed.category === 'campanhas' ? 'Campanhas' : seed.category === 'fardamento' ? 'Fardamento' : 'Acessórios',
       segment: seed.segment === 'base' ? 'Base' : 'Customizada',
       tags: ['Seed', seed.segment === 'base' ? 'Volume' : 'Autoral'],
+      pricingPolicy: {
+        minPrice: Number((seed.price * 0.9).toFixed(2)),
+        suggestedPrice: Number(seed.price.toFixed(2)),
+        promoPriceFloor: Number((seed.price * 0.95).toFixed(2)),
+      },
+    });
+    const pendingReview = getPendingImpactReviewByEntity('CatalogItem', item.catalogItemId);
+    if (pendingReview) {
+      approveImpactReview({
+        reviewId: pendingReview.reviewId,
+        approvedBy: actor?.actorId ?? 'bootstrap-system',
+        reason: 'bootstrap_auto_approve_for_seed',
+      });
+    }
+    const freshReview = createImpactReview({
+      domain: 'supplier_catalog',
+      entityType: 'CatalogItem',
+      entityId: item.catalogItemId,
+      sensitiveFields: ['priceTable'],
+      requestedBy: actor?.actorId ?? 'bootstrap-system',
+      priority: 'normal',
+      slaHours: 2,
+    });
+    approveImpactReview({
+      reviewId: freshReview.review.reviewId,
+      approvedBy: actor?.actorId ?? 'bootstrap-system',
+      reason: 'bootstrap_latest_approved_review',
     });
 
     await markCatalogItemReady({ catalogItemId: item.catalogItemId, reason: 'bootstrap_seed_ready' });

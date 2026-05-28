@@ -85,7 +85,12 @@ function getSqliteDb(): SqliteDb | null {
 }
 
 function readState(): PaymentStoreState {
-  return readStoreFile<PaymentStoreState>('payments', { payments: {}, idempotency: {}, events: {} });
+  const raw = readStoreFile<Partial<PaymentStoreState>>('payments', { payments: {}, idempotency: {}, events: {} });
+  return {
+    payments: raw.payments ?? {},
+    idempotency: raw.idempotency ?? {},
+    events: raw.events ?? {},
+  };
 }
 
 function writeState(value: PaymentStoreState) {

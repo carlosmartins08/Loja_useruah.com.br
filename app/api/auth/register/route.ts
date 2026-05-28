@@ -4,7 +4,13 @@ import { isUserRole, type AuthSession, type UserRole } from '@/lib/auth-session'
 import { registerLocalUser } from '@/lib/auth-local-users';
 import { registerTermsAcceptance } from '@/lib/terms-acceptance-store';
 import { upsertRegistration, type RegistrationPersona } from '@/lib/registration-store';
-import { PERSONA_ROLE, PERSONA_TERM, normalizeTermVersion, resolveRegistrationStatus } from '@/lib/registration-flow';
+import {
+  evaluateRegistrationCompleteness,
+  PERSONA_ROLE,
+  PERSONA_TERM,
+  normalizeTermVersion,
+  resolveRegistrationStatus,
+} from '@/lib/registration-flow';
 import { appendAuditLog } from '@/lib/audit-log-store';
 
 interface RegisterPayload {
@@ -35,6 +41,7 @@ export async function POST(request: Request) {
   if (!isUserRole(personaRole)) return NextResponse.json({ error: 'invalid_role' }, { status: 422 });
 
   const status = resolveRegistrationStatus(payload);
+  const completeness = evaluateRegistrationCompleteness(payload);
   const normalizedEmail = payload.email.trim().toLowerCase();
   const registration = registerLocalUser({
     email: normalizedEmail,
@@ -54,7 +61,11 @@ export async function POST(request: Request) {
     status,
     fullName: payload.fullName.trim(),
     email: normalizedEmail,
-    metadata: payload.draft,
+    metadata: {
+      ...payload.draft,
+      matrixMissingFields: completeness.missing,
+      matrixComplete: completeness.complete,
+    },
   });
 
   appendAuditLog({
@@ -90,7 +101,10 @@ export async function POST(request: Request) {
     activeRole: personaRole,
   };
 
-  const response = NextResponse.json({ ok: true, status, session }, { status: 201 });
+  const response = NextResponse.json(
+    { ok: true, status, session, matrix: { complete: completeness.complete, missingFields: completeness.missing } },
+    { status: 201 }
+  );
   response.cookies.set('ruah_session', encodeSessionToken(session), {
     httpOnly: true,
     sameSite: 'lax',

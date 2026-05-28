@@ -62,6 +62,10 @@ export async function POST(request: Request) {
     if (error instanceof PaymentFlowError) {
       return NextResponse.json({ error: error.code }, { status: error.status });
     }
-    return NextResponse.json({ error: 'internal_error' }, { status: 500 });
+    const detail = error instanceof Error ? error.message : 'unknown_error';
+    return NextResponse.json(
+      process.env.NODE_ENV === 'production' ? { error: 'internal_error' } : { error: 'internal_error', detail },
+      { status: 500 }
+    );
   }
 }

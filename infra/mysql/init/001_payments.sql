@@ -294,6 +294,7 @@ CREATE TABLE IF NOT EXISTS catalog_items (
   category VARCHAR(32) NULL,
   segment VARCHAR(32) NULL,
   tags_json JSON NULL,
+  pricing_policy_json JSON NULL,
   publication_status VARCHAR(24) NOT NULL,
   created_at DATETIME(3) NOT NULL,
   updated_at DATETIME(3) NOT NULL,

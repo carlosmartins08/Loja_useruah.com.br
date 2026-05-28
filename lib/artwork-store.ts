@@ -12,6 +12,13 @@ export interface ArtworkRecord {
     theme: string;
     category: string;
     tags: string[];
+    applicability?: {
+      allowedProductBaseIds?: string[];
+      allowedCategories?: string[];
+      allowedFits?: Array<'slim' | 'regular' | 'oversized'>;
+      allowedPrintTypes?: string[];
+      blockedProductBaseIds?: string[];
+    };
   };
   submittedAt: string;
   reviewedAt?: string;

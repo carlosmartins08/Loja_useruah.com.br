@@ -2,12 +2,58 @@ import { NextResponse } from 'next/server';
 import { applyWebhookEvent, PaymentFlowError, verifyWebhookSignature } from '@/lib/payment-service';
 import { appendIntegrationLog } from '@/lib/integration-log-store';
 import { markProviderWebhookEventProcessed, registerProviderWebhookEvent } from '@/lib/provider-webhook-event-store';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 interface WebhookPayload {
   eventId?: string;
   providerReference: string;
   event: 'payment.approved' | 'payment.failed' | 'payment.pending';
   provider?: string;
+}
+
+interface StripeWebhookPayload {
+  id?: string;
+  type?: string;
+  data?: {
+    object?: {
+      id?: string;
+      status?: string;
+    };
+  };
+}
+
+function verifyStripeSignature(rawBody: string, signatureHeader: string | null, secret: string): boolean {
+  if (!signatureHeader) return false;
+  const parts = signatureHeader.split(',').map((item) => item.trim());
+  const timestamp = parts.find((item) => item.startsWith('t='))?.slice(2);
+  const v1 = parts.find((item) => item.startsWith('v1='))?.slice(3);
+  if (!timestamp || !v1) return false;
+  const signedPayload = `${timestamp}.${rawBody}`;
+  const digest = createHmac('sha256', secret).update(signedPayload).digest('hex');
+  try {
+    return timingSafeEqual(Buffer.from(digest), Buffer.from(v1));
+  } catch {
+    return false;
+  }
+}
+
+function mapStripeEvent(stripe: StripeWebhookPayload): WebhookPayload | null {
+  const providerReference = stripe.data?.object?.id?.trim();
+  const eventId = stripe.id?.trim();
+  const eventType = stripe.type?.trim();
+  const status = stripe.data?.object?.status?.trim().toLowerCase();
+  if (!providerReference || !eventId) return null;
+
+  if (eventType === 'payment_intent.succeeded') {
+    return { eventId, providerReference, event: 'payment.approved', provider: 'stripe' };
+  }
+  if (eventType === 'payment_intent.payment_failed' || eventType === 'payment_intent.canceled') {
+    return { eventId, providerReference, event: 'payment.failed', provider: 'stripe' };
+  }
+  if (eventType === 'payment_intent.processing' || status === 'processing' || status === 'requires_action' || status === 'requires_payment_method') {
+    return { eventId, providerReference, event: 'payment.pending', provider: 'stripe' };
+  }
+  return null;
 }
 
 function inferProviderName(request: Request, body: WebhookPayload) {
@@ -24,14 +70,24 @@ function inferProviderName(request: Request, body: WebhookPayload) {
 export async function POST(request: Request) {
   const rawBody = await request.text();
   const signature = request.headers.get('x-signature');
+  const stripeSignature = request.headers.get('stripe-signature');
   const idempotencyKey = request.headers.get('x-idempotency-key');
   const allowUnsignedInQa = process.env.NODE_ENV !== 'production' && Boolean(process.env.QA_SCRIPT);
+  const stripeWebhookSecret = process.env.PAYMENT_STRIPE_WEBHOOK_SECRET?.trim();
+  const declaredProvider = request.headers.get('x-provider')?.trim().toLowerCase();
+  const isStripeWebhook = Boolean(stripeSignature) || declaredProvider === 'stripe';
 
-  if (!verifyWebhookSignature(rawBody, signature) && !allowUnsignedInQa) {
+  if (isStripeWebhook && stripeWebhookSecret && !allowUnsignedInQa) {
+    if (!verifyStripeSignature(rawBody, stripeSignature, stripeWebhookSecret)) {
+      return NextResponse.json({ error: 'invalid_webhook_signature' }, { status: 401 });
+    }
+  } else if (!verifyWebhookSignature(rawBody, signature) && !allowUnsignedInQa) {
     return NextResponse.json({ error: 'invalid_webhook_signature' }, { status: 401 });
   }
 
-  const body = JSON.parse(rawBody) as WebhookPayload;
+  const parsed = JSON.parse(rawBody) as WebhookPayload | StripeWebhookPayload;
+  const mappedStripe = mapStripeEvent(parsed as StripeWebhookPayload);
+  const body = mappedStripe ?? (parsed as WebhookPayload);
 
   if (!body || !body.providerReference || !body.event || (!body.eventId && !idempotencyKey)) {
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });

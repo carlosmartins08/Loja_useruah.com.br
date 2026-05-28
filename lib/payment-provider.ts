@@ -201,6 +201,60 @@ class ConfigurableGatewayProvider implements PaymentProvider {
   }
 }
 
+class StripeNativeProvider implements PaymentProvider {
+  async createCharge(payload: CheckoutPaymentPayload): Promise<ProviderChargeResult> {
+    const persisted = await getPaymentConnectorConfigPlain('stripe');
+    const baseUrl = persisted?.settings.baseUrl?.trim() || process.env.PAYMENT_STRIPE_BASE_URL?.trim();
+    const apiKey = persisted?.settings.apiKey?.trim() || process.env.PAYMENT_STRIPE_API_KEY?.trim();
+    if (!baseUrl) {
+      throw new Error('gateway_not_configured:stripe:missing_base_url');
+    }
+    if (!apiKey) {
+      throw new Error('gateway_not_configured:stripe:missing_auth_token');
+    }
+
+    const amountInCents = Math.round(payload.amount * 100);
+    if (!Number.isFinite(amountInCents) || amountInCents <= 0) {
+      throw new Error('gateway_invalid_request:stripe:invalid_amount');
+    }
+
+    const body = new URLSearchParams();
+    body.set('amount', String(amountInCents));
+    body.set('currency', payload.currency.toLowerCase());
+    body.set('description', `Order ${payload.orderId}`);
+    body.set('metadata[orderId]', payload.orderId);
+    body.set('metadata[method]', payload.method);
+    body.set('automatic_payment_methods[enabled]', 'true');
+
+    const response = await fetch(`${normalizeBaseUrl(baseUrl)}/v1/payment_intents`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'x-payment-provider': 'stripe',
+      },
+      body: body.toString(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`gateway_charge_failed:stripe:${response.status}`);
+    }
+
+    const data = (await response.json()) as Record<string, unknown>;
+    const providerReference = parseProviderReference(data);
+    if (!providerReference) {
+      throw new Error('gateway_invalid_response:stripe');
+    }
+
+    return {
+      providerReference,
+      status: parseGatewayStatus(data.status),
+      method: payload.method,
+      nextAction: nextActionFromMethod(payload.method),
+    };
+  }
+}
+
 function providerConfig(provider: PaymentProviderKey): GatewayConfig | null {
   switch (provider) {
     case 'inter':
@@ -248,13 +302,7 @@ function providerConfig(provider: PaymentProviderKey): GatewayConfig | null {
         merchantIdEnv: 'PAYMENT_CIELO_MERCHANT_ID',
       };
     case 'stripe':
-      return {
-        providerKey: 'stripe',
-        baseUrlEnv: 'PAYMENT_STRIPE_BASE_URL',
-        chargePathEnv: 'PAYMENT_STRIPE_CHARGE_PATH',
-        authMode: 'bearer_static',
-        apiKeyEnv: 'PAYMENT_STRIPE_API_KEY',
-      };
+      return null;
     case 'gateway_real':
       return {
         providerKey: 'gateway_real',
@@ -274,6 +322,7 @@ export function getPaymentProvider(providerKey?: PaymentProviderKey): PaymentPro
 
   if (provider === 'sandbox') return new SandboxProvider();
   if (provider === 'gateway_sandbox') return new GatewaySandboxProvider('gateway_sandbox');
+  if (provider === 'stripe') return new StripeNativeProvider();
 
   const config = providerConfig(provider);
   if (config) return new ConfigurableGatewayProvider(config);

@@ -31,6 +31,11 @@ export interface CatalogItemRecord {
   category?: 'Autoral' | 'Campanhas' | 'Fardamento' | 'Acessórios';
   segment?: 'Base' | 'Customizada';
   tags?: string[];
+  pricingPolicy?: {
+    minPrice: number;
+    suggestedPrice: number;
+    promoPriceFloor: number;
+  };
   publicationStatus: CatalogItemStatus;
   createdAt: string;
   updatedAt: string;
@@ -79,6 +84,7 @@ function rowToCatalogItem(row: MysqlRow): CatalogItemRecord {
     category: row.category ? (String(row.category) as CatalogItemRecord['category']) : undefined,
     segment: row.segment ? (String(row.segment) as CatalogItemRecord['segment']) : undefined,
     tags: typeof row.tags_json === 'string' ? JSON.parse(row.tags_json) : undefined,
+    pricingPolicy: typeof row.pricing_policy_json === 'string' ? JSON.parse(row.pricing_policy_json) : undefined,
     publicationStatus: row.publication_status as CatalogItemStatus,
     createdAt: mysqlDatetimeToIso(row.created_at) ?? new Date().toISOString(),
     updatedAt: mysqlDatetimeToIso(row.updated_at) ?? new Date().toISOString(),
@@ -102,7 +108,16 @@ export async function createCatalogItem(
   if (mysql && shouldUseMysql()) {
     const [existingRows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items WHERE catalog_item_id = ?`, [catalogItemId]);
     if (existingRows[0]) {
-      return { item: rowToCatalogItem(existingRows[0]), created: false as const };
+      const existing = rowToCatalogItem(existingRows[0]);
+      if (!existing.pricingPolicy && input.pricingPolicy) {
+        await mysql.execute<MysqlResult>(
+          `UPDATE catalog_items SET pricing_policy_json = ?, updated_at = ? WHERE catalog_item_id = ?`,
+          [JSON.stringify(input.pricingPolicy), toMysqlDatetime(now), catalogItemId]
+        );
+        const [patchedRows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items WHERE catalog_item_id = ?`, [catalogItemId]);
+        return { item: rowToCatalogItem(patchedRows[0]), created: false as const };
+      }
+      return { item: existing, created: false as const };
     }
 
     await mysql.execute<MysqlResult>(
@@ -110,8 +125,8 @@ export async function createCatalogItem(
         catalog_item_id, artwork_id, product_base_id, name, price, image, color_images_json, fit,
         fabric, print_type_description, wash_guide, installment_count, detail_images_json, model_mockups_json,
         variants_json, category, segment, tags_json, publication_status, created_at, updated_at,
-        published_at, unpublished_at, publication_reason
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        pricing_policy_json, published_at, unpublished_at, publication_reason
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         catalogItemId,
         input.artworkId,
@@ -134,6 +149,7 @@ export async function createCatalogItem(
         initialStatus,
         toMysqlDatetime(now),
         toMysqlDatetime(now),
+        input.pricingPolicy ? JSON.stringify(input.pricingPolicy) : null,
         null,
         null,
         null,
@@ -146,7 +162,18 @@ export async function createCatalogItem(
 
   const state = readCatalog();
   if (state[catalogItemId]) {
-    return { item: state[catalogItemId], created: false as const };
+    const existing = state[catalogItemId];
+    if (!existing.pricingPolicy && input.pricingPolicy) {
+      const patched: CatalogItemRecord = {
+        ...existing,
+        pricingPolicy: input.pricingPolicy,
+        updatedAt: now,
+      };
+      state[catalogItemId] = patched;
+      writeCatalog(state);
+      return { item: patched, created: false as const };
+    }
+    return { item: existing, created: false as const };
   }
 
   const record: CatalogItemRecord = {
