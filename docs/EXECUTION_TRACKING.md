@@ -119,7 +119,7 @@ Atualizacao adicional: 2026-05-27 (P3 cutover real - status de bloqueio objetivo
   - `npm run p3:precheck`: FAIL (`missing_global_env`) com faltas em `HML_BASE_URL`, `PAYMENT_PROVIDER`, `PAYMENT_WEBHOOK_SECRET`.
 - Pacote de ativacao imediata preparado:
   - `docs/P3_ENV_READY_TO_FILL.md` com bloco pronto de `.env` (copiar/colar), matriz por provider e sequencia de validacao.
-  - `.env.p3.template` criado para setup rapido.
+  - `infra/env/.env.p3.template` criado para setup rapido.
   - `p3:plug`/`p3:plug:run` criados para dry-run e execucao sequencial de P3.
   - `go:preflight`/`go:preflight:run` criados para preflight de go-live em comando unico.
   - Execucao real `npm run p3:plug:run` validada: bloqueio ocorreu corretamente em `p3:precheck` por falta de env global.
@@ -139,6 +139,18 @@ Atualizacao adicional: 2026-05-27 (Execucao de pontos nao bloqueados enquanto P3
   - `qa:functional` em `start` (`QA_PORT=3350`): PASS
 - Observacao:
   - `npm run qa:reconcile:ops` depende de `RECON_BASE_URL|QA_BASE_URL` + `DATABASE_URL`; mantido para execucao assim que ambiente de reconciliacao estiver disponivel.
+
+Atualizacao adicional: 2026-05-27 (Auditoria tecnica 99% - frontend/backend/seguranca)
+- Bateria de validacao executada:
+  - `npm run check:strict`: PASS
+  - `qa:payments21` em `start` (`QA_PORT=3351`): PASS
+  - `qa:exceptions` em `start` (`QA_PORT=3353`, `ALLOW_HEADER_ACTOR_FALLBACK=true`): PASS
+  - `qa:coreops` em `start` (`QA_PORT=3356`, `ALLOW_HEADER_ACTOR_FALLBACK=true`): PASS
+  - `qa:functional` em `start` (`QA_PORT=3355`): PASS
+- Revisao de seguranca estatica (scan de codigo) sem segredo hardcoded detectado; uso de fallback por header permanece restrito a dev/flag explicita.
+- Bloqueio residual unico para 100%:
+  - `npm run alert:critical`: FAIL por `CRIT-PAY-REAL-001/002` (credenciais/provider real + MySQL gerenciado ausentes).
+  - `npm run p3:precheck`: FAIL por env global ausente (`HML_BASE_URL`, `PAYMENT_PROVIDER`, `PAYMENT_WEBHOOK_SECRET`).
 
 ## Status atual por onda (plano anti-retrabalho)
 

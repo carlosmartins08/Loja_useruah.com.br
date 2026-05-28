@@ -3,13 +3,13 @@
 Objetivo: deixar o ambiente pronto para ativar cutover real assim que as credenciais existirem.
 
 Atalho pronto:
-- Template copiavel: `.env.p3.template`
+- Template copiavel: `infra/env/.env.p3.template`
 - Dry-run da sequencia: `npm run p3:plug`
 - Execucao automatica da sequencia: `npm run p3:plug:run`
 
 ## 0) Checklist Rapido (Admin Tecnico)
 
-1. Copiar `.env.p3.template` para `.env`.
+1. Copiar `infra/env/.env.p3.template` para `.env`.
 2. Preencher bloco global e somente 1 bloco de provider.
 3. Confirmar que `PAYMENT_PERSISTENCE=mysql` e `DATABASE_URL` comecam com `mysql://`.
 4. Rodar `npm run p3:plug:run`.

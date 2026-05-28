@@ -125,11 +125,11 @@ Se faltar env obrigatoria (`PAYMENT_INTER_*`), o teste falha com `missing_env:*`
 5. Registrar evidencias e risco residual em `docs/EXECUTION_TRACKING.md` e `docs/CHANGELOG_GOVERNANCE.md`.
 
 Template pronto para Inter (homolog):
-- `.env.hml.inter.example`
+- `infra/env/.env.hml.inter.example`
 
 Templates prontos adicionais:
-- `.env.hml.mercadopago.example`
-- `.env.hml.stripe.example`
+- `infra/env/.env.hml.mercadopago.example`
+- `infra/env/.env.hml.stripe.example`
 
 ## Mapa de impacto preventivo (anti-retrabalho)
 Sempre que alterar fluxo de gateway/provider, validar estes pontos antes de merge:
