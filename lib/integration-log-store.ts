@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { readStoreFile, writeStoreFile } from '@/lib/dev-store';
 import { getMysqlPool, shouldUseMysql, type MysqlResult } from '@/lib/mysql-runtime';
 
-interface IntegrationLogRecord {
+export interface IntegrationLogRecord {
   id: string;
   provider: string;
   action: string;
@@ -65,4 +65,23 @@ export async function appendIntegrationLog(input: Omit<IntegrationLogRecord, 'id
   }
   writeState(state);
   return log;
+}
+
+export function listIntegrationLogs(filters?: { provider?: string; actionPrefix?: string; success?: boolean; limit?: number }) {
+  let rows = readState().logs;
+  if (filters?.provider) {
+    rows = rows.filter((row) => row.provider === filters.provider);
+  }
+  const actionPrefix = filters?.actionPrefix;
+  if (actionPrefix) {
+    rows = rows.filter((row) => row.action.startsWith(actionPrefix));
+  }
+  if (filters?.success !== undefined) {
+    rows = rows.filter((row) => row.success === filters.success);
+  }
+  rows = rows.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  if (filters?.limit && filters.limit > 0) {
+    rows = rows.slice(0, filters.limit);
+  }
+  return rows;
 }

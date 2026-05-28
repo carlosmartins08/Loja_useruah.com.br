@@ -1,6 +1,6 @@
 ﻿
 import { ArrowRight } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 export function AiCreatorSection() {
@@ -27,7 +27,8 @@ export function AiCreatorSection() {
             </Link>
           </div>
           <div className="lg:col-span-6 relative aspect-square lg:aspect-video rounded-[3rem] overflow-hidden bg-ruah-50 border border-ruah-100 flex items-center justify-center group">
-            <Image
+            <AppImage
+              context="hero"
               src="https://picsum.photos/seed/ruah-ai-lab/1200/800"
               alt="AI Laboratory"
               fill
@@ -50,5 +51,6 @@ export function AiCreatorSection() {
     </section>
   );
 }
+
 
 

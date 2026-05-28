@@ -63,6 +63,16 @@ Executar com foco, sem tarefa incompleta e sem conflito entre documentação e c
 - Terça a quinta: executar blocos pequenos, 1 PR por bloco, sem PR misto.
 - Sexta: reconciliar docs x código + atualizar matriz + registrar decisões.
 
+## Ritual diario (operacao de impacto)
+- Rodar `npm run ops:impact:daily`.
+- Anexar/consultar `docs/ops/IMPACT_REVIEW_DAILY_SUMMARY.md`.
+- Se `Overdue pending (SLA 2h) > 0`, abrir escalacao operacional no mesmo ciclo.
+- Horario configuravel pelo responsavel:
+  - arquivo: `config/ops-impact-schedule.json`
+  - comando de janela: `npm run ops:impact:window`
+  - o responsavel pode alterar `runTimes` (ex: `["09:00","14:00","18:00"]`) sem mudar codigo.
+  - para janelas por papel, definir `ownerRunTimes` no arquivo e executar com `OPS_IMPACT_OWNER` (ex: `OPS_IMPACT_OWNER=finance_admin npm run ops:impact:window`).
+
 ## Bloco obrigatório de reconciliação (docs x código)
 Rodar antes de fechar semana:
 

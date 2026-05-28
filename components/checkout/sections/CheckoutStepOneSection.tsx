@@ -1,4 +1,4 @@
-﻿import Image from 'next/image';
+﻿import { AppImage } from '@/components/shared/AppImage';
 
 interface CheckoutStepOneSectionProps {
   isActive: boolean;
@@ -9,6 +9,19 @@ interface CheckoutStepOneSectionProps {
   composedDeadline: number;
   selectedAddress: string;
   onSelectAddress: (value: string) => void;
+  shippingAddress: {
+    recipientName: string;
+    cep: string;
+    street: string;
+    number: string;
+    city: string;
+    state: string;
+    country: string;
+  };
+  onShippingAddressChange: (
+    field: 'recipientName' | 'cep' | 'street' | 'number' | 'city' | 'state' | 'country',
+    value: string
+  ) => void;
   gifting: {
     isGift: boolean;
     message: string;
@@ -28,6 +41,8 @@ export function CheckoutStepOneSection({
   composedDeadline,
   selectedAddress,
   onSelectAddress,
+  shippingAddress,
+  onShippingAddressChange,
   gifting,
   onToggleGift,
   onGiftMessageChange,
@@ -68,11 +83,31 @@ export function CheckoutStepOneSection({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-ruah-950 font-bold">
           <div className="flex flex-col gap-2">
             <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">CEP</label>
-            <input type="text" inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
+            <input type="text" inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" value={shippingAddress.cep} onChange={(event) => onShippingAddressChange('cep', event.target.value)} className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
           </div>
           <div className="flex flex-col gap-2">
             <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Destinatário</label>
-            <input type="text" autoComplete="name" placeholder="Nome de quem recebe" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
+            <input type="text" autoComplete="name" placeholder="Nome de quem recebe" value={shippingAddress.recipientName} onChange={(event) => onShippingAddressChange('recipientName', event.target.value)} className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
+          </div>
+          <div className="flex flex-col gap-2 md:col-span-2">
+            <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Rua</label>
+            <input type="text" autoComplete="address-line1" placeholder="Rua/Avenida" value={shippingAddress.street} onChange={(event) => onShippingAddressChange('street', event.target.value)} className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Número</label>
+            <input type="text" placeholder="123" value={shippingAddress.number} onChange={(event) => onShippingAddressChange('number', event.target.value)} className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Cidade</label>
+            <input type="text" autoComplete="address-level2" placeholder="Cidade" value={shippingAddress.city} onChange={(event) => onShippingAddressChange('city', event.target.value)} className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Estado</label>
+            <input type="text" autoComplete="address-level1" placeholder="SP" value={shippingAddress.state} onChange={(event) => onShippingAddressChange('state', event.target.value)} className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">País</label>
+            <input type="text" placeholder="BR" value={shippingAddress.country} onChange={(event) => onShippingAddressChange('country', event.target.value)} className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs focus:border-accent-gold outline-none transition-all" />
           </div>
         </div>
       </div>
@@ -81,7 +116,7 @@ export function CheckoutStepOneSection({
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-ruah-50 rounded-xl flex items-center justify-center text-accent-gold">
-              <Image src="https://picsum.photos/seed/gift/100/100" alt="Gift" width={20} height={20} className="grayscale" />
+              <AppImage context="icon" src="https://picsum.photos/seed/gift/100/100" alt="Gift" width={20} height={20} className="grayscale" />
             </div>
             <div>
               <h3 className="text-sm font-bold uppercase tracking-tight text-ruah-950">Experiência Gift Ruah</h3>
@@ -114,6 +149,7 @@ export function CheckoutStepOneSection({
     </div>
   );
 }
+
 
 
 

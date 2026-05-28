@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, Package, RefreshCcw, ArrowRight, ShieldCheck, AlertCircle, FileText, CheckCircle2, ChevronRight, Loader2, QrCode } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 type ReturnStep = 'lookup' | 'selection' | 'reason' | 'confirmation';
@@ -42,9 +42,9 @@ export default function ReturnsPortalPage() {
                 <RefreshCcw size={32} />
              </div>
              <span className="tech-label text-accent-blue">Logistics Intelligence</span>
-             <h1 className="text-5xl font-serif italic uppercase leading-none">PORTAL DE <br /> LOGÍSTICA REVERSA.</h1>
+             <h1 className="text-5xl font-serif italic uppercase leading-none">PORTAL DE <br /> LOGÃSTICA REVERSA.</h1>
              <p className="text-xs font-bold text-lumina-400 uppercase tracking-widest leading-loose max-w-sm">
-                Autonomia total para trocas e devoluções. Sistema integrado à nossa malha de transporte.
+                Autonomia total para trocas e devoluÃ§Ãµes. Sistema integrado Ã  nossa malha de transporte.
              </p>
           </div>
 
@@ -70,7 +70,7 @@ export default function ReturnsPortalPage() {
                      >
                         <div className="flex flex-col gap-8">
                            <div className="flex flex-col gap-2">
-                              <label className="text-[10px] font-bold text-lumina-300 uppercase tracking-[0.3em]">Número do Pedido</label>
+                              <label className="text-[10px] font-bold text-lumina-300 uppercase tracking-[0.3em]">NÃºmero do Pedido</label>
                               <input 
                                 type="text" 
                                 placeholder="LM-00000"
@@ -102,7 +102,7 @@ export default function ReturnsPortalPage() {
                         <div className="flex items-center gap-4 p-6 bg-lumina-25 rounded-2xl border border-dashed border-lumina-100">
                            <AlertCircle size={20} className="text-lumina-300" />
                            <p className="text-[9px] font-bold text-lumina-400 uppercase tracking-widest leading-relaxed">
-                              Segurança de Dados: Somente o titular da compra pode iniciar o processo de logística reversa autônoma.
+                              SeguranÃ§a de Dados: Somente o titular da compra pode iniciar o processo de logÃ­stica reversa autÃ´noma.
                            </p>
                         </div>
                      </motion.div>
@@ -125,7 +125,7 @@ export default function ReturnsPortalPage() {
                            {orderData.items.map((item) => (
                              <div key={item.id} className="flex items-center gap-6 p-6 bg-lumina-50 rounded-3xl border border-lumina-100 group cursor-pointer hover:border-accent-blue transition-all">
                                 <div className="relative w-16 h-16 rounded-xl overflow-hidden shadow-sm shrink-0">
-                                   <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                   <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" />
                                 </div>
                                 <div className="flex-1">
                                    <h4 className="text-sm font-bold uppercase tracking-tight text-lumina-950 mb-1">{item.name}</h4>
@@ -154,19 +154,19 @@ export default function ReturnsPortalPage() {
                        className="flex flex-col gap-10"
                      >
                         <div className="flex flex-col gap-2">
-                           <h3 className="text-2xl font-serif italic uppercase leading-none">Motivo da Solicitação</h3>
+                           <h3 className="text-2xl font-serif italic uppercase leading-none">Motivo da SolicitaÃ§Ã£o</h3>
                            <p className="text-[9px] font-bold text-lumina-400 uppercase tracking-widest leading-loose">Seu feedback ajuda nosso Simultaneous Engineering a evoluir.</p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
-                           {['Arrependimento de Compra', 'Medida Incompatível', 'Acabamento diferente do esperado', 'Defeito de Fabricação (Garantia)'].map((r) => (
+                           {['Arrependimento de Compra', 'Medida IncompatÃ­vel', 'Acabamento diferente do esperado', 'Defeito de FabricaÃ§Ã£o (Garantia)'].map((r) => (
                              <button key={r} className="p-6 text-left rounded-2xl border border-lumina-100 text-[10px] font-bold uppercase tracking-widest hover:border-accent-blue hover:bg-accent-blue/5 transition-all text-lumina-400 hover:text-accent-blue">
                                 {r}
                              </button>
                            ))}
                         </div>
 
-                        <button onClick={() => setStep('confirmation')} className="w-full bg-lumina-950 text-white py-8 rounded-3xl font-bold uppercase text-[11px] tracking-[0.4em] hover:bg-accent-blue transition-all shadow-xl uppercase">Confirmar Solicitação</button>
+                        <button onClick={() => setStep('confirmation')} className="w-full bg-lumina-950 text-white py-8 rounded-3xl font-bold uppercase text-[11px] tracking-[0.4em] hover:bg-accent-blue transition-all shadow-xl uppercase">Confirmar SolicitaÃ§Ã£o</button>
                      </motion.div>
                    )}
 
@@ -181,16 +181,16 @@ export default function ReturnsPortalPage() {
                            <CheckCircle2 size={40} />
                         </div>
                         <div className="flex flex-col gap-4">
-                           <h3 className="text-4xl font-serif italic uppercase leading-tight">LOGÍSTICA <br /> AGENDADA.</h3>
+                           <h3 className="text-4xl font-serif italic uppercase leading-tight">LOGÃSTICA <br /> AGENDADA.</h3>
                            <p className="text-xs font-bold text-lumina-400 uppercase tracking-widest leading-loose max-w-sm">
-                              Seu ticket de devolução foi gerado com sucesso. O novo item foi reservado em estoque técnico.
+                              Seu ticket de devoluÃ§Ã£o foi gerado com sucesso. O novo item foi reservado em estoque tÃ©cnico.
                            </p>
                         </div>
 
                         <div className="w-full p-8 bg-lumina-50 rounded-[2.5rem] border border-lumina-100 flex flex-col gap-8">
                            <div className="flex justify-between items-center text-left">
                               <div>
-                                 <span className="text-[8px] font-bold text-lumina-300 uppercase block mb-1">Código de Postagem</span>
+                                 <span className="text-[8px] font-bold text-lumina-300 uppercase block mb-1">CÃ³digo de Postagem</span>
                                  <span className="text-2xl font-mono text-lumina-950 tracking-tighter">LV 990 023 11 BR</span>
                               </div>
                               <QrCode size={48} className="text-lumina-950 opacity-20" />
@@ -199,10 +199,10 @@ export default function ReturnsPortalPage() {
                            <div className="grid grid-cols-2 gap-6 text-left">
                               <div>
                                  <span className="text-[8px] font-bold text-lumina-300 uppercase block mb-1">Expira em</span>
-                                 <span className="text-[10px] font-bold uppercase">7 Dias Úteis</span>
+                                 <span className="text-[10px] font-bold uppercase">7 Dias Ãšteis</span>
                               </div>
                               <div>
-                                 <span className="text-[8px] font-bold text-lumina-300 uppercase block mb-1">Método</span>
+                                 <span className="text-[8px] font-bold text-lumina-300 uppercase block mb-1">MÃ©todo</span>
                                  <span className="text-[10px] font-bold uppercase">Coleta Agendada</span>
                               </div>
                            </div>
@@ -225,16 +225,16 @@ export default function ReturnsPortalPage() {
                 <div>
                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-lumina-950 mb-2">Embalagem Original</h4>
                    <p className="text-[9px] font-medium text-lumina-400 uppercase tracking-widest leading-relaxed">
-                      Utilize a embalagem técnica original para garantir a proteção estrutural dos drivers e módulos LED.
+                      Utilize a embalagem tÃ©cnica original para garantir a proteÃ§Ã£o estrutural dos drivers e mÃ³dulos LED.
                    </p>
                 </div>
              </div>
              <div className="p-8 bg-white border border-lumina-100 rounded-3xl flex items-start gap-4">
                 <ShieldCheck size={24} className="text-accent-blue shrink-0" />
                 <div>
-                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-lumina-950 mb-2">Inspeção de Qualidade</h4>
+                   <h4 className="text-[10px] font-bold uppercase tracking-widest text-lumina-950 mb-2">InspeÃ§Ã£o de Qualidade</h4>
                    <p className="text-[9px] font-medium text-lumina-400 uppercase tracking-widest leading-relaxed">
-                      Após o recebimento, nossa equipe realiza um check técnico em 48h para liberar seu estorno ou novo crédito.
+                      ApÃ³s o recebimento, nossa equipe realiza um check tÃ©cnico em 48h para liberar seu estorno ou novo crÃ©dito.
                    </p>
                 </div>
              </div>
@@ -243,3 +243,4 @@ export default function ReturnsPortalPage() {
     </main>
   );
 }
+

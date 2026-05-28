@@ -2,7 +2,7 @@
 import { readStoreFile, writeStoreFile } from '@/lib/dev-store';
 import { getMysqlPool, shouldUseMysql, type MysqlResult, type MysqlRow } from '@/lib/mysql-runtime';
 
-export type CatalogItemStatus = 'draft' | 'ready' | 'published' | 'archived';
+export type CatalogItemStatus = 'draft' | 'pending_review' | 'ready' | 'published' | 'archived';
 
 export interface CatalogItemVariant {
   variantId: string;
@@ -91,10 +91,12 @@ function rowToCatalogItem(row: MysqlRow): CatalogItemRecord {
 export async function createCatalogItem(
   input: Omit<CatalogItemRecord, 'catalogItemId' | 'publicationStatus' | 'createdAt' | 'updatedAt'> & {
     catalogItemId?: string;
+    initialStatus?: CatalogItemStatus;
   }
 ) {
   const now = new Date().toISOString();
   const catalogItemId = input.catalogItemId?.trim() || `CAT-${randomUUID()}`;
+  const initialStatus = input.initialStatus ?? 'draft';
 
   const mysql = await getMysqlPool();
   if (mysql && shouldUseMysql()) {
@@ -129,7 +131,7 @@ export async function createCatalogItem(
         input.category ?? null,
         input.segment ?? null,
         input.tags ? JSON.stringify(input.tags) : null,
-        'draft',
+        initialStatus,
         toMysqlDatetime(now),
         toMysqlDatetime(now),
         null,
@@ -150,7 +152,7 @@ export async function createCatalogItem(
   const record: CatalogItemRecord = {
     ...input,
     catalogItemId,
-    publicationStatus: 'draft',
+    publicationStatus: initialStatus,
     createdAt: now,
     updatedAt: now,
   };
@@ -243,7 +245,9 @@ export async function markCatalogItemReady(input: { catalogItemId: string; reaso
     if (!current) return { kind: 'not_found' as const };
     const currentItem = rowToCatalogItem(current);
     if (currentItem.publicationStatus === 'ready') return { kind: 'already_ready' as const, item: currentItem };
-    if (currentItem.publicationStatus !== 'draft') return { kind: 'invalid_transition' as const, item: currentItem };
+    if (currentItem.publicationStatus !== 'draft' && currentItem.publicationStatus !== 'pending_review') {
+      return { kind: 'invalid_transition' as const, item: currentItem };
+    }
 
     const now = new Date().toISOString();
     await mysql.execute<MysqlResult>(
@@ -259,7 +263,9 @@ export async function markCatalogItemReady(input: { catalogItemId: string; reaso
   const current = state[input.catalogItemId];
   if (!current) return { kind: 'not_found' as const };
   if (current.publicationStatus === 'ready') return { kind: 'already_ready' as const, item: current };
-  if (current.publicationStatus !== 'draft') return { kind: 'invalid_transition' as const, item: current };
+  if (current.publicationStatus !== 'draft' && current.publicationStatus !== 'pending_review') {
+    return { kind: 'invalid_transition' as const, item: current };
+  }
 
   const updated: CatalogItemRecord = {
     ...current,

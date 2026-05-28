@@ -16,6 +16,8 @@ export interface OrderItemRecord {
   orderItemId: string;
   catalogItemId: string;
   variantId: string;
+  supplierId: string;
+  shippingAddress: ShippingAddress;
   quantity: number;
   unitPrice: number;
   grossItemAmount: number;
@@ -28,6 +30,16 @@ export interface OrderItemRecord {
   supplierNetAmount: number;
   artistNetAmount: number;
   platformNetAmount: number;
+}
+
+export interface ShippingAddress {
+  recipientName: string;
+  cep: string;
+  street: string;
+  number: string;
+  city: string;
+  state: string;
+  country: string;
 }
 
 export interface OrderRecord {
@@ -69,11 +81,52 @@ function mysqlDatetimeToIso(value: unknown) {
   return withT.endsWith('Z') ? withT : `${withT}Z`;
 }
 
+function fallbackShippingAddress(): ShippingAddress {
+  return {
+    recipientName: 'Destinatario nao informado',
+    cep: '00000-000',
+    street: 'Nao informado',
+    number: 'S/N',
+    city: 'Nao informado',
+    state: 'NA',
+    country: 'BR',
+  };
+}
+
+function normalizeOrderItem(input: Record<string, unknown>): OrderItemRecord {
+  return {
+    orderItemId: String(input.orderItemId),
+    catalogItemId: String(input.catalogItemId),
+    variantId: String(input.variantId),
+    supplierId: typeof input.supplierId === 'string' && input.supplierId.trim().length > 0 ? input.supplierId : 'supplier-default',
+    shippingAddress:
+      input.shippingAddress && typeof input.shippingAddress === 'object'
+        ? {
+            ...fallbackShippingAddress(),
+            ...(input.shippingAddress as Partial<ShippingAddress>),
+          }
+        : fallbackShippingAddress(),
+    quantity: Number(input.quantity),
+    unitPrice: Number(input.unitPrice),
+    grossItemAmount: Number(input.grossItemAmount),
+    supplierAmount: Number(input.supplierAmount),
+    artistLicenseAmount: Number(input.artistLicenseAmount),
+    platformCommissionAmount: Number(input.platformCommissionAmount),
+    gatewayFeeAmount: Number(input.gatewayFeeAmount),
+    shippingAmount: Number(input.shippingAmount),
+    taxReserveAmount: Number(input.taxReserveAmount),
+    supplierNetAmount: Number(input.supplierNetAmount),
+    artistNetAmount: Number(input.artistNetAmount),
+    platformNetAmount: Number(input.platformNetAmount),
+  };
+}
+
 function rowToOrder(row: MysqlRow): OrderRecord {
+  const parsedItems = typeof row.items_json === 'string' ? (JSON.parse(row.items_json) as Array<Record<string, unknown>>) : [];
   return {
     orderId: String(row.order_id),
     customerId: String(row.customer_id),
-    items: typeof row.items_json === 'string' ? (JSON.parse(row.items_json) as OrderItemRecord[]) : [],
+    items: parsedItems.map(normalizeOrderItem),
     totalAmount: Number(row.total_amount),
     status: row.status as OrderStatus,
     createdAt: mysqlDatetimeToIso(row.created_at) ?? new Date().toISOString(),
@@ -84,6 +137,8 @@ function rowToOrder(row: MysqlRow): OrderRecord {
 
 export async function createPlacedOrder(input: {
   customerId: string;
+  supplierId: string;
+  shippingAddress: ShippingAddress;
   items: Array<{
     catalogItemId: string;
     variantId: string;
@@ -113,6 +168,8 @@ export async function createPlacedOrder(input: {
       orderItemId: `ITEM-${randomUUID()}`,
       catalogItemId: item.catalogItemId,
       variantId: item.variantId,
+      supplierId: input.supplierId,
+      shippingAddress: input.shippingAddress,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       grossItemAmount: gross,
@@ -174,7 +231,12 @@ export async function getOrder(orderId: string) {
   }
 
   const state = readOrders();
-  return state[orderId] ?? null;
+  const raw = state[orderId];
+  if (!raw) return null;
+  return {
+    ...raw,
+    items: raw.items.map((item) => normalizeOrderItem(item as unknown as Record<string, unknown>)),
+  };
 }
 
 export async function listOrders(filters?: { customerId?: string }) {
@@ -193,7 +255,12 @@ export async function listOrders(filters?: { customerId?: string }) {
   }
 
   const state = readOrders();
-  const items = Object.values(state).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const items = Object.values(state)
+    .map((row) => ({
+      ...row,
+      items: row.items.map((item) => normalizeOrderItem(item as unknown as Record<string, unknown>)),
+    }))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   if (filters?.customerId) {
     return items.filter((item) => item.customerId === filters.customerId);
   }

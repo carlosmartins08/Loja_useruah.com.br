@@ -179,6 +179,48 @@
       "ctaSecondary": "Voltar para pedidos",
       "regraUsoRuah": "usar headlineRuah/bodyRuah quando o cliente estiver em situação sensível de suporte, troca, dúvida ou pós-compra",
       "restricoes": "nao prometer resposta imediata sem SLA definido; nao usar linguagem robotica; nao encerrar conversa automaticamente"
+    },
+    {
+      "id": "support_impact_pending_macro",
+      "tipo": "info",
+      "nivel": "essencial",
+      "rota": "/admin/support/[orderId]",
+      "momento": "suporte responde ticket com impact review pendente",
+      "persona": "support_agent",
+      "headline": "Revisao operacional em andamento",
+      "body": "Seu pedido esta em revisao operacional preventiva para validar preco, prazo e qualidade antes da proxima etapa. Assim que a validacao for concluida, seguiremos com a atualizacao de status.",
+      "fallbackBody": "Seu pedido esta em revisao operacional preventiva. Atualizaremos voce na proxima mudanca de status.",
+      "ctaPrimary": "Acompanhar pedido",
+      "ctaSecondary": "Falar com suporte",
+      "restricoes": "nao prometer horario de conclusao sem decisao registrada"
+    },
+    {
+      "id": "support_impact_overdue_macro",
+      "tipo": "warning",
+      "nivel": "essencial",
+      "rota": "/admin/support/[orderId]",
+      "momento": "suporte responde ticket com impact review atrasado",
+      "persona": "support_agent",
+      "headline": "Revisao critica acima do SLA",
+      "body": "Identificamos uma revisao operacional critica acima do SLA no item do seu pedido. Nosso time administrativo ja esta atuando em prioridade maxima para liberar a continuidade com seguranca.",
+      "fallbackBody": "Identificamos revisao critica acima do SLA. O time administrativo ja atua em prioridade maxima.",
+      "ctaPrimary": "Acompanhar pedido",
+      "ctaSecondary": "Falar com suporte",
+      "restricoes": "nao prometer liberacao imediata; manter foco em acao objetiva"
+    },
+    {
+      "id": "support_impact_rejected_macro",
+      "tipo": "action",
+      "nivel": "essencial",
+      "rota": "/admin/support/[orderId]",
+      "momento": "suporte responde ticket com impact review rejeitado",
+      "persona": "support_agent",
+      "headline": "Ajuste tecnico necessario",
+      "body": "A revisao operacional do item foi rejeitada para evitar impacto em preco, prazo ou qualidade. O time esta ajustando os parametros antes de retomar o fluxo com seguranca.",
+      "fallbackBody": "A revisao operacional foi rejeitada e o time esta ajustando parametros para retomada segura.",
+      "ctaPrimary": "Acompanhar pedido",
+      "ctaSecondary": "Falar com suporte",
+      "restricoes": "nao transferir culpa ao cliente; manter linguagem de protecao e correcao"
     }
   ]
 }

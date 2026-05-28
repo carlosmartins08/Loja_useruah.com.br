@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
 import { PaymentExceptionError, rejectRefund } from '@/lib/payment-exception-service';
+import { canManageFinancialOperations } from '@/lib/role-matrix/permission-matrix';
 
 interface RejectRefundPayload {
   reason: string;
@@ -15,8 +16,7 @@ function isValidPayload(payload: unknown): payload is RejectRefundPayload {
 export async function POST(request: Request, context: { params: Promise<{ refundId: string }> }) {
   const actor = getActorFromRequest(request);
   if (isRbacActive()) {
-    const allowed = actor?.actorRole === 'finance_admin' || actor?.actorRole === 'platform_admin';
-    if (!allowed) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+    if (!canManageFinancialOperations(actor?.actorRole)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
   const payload = await request.json().catch(() => null);

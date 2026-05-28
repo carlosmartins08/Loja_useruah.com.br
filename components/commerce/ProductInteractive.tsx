@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, Minus, ArrowRight, Zap, Star, Heart, Ruler, ShoppingBag, Wallet, QrCode } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import { SmartShipping } from './SmartShipping';
 import { useRouter } from 'next/navigation';
 
@@ -32,6 +32,7 @@ export function ProductInteractive({
   const [printType, setPrintType] = React.useState('Serigrafia');
   const [color, setColor] = React.useState('Off White');
   const [size, setSize] = React.useState('M');
+  const [supplierId, setSupplierId] = React.useState('supplier-default');
   const [packaging, setPackaging] = React.useState('Pack Respiro');
   const [showSizeGuide, setShowSizeGuide] = React.useState(false);
   const [isReviewing, setIsReviewing] = React.useState(false);
@@ -48,6 +49,7 @@ export function ProductInteractive({
       spec: `${size} | ${color} | ${printType} | ${packaging}`,
       productionDays,
       customSpecs: {
+        supplierId,
         size,
         color,
         printType,
@@ -224,7 +226,30 @@ export function ProductInteractive({
 
           {/* Print Technique */}
           <div>
-             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Técnica de Estamparia</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Fornecedor</h3>
+            <div className="flex flex-wrap gap-3">
+              {[
+                { id: 'supplier-default', label: 'Parceiro Base' },
+                { id: 'supplier-premium', label: 'Atelie Premium' },
+              ].map((supplier) => (
+                <button
+                  type="button"
+                  key={supplier.id}
+                  onClick={() => setSupplierId(supplier.id)}
+                  className={`px-6 py-3 rounded-xl text-xs font-bold tracking-[0.1em] transition-all border ${
+                    supplierId === supplier.id
+                      ? 'bg-ruah-950 text-white border-ruah-950 shadow-md'
+                      : 'bg-white text-ruah-400 border-ruah-100 hover:border-accent-gold hover:text-accent-gold'
+                  }`}
+                >
+                  {supplier.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Técnica de Estamparia</h3>
              <div className="flex flex-wrap gap-3">
                 {['Serigrafia', 'Bordado', 'Digital DTG'].map(p => (
                   <button type="button" key={p}
@@ -306,9 +331,9 @@ export function ProductInteractive({
           <SmartShipping />
 
           <div className="flex items-center justify-center gap-6 mt-4 opacity-50">
-             <Image src="https://picsum.photos/seed/visa/100/40" alt="Visa" width={30} height={15} className="grayscale" />
-             <Image src="https://picsum.photos/seed/master/100/40" alt="Master" width={30} height={15} className="grayscale" />
-             <Image src="https://picsum.photos/seed/pix/100/40" alt="Pix" width={30} height={15} className="grayscale" />
+             <AppImage context="content-banner" src="https://picsum.photos/seed/visa/100/40" alt="Visa" width={30} height={15} className="grayscale" />
+             <AppImage context="content-banner" src="https://picsum.photos/seed/master/100/40" alt="Master" width={30} height={15} className="grayscale" />
+             <AppImage context="content-banner" src="https://picsum.photos/seed/pix/100/40" alt="Pix" width={30} height={15} className="grayscale" />
           </div>
        </div>
     </div>
@@ -330,6 +355,7 @@ export function WhatsAppSticky() {
     </div>
   );
 }
+
 
 
 

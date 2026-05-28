@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
 import { PaymentExceptionError, requestRefund } from '@/lib/payment-exception-service';
+import { canManageFinancialOperations, canOperateSupport } from '@/lib/role-matrix/permission-matrix';
 
 interface RefundRequestPayload {
   orderId: string;
@@ -27,8 +28,7 @@ function getIdempotencyKey(request: Request) {
 export async function POST(request: Request) {
   const actor = getActorFromRequest(request);
   if (isRbacActive()) {
-    const allowed =
-      actor?.actorRole === 'support_agent' || actor?.actorRole === 'finance_admin' || actor?.actorRole === 'platform_admin';
+    const allowed = canOperateSupport(actor?.actorRole) || canManageFinancialOperations(actor?.actorRole);
     if (!allowed) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 

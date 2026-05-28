@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { AlertCircle, ArrowLeft, CheckCircle2, LifeBuoy, Send } from 'lucide-react';
 import { getJson, HttpRequestError, postJson } from '@/lib/http-client';
+import { renderContentMessageByLayer } from '@/lib/content-messages';
 
 interface SupportContextTicketMessage {
   at: string;
@@ -36,6 +37,23 @@ interface SupportContextResponse {
   production: { id: string; status: string } | null;
   shipment: { trackingCode: string; carrier: string } | null;
   tickets: SupportContextTicket[];
+  impactReview: {
+    hasRisk: boolean;
+    pendingCount: number;
+    overduePendingCount: number;
+    rejectedCount: number;
+    approvedCount: number;
+    reviewsByCatalogItem: Array<{
+      catalogItemId: string;
+      latestReview: {
+        reviewId: string;
+        status: 'pending_review' | 'approved' | 'rejected';
+        dueAt: string;
+        priority: 'high' | 'normal';
+        decisionReason: string | null;
+      } | null;
+    }>;
+  };
 }
 
 export default function AdminSupportOrderContextPage() {
@@ -46,6 +64,26 @@ export default function AdminSupportOrderContextPage() {
   const [context, setContext] = React.useState<SupportContextResponse | null>(null);
   const [replyByTicket, setReplyByTicket] = React.useState<Record<string, string>>({});
   const [replyingTicketId, setReplyingTicketId] = React.useState<string | null>(null);
+
+  const suggestedReply = React.useMemo(() => {
+    if (!context?.impactReview.hasRisk) return null;
+    if (context.impactReview.rejectedCount > 0) {
+      return (
+        renderContentMessageByLayer('support_impact_rejected_macro', { layer: 'base' })?.body ??
+        'A revisao operacional do item foi rejeitada e o time esta ajustando os parametros com seguranca.'
+      );
+    }
+    if (context.impactReview.overduePendingCount > 0) {
+      return (
+        renderContentMessageByLayer('support_impact_overdue_macro', { layer: 'base' })?.body ??
+        'Identificamos revisao operacional critica acima do SLA e o time administrativo ja atua em prioridade maxima.'
+      );
+    }
+    return (
+      renderContentMessageByLayer('support_impact_pending_macro', { layer: 'base' })?.body ??
+      'Seu pedido esta em revisao operacional preventiva e seguiremos com atualizacao no proximo status.'
+    );
+  }, [context]);
 
   const loadContext = React.useCallback(async () => {
     if (!orderId) return;
@@ -128,6 +166,28 @@ export default function AdminSupportOrderContextPage() {
 
         {!loading && !error && context && (
           <>
+            {context.impactReview.hasRisk && (
+              <section className='bg-red-50 border border-red-200 rounded-3xl p-6 flex flex-col gap-3'>
+                <p className='text-xs font-bold uppercase tracking-[0.1em] text-red-700'>
+                  Risco de impacto no pedido: {context.impactReview.pendingCount} pendente(s), {context.impactReview.overduePendingCount} atrasada(s), {context.impactReview.rejectedCount} rejeitada(s)
+                </p>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                  {context.impactReview.reviewsByCatalogItem.map((row) => (
+                    <div key={row.catalogItemId} className='rounded-xl border border-red-200 bg-white p-3'>
+                      <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500'>CatalogItem</p>
+                      <p className='text-sm font-semibold text-ruah-950'>{row.catalogItemId}</p>
+                      <p className='text-xs font-semibold uppercase tracking-[0.1em] text-red-700 mt-1'>
+                        {row.latestReview ? `${row.latestReview.status} | prioridade ${row.latestReview.priority}` : 'sem review'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <Link href='/admin/impact-reviews' className='text-xs font-semibold uppercase tracking-[0.1em] text-red-700 hover:opacity-80'>
+                  Ir para fila critica de revisao
+                </Link>
+              </section>
+            )}
+
             <section className='bg-white border border-ruah-100 rounded-3xl p-6 grid grid-cols-1 md:grid-cols-4 gap-4'>
               <StatusCard label='Pedido' value={context.order.status} />
               <StatusCard label='Pagamento' value={context.payment?.status ?? 'n/a'} />
@@ -170,6 +230,15 @@ export default function AdminSupportOrderContextPage() {
                         placeholder='Resposta operacional para o cliente'
                         className='flex-1 px-4 py-3 border border-ruah-100 rounded-xl text-sm outline-none focus:border-accent-gold'
                       />
+                      {suggestedReply && (
+                        <button
+                          type='button'
+                          onClick={() => setReplyByTicket((prev) => ({ ...prev, [ticket.ticketId]: suggestedReply }))}
+                          className='px-4 py-3 rounded-xl border border-amber-300 bg-amber-50 text-amber-700 text-xs font-semibold uppercase tracking-[0.1em] hover:bg-amber-100 transition-all'
+                        >
+                          Usar resposta padrão
+                        </button>
+                      )}
                       <button
                         onClick={() => handleReply(ticket.ticketId)}
                         disabled={replyingTicketId === ticket.ticketId}

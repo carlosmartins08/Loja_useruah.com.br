@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { canAccessSupportContext, getActorFromRequest } from '@/lib/access-control';
 import { buildOrderOperationalView } from '@/lib/order-operational-view';
+import { listImpactReviewsByEntities } from '@/lib/impact-review-store';
 
 export async function GET(request: Request, context: { params: Promise<{ orderId: string }> }) {
   const actor = getActorFromRequest(request);
@@ -13,6 +14,13 @@ export async function GET(request: Request, context: { params: Promise<{ orderId
   if (!view) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
+
+  const catalogItemIds = Array.from(new Set(view.order.items.map((item) => item.catalogItemId)));
+  const relatedReviews = listImpactReviewsByEntities('CatalogItem', catalogItemIds).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const pending = relatedReviews.filter((row) => row.status === 'pending_review');
+  const rejected = relatedReviews.filter((row) => row.status === 'rejected');
+  const approved = relatedReviews.filter((row) => row.status === 'approved');
+  const overduePending = pending.filter((row) => new Date(row.dueAt).getTime() < Date.now());
 
   return NextResponse.json({
     ok: true,
@@ -50,6 +58,28 @@ export async function GET(request: Request, context: { params: Promise<{ orderId
       updatedAt: ticket.updatedAt,
       messages: ticket.messages,
     })),
+    impactReview: {
+      hasRisk: pending.length > 0 || rejected.length > 0,
+      pendingCount: pending.length,
+      overduePendingCount: overduePending.length,
+      rejectedCount: rejected.length,
+      approvedCount: approved.length,
+      reviewsByCatalogItem: catalogItemIds.map((catalogItemId) => {
+        const latest = relatedReviews.find((row) => row.entityId === catalogItemId) ?? null;
+        return {
+          catalogItemId,
+          latestReview: latest
+            ? {
+                reviewId: latest.reviewId,
+                status: latest.status,
+                dueAt: latest.dueAt,
+                priority: latest.priority,
+                decisionReason: latest.decisionReason ?? null,
+              }
+            : null,
+        };
+      }),
+    },
     auditSummary: view.auditSummary,
   });
 }

@@ -3,7 +3,7 @@
 import React from 'react';
 import { Header } from '@/components/navigation/Header';
 import { Footer } from '@/components/navigation/Footer';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 import { Star, Truck, Shield, Package, Calendar, ArrowRight } from 'lucide-react';
 import { ProductInteractive, WhatsAppSticky } from '@/components/commerce/ProductInteractive';
@@ -65,7 +65,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
               <div className="relative w-full aspect-square max-w-[500px]">
                 <div className="absolute inset-0 bg-white rounded-full shadow-glass border border-ruah-100 scale-[1.1] pointer-events-none" />
                 <div className="relative w-full h-full rounded-full overflow-hidden group">
-                  <Image src={activeImage} alt={`${product.name} - ${selectedColor}`} fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
+                  <AppImage context="hero" src={activeImage} alt={`${product.name} - ${selectedColor}`} fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
                 </div>
               </div>
             </div>
@@ -161,3 +161,4 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
     </main>
   );
 }
+

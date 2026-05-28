@@ -17,6 +17,13 @@ const DEV_USERS: LocalAuthUser[] = [
     userRole: 'customer',
   },
   {
+    email: 'supplier@useruah.com.br',
+    password: 'supplier123',
+    userId: 'usr:supplier@useruah.com.br',
+    userName: 'Fornecedor Demo',
+    userRole: 'supplier',
+  },
+  {
     email: 'admin@useruah.com.br',
     password: 'admin123',
     userId: 'usr:admin@useruah.com.br',
@@ -59,6 +66,7 @@ const DEV_USERS: LocalAuthUser[] = [
     userRole: 'community_manager',
   },
 ];
+const runtimeUsers = new Map<string, LocalAuthUser>();
 
 function loadUsersFromEnv(): LocalAuthUser[] {
   const raw = process.env.AUTH_LOCAL_USERS_JSON?.trim();
@@ -72,6 +80,7 @@ function loadUsersFromEnv(): LocalAuthUser[] {
         typeof row.userId === 'string' &&
         typeof row.userName === 'string' &&
         (row.userRole === 'customer' ||
+          row.userRole === 'supplier' ||
           row.userRole === 'platform_admin' ||
           row.userRole === 'support_agent' ||
           row.userRole === 'production_operator' ||
@@ -86,9 +95,37 @@ function loadUsersFromEnv(): LocalAuthUser[] {
 
 function getLocalUsers() {
   const envUsers = loadUsersFromEnv();
-  if (envUsers.length > 0) return envUsers;
-  if (process.env.NODE_ENV !== 'production') return DEV_USERS;
-  return [];
+  const baseUsers = envUsers.length > 0 ? envUsers : process.env.NODE_ENV !== 'production' ? DEV_USERS : [];
+  return [...baseUsers, ...Array.from(runtimeUsers.values())];
+}
+
+export function registerLocalUser(input: {
+  email: string;
+  password: string;
+  userName: string;
+  userRole: UserRole;
+}): { user: LocalAuthUser; created: boolean } {
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const existing = getLocalUsers().find((row) => row.email.toLowerCase() === normalizedEmail);
+  if (existing) {
+    return { user: existing, created: false };
+  }
+
+  const userId = `usr:${normalizedEmail}`;
+  const next: LocalAuthUser = {
+    email: normalizedEmail,
+    password: input.password,
+    userId,
+    userName: input.userName.trim(),
+    userRole: input.userRole,
+  };
+  runtimeUsers.set(normalizedEmail, next);
+  return { user: next, created: true };
+}
+
+export function isEmailRegistered(email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  return getLocalUsers().some((row) => row.email.toLowerCase() === normalizedEmail);
 }
 
 export function authenticateLocalUser(email: string, password: string): AuthSession | null {

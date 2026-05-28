@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React from 'react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import { CreditCard, QrCode, Wallet } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import type { PaymentMethod, PaymentProviderKey } from '@/lib/payments';
@@ -147,11 +147,12 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
       </button>
 
       <div className="flex items-center justify-center gap-8 py-8 opacity-40 grayscale scale-90">
-        <Image src="https://picsum.photos/seed/visa/100/50" alt="Visa" width={40} height={20} />
-        <Image src="https://picsum.photos/seed/master/100/50" alt="Mastercard" width={40} height={20} />
-        <Image src="https://picsum.photos/seed/pix/100/50" alt="Pix" width={40} height={20} />
+        <AppImage context="icon" src="https://picsum.photos/seed/visa/100/50" alt="Visa" width={40} height={20} />
+        <AppImage context="icon" src="https://picsum.photos/seed/master/100/50" alt="Mastercard" width={40} height={20} />
+        <AppImage context="icon" src="https://picsum.photos/seed/pix/100/50" alt="Pix" width={40} height={20} />
       </div>
     </div>
   );
 }
+
 

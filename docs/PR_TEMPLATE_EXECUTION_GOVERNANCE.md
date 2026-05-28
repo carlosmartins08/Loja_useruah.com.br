@@ -33,6 +33,22 @@ Use este template em todo PR que altere fluxo, estado, contrato, permissao ou co
 - Referencia ao consolidado: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
 - Referencia de baseline de controle: `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
 
+## 2.1) Validacao 360 de usuario/papel (obrigatorio para RBAC, cadastro, rota e contrato)
+- Papel(is) afetado(s):
+- Documento de reconciliacao consultado: `docs/USER_360_ROLE_ALIGNMENT.md`
+- Papel no dominio (`docs/ROLES_MATRIX.md`) confere com runtime/sessao?
+  - [ ] Sim
+  - [ ] Nao (descrever gap e plano faseado)
+- Papel no runtime/sessao confere com rota frontend (`docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`)?
+  - [ ] Sim
+  - [ ] Nao (descrever impacto e mitigacao)
+- Papel confere com contrato/API (`docs/API_CONTRACTS.md`)?
+  - [ ] Sim
+  - [ ] Nao (descrever ajuste de compatibilidade)
+
+Observacao de gate automatizado:
+- Para PR sensivel, `npm run pr:gate` exige `PR_BODY_FILE` apontando para o arquivo do corpo de PR preenchido com esta secao 2.1.
+
 ## 3) Mudanca de estado/contrato
 - Este PR altera estado canonico?
   - [ ] Nao
@@ -58,6 +74,7 @@ Use este template em todo PR que altere fluxo, estado, contrato, permissao ou co
 ## 5) Evidencias de validacao
 - [ ] `npm run alert:critical` executado no inicio do ciclo/PR
 - [ ] `npm run check` passou
+- [ ] `npm run qa:content:governance` passou quando houve troca de texto/imagem
 - [ ] Fluxo funcional principal testado
 - [ ] Fluxo de erro/edge-case testado
 - Evidencias (prints/logs/sumario):

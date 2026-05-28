@@ -35,6 +35,17 @@ async function get(pathname, headers = {}) {
 
 async function createPaidOrder(customerId) {
   const order = await post('/api/orders', {
+    supplierId: 'supplier-default',
+    shippingAddressMode: 'same_as_account',
+    shippingAddress: {
+      recipientName: 'QA Customer',
+      cep: '01000-000',
+      street: 'Rua QA',
+      number: '100',
+      city: 'Sao Paulo',
+      state: 'SP',
+      country: 'BR',
+    },
     items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
     customer: { id: customerId },
   });
@@ -47,6 +58,7 @@ async function createPaidOrder(customerId) {
     {
       orderId,
       method: 'pix',
+      provider: 'sandbox',
       amount: 89.9,
       currency: 'BRL',
       items: [{ id: '1', name: 'Camiseta Respiro', quantity: 1, unitPrice: 89.9 }],
@@ -81,6 +93,17 @@ async function run() {
   }
 
   const placedOrder = await post('/api/orders', {
+    supplierId: 'supplier-default',
+    shippingAddressMode: 'same_as_account',
+    shippingAddress: {
+      recipientName: 'QA Customer',
+      cep: '01000-000',
+      street: 'Rua QA',
+      number: '100',
+      city: 'Sao Paulo',
+      state: 'SP',
+      country: 'BR',
+    },
     items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
     customer: { id: 'customer-core-placed' },
   });

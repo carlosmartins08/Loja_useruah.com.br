@@ -3,6 +3,7 @@ import { appendAuditLog } from '@/lib/audit-log-store';
 import { canManageCatalog, getActorFromRequest } from '@/lib/access-control';
 import { getArtwork } from '@/lib/artwork-store';
 import { getCatalogItem, publishCatalogItem } from '@/lib/catalog-item-store';
+import { getLatestImpactReviewByEntity, getPendingImpactReviewByEntity } from '@/lib/impact-review-store';
 
 interface PublishPayload {
   reason?: string;
@@ -27,6 +28,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
+  const pendingReview = getPendingImpactReviewByEntity('CatalogItem', id);
+  if (pendingReview) {
+    return NextResponse.json(
+      { error: 'invalid_transition', detail: 'impact_review_pending', reviewId: pendingReview.reviewId, dueAt: pendingReview.dueAt },
+      { status: 409 }
+    );
+  }
+  const latestReview = getLatestImpactReviewByEntity('CatalogItem', id);
+  if (latestReview && latestReview.status === 'rejected') {
+    return NextResponse.json(
+      { error: 'invalid_transition', detail: 'impact_review_rejected', reviewId: latestReview.reviewId },
+      { status: 409 }
+    );
+  }
+
   const current = await getCatalogItem(id);
   if (!current) return NextResponse.json({ error: 'not_found' }, { status: 404 });
 

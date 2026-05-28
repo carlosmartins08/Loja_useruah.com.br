@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { Package, Hash, Calendar, ArrowRight, User, Settings, LogOut, QrCode, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { ProductionTimeline, OrderStatus } from '@/components/commerce/ProductionTimeline';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import { useUser } from '@/context/UserContext';
 import { ProfilePhotoModal } from '@/components/navigation/ProfilePhotoModal';
 
@@ -32,7 +32,7 @@ const MOCK_ORDERS = [
 
 export default function AccountPage() {
   const [selectedOrder, setSelectedOrder] = React.useState(MOCK_ORDERS[0]);
-  const { profilePhoto, setProfilePhoto, userName } = useUser();
+  const { profilePhoto, setProfilePhoto, userName, registrationStatus } = useUser();
   const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
 
   return (
@@ -53,7 +53,7 @@ export default function AccountPage() {
                      className="w-32 h-32 rounded-[2.5rem] overflow-hidden relative group cursor-pointer border-2 border-white/10 hover:border-accent-gold transition-all"
                    >
                       {profilePhoto ? (
-                        <Image src={profilePhoto} alt={userName} fill className="object-cover" />
+                        <AppImage context="content-banner" src={profilePhoto} alt={userName} fill className="object-cover" />
                       ) : (
                         <div className="w-full h-full bg-white/5 flex items-center justify-center">
                            <User size={40} className="text-white/20" />
@@ -84,6 +84,17 @@ export default function AccountPage() {
 
        <section className="py-24">
           <div className="section-container">
+             {registrationStatus === 'incomplete' && (
+               <div className="mb-10 rounded-3xl border border-amber-200 bg-amber-50 p-6 flex flex-col gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-amber-700">Cadastro incompleto</span>
+                  <p className="text-sm text-amber-900">
+                    Finalize seus dados para liberar toda a jornada de compra e suporte sem bloqueios operacionais.
+                  </p>
+                  <Link href="/register" className="text-[11px] font-bold uppercase tracking-widest text-amber-800 underline">
+                    Revisar cadastro agora
+                  </Link>
+               </div>
+             )}
              <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
                 
                 {/* Sidebar - Orders List */}
@@ -114,7 +125,7 @@ export default function AccountPage() {
                             <div className="flex -space-x-4 mb-6">
                                {order.items.map((item, i) => (
                                  <div key={i} className="w-12 h-12 rounded-full border-2 border-white overflow-hidden bg-ruah-50 relative shadow-sm">
-                                    <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                    <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" />
                                  </div>
                                ))}
                             </div>
@@ -174,7 +185,7 @@ export default function AccountPage() {
                          {selectedOrder.items.map((item, i) => (
                             <div key={i} className="flex flex-col md:flex-row gap-8 p-10 bg-white border border-ruah-100 rounded-[2.5rem] group hover:border-accent-gold/30 transition-all">
                                <div className="relative w-full md:w-40 aspect-square rounded-2xl overflow-hidden bg-ruah-50 shadow-sm shrink-0">
-                                  <Image src={item.image} alt={item.name} fill className="object-cover" />
+                                  <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" />
                                </div>
                                <div className="flex-1 flex flex-col justify-center gap-4">
                                   <div>
@@ -215,5 +226,6 @@ export default function AccountPage() {
     </main>
   );
 }
+
 
 

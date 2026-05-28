@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Heart, ShoppingBag, Trash2 } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 
 const WISHLIST = [
   { id: '3', name: 'Aura Panel', price: 5200, image: 'https://picsum.photos/seed/p3/600/800', stock: 'restam 2' },
@@ -21,7 +21,7 @@ export default function Wishlist() {
         {WISHLIST.map((item) => (
           <div key={item.id} className="group flex flex-col gap-6">
             <div className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-lumina-50 border border-lumina-100 group-hover:shadow-2xl transition-all duration-700">
-              <Image src={item.image} alt={item.name} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
+              <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
               <div className="absolute top-6 right-6">
                 <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg text-red-500 hover:bg-red-50 transition-colors">
                   <Trash2 size={18} />
@@ -49,3 +49,4 @@ export default function Wishlist() {
     </div>
   );
 }
+

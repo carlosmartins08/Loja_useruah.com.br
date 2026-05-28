@@ -4,6 +4,9 @@ import { canManageCatalog, getActorFromRequest } from '@/lib/access-control';
 import { createCatalogItem, listCatalogItems, type CatalogItemStatus } from '@/lib/catalog-item-store';
 import { getArtwork } from '@/lib/artwork-store';
 import { isTermsGateEnabledFor, validateTermsAcceptance } from '@/lib/terms-enforcement';
+import { detectImpactSensitiveFields, evaluateRequiredFieldsCompletion } from '@/lib/role-matrix/registration-matrix';
+import { createImpactReview } from '@/lib/impact-review-store';
+import { notifyImpactReviewEvent } from '@/lib/impact-notification-service';
 
 interface CreateCatalogItemPayload {
   artworkId: string;
@@ -27,7 +30,7 @@ interface CreateCatalogItemPayload {
 
 function parseStatus(input: string | null): CatalogItemStatus | undefined {
   if (!input) return undefined;
-  if (input === 'draft' || input === 'ready' || input === 'published' || input === 'archived') return input;
+  if (input === 'draft' || input === 'pending_review' || input === 'ready' || input === 'published' || input === 'archived') return input;
   return undefined;
 }
 
@@ -116,7 +119,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_transition', detail: 'artwork_must_be_approved' }, { status: 409 });
   }
 
-  const { item, created } = await createCatalogItem(payload);
+  const supplierFieldProbe = {
+    priceTable: payload.price,
+    productionLeadTime: payload.variants.length,
+    materialSpec: payload.fabric,
+  };
+  const completion = evaluateRequiredFieldsCompletion('supplier', supplierFieldProbe);
+  const impactSensitive = detectImpactSensitiveFields('supplier', ['priceTable', 'materialSpec', 'productionLeadTime']);
+
+  const initialStatus: CatalogItemStatus = impactSensitive.length > 0 ? 'pending_review' : 'draft';
+  const { item, created } = await createCatalogItem({ ...payload, initialStatus });
+  const impactReview =
+    impactSensitive.length > 0
+      ? createImpactReview({
+          domain: 'supplier_catalog',
+          entityType: 'CatalogItem',
+          entityId: item.catalogItemId,
+          sensitiveFields: impactSensitive,
+          requestedBy: actor?.actorId ?? 'unknown',
+          priority: impactSensitive.includes('priceTable') ? 'high' : 'normal',
+          slaHours: 2,
+        })
+      : null;
+  if (impactReview?.review) {
+    const overdueAtCreation = new Date(impactReview.review.dueAt).getTime() < Date.now();
+    await notifyImpactReviewEvent({
+      event: overdueAtCreation ? 'created_overdue' : 'created_pending',
+      reviewId: impactReview.review.reviewId,
+      entityId: item.catalogItemId,
+      actorId: actor?.actorId ?? 'unknown',
+      actorRole: actor?.actorRole ?? 'unknown',
+      dueAt: impactReview.review.dueAt,
+    });
+  }
   appendAuditLog({
     actor_id: actor?.actorId ?? 'unknown',
     actor_role: actor?.actorRole ?? 'unknown',
@@ -128,5 +163,21 @@ export async function POST(request: Request) {
     reason: `artwork:${item.artworkId}`,
   });
 
-  return NextResponse.json({ ok: true, item, created }, { status: created ? 201 : 200 });
+  return NextResponse.json(
+    {
+      ok: true,
+      item,
+      created,
+      governance: {
+        supplierRegistrationComplete: completion.complete,
+        missingSupplierFields: completion.missing,
+        requiresImpactReview: impactSensitive.length > 0,
+        impactSensitiveFields: impactSensitive,
+        initialStatus,
+        reviewId: impactReview?.review.reviewId ?? null,
+        reviewDueAt: impactReview?.review.dueAt ?? null,
+      },
+    },
+    { status: created ? 201 : 200 }
+  );
 }

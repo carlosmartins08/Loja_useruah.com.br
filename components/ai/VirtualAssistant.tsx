@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, ArrowRight, X, Check, Loader2, Home, Briefcase, Camera, Coffee } from 'lucide-react';
 import { GoogleGenAI, Type } from "@google/genai";
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
@@ -33,12 +33,12 @@ interface AssistantRecommendation {
 const STEPS: Step[] = [
   {
     id: 'space',
-    question: 'Qual o seu chamado artístico hoje?',
+    question: 'Qual o seu chamado artÃ­stico hoje?',
     options: [
-      { id: 'residential', label: 'Cotidiano', icon: Home, detail: 'Para o dia a dia com propósito' },
-      { id: 'office', label: 'Manifesto', icon: Briefcase, detail: 'Expressando sua fé no trabalho' },
-      { id: 'gallery', label: 'Criação', icon: Camera, detail: 'Momentos de pura inspiração' },
-      { id: 'hospitality', label: 'Comunhão', icon: Coffee, detail: 'Encontros que alimentam a alma' },
+      { id: 'residential', label: 'Cotidiano', icon: Home, detail: 'Para o dia a dia com propÃ³sito' },
+      { id: 'office', label: 'Manifesto', icon: Briefcase, detail: 'Expressando sua fÃ© no trabalho' },
+      { id: 'gallery', label: 'CriaÃ§Ã£o', icon: Camera, detail: 'Momentos de pura inspiraÃ§Ã£o' },
+      { id: 'hospitality', label: 'ComunhÃ£o', icon: Coffee, detail: 'Encontros que alimentam a alma' },
     ]
   },
   {
@@ -46,8 +46,8 @@ const STEPS: Step[] = [
     question: 'Qual a mensagem que quer transmitir?',
     options: [
       { id: 'cozy', label: 'Respiro', detail: 'Paz e tranquilidade em cada fio' },
-      { id: 'neutral', label: 'Firmeza', detail: 'Consistência e base sólida' },
-      { id: 'technical', label: 'Geração', detail: 'Atitude e impacto visual' },
+      { id: 'neutral', label: 'Firmeza', detail: 'ConsistÃªncia e base sÃ³lida' },
+      { id: 'technical', label: 'GeraÃ§Ã£o', detail: 'Atitude e impacto visual' },
       { id: 'dynamic', label: 'Sopro', detail: 'Fluidez e movimento constante' },
     ]
   }
@@ -76,9 +76,9 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
       if (!ai) {
         setRecommendation({
           productId: data.mood === 'technical' ? '4' : data.space === 'hospitality' ? '2' : '1',
-          productName: data.mood === 'technical' ? 'Camiseta Geração' : data.space === 'hospitality' ? 'Moletom Fé Viva' : 'Camiseta Respiro',
-          technicalReason: 'Curadoria local aplicada por ausência de chave Gemini no ambiente.',
-          layoutTip: 'Use tons neutros e destaque uma peça central com mensagem de fé.',
+          productName: data.mood === 'technical' ? 'Camiseta GeraÃ§Ã£o' : data.space === 'hospitality' ? 'Moletom FÃ© Viva' : 'Camiseta Respiro',
+          technicalReason: 'Curadoria local aplicada por ausÃªncia de chave Gemini no ambiente.',
+          layoutTip: 'Use tons neutros e destaque uma peÃ§a central com mensagem de fÃ©.',
         });
         return;
       }
@@ -86,10 +86,10 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
       const prompt = `Como curador de estilo da UseRuah, recomende produtos para um momento ${data.space} com mensagem de ${data.mood}.
       
       Produtos:
-      1. Camiseta Respiro (Puro Algodão, Essencial)
-      2. Moletom Fé Viva (Conforto, Campanha)
-      3. Bolsa Sopro (Acessório, Prático)
-      4. Camiseta Geração (Arte, Manifesto)
+      1. Camiseta Respiro (Puro AlgodÃ£o, Essencial)
+      2. Moletom FÃ© Viva (Conforto, Campanha)
+      3. Bolsa Sopro (AcessÃ³rio, PrÃ¡tico)
+      4. Camiseta GeraÃ§Ã£o (Arte, Manifesto)
 
       Retorne um JSON com {productId, productName, technicalReason, layoutTip}.`;
 
@@ -178,11 +178,11 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
                 className="bg-white rounded-[4rem] p-16 flex flex-col lg:flex-row gap-16 items-center shadow-2xl"
                >
                   <div className="relative w-full lg:w-1/2 aspect-square rounded-[3rem] overflow-hidden shadow-fancy">
-                     <Image src={`https://picsum.photos/seed/ruah-rec-${recommendation.productId}/800/800`} alt={recommendation.productName} fill className="object-cover" />
+                     <AppImage context="content-banner" src={`https://picsum.photos/seed/ruah-rec-${recommendation.productId}/800/800`} alt={recommendation.productName} fill className="object-cover" />
                   </div>
                   <div className="flex-1 flex flex-col gap-8">
                      <div className="flex flex-col gap-2">
-                        <span className="tech-label text-accent-gold">A Escolha com Propósito</span>
+                        <span className="tech-label text-accent-gold">A Escolha com PropÃ³sito</span>
                         <h3 className="text-5xl font-serif leading-none italic uppercase">{recommendation.productName}</h3>
                      </div>
                      
@@ -240,3 +240,4 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
     </AnimatePresence>
   );
 }
+

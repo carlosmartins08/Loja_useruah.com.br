@@ -212,11 +212,6 @@ export async function applyWebhookEvent(input: {
     const supplierDefault = process.env.SUPPLIER_OWNER_DEFAULT_ID?.trim() || 'supplier-default';
     const platformDefault = process.env.PLATFORM_OWNER_DEFAULT_ID?.trim() || 'platform-default';
     const artistDefault = process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default';
-    const supplierRecipient = await getProviderRecipient({
-      provider: providerName,
-      entityType: 'supplier',
-      entityId: supplierDefault,
-    });
     const artistRecipient = await getProviderRecipient({
       provider: providerName,
       entityType: 'artist',
@@ -233,7 +228,15 @@ export async function applyWebhookEvent(input: {
     const gatewayPct = Number(process.env.GATEWAY_FEE_PCT ?? '0.05');
     const taxReservePct = Number(process.env.TAX_RESERVE_PCT ?? '0');
     const round2 = (value: number) => Math.round(value * 100) / 100;
-    const splitRows = paidOrder.items.flatMap((item) => {
+    const splitRows = (
+      await Promise.all(
+        paidOrder.items.map(async (item) => {
+          const supplierId = item.supplierId || supplierDefault;
+          const supplierRecipient = await getProviderRecipient({
+            provider: providerName,
+            entityType: 'supplier',
+            entityId: supplierId,
+          });
       const gross = item.grossItemAmount || Number((item.unitPrice * item.quantity).toFixed(2));
       const supplierAmount = item.supplierAmount ?? round2(gross * supplierPct);
       const artistLicenseAmount = item.artistLicenseAmount ?? round2(gross * artistPct);
@@ -249,7 +252,7 @@ export async function applyWebhookEvent(input: {
           orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
           paymentId: updatedPayment.paymentId,
           recipientType: 'supplier' as const,
-          recipientId: supplierDefault,
+          recipientId: supplierId,
           providerRecipientId: supplierRecipient?.providerRecipientId,
           grossAmount: gross,
           splitAmount: supplierAmount,
@@ -293,7 +296,9 @@ export async function applyWebhookEvent(input: {
           providerReference: updatedPayment.providerReference,
         },
       ];
-    });
+        })
+      )
+    ).flat();
     await createPaymentSplits({ paymentId: updatedPayment.paymentId, rows: splitRows });
 
     const licenseRows = await Promise.all(paidOrder.items.map(async (item) => {
@@ -303,12 +308,13 @@ export async function applyWebhookEvent(input: {
       const artistLicenseAmount = item.artistLicenseAmount ?? round2(gross * artistPct);
       const platformCommissionAmount = item.platformCommissionAmount ?? round2(gross * platformPct);
       const supplierAmount = item.supplierAmount ?? round2(gross * supplierPct);
+      const supplierId = item.supplierId || supplierDefault;
       return {
         orderId: paidOrder.orderId,
         orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
         artistId: artwork?.authorId ?? (process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default'),
         artworkId: catalog?.artworkId ?? 'artwork-unknown',
-        supplierId: supplierDefault,
+        supplierId,
         productId: catalog?.productBaseId ?? item.catalogItemId,
         buyerId: paidOrder.customerId,
         licenseType: 'commercial_use' as const,

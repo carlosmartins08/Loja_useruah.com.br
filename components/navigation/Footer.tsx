@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import { Instagram, Shield, Globe, ArrowRight } from 'lucide-react';
 
 export function Footer() {
@@ -15,7 +15,7 @@ export function Footer() {
       <div className="section-container relative z-10 text-white">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-20 pb-20 border-b border-white/10">
           <div className="flex flex-col gap-6 col-span-1 lg:col-span-1">
-            <Image src="/brand/SVG/logo-wordmark-light.svg" alt="UseRuah" width={180} height={48} className="h-auto w-[180px]" priority />
+            <AppImage context="content-banner" src="/brand/SVG/logo-wordmark-light.svg" alt="UseRuah" width={180} height={48} className="h-auto w-[180px]" priority />
             <p className="text-sm text-white/70 leading-relaxed max-w-xs">
               Expressão de fé através da moda. Conectando consumidores, artistas e comunidades em um respiro de arte e propósito.
             </p>
@@ -122,4 +122,5 @@ export function Footer() {
     </footer>
   );
 }
+
 

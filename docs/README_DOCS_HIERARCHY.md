@@ -51,6 +51,12 @@ Evitar retrabalho, duplicidade e conflito de interpretação sobre qual document
 ### Permissões e escopo de acesso
 - Usar: `docs/ROLES_MATRIX.md`
 - Quando: alterar RBAC, escopos de leitura/escrita, aprovações e auditoria de ações críticas.
+- Usar em conjunto: `docs/REGISTRATION_MATRIX_BY_ROLE.md`
+- Quando: alterar campos de cadastro por papel, responsabilidade operacional e fluxo `editar != publicar`.
+- Usar em conjunto: `docs/USER_360_ROLE_ALIGNMENT.md`
+- Quando: reconciliar diferenças entre papel de dominio, sessao/runtime, rotas e contratos antes de evolucao.
+- Usar em conjunto: `docs/SENSITIVE_FIELDS_MATRIX.md`
+- Quando: alterar campo sensivel em catalogo, payout, campanha, frete, comissao ou regra financeira.
 
 ### Qualidade por rota e UX
 - Usar: `docs/ROUTE_DEFINITION_OF_DONE.md`

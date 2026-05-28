@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { Package, RefreshCcw, ChevronRight, Truck, CheckCircle2, Sparkles } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import { getJson } from '@/lib/http-client';
 
 type OrderStatusUi = 'recebido' | 'producao' | 'enviado' | 'entregue';
@@ -90,7 +90,7 @@ export default function MyOrders() {
                     {order.items.slice(0, 1).map((item) => (
                       <div key={item.catalogItemId} className='flex items-center gap-6'>
                         <div className='relative w-24 h-24 rounded-2xl overflow-hidden bg-ruah-50'>
-                          <Image src='https://picsum.photos/seed/ruah-order/200/200' alt={item.catalogItemId} fill className='object-cover' />
+                          <AppImage context="content-banner" src='https://picsum.photos/seed/ruah-order/200/200' alt={item.catalogItemId} fill className='object-cover' />
                         </div>
                         <div className='flex flex-col gap-1'>
                           <span className='text-xs font-bold uppercase tracking-tight text-ruah-950'>{item.catalogItemId}</span>
@@ -129,5 +129,6 @@ export default function MyOrders() {
     </div>
   );
 }
+
 
 

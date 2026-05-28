@@ -168,6 +168,25 @@ export async function listCommissionsByOrderId(orderId: string) {
   return ids.map((id) => state.commissions[id]).filter((row): row is CommissionRecord => Boolean(row));
 }
 
+export async function listCommissionsByIds(commissionIds: string[]) {
+  if (commissionIds.length === 0) return [];
+
+  const mysql = await getMysqlPool();
+  if (mysql && shouldUseMysql()) {
+    const placeholders = commissionIds.map(() => '?').join(', ');
+    const [rows] = await mysql.execute<MysqlRow[]>(
+      `SELECT * FROM commissions WHERE commission_id IN (${placeholders})`,
+      commissionIds
+    );
+    return rows.map(rowToCommission);
+  }
+
+  const state = readState();
+  return commissionIds
+    .map((id) => state.commissions[id])
+    .filter((row): row is CommissionRecord => Boolean(row));
+}
+
 export async function updateCommissionStatus(commissionId: string, status: CommissionStatus) {
   const mysql = await getMysqlPool();
   if (mysql && shouldUseMysql()) {

@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { Search, Sparkles, X, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
@@ -17,9 +17,9 @@ interface SearchResult {
 }
 
 const FALLBACK_RESULTS: SearchResult[] = [
-  { id: '1', name: 'Camiseta Respiro', relevance: 'Essencial para uso diário com mensagem sutil.' },
-  { id: '2', name: 'Moletom Fé Viva', relevance: 'Indicado para conforto e presença visual.' },
-  { id: '4', name: 'Camiseta Geração', relevance: 'Boa escolha para proposta de impacto.' },
+  { id: '1', name: 'Camiseta Respiro', relevance: 'Essencial para uso diÃ¡rio com mensagem sutil.' },
+  { id: '2', name: 'Moletom FÃ© Viva', relevance: 'Indicado para conforto e presenÃ§a visual.' },
+  { id: '4', name: 'Camiseta GeraÃ§Ã£o', relevance: 'Boa escolha para proposta de impacto.' },
 ];
 
 export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -55,18 +55,18 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
         return;
       }
 
-      const prompt = `Você é um curador de estilo da UseRuah. 
+      const prompt = `VocÃª Ã© um curador de estilo da UseRuah. 
       Analise o pedido do cliente: "${val}".
       
-      Produtos disponíveis:
-      1. Camiseta Respiro (Puro Algodão, Essencial, Minimalista)
-      2. Moletom Fé Viva (Conforto, Campanha, mensagem forte)
-      3. Bolsa Sopro (Acessório, Prático, para o dia a dia)
-      4. Camiseta Geração (Arte autoral, Manifesto, Impactante)
-      5. Almofada Paz (Home, Conforto, para momentos de oração)
-      6. Botton Símbolo (Acessório, Pequeno detalhe de fé)
+      Produtos disponÃ­veis:
+      1. Camiseta Respiro (Puro AlgodÃ£o, Essencial, Minimalista)
+      2. Moletom FÃ© Viva (Conforto, Campanha, mensagem forte)
+      3. Bolsa Sopro (AcessÃ³rio, PrÃ¡tico, para o dia a dia)
+      4. Camiseta GeraÃ§Ã£o (Arte autoral, Manifesto, Impactante)
+      5. Almofada Paz (Home, Conforto, para momentos de oraÃ§Ã£o)
+      6. Botton SÃ­mbolo (AcessÃ³rio, Pequeno detalhe de fÃ©)
 
-      Retorne APENAS um array JSON de objetos com {id, name, relevance} onde id é o número do produto (1-6) e relevance é uma frase curta explicando por que esse produto atende ao pedido.`;
+      Retorne APENAS um array JSON de objetos com {id, name, relevance} onde id Ã© o nÃºmero do produto (1-6) e relevance Ã© uma frase curta explicando por que esse produto atende ao pedido.`;
 
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -109,7 +109,7 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
              <div className="flex justify-between items-center mb-12">
                 <div className="flex items-center gap-3">
                    <Sparkles size={20} className="text-accent-gold" />
-                   <span className="tech-label text-accent-gold">Busca Semântica Ruah</span>
+                   <span className="tech-label text-accent-gold">Busca SemÃ¢ntica Ruah</span>
                 </div>
                 <button onClick={onClose} className="p-2 hover:bg-ruah-50 rounded-full transition-colors">
                    <X size={24} />
@@ -123,7 +123,7 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                   type="text" 
                   value={query}
                   onChange={(e) => handleSearch(e.target.value)}
-                  placeholder="Qual o seu chamado artístico hoje?"
+                  placeholder="Qual o seu chamado artÃ­stico hoje?"
                   className="w-full bg-transparent border-b-2 border-ruah-100 py-8 pl-16 text-4xl lg:text-5xl font-serif italic outline-none focus:border-accent-gold transition-all"
                 />
                 {isLoading && (
@@ -135,7 +135,7 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
 
              <div className="mt-20">
                 <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-ruah-300 mb-12">
-                   {results.length > 0 ? 'Conexões Recomendadas' : 'Tente buscar por "moletom para retiro" ou "presente para afilhado"'}
+                   {results.length > 0 ? 'ConexÃµes Recomendadas' : 'Tente buscar por "moletom para retiro" ou "presente para afilhado"'}
                 </h3>
 
                 <div className="grid grid-cols-1 gap-12">
@@ -152,7 +152,7 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                            className="flex items-center gap-8 group"
                          >
                             <div className="relative w-32 h-32 rounded-3xl overflow-hidden bg-ruah-50 shrink-0">
-                               <Image 
+                               <AppImage context="content-banner" 
                                  src={`https://picsum.photos/seed/p${res.id}/400/400`} 
                                  alt={res.name} 
                                  fill 
@@ -182,3 +182,4 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     </AnimatePresence>
   );
 }
+

@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React from 'react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import { Plus, Heart, Star, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
@@ -60,7 +60,7 @@ export function ProductCard({ id, name, category, price, image, badge }: Product
             </span>
           </div>
         )}
-        <Image
+        <AppImage context="content-banner"
           src={image}
           alt={name}
           fill
@@ -68,7 +68,7 @@ export function ProductCard({ id, name, category, price, image, badge }: Product
           className="object-cover transition-all duration-1000 group-hover:scale-110 group-hover:opacity-0"
           referrerPolicy="no-referrer"
         />
-        <Image
+        <AppImage context="content-banner"
           src={`https://picsum.photos/seed/alt-${id}/800/1200`}
           alt={`${name} detail`}
           fill
@@ -191,6 +191,7 @@ export function ProductCard({ id, name, category, price, image, badge }: Product
     </motion.div>
   );
 }
+
 
 
 

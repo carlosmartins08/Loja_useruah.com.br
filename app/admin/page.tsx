@@ -11,7 +11,8 @@ import {
   Terminal,
   Settings,
   ArrowRight,
-  Zap
+  Zap,
+  Siren
 } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/context/UserContext';
@@ -72,19 +73,73 @@ const modules = [
     color: 'text-emerald-500',
     bg: 'bg-emerald-500/10'
   },
+  {
+    id: 8,
+    title: 'Impact Review',
+    description: 'Fila critica de revisao de preco, frete, prazo e payout com SLA de 2h.',
+    icon: Siren,
+    href: '/admin/impact-reviews',
+    color: 'text-red-500',
+    bg: 'bg-red-500/10'
+  },
+  {
+    id: 9,
+    title: 'Pre-liquidacao',
+    description: 'Validador de ledger para payout com causa de bloqueio e acao sugerida.',
+    icon: ShieldCheck,
+    href: '/admin/finance/payouts',
+    color: 'text-amber-600',
+    bg: 'bg-amber-100'
+  },
+  {
+    id: 10,
+    title: 'Ops Alerts',
+    description: 'Fila executiva unica com alertas de impacto e risco financeiro.',
+    icon: Siren,
+    href: '/admin/ops-alerts',
+    color: 'text-rose-600',
+    bg: 'bg-rose-100'
+  },
+  {
+    id: 11,
+    title: 'Cadastros',
+    description: 'Fila de onboarding por status para tratar incompletos e pendencias.',
+    icon: Users,
+    href: '/admin/registrations',
+    color: 'text-indigo-600',
+    bg: 'bg-indigo-100'
+  },
 ];
 
 function isModuleAllowed(role: UserRole, moduleId: number) {
   if (role === 'platform_admin') return true;
-  if (role === 'finance_admin') return moduleId === 7 || moduleId === 6 || moduleId === 5;
+  if (role === 'finance_admin') return moduleId === 7 || moduleId === 6 || moduleId === 5 || moduleId === 9 || moduleId === 10;
+  if (role === 'support_agent') return moduleId === 6 || moduleId === 11;
   if (role === 'production_operator') return moduleId === 4;
-  if (role === 'support_agent') return moduleId === 6;
   return false;
 }
 
 export default function AdminHub() {
   const { userRole } = useUser();
   const allowedModules = modules.filter((module) => isModuleAllowed(userRole, module.id));
+  const [impactSummary, setImpactSummary] = React.useState<{ pending: number; overdue: number } | null>(null);
+
+  const loadImpactSummary = React.useCallback(async () => {
+    if (userRole !== 'platform_admin') return;
+    const [pendingRes, overdueRes] = await Promise.all([
+      fetch('/api/admin/impact-reviews?status=pending_review', { cache: 'no-store' }),
+      fetch('/api/admin/impact-reviews?status=pending_review&onlyOverdue=true', { cache: 'no-store' }),
+    ]);
+    if (!pendingRes.ok || !overdueRes.ok) return;
+    const pendingData = (await pendingRes.json()) as { reviews: unknown[] };
+    const overdueData = (await overdueRes.json()) as { reviews: unknown[] };
+    setImpactSummary({ pending: pendingData.reviews.length, overdue: overdueData.reviews.length });
+  }, [userRole]);
+
+  React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadImpactSummary();
+  }, [loadImpactSummary]);
 
   return (
     <div className="min-h-screen bg-ruah-25 font-sans p-6 md:p-12">
@@ -163,6 +218,20 @@ export default function AdminHub() {
             </div>
           </div>
         </div>
+
+        {userRole === 'platform_admin' && impactSummary && (
+          <div className="mt-8 bg-white border rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-red-200">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-red-500">Impact Review</p>
+              <p className="text-sm font-semibold text-ruah-900 mt-1">
+                {impactSummary.pending} pendentes, {impactSummary.overdue} atrasados no SLA de 2h.
+              </p>
+            </div>
+            <Link href='/admin/impact-reviews' className='px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold uppercase tracking-[0.1em]'>
+              Abrir fila crítica
+            </Link>
+          </div>
+        )}
 
         {/* Footer info */}
         <div className="mt-12 flex justify-between items-center border-t border-ruah-100 pt-8">

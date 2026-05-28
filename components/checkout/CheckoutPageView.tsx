@@ -19,6 +19,15 @@ export function CheckoutPageView() {
   const [step, setStep] = React.useState(1);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [selectedAddress, setSelectedAddress] = React.useState('home');
+  const [shippingAddress, setShippingAddress] = React.useState({
+    recipientName: 'Cliente UseRuah',
+    cep: '01000-000',
+    street: 'Rua Exemplo',
+    number: '100',
+    city: 'Sao Paulo',
+    state: 'SP',
+    country: 'BR',
+  });
   const [checkoutError, setCheckoutError] = React.useState<string | null>(null);
   const [paymentSummary, setPaymentSummary] = React.useState<PaymentRecord | null>(null);
   const requestKeyRef = React.useRef<string | null>(null);
@@ -47,6 +56,8 @@ export function CheckoutPageView() {
       return;
     }
 
+    const supplierId = cart[0]?.customSpecs?.supplierId || 'supplier-default';
+
     setIsProcessing(true);
     setCheckoutError(null);
     if (!requestKeyRef.current) requestKeyRef.current = crypto.randomUUID();
@@ -54,6 +65,9 @@ export function CheckoutPageView() {
     try {
       const orderPayload = await postJson<{ order: OrderRecord }>('/api/orders', {
         customer: { id: 'customer-session' },
+        supplierId,
+        shippingAddressMode: selectedAddress === 'home' ? 'same_as_account' : 'custom',
+        shippingAddress,
         items: cart.map((item) => ({
           catalogItemId: item.id,
           variantId: item.spec || 'default',
@@ -136,6 +150,13 @@ export function CheckoutPageView() {
                   composedDeadline={composedDeadline}
                   selectedAddress={selectedAddress}
                   onSelectAddress={setSelectedAddress}
+                  shippingAddress={shippingAddress}
+                  onShippingAddressChange={(field, value) =>
+                    setShippingAddress((current) => ({
+                      ...current,
+                      [field]: value,
+                    }))
+                  }
                   gifting={gifting}
                   onToggleGift={() => setGifting({ ...gifting, isGift: !gifting.isGift })}
                   onGiftMessageChange={(value) => setGifting({ ...gifting, message: value })}

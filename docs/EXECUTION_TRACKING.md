@@ -2,6 +2,103 @@
 
 Data de revisao: 2026-05-23
 
+Atualizacao adicional: 2026-05-27 (expansao do framework de review sensivel para campaign)
+- Dominio `campaign_growth` adicionado ao framework unico de review sensivel.
+- Novo ciclo de campanhas implementado com estados e trilha auditada:
+  - `POST /api/campaigns`
+  - `POST /api/campaigns/:id/submit`
+  - `POST /api/campaigns/:id/approve`
+  - `POST /api/campaigns/:id/reject`
+  - `POST /api/campaigns/:id/pause`
+  - `POST /api/campaigns/:id/close`
+  - `POST /api/campaigns/:id/cancel`
+- Bloqueios:
+  - ativacao de campanha bloqueada enquanto review sensivel estiver `pending_review` ou `rejected`.
+- Operacao:
+  - janela de resumo de impacto agora aceita selecao de responsavel por horario (`ownerRunTimes` + `OPS_IMPACT_OWNER`).
+- QA dedicado adicionado para evitar regressao entre campaign e impact review:
+  - `npm run qa:campaign:impact`
+  - cobre: create draft, submit, bloqueio por review pendente, aprovacao de review, ativacao final.
+
+Atualizacao adicional: 2026-05-27 (expansao de impacto para refunds e chargebacks)
+- `refund.requested` agora gera review sensivel (`payout_finance`, `refundDecision`, SLA 2h) e trilha de notificacao interna.
+- `refund.approve` agora bloqueia com `409` enquanto review sensivel estiver pendente/rejeitado.
+- `chargeback.webhook` agora gera review sensivel (`payout_finance`, `chargebackDecision`, SLA 2h) para trilha de risco.
+- QA dedicado adicionado:
+  - `npm run qa:finance:impact`
+  - cobre: bloqueio de approve refund por review pendente, liberacao apos approve de review e geracao de review em webhook de chargeback.
+
+Atualizacao adicional: 2026-05-27 (payout mark-paid com reconciliacao de ledger)
+- `POST /api/payouts/:id/mark-paid` agora executa trava de consistencia antes da liquidacao:
+  - reconcilia disponibilidade de comissoes do owner;
+  - valida integridade dos `commissionIds` vinculados ao payout;
+  - valida ownership das comissoes;
+  - valida status `available` para todas as comissoes;
+  - valida saldo agregado minimo para cobrir valor do payout.
+- Apos transicao `approved -> paid`, comissoes vinculadas passam para `paid` no mesmo fluxo operacional.
+- QA dedicado adicionado:
+  - `npm run qa:payout:ledger`
+  - cobre: saldo disponivel -> payout -> review -> approve -> mark-paid -> comissoes `paid`.
+
+Atualizacao adicional: 2026-05-27 (painel financeiro de pre-liquidacao)
+- Camada unica de reconciliacao extraida para `lib/payout-reconciliation.ts`.
+- Novo endpoint de precheck sem mutacao:
+  - `GET /api/payouts/:id/reconciliation`
+- Novo endpoint administrativo para listagem de payouts:
+  - `GET /api/admin/payouts`
+- Nova tela operacional para `finance_admin`/`platform_admin`:
+  - `/admin/finance/payouts`
+  - mostra filtro de payouts e validador com causa/acao de bloqueio antes de `mark-paid`.
+- Lote operacional ponta a ponta:
+  - backend: `POST /api/admin/payouts/batch-settlement`
+  - historico: `GET /api/admin/payouts/batch-settlement/history`
+  - front: execucao em lote pela tela `/admin/finance/payouts`
+  - trilha: cada lote gera `integration_logs` com `action=payout_batch_settlement.executed`, resumo e resultado por payout.
+  - historico agora aceita filtro por status (`success=true|false`) e periodo (`dateFrom`, `dateTo`) para fechamento financeiro mensal.
+  - exportacao CSV adicionada: `GET /api/admin/payouts/batch-settlement/history/export` com os mesmos filtros de status/periodo.
+  - formatos:
+    - `summary` (padrao): consolidado por execucao de lote.
+    - `long` (`format=long`): detalhado por payout dentro de cada lote.
+  - `format=long` agora inclui colunas de reconciliacao (`reconciliation_action`, `reconciliation_delta`, `reconciliation_json`) para auditoria item a item.
+  - codigos de falha de reconciliacao padronizados em fonte unica (`lib/payout-reconciliation-codes.ts`) e propagados para lote/CSV (`failureCode`/`failure_code`).
+  - playbook operacional por `failureCode` adicionado em fonte unica (`lib/payout-reconciliation-playbook.ts`) e propagado para lote/UI/CSV detalhado (`playbook_action`, `playbook_owner`, `playbook_severity`).
+  - metricas agregadas por `failureCode` adicionadas no endpoint `GET /api/admin/payouts/batch-settlement/metrics` e exibidas no painel para priorizacao semanal.
+  - thresholds semanais por `failureCode` adicionados em `config/payout-failure-thresholds.json`, com status agregado `OK|AT_RISK` no painel financeiro.
+  - quando `AT_RISK`, endpoint de metricas emite alerta operacional deduplicado por dia em `integration_logs` (`action=payout_batch_settlement.alert.at_risk`).
+  - fila executiva unificada criada:
+    - `GET /api/admin/ops-alerts` consolida `impact_review_notify.*` e `payout_batch_settlement.alert.at_risk`.
+    - tela `/admin/ops-alerts` exibe resumo, severidade e payload operacional para resposta rapida.
+  - workflow operacional de tratamento de alerta adicionado:
+    - `PATCH /api/admin/ops-alerts/:id` para `workflowStatus` (`new|in_progress|resolved`), `owner` e `note`.
+    - estado persistido em `lib/ops-alert-state-store.ts` e refletido no resumo (`open`, `inProgress`, `resolved`).
+    - toda alteracao de workflow agora gera trilha em `integration_logs` (`action=ops_alerts.workflow.updated`).
+  - SLA operacional de alertas adicionado com thresholds configuraveis:
+    - config: `config/ops-alert-sla.json`
+    - resumo e linha agora mostram atraso (`overdue`) e janela SLA ativa no painel `/admin/ops-alerts`.
+  - alerta automatico quando `overdue > 0` na fila unificada:
+    - acao registrada em `integration_logs`: `ops_alerts.alert.overdue`
+    - deduplicacao diaria para evitar ruido operacional.
+  - `ops_alerts.alert.overdue` agora tambem entra na fila `/admin/ops-alerts` com severidade `CRITICAL` e contador dedicado no resumo.
+
+Atualizacao adicional: 2026-05-27 (expansao do framework de review sensivel para payout)
+- Matriz unica de campos sensiveis criada: `docs/SENSITIVE_FIELDS_MATRIX.md`.
+- Framework de review sensivel expandido para dominio financeiro (`payout_finance`):
+  - solicitacao de payout cria review sensivel (`payoutDecision`, prioridade alta, SLA 2h);
+  - novas rotas de decisao: `start-review`, `approve`, `reject`, `mark-paid`;
+  - bloqueio de aprovacao quando review estiver pendente/rejeitado.
+- Comunicacao operacional tambem passou a registrar trilha para eventos de payout review em `integration_logs` (`provider=internal_ops`).
+- Evidencia tecnica:
+  - `npm run check`: PASS (2026-05-27)
+  - `npm run qa:content`: PASS (2026-05-27)
+
+Atualizacao adicional: 2026-05-27 (Gate de validacao 360 por papel/usuario)
+- Template oficial de PR atualizado com secao obrigatoria de reconciliacao:
+  - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md` (secao `2.1`)
+- Nova exigencia para PRs que alterem RBAC/cadastro/rota/contrato:
+  - declarar papel afetado;
+  - validar coerencia entre dominio (`ROLES_MATRIX`), runtime/sessao, rota (`WORKFLOW_RBAC_ACCESS_MATRIX`) e contrato (`API_CONTRACTS`);
+  - usar `docs/USER_360_ROLE_ALIGNMENT.md` como fonte de reconciliacao.
+
 Atualizacao adicional: 2026-05-25
 - Roadmap seguro de execucao para 2026-05-26 publicado em:
   - `docs/ROADMAP_2026-05-26_SAFE_EXECUTION.md`

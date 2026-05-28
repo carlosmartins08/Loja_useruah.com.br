@@ -3,6 +3,7 @@
 import React from 'react';
 
 import type { UserRole } from '@/lib/auth-session';
+import type { RegistrationStatus } from '@/lib/role-matrix/registration-matrix';
 
 interface UserContextType {
   profilePhoto: string | null;
@@ -14,7 +15,9 @@ interface UserContextType {
   userId: string;
   isAuthenticated: boolean;
   isSessionReady: boolean;
+  registrationStatus: RegistrationStatus | null;
   refreshSession: () => Promise<void>;
+  refreshRegistration: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -28,11 +31,44 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = React.useState('usr:carlos@useruah.com.br');
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [isSessionReady, setIsSessionReady] = React.useState(false);
+  const [registrationStatus, setRegistrationStatus] = React.useState<RegistrationStatus | null>(null);
+
+  const resetToGuestSession = React.useCallback(() => {
+    setIsAuthenticated(false);
+    setUserRole('customer');
+    setUserName('Carlos');
+    setUserEmail('carlos@useruah.com.br');
+    setUserId('usr:carlos@useruah.com.br');
+    setRegistrationStatus(null);
+    localStorage.removeItem('ruah_user_role');
+  }, []);
+
+  const refreshRegistration = React.useCallback(async () => {
+    try {
+      const response = await fetch('/api/auth/registration/me', { cache: 'no-store' });
+      if (!response.ok) {
+        setRegistrationStatus(null);
+        return;
+      }
+      const payload = (await response.json()) as {
+        authenticated: boolean;
+        registration: null | { status: RegistrationStatus };
+      };
+      if (!payload.authenticated || !payload.registration) {
+        setRegistrationStatus(null);
+        return;
+      }
+      setRegistrationStatus(payload.registration.status);
+    } catch {
+      setRegistrationStatus(null);
+    }
+  }, []);
 
   const refreshSession = React.useCallback(async () => {
     try {
       const response = await fetch('/api/auth/session', { cache: 'no-store' });
       if (!response.ok) {
+        resetToGuestSession();
         setIsSessionReady(true);
         return;
       }
@@ -42,7 +78,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       };
 
       if (!payload.authenticated || !payload.session) {
-        setIsAuthenticated(false);
+        resetToGuestSession();
         setIsSessionReady(true);
         return;
       }
@@ -54,25 +90,22 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setUserEmail(payload.session.userEmail);
       setUserId(payload.session.userId);
       localStorage.setItem('ruah_user_role', sessionRole);
+      await refreshRegistration();
     } catch {
-      // best effort hydration from backend session
+      // On network/session parse failures, fallback to guest to avoid stale privileged state.
+      resetToGuestSession();
     } finally {
       setIsSessionReady(true);
     }
-  }, []);
+  }, [refreshRegistration, resetToGuestSession]);
 
   const logout = React.useCallback(async () => {
     try {
       await fetch('/api/auth/session', { method: 'DELETE' });
     } catch {}
-    setIsAuthenticated(false);
-    setUserRole('customer');
-    setUserName('Carlos');
-    setUserEmail('carlos@useruah.com.br');
-    setUserId('usr:carlos@useruah.com.br');
+    resetToGuestSession();
     setIsSessionReady(true);
-    localStorage.removeItem('ruah_user_role');
-  }, []);
+  }, [resetToGuestSession]);
 
   // Load from localStorage on mount
   React.useEffect(() => {
@@ -111,7 +144,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         userId,
         isAuthenticated,
         isSessionReady,
+        registrationStatus,
         refreshSession,
+        refreshRegistration,
         logout,
       }}
     >

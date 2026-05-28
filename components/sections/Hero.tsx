@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
@@ -15,7 +15,7 @@ export function Hero() {
             <div className="flex flex-col gap-10 lg:gap-14">
               <div className="flex gap-4 lg:gap-6">
                 <div className="relative w-1/3 aspect-[3/4] rounded-[2rem] lg:rounded-3xl overflow-hidden mt-8 lg:mt-16">
-                  <Image
+                  <AppImage context="content-banner"
                     src="https://picsum.photos/seed/ruah-hero-1/600/800"
                     alt="Fé 1"
                     fill
@@ -26,7 +26,7 @@ export function Hero() {
                   />
                 </div>
                 <div className="relative w-2/3 aspect-[16/10] lg:aspect-[16/9] rounded-[2rem] lg:rounded-3xl overflow-hidden">
-                  <Image
+                  <AppImage context="content-banner"
                     src="https://picsum.photos/seed/ruah-hero-2/1200/800"
                     alt="Fé 2"
                     fill
@@ -70,7 +70,7 @@ export function Hero() {
             </div>
 
             <div className="relative w-full aspect-square rounded-[2.5rem] lg:rounded-3xl overflow-hidden mb-2 shadow-2xl">
-              <Image
+              <AppImage context="content-banner"
                 src="https://picsum.photos/seed/ruah-hero-3/800/800"
                 alt="Fé 3"
                 fill
@@ -102,3 +102,4 @@ export function Hero() {
     </section>
   );
 }
+

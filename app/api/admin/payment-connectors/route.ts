@@ -12,6 +12,7 @@ import { appendAuditLog } from '@/lib/audit-log-store';
 import { getProviderRequirement, validateProviderSettings } from '@/lib/payment-provider-requirements';
 import { runPaymentConnectorTest } from '@/lib/payment-connector-tester';
 import type { PaymentProviderKey } from '@/lib/payments';
+import { canManagePaymentConnectors } from '@/lib/role-matrix/permission-matrix';
 
 interface UpsertPayload {
   provider: PaymentProviderKey;
@@ -41,7 +42,7 @@ function isValidActionPayload(payload: unknown): payload is ActionPayload {
 
 function ensureAdmin(request: Request) {
   const actor = getActorFromRequest(request);
-  if (isRbacActive() && actor?.actorRole !== 'platform_admin') {
+  if (isRbacActive() && !canManagePaymentConnectors(actor?.actorRole)) {
     return null;
   }
   return actor;

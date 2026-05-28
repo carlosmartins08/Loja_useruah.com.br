@@ -1838,3 +1838,70 @@ Popular catalogo publicado inicial (dev/staging) com IDs legados `1..6` para man
 
 ### AuditLog
 Obrigatorio: sim
+
+---
+
+## POST /api/campaigns
+
+### Objetivo
+Criar campanha em `draft` e abrir review sensivel de growth (`campaign_growth`).
+
+### Roles autorizados
+- `community_manager`
+- `platform_admin`
+
+### Machine consumida
+- Machine: `campaign`
+- Transicao: `none -> draft`
+
+### Evento emitido
+- `campaign.created`
+- `impact_review_notify.created_pending`
+
+### AuditLog
+Obrigatorio: sim
+
+---
+
+## POST /api/campaigns/:id/submit
+
+### Objetivo
+Submeter campanha para revisao.
+
+### Roles autorizados
+- `community_manager`
+- `platform_admin`
+
+### Machine consumida
+- Machine: `campaign`
+- Transicao: `draft|rejected -> pending_review`
+
+### Evento emitido
+- `campaign.submitted`
+
+### AuditLog
+Obrigatorio: sim
+
+---
+
+## POST /api/campaigns/:id/approve
+
+### Objetivo
+Aprovar campanha e ativar, respeitando bloqueio de review sensivel.
+
+### Roles autorizados
+- `platform_admin` (single-approver atual)
+
+### Machine consumida
+- Machine: `campaign`
+- Transicao: `pending_review|paused -> active`
+
+### Regras obrigatorias
+- Bloquear quando existir `impact_review_pending`.
+- Bloquear quando ultimo review sensivel estiver `rejected`.
+
+### Evento emitido
+- `campaign.approved` ou `campaign.reactivated`
+
+### AuditLog
+Obrigatorio: sim

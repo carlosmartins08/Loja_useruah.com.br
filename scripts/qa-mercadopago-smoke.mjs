@@ -46,6 +46,17 @@ async function run() {
   requiredEnv('PAYMENT_MERCADOPAGO_API_KEY');
 
   const order = await post('/api/orders', {
+    supplierId: 'supplier-default',
+    shippingAddressMode: 'same_as_account',
+    shippingAddress: {
+      recipientName: 'QA Customer',
+      cep: '01000-000',
+      street: 'Rua QA',
+      number: '100',
+      city: 'Sao Paulo',
+      state: 'SP',
+      country: 'BR',
+    },
     items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
     customer: { id: 'customer-mp-smoke' },
   });
@@ -103,4 +114,3 @@ run().catch((error) => {
   console.error(JSON.stringify({ status: 'FAIL', baseUrl, error: String(error) }, null, 2));
   process.exit(1);
 });
-

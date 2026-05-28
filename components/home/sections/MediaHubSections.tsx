@@ -1,6 +1,6 @@
 ﻿
 import { Instagram, Music, Youtube } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 const TRACKS = [
@@ -26,7 +26,7 @@ export function MediaHubSections() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group cursor-pointer">
-                <Image src={`https://picsum.photos/seed/ruah-ugc-${i}/600/600`} alt="UGC Content" fill className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale hover:grayscale-0" referrerPolicy="no-referrer" />
+                <AppImage context="product-thumb" src={`https://picsum.photos/seed/ruah-ugc-${i}/600/600`} alt="UGC Content" fill className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale hover:grayscale-0" referrerPolicy="no-referrer" />
                 <div className="absolute inset-0 bg-ruah-950/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <Instagram size={24} className="text-white" />
                 </div>
@@ -63,7 +63,7 @@ export function MediaHubSections() {
             </div>
 
             <div className="lg:col-span-8 relative aspect-video rounded-[3rem] overflow-hidden group shadow-2xl bg-ruah-950">
-              <Image src="https://picsum.photos/seed/ruah-yt-hero/1280/720" alt="YouTube Featured Video" fill className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" />
+              <AppImage context="hero" src="https://picsum.photos/seed/ruah-yt-hero/1280/720" alt="YouTube Featured Video" fill className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:bg-accent-gold group-hover:scale-110 transition-all shadow-2xl">
                   <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[22px] border-l-white border-b-[12px] border-b-transparent ml-1" />
@@ -90,7 +90,7 @@ export function MediaHubSections() {
                 <div className="flex flex-col gap-10">
                   <div className="flex items-center gap-6">
                     <div className="w-24 h-24 bg-ruah-950 rounded-2xl relative overflow-hidden shadow-xl ring-4 ring-ruah-50">
-                      <Image src="https://picsum.photos/seed/spotify-hero/400/400" alt="Album Cover" fill className="object-cover" />
+                      <AppImage context="content-banner" src="https://picsum.photos/seed/spotify-hero/400/400" alt="Album Cover" fill className="object-cover" />
                     </div>
                     <div className="flex flex-col gap-2">
                       <span className="text-[14px] font-serif italic font-black text-ruah-950 uppercase tracking-tighter">Sopro da Manhã Vol. 1</span>
@@ -164,6 +164,7 @@ export function MediaHubSections() {
     </>
   );
 }
+
 
 
 

@@ -1,5 +1,7 @@
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { createChargebackEvent } from '@/lib/chargeback-store';
+import { createImpactReview } from '@/lib/impact-review-store';
+import { notifyImpactReviewEvent } from '@/lib/impact-notification-service';
 import { updateLicenseEventsByOrderId } from '@/lib/license-event-store';
 import { getOrder, updateOrderStatus } from '@/lib/order-store';
 import { appendPaymentEvent, findPaymentByOrderId, findPaymentByProviderReference, updatePaymentStatus } from '@/lib/payment-store';
@@ -93,6 +95,23 @@ export async function requestRefund(input: {
   });
 
   if (result.created) {
+    const impactReview = createImpactReview({
+      domain: 'payout_finance',
+      entityType: 'Refund',
+      entityId: result.refund.refundId,
+      sensitiveFields: ['refundDecision'],
+      requestedBy: input.actorId,
+      priority: 'high',
+      slaHours: 2,
+    });
+    await notifyImpactReviewEvent({
+      event: 'created_pending',
+      reviewId: impactReview.review.reviewId,
+      entityId: result.refund.refundId,
+      actorId: input.actorId,
+      actorRole: 'support_agent',
+      dueAt: impactReview.review.dueAt,
+    });
     appendAuditLog({
       actor_id: input.actorId,
       actor_role: 'support_agent',
@@ -186,6 +205,24 @@ export async function processChargeback(input: {
   if (!created.created) {
     return { alreadyProcessed: true, payment };
   }
+
+  const impactReview = createImpactReview({
+    domain: 'payout_finance',
+    entityType: 'Chargeback',
+    entityId: created.chargeback.eventId,
+    sensitiveFields: ['chargebackDecision'],
+    requestedBy: 'system',
+    priority: 'high',
+    slaHours: 2,
+  });
+  await notifyImpactReviewEvent({
+    event: 'created_pending',
+    reviewId: impactReview.review.reviewId,
+    entityId: created.chargeback.eventId,
+    actorId: 'system',
+    actorRole: 'webhook',
+    dueAt: impactReview.review.dueAt,
+  });
 
   const shouldPreserveRefund = payment.status === 'refunded' || payment.status === 'partially_refunded';
   const nextStatus = shouldPreserveRefund ? payment.status : 'chargeback';

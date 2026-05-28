@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, ShoppingBag, User, Menu, X, Bell, ChevronDown, ArrowRight, Sparkles, Globe, MessageSquare, Package, Camera, Plus } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import { useCart } from '@/context/CartContext';
 import { useUser } from '@/context/UserContext';
 import { SearchOverlay } from './SearchOverlay';
@@ -120,7 +120,7 @@ export function Header() {
                         </div>
                         <div className="col-span-4">
                            <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden group/img">
-                              <Image src="https://picsum.photos/seed/ruah-menu-1/400/500" alt="Respiro" fill className="object-cover group-hover/img:scale-110 transition-all duration-1000" />
+                              <AppImage context="content-banner" src="https://picsum.photos/seed/ruah-menu-1/400/500" alt="Respiro" fill className="object-cover group-hover/img:scale-110 transition-all duration-1000" />
                               <div className="absolute inset-0 bg-gradient-to-t from-ruah-950/80 to-transparent flex flex-col justify-end p-6">
                                  <span className="text-white text-[11px] font-serif italic font-black uppercase mb-1">Inspirar.</span>
                                  <p className="text-white/60 text-[8px] font-bold uppercase tracking-widest leading-relaxed">Conheça nosso Manifesto e as histórias por trás das peças.</p>
@@ -144,7 +144,7 @@ export function Header() {
 
             {/* Logo (Centered on Desktop) */}
             <Link href="/" className="md:absolute md:left-1/2 md:-translate-x-1/2 group" id="logo-link">
-               <Image
+               <AppImage context="content-banner"
                  src="/brand/SVG/logo-wordmark-dark.svg"
                  alt="UseRuah"
                  width={220}
@@ -174,7 +174,7 @@ export function Header() {
                <Link href={accountHref} className="p-1 hover:bg-ruah-50 rounded-full transition-colors relative group/user" id="btn-account">
                  <div className="w-8 h-8 rounded-full overflow-hidden relative border border-ruah-100 group-hover/user:border-accent-gold transition-colors">
                     {profilePhoto ? (
-                      <Image src={profilePhoto} alt="User Profile" fill className="object-cover" />
+                      <AppImage context="content-banner" src={profilePhoto} alt="User Profile" fill className="object-cover" />
                     ) : (
                       <div className="w-full h-full bg-ruah-50 flex items-center justify-center">
                         <User size={16} className="text-ruah-800" />
@@ -225,7 +225,7 @@ export function Header() {
             >
               <div className="p-10 flex justify-between items-center border-b border-ruah-50">
                 <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Image
+                  <AppImage context="content-banner"
                     src="/brand/SVG/logo-wordmark-dark.svg"
                     alt="UseRuah"
                     width={180}
@@ -386,6 +386,7 @@ export function Header() {
     </header>
   );
 }
+
 
 
 

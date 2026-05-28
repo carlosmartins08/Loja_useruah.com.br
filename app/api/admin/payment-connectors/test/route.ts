@@ -5,6 +5,7 @@ import { appendAuditLog } from '@/lib/audit-log-store';
 import { validateProviderSettings } from '@/lib/payment-provider-requirements';
 import { runPaymentConnectorTest } from '@/lib/payment-connector-tester';
 import type { PaymentProviderKey } from '@/lib/payments';
+import { canManagePaymentConnectors } from '@/lib/role-matrix/permission-matrix';
 
 interface TestPayload {
   provider: PaymentProviderKey;
@@ -19,7 +20,7 @@ function isValidPayload(payload: unknown): payload is TestPayload {
 
 export async function POST(request: Request) {
   const actor = getActorFromRequest(request);
-  if (isRbacActive() && actor?.actorRole !== 'platform_admin') {
+  if (isRbacActive() && !canManagePaymentConnectors(actor?.actorRole)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 

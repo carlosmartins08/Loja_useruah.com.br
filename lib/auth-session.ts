@@ -1,5 +1,6 @@
 export type UserRole =
   | 'customer'
+  | 'supplier'
   | 'platform_admin'
   | 'support_agent'
   | 'production_operator'
@@ -18,6 +19,7 @@ export interface AuthSession {
 
 const VALID_ROLES: UserRole[] = [
   'customer',
+  'supplier',
   'platform_admin',
   'support_agent',
   'production_operator',

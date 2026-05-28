@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import React from 'react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import { X, ZoomIn } from 'lucide-react';
 
 interface MediaItem {
@@ -35,7 +35,7 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
       <div className="section-container grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         <div className="lg:col-span-7">
           <div className="relative aspect-square rounded-[2rem] overflow-hidden border border-ruah-100 bg-ruah-50 group">
-            <Image src={active.src} alt={active.label} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover" />
+            <AppImage context="content-banner" src={active.src} alt={active.label} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover" />
             <button
               onClick={() => setZoomOpen(true)}
               className="absolute bottom-4 right-4 flex items-center gap-2 bg-white/90 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-[0.08em] text-ruah-950 border border-ruah-100 hover:border-accent-gold"
@@ -60,7 +60,7 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
                   active.label === item.label ? 'border-ruah-950' : 'border-ruah-100 hover:border-accent-gold'
                 }`}
               >
-                <Image src={item.src} alt={item.label} fill sizes="(max-width: 1024px) 50vw, 20vw" className="object-cover" />
+                <AppImage context="content-banner" src={item.src} alt={item.label} fill sizes="(max-width: 1024px) 50vw, 20vw" className="object-cover" />
                 <span className="absolute left-2 bottom-2 text-xs font-semibold uppercase tracking-[0.08em] bg-white/90 px-2 py-1 rounded-full text-ruah-950">
                   {item.label}
                 </span>
@@ -79,11 +79,12 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
             <X size={18} />
           </button>
           <div className="relative w-full max-w-4xl aspect-square rounded-3xl overflow-hidden border border-white/20">
-            <Image src={active.src} alt={`${active.label} ampliado`} fill sizes="90vw" className="object-contain bg-ruah-950" />
+            <AppImage context="content-banner" src={active.src} alt={`${active.label} ampliado`} fill sizes="90vw" className="object-contain bg-ruah-950" />
           </div>
         </div>
       )}
     </section>
   );
 }
+
 

@@ -4,7 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ShoppingBag, Trash2, Plus, Minus, ArrowRight, Truck } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 export function CartDrawer() {
@@ -105,7 +105,7 @@ export function CartDrawer() {
                   {cart.map((item, idx) => (
                     <div key={`${item.id}-${idx}`} className="flex gap-6 group">
                       <div className="relative w-24 h-32 rounded-2xl overflow-hidden bg-ruah-50 border border-ruah-100 shadow-sm">
-                        <Image src={item.image} alt={item.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                        <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" referrerPolicy="no-referrer" />
                         {item.productionDays && (
                           <div className="absolute top-2 left-2 bg-accent-gold text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-[0.1em]">
                              Bespoke
@@ -173,7 +173,7 @@ export function CartDrawer() {
                       ].map((acc) => (
                         <div key={acc.id} className="flex items-center gap-4 p-4 bg-ruah-50 rounded-2xl border border-ruah-100 group cursor-pointer hover:border-accent-gold/30 transition-all font-bold">
                            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0">
-                              <Image src={acc.image} alt={acc.name} fill className="object-cover" />
+                              <AppImage context="content-banner" src={acc.image} alt={acc.name} fill className="object-cover" />
                            </div>
                            <div className="flex-1 flex flex-col gap-0.5">
                               <span className="text-xs font-bold uppercase tracking-tight text-ruah-950">{acc.name}</span>
@@ -237,5 +237,6 @@ export function CartDrawer() {
     </AnimatePresence>
   );
 }
+
 
 

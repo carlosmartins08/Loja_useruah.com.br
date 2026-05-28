@@ -59,14 +59,21 @@ Evitar perda de contexto no codigo com um mapa unico de localizacao por dominio.
   - `app/api/catalog-items/[id]/unpublish/route.ts`
   - `app/api/catalog-items/[id]/reopen/route.ts`
   - `app/api/catalog-items/bootstrap/route.ts`
+  - `app/api/admin/impact-reviews/route.ts`
+  - `app/api/admin/impact-reviews/[id]/approve/route.ts`
+  - `app/api/admin/impact-reviews/[id]/reject/route.ts`
+  - `app/api/admin/impact-reviews/notifications/route.ts`
 - Frontend:
   - `app/shop/page.tsx`
   - `app/product/[id]/page.tsx`
+  - `app/admin/impact-reviews/page.tsx`
   - `components/product/ProductPageView.tsx`
   - `components/product/product-data.ts`
 - Persistencia:
   - `lib/artwork-store.ts`
   - `lib/catalog-item-store.ts`
+  - `lib/impact-review-store.ts`
+  - `lib/impact-notification-service.ts`
 - QA/automacao:
   - `scripts/qa-catalog-lifecycle.mjs`
 
@@ -78,13 +85,38 @@ Evitar perda de contexto no codigo com um mapa unico de localizacao por dominio.
   - `app/api/support/orders/[orderId]/context/route.ts`
 - Persistencia:
   - `lib/ticket-store.ts`
+- Frontend:
+  - `app/admin/support/page.tsx`
+  - `app/admin/support/[orderId]/page.tsx`
 - QA/automacao:
   - `scripts/qa-core-operations.mjs`
 
+### Alertas Operacionais
+- API:
+  - `app/api/admin/ops-alerts/route.ts`
+  - `app/api/admin/ops-alerts/[id]/route.ts`
+- Frontend:
+  - `app/admin/ops-alerts/page.tsx`
+- Persistencia:
+  - `lib/integration-log-store.ts`
+  - `lib/ops-alert-state-store.ts`
+  - `lib/ops-alert-sla.ts`
+  - `lib/ops-alert-overdue-alerts.ts`
+
 ### Financeiro (Comissoes e Saques)
 - API:
+  - `app/api/admin/payouts/route.ts`
+  - `app/api/admin/payouts/batch-settlement/route.ts`
+  - `app/api/admin/payouts/batch-settlement/history/route.ts`
+  - `app/api/admin/payouts/batch-settlement/history/export/route.ts`
+  - `app/api/admin/payouts/batch-settlement/metrics/route.ts`
   - `app/api/commissions/me/route.ts`
   - `app/api/payouts/route.ts`
+  - `app/api/payouts/[id]/start-review/route.ts`
+  - `app/api/payouts/[id]/approve/route.ts`
+  - `app/api/payouts/[id]/reject/route.ts`
+  - `app/api/payouts/[id]/reconciliation/route.ts`
+  - `app/api/payouts/[id]/mark-paid/route.ts`
   - `app/api/refunds/route.ts`
   - `app/api/refunds/[refundId]/approve/route.ts`
   - `app/api/refunds/[refundId]/reject/route.ts`
@@ -92,14 +124,45 @@ Evitar perda de contexto no codigo com um mapa unico de localizacao por dominio.
 - Persistencia:
   - `lib/commission-store.ts`
   - `lib/payout-store.ts`
+  - `lib/payout-reconciliation.ts`
+  - `lib/payout-reconciliation-codes.ts`
+  - `lib/payout-reconciliation-playbook.ts`
+  - `lib/payout-failure-thresholds.ts`
+  - `lib/payout-risk-alerts.ts`
+  - `lib/payout-settlement-service.ts`
   - `lib/payment-split-store.ts`
   - `lib/license-event-store.ts`
   - `lib/terms-acceptance-store.ts`
+  - `lib/impact-review-store.ts`
+  - `lib/impact-notification-service.ts`
+- Frontend:
+  - `app/admin/finance/payouts/page.tsx`
+
+### Comunidade e Campanhas
+- API:
+  - `app/api/campaigns/route.ts`
+  - `app/api/campaigns/[id]/submit/route.ts`
+  - `app/api/campaigns/[id]/approve/route.ts`
+  - `app/api/campaigns/[id]/reject/route.ts`
+  - `app/api/campaigns/[id]/pause/route.ts`
+  - `app/api/campaigns/[id]/close/route.ts`
+  - `app/api/campaigns/[id]/cancel/route.ts`
+- Persistencia:
+  - `lib/campaign-store.ts`
+  - `lib/impact-review-store.ts`
+  - `lib/impact-notification-service.ts`
+- QA/automacao:
+  - `scripts/qa-campaign-impact.mjs`
+  - `scripts/qa-finance-impact.mjs`
+  - `scripts/qa-payout-ledger-paid.mjs`
 
 ### RBAC, Auditoria e Utilitarios Criticos
 - Seguranca/autorizacao:
+  - `app/api/auth/session/active-role/route.ts`
   - `lib/rbac.ts`
   - `lib/auth*.ts`
+  - `lib/role-matrix/permission-matrix.ts`
+  - `lib/role-matrix/registration-matrix.ts`
 - Auditoria:
   - `lib/audit-log*.ts`
 - Persistencia de desenvolvimento:

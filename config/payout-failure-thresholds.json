@@ -1,0 +1,14 @@
+{
+  "window": "weekly",
+  "defaultMaxCount": 5,
+  "codes": {
+    "missing_commission_link": 2,
+    "commission_owner_mismatch": 2,
+    "commission_not_available": 8,
+    "insufficient_commission_balance": 3,
+    "status_not_approved": 10,
+    "not_ready": 10,
+    "invalid_transition": 6,
+    "not_found": 3
+  }
+}

@@ -1,4 +1,4 @@
-﻿import Image from 'next/image';
+﻿import { AppImage } from '@/components/shared/AppImage';
 import { AlertCircle, ShieldCheck } from 'lucide-react';
 import { CartItem } from '@/context/CartContext';
 
@@ -18,7 +18,7 @@ export function CheckoutOrderSummary({ cart, subtotal, total }: CheckoutOrderSum
           {cart.map((item, idx) => (
             <div key={`${item.id}-${idx}`} className="flex gap-6">
               <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-ruah-50 border border-ruah-100 shrink-0">
-                <Image src={item.image} alt={item.name} fill className="object-cover" />
+                <AppImage context="product-thumb" src={item.image} alt={item.name} fill className="object-cover" />
               </div>
               <div className="flex flex-col justify-center gap-1">
                 <span className="text-sm font-semibold text-ruah-950">{item.name}</span>
@@ -73,6 +73,7 @@ export function CheckoutOrderSummary({ cart, subtotal, total }: CheckoutOrderSum
     </aside>
   );
 }
+
 
 
 

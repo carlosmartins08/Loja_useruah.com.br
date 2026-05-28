@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { Header } from '@/components/navigation/Header';
 import { Breadcrumbs } from '@/components/navigation/Breadcrumbs';
 import { ArrowRight, Calendar, User, Clock } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 const ARTICLES = [
@@ -19,8 +19,8 @@ const ARTICLES = [
   },
   {
     id: 2,
-    title: 'Minimalismo Real: Quando a Luminária se Torna Invisível',
-    excerpt: 'A tendência do design "Ghost Architecture" onde a infraestrutura lumínica é integrada estruturalmente ao forro.',
+    title: 'Minimalismo Real: Quando a LuminÃ¡ria se Torna InvisÃ­vel',
+    excerpt: 'A tendÃªncia do design "Ghost Architecture" onde a infraestrutura lumÃ­nica Ã© integrada estruturalmente ao forro.',
     category: 'Arquitetura',
     author: 'Hans Weber',
     date: '05 Set 2026',
@@ -42,10 +42,10 @@ export default function JournalPage() {
              <div className="max-w-4xl">
                 <span className="tech-label text-accent-blue mb-8 block">UseRuah Journal</span>
                 <h1 className="text-7xl lg:text-9xl font-serif leading-[0.85] tracking-tighter uppercase mb-16 italic">
-                   A CIÊNCIA <br /> DA <span className="not-italic">LUZ.</span>
+                   A CIÃŠNCIA <br /> DA <span className="not-italic">LUZ.</span>
                 </h1>
                 <p className="text-lg font-medium uppercase tracking-[0.2em] leading-relaxed text-lumina-500 max-w-xl">
-                   Explorando a intersecção entre biologia, engenharia e design. Uma curadoria de insights para arquitetos e visionários.
+                   Explorando a intersecÃ§Ã£o entre biologia, engenharia e design. Uma curadoria de insights para arquitetos e visionÃ¡rios.
                 </p>
              </div>
           </div>
@@ -54,7 +54,7 @@ export default function JournalPage() {
        {/* Featured Article */}
        <section className="section-container pb-32">
           <Link href={`/journal/${ARTICLES[0].id}`} className="group relative aspect-[21/9] rounded-[4rem] overflow-hidden block">
-             <Image 
+             <AppImage context="content-banner" 
                src={ARTICLES[0].image} 
                alt={ARTICLES[0].title} 
                fill 
@@ -89,7 +89,7 @@ export default function JournalPage() {
              {ARTICLES.slice(1).map(article => (
                 <Link key={article.id} href={`/journal/${article.id}`} className="group flex flex-col gap-8">
                    <div className="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden shadow-xl">
-                      <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                      <AppImage context="content-banner" src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                    </div>
                    <div className="flex flex-col gap-4">
                       <div className="flex items-center gap-4">
@@ -114,3 +114,4 @@ export default function JournalPage() {
     </main>
   );
 }
+

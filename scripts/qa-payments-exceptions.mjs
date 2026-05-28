@@ -22,8 +22,30 @@ async function post(pathname, body, headers = {}) {
   return { status: response.status, data };
 }
 
+async function get(pathname, headers = {}) {
+  const response = await fetch(`${baseUrl}${pathname}`, { headers });
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    // ignore
+  }
+  return { status: response.status, data };
+}
+
 async function createPaidOrder(customerId, amount = 89.9) {
   const order = await post('/api/orders', {
+    supplierId: 'supplier-default',
+    shippingAddressMode: 'same_as_account',
+    shippingAddress: {
+      recipientName: 'QA Customer',
+      cep: '01000-000',
+      street: 'Rua QA',
+      number: '100',
+      city: 'Sao Paulo',
+      state: 'SP',
+      country: 'BR',
+    },
     items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: amount }],
     customer: { id: customerId },
   });
@@ -36,6 +58,7 @@ async function createPaidOrder(customerId, amount = 89.9) {
     {
       orderId,
       method: 'pix',
+      provider: 'sandbox',
       amount,
       currency: 'BRL',
       items: [{ id: '1', name: 'Camiseta Respiro', quantity: 1, unitPrice: amount }],
@@ -75,7 +98,18 @@ async function run() {
   }
 
   const placedOrder = await post('/api/orders', {
-    items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 79.9 }],
+    supplierId: 'supplier-default',
+    shippingAddressMode: 'same_as_account',
+    shippingAddress: {
+      recipientName: 'QA Customer',
+      cep: '01000-000',
+      street: 'Rua QA',
+      number: '100',
+      city: 'Sao Paulo',
+      state: 'SP',
+      country: 'BR',
+    },
+    items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
     customer: { id: 'qa-cancel-customer' },
   });
   assert(placedOrder.status === 201, `placed order expected 201, got ${placedOrder.status}`);
@@ -126,9 +160,34 @@ async function run() {
     {},
     { 'x-actor-id': 'qa-finance', 'x-actor-role': 'finance_admin' }
   );
-  assert(refundApprove.status === 200, `refund approve expected 200, got ${refundApprove.status}`);
-  assert(refundApprove.data?.refund?.status === 'approved', 'refund approve should set approved');
-  report.push('P0-EXC-05 refund approve');
+  assert(refundApprove.status === 409, `refund approve pending review expected 409, got ${refundApprove.status}`);
+  assert(refundApprove.data?.detail === 'impact_review_pending', `expected impact_review_pending, got ${String(refundApprove.data?.detail)}`);
+  report.push('P0-EXC-05 refund approve bloqueado por impact review pendente');
+
+  const pendingReviews = await get('/api/admin/impact-reviews?status=pending_review', {
+    'x-actor-id': 'qa-admin',
+    'x-actor-role': 'platform_admin',
+  });
+  assert(pendingReviews.status === 200, `impact reviews expected 200, got ${pendingReviews.status}`);
+  const reviews = Array.isArray(pendingReviews.data?.reviews) ? pendingReviews.data.reviews : [];
+  const refundReview = reviews.find((row) => row.entityType === 'Refund' && row.entityId === refundId);
+  assert(refundReview?.reviewId, 'refund impact review not found');
+
+  const approveReview = await post(
+    `/api/admin/impact-reviews/${refundReview.reviewId}/approve`,
+    { reason: 'qa exceptions refund approval' },
+    { 'x-actor-id': 'qa-admin', 'x-actor-role': 'platform_admin' }
+  );
+  assert(approveReview.status === 200, `impact review approve expected 200, got ${approveReview.status}`);
+
+  const refundApproveAfterReview = await post(
+    `/api/refunds/${refundId}/approve`,
+    {},
+    { 'x-actor-id': 'qa-finance', 'x-actor-role': 'finance_admin' }
+  );
+  assert(refundApproveAfterReview.status === 200, `refund approve after review expected 200, got ${refundApproveAfterReview.status}`);
+  assert(refundApproveAfterReview.data?.refund?.status === 'approved', 'refund approve should set approved');
+  report.push('P0-EXC-06 refund approve apos impact review');
 
   const refundRejectAfterApprove = await post(
     `/api/refunds/${refundId}/reject`,
@@ -136,9 +195,9 @@ async function run() {
     { 'x-actor-id': 'qa-finance', 'x-actor-role': 'finance_admin' }
   );
   assert(refundRejectAfterApprove.status === 409, `refund reject after approve expected 409, got ${refundRejectAfterApprove.status}`);
-  report.push('P0-EXC-06 refund reject bloqueado apos approve');
+  report.push('P0-EXC-07 refund reject bloqueado apos approve');
 
-  const paidChargeback = await createPaidOrder('qa-chargeback-customer', 99.9);
+  const paidChargeback = await createPaidOrder('qa-chargeback-customer', 89.9);
   const chargebackEventId = `chb-${Date.now()}`;
   const chargeback = await post('/api/chargebacks/webhook', {
     eventId: chargebackEventId,
@@ -146,7 +205,7 @@ async function run() {
     reason: 'issuer_dispute',
   });
   assert(chargeback.status === 200, `chargeback expected 200, got ${chargeback.status}`);
-  report.push('P0-EXC-07 chargeback recebido');
+  report.push('P0-EXC-08 chargeback recebido');
 
   const chargebackDuplicate = await post('/api/chargebacks/webhook', {
     eventId: chargebackEventId,
@@ -155,7 +214,7 @@ async function run() {
   });
   assert(chargebackDuplicate.status === 200, `chargeback duplicate expected 200, got ${chargebackDuplicate.status}`);
   assert(chargebackDuplicate.data?.status === 'already_processed', 'chargeback duplicate should be already_processed');
-  report.push('P0-EXC-08 idempotencia chargeback');
+  report.push('P0-EXC-09 idempotencia chargeback');
 
   const splitsFile = path.resolve('.tmp-store', 'payment-splits.json');
   const licenseFile = path.resolve('.tmp-store', 'license-events.json');
@@ -168,19 +227,19 @@ async function run() {
   const refundSplitRows = refundSplitIds.map((id) => splitsRaw.splits?.[id]).filter(Boolean);
   assert(refundSplitRows.length > 0, 'refund split rows missing');
   assert(refundSplitRows.every((row) => row.status === 'refunded'), 'refund split rows should be refunded');
-  report.push('P0-EXC-09 payment_splits atualizados em refund');
+  report.push('P0-EXC-10 payment_splits atualizados em refund');
 
   const refundLicenseIds = licenseRaw.byOrder?.[paid.orderId] ?? [];
   const refundLicenseRows = refundLicenseIds.map((id) => licenseRaw.events?.[id]).filter(Boolean);
   assert(refundLicenseRows.length > 0, 'refund license rows missing');
   assert(refundLicenseRows.every((row) => row.paymentStatus === 'refunded'), 'refund license rows should be refunded');
-  report.push('P0-EXC-10 license_events atualizados em refund');
+  report.push('P0-EXC-11 license_events atualizados em refund');
 
   const chargebackLicenseIds = licenseRaw.byOrder?.[paidChargeback.orderId] ?? [];
   const chargebackLicenseRows = chargebackLicenseIds.map((id) => licenseRaw.events?.[id]).filter(Boolean);
   assert(chargebackLicenseRows.length > 0, 'chargeback license rows missing');
   assert(chargebackLicenseRows.every((row) => row.paymentStatus === 'refunded'), 'chargeback license rows should be refunded');
-  report.push('P0-EXC-11 license_events atualizados em chargeback');
+  report.push('P0-EXC-12 license_events atualizados em chargeback');
 
   console.log(JSON.stringify({ status: 'PASS', baseUrl, report }, null, 2));
 }

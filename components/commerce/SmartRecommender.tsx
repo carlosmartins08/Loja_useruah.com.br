@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 export interface SmartRecommendationItem {
@@ -35,7 +35,7 @@ export function SmartRecommender({ recommendations }: { recommendations: SmartRe
           <Link key={product.id} href={`/product/${product.id}`} className="group bg-white border border-ruah-100 rounded-3xl p-6 hover:shadow-fancy transition-all duration-500">
             <div className="flex gap-6 items-center">
               <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-ruah-50">
-                <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                <AppImage context="content-banner" src={product.image} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
               </div>
               <div className="flex flex-col gap-1">
                 <h4 className="text-sm font-serif italic text-ruah-950">{product.name}</h4>
@@ -52,5 +52,6 @@ export function SmartRecommender({ recommendations }: { recommendations: SmartRe
     </div>
   );
 }
+
 
 

@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { Header } from '@/components/navigation/Header';
 import { Trash2, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 export default function CartPage() {
@@ -16,7 +16,7 @@ export default function CartPage() {
            <div className="flex items-center gap-2 mb-2">
              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-gold">Seu Respiro</span>
              <div className="w-1 h-1 rounded-full bg-ruah-200" />
-             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-ruah-400">Seleção de Arte</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-ruah-400">SeleÃ§Ã£o de Arte</span>
            </div>
            <h1 className="text-5xl font-serif font-black tracking-tighter text-ruah-950 uppercase italic">Carrinho de <span className="text-accent-gold">Compras.</span></h1>
         </div>
@@ -29,7 +29,7 @@ export default function CartPage() {
            {[1, 2].map(item => (
              <div key={item} className="flex gap-8 pb-8 border-b border-ruah-100 group bg-white p-8 rounded-[2.5rem] shadow-sm hover:shadow-md transition-all">
                 <div className="relative w-32 aspect-square bg-ruah-50 rounded-2xl overflow-hidden shrink-0 border border-ruah-100 group-hover:border-accent-gold transition-colors">
-                   <Image 
+                   <AppImage context="content-banner" 
                      src={`https://picsum.photos/seed/cart-${item}/400/400`}
                      alt="Product"
                      fill
@@ -40,14 +40,14 @@ export default function CartPage() {
                 <div className="flex-1 flex flex-col justify-between py-2">
                    <div>
                       <div className="flex justify-between items-start mb-2">
-                         <h3 className="font-black text-xl text-ruah-950 uppercase tracking-tight">Peça de Sopro Pro {item}</h3>
+                         <h3 className="font-black text-xl text-ruah-950 uppercase tracking-tight">PeÃ§a de Sopro Pro {item}</h3>
                          <span className="font-mono font-bold text-accent-gold">R$ 3.490,00</span>
                       </div>
                       <div className="flex gap-4 text-[10px] uppercase font-black text-ruah-400 tracking-widest">
                          <span>Black Edition</span>
-                         <span className="text-accent-gold">•</span>
+                         <span className="text-accent-gold">â€¢</span>
                          <span>Arte Autoral</span>
-                         <span className="text-accent-gold">•</span>
+                         <span className="text-accent-gold">â€¢</span>
                          <span>Soprado sob Demanda</span>
                       </div>
                    </div>
@@ -72,8 +72,8 @@ export default function CartPage() {
               <div className="relative z-10">
                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-gold mb-2">Compromisso Ruah</h4>
                 <p className="text-xs text-ruah-400 font-medium uppercase tracking-widest leading-loose">
-                  Esta peça entra em produção artesanal no Módulo 4 (Parceiro) imediatamente após o Handover. 
-                  O tempo de cura e sopro garante a energia exclusiva da sua peça autoral.
+                  Esta peÃ§a entra em produÃ§Ã£o artesanal no MÃ³dulo 4 (Parceiro) imediatamente apÃ³s o Handover. 
+                  O tempo de cura e sopro garante a energia exclusiva da sua peÃ§a autoral.
                 </p>
               </div>
            </div>
@@ -91,7 +91,7 @@ export default function CartPage() {
                  </div>
                  <div className="flex justify-between text-xs uppercase font-bold tracking-widest">
                     <span className="text-ruah-500">Fluxo de Entrega</span>
-                    <span className="font-mono text-green-600 font-bold uppercase tracking-[0.2em]">Grátis (Sopro de Fé)</span>
+                    <span className="font-mono text-green-600 font-bold uppercase tracking-[0.2em]">GrÃ¡tis (Sopro de FÃ©)</span>
                  </div>
                  <div className="flex justify-between text-xs uppercase font-bold tracking-widest">
                     <span className="text-ruah-500">Taxa Operacional</span>
@@ -103,7 +103,7 @@ export default function CartPage() {
                  <span className="font-black text-sm uppercase tracking-widest text-ruah-950">Total Final</span>
                  <div className="text-right">
                     <div className="text-4xl font-serif italic font-black text-accent-gold">R$ 7.025,00</div>
-                    <div className="text-[9px] text-ruah-400 font-bold uppercase tracking-[0.2em] mt-2">Até 10x de R$ 702,50</div>
+                    <div className="text-[9px] text-ruah-400 font-bold uppercase tracking-[0.2em] mt-2">AtÃ© 10x de R$ 702,50</div>
                  </div>
               </div>
 
@@ -113,7 +113,7 @@ export default function CartPage() {
 
               <div className="mt-10 pt-10 border-t border-ruah-50">
                  <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest text-ruah-400">
-                    <ShieldCheck size={16} className="text-green-500" /> Transação Protegida Protocolo Ruah
+                    <ShieldCheck size={16} className="text-green-500" /> TransaÃ§Ã£o Protegida Protocolo Ruah
                  </div>
               </div>
            </div>
@@ -123,3 +123,4 @@ export default function CartPage() {
     </main>
   );
 }
+

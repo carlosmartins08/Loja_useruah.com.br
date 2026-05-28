@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, ArrowUpRight, History, Sparkles, TrendingUp } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 import { GoogleGenAI, Type } from '@google/genai';
 
@@ -146,7 +146,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} key={item.id}>
                         <Link href={`/product/${item.id}`} onClick={onClose} className="flex gap-6 group bg-ruah-50/30 p-4 rounded-[2rem] border border-transparent hover:border-ruah-100 hover:bg-white transition-all shadow-sm">
                           <div className="relative w-28 h-36 rounded-2xl overflow-hidden shrink-0 bg-ruah-100">
-                            <Image src={`https://picsum.photos/seed/rp${item.id}/400/500`} alt={item.name} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+                            <AppImage context="content-banner" src={`https://picsum.photos/seed/rp${item.id}/400/500`} alt={item.name} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
                           </div>
                           <div className="flex flex-col justify-center gap-2">
                             <span className="text-xs font-semibold text-accent-gold uppercase tracking-[0.1em]">{item.category}</span>
@@ -172,7 +172,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     <div className="grid grid-cols-2 gap-6">
                       {featuredBanners.map((banner, idx) => (
                         <Link key={idx} href="/shop" onClick={onClose} className="relative aspect-[16/6] rounded-[2.5rem] overflow-hidden group">
-                          <Image src={banner.image} alt={banner.title} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
+                          <AppImage context="content-banner" src={banner.image} alt={banner.title} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
                           <div className="absolute inset-0 bg-ruah-950/30 flex items-center justify-between px-8">
                             <div className="text-white">
                               <span className="text-xs font-semibold uppercase tracking-[0.1em] block mb-2 text-accent-gold">{banner.tag}</span>
@@ -223,3 +223,4 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     </AnimatePresence>
   );
 }
+

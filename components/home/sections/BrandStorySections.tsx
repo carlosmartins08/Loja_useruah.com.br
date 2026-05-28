@@ -1,6 +1,6 @@
 ﻿
 import { Plus } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 const PERSONAS = [
@@ -62,7 +62,7 @@ export function BrandStorySections() {
               </Link>
             </div>
             <div className="w-full lg:w-1/2 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
-              <Image src="https://picsum.photos/seed/ruah-impact/1000/1000" alt="Qualidade Ruah" fill className="object-cover" />
+              <AppImage context="content-banner" src="https://picsum.photos/seed/ruah-impact/1000/1000" alt="Qualidade Ruah" fill className="object-cover" />
               <div className="absolute inset-0 bg-ruah-950/10" />
             </div>
           </div>
@@ -72,7 +72,7 @@ export function BrandStorySections() {
       <section className="section-container pb-32">
         <div className="bg-[#FAFAFA] rounded-[3rem] overflow-hidden flex flex-col lg:flex-row items-center p-8 lg:p-20 gap-16 border border-ruah-100">
           <div className="relative w-full lg:w-1/2 aspect-[4/3] rounded-[2.5rem] overflow-hidden" style={{ position: 'relative' }}>
-            <Image src="https://picsum.photos/seed/ruah-editorial/1000/800" alt="Ruah Editorial" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" referrerPolicy="no-referrer" />
+            <AppImage context="content-banner" src="https://picsum.photos/seed/ruah-editorial/1000/800" alt="Ruah Editorial" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" referrerPolicy="no-referrer" />
           </div>
           <div className="w-full lg:w-1/2">
             <span className="font-serif text-3xl mb-6 block uppercase tracking-tighter italic font-black text-ruah-950">UseRuah.</span>
@@ -103,7 +103,7 @@ export function BrandStorySections() {
             </div>
           </div>
           <div className="relative aspect-[16/9] rounded-[3rem] overflow-hidden shadow-2xl">
-            <Image src="https://picsum.photos/seed/ruah-manifesto/1000/600" alt="Comunidade Ruah" fill className="object-cover" referrerPolicy="no-referrer" />
+            <AppImage context="content-banner" src="https://picsum.photos/seed/ruah-manifesto/1000/600" alt="Comunidade Ruah" fill className="object-cover" referrerPolicy="no-referrer" />
             <div className="absolute inset-0 bg-ruah-950/20" />
             <div className="absolute bottom-10 left-10">
               <span className="text-white text-3xl font-serif italic font-semibold uppercase tracking-tighter">Arte & Missão.</span>
@@ -114,6 +114,7 @@ export function BrandStorySections() {
     </>
   );
 }
+
 
 
 

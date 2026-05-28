@@ -1,9 +1,9 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Upload, Camera, Image as ImageIcon } from 'lucide-react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 
 interface ProfilePhotoModalProps {
   isOpen: boolean;
@@ -102,7 +102,7 @@ export function ProfilePhotoModal({ isOpen, onClose, onSave }: ProfilePhotoModal
               >
                 {previewUrl ? (
                   <div className="relative w-full h-full">
-                    <Image 
+                    <AppImage context="content-banner" 
                       src={previewUrl} 
                       alt="Preview" 
                       fill 
@@ -166,3 +166,4 @@ export function ProfilePhotoModal({ isOpen, onClose, onSave }: ProfilePhotoModal
     </AnimatePresence>
   );
 }
+

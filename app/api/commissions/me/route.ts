@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const commissions = await listCommissionsByOwner(actor.actorId);
   const payouts = await listPayoutsByOwner(actor.actorId);
   const requestedAmount = payouts
-    .filter((row) => row.status === 'requested' || row.status === 'approved')
+    .filter((row) => row.status === 'requested' || row.status === 'under_review' || row.status === 'approved')
     .reduce((acc, row) => acc + row.amount, 0);
   const pendingAmount = commissions.filter((row) => row.status === 'pending').reduce((acc, row) => acc + row.amount, 0);
   const availableGross = commissions

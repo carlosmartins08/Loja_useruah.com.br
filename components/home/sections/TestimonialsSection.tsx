@@ -1,7 +1,7 @@
 ﻿import { HOME_TESTIMONIALS } from '@/components/home/home-data';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import Image from 'next/image';
+import { AppImage } from '@/components/shared/AppImage';
 
 interface TestimonialsSectionProps {
   activeTestimonial: number;
@@ -58,7 +58,7 @@ export function TestimonialsSection({ activeTestimonial, onNext, onPrev }: Testi
                     transition={{ duration: 0.5 }}
                     className="relative w-full h-full rounded-full overflow-hidden border-8 border-white shadow-2xl"
                   >
-                    <Image src={HOME_TESTIMONIALS[activeTestimonial].image} alt={HOME_TESTIMONIALS[activeTestimonial].name} fill className="object-cover" />
+                    <AppImage context="content-banner" src={HOME_TESTIMONIALS[activeTestimonial].image} alt={HOME_TESTIMONIALS[activeTestimonial].name} fill className="object-cover" />
                   </motion.div>
                 </AnimatePresence>
 
@@ -83,4 +83,5 @@ export function TestimonialsSection({ activeTestimonial, onNext, onPrev }: Testi
     </section>
   );
 }
+
 

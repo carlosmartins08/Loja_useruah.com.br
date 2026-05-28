@@ -44,6 +44,7 @@ export function canReadOrder(order: OrderRecord, actor: AccessActor | null) {
 
   if (actor.actorRole === 'platform_admin' || actor.actorRole === 'support_agent') return true;
   if (actor.actorRole === 'customer' && actor.actorId === order.customerId) return true;
+  if (actor.actorRole === 'supplier' && order.items.some((item) => item.supplierId === actor.actorId)) return true;
   return false;
 }
 
@@ -80,5 +81,5 @@ export function canManageCatalog(actor: AccessActor | null) {
 export function canOperateProduction(actor: AccessActor | null) {
   if (!isRbacActive()) return true;
   if (!actor) return false;
-  return actor.actorRole === 'production_operator' || actor.actorRole === 'platform_admin';
+  return actor.actorRole === 'production_operator' || actor.actorRole === 'supplier' || actor.actorRole === 'platform_admin';
 }

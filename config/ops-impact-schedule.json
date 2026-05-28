@@ -1,0 +1,10 @@
+{
+  "timezone": "America/Sao_Paulo",
+  "runTimes": ["09:00"],
+  "owner": "platform_admin",
+  "ownerRunTimes": {
+    "platform_admin": ["09:00", "14:00"],
+    "finance_admin": ["10:00", "16:00"]
+  },
+  "notes": "O responsavel pode alterar os horarios livremente sem mudar codigo. Para selecionar janelas por papel, usar OPS_IMPACT_OWNER."
+}

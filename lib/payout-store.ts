@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { readStoreFile, writeStoreFile } from '@/lib/dev-store';
 import { getMysqlPool, shouldUseMysql, type MysqlResult, type MysqlRow } from '@/lib/mysql-runtime';
 
-export type PayoutStatus = 'requested' | 'approved' | 'paid' | 'rejected';
+export type PayoutStatus = 'requested' | 'under_review' | 'approved' | 'paid' | 'rejected';
 
 export interface PayoutRecord {
   payoutId: string;
@@ -144,4 +144,60 @@ export async function listPayoutsByOwner(ownerId: string) {
   const state = readState();
   const ids = state.byOwner[ownerId] ?? [];
   return ids.map((id) => state.payouts[id]).filter((row): row is PayoutRecord => Boolean(row));
+}
+
+export async function getPayoutById(payoutId: string) {
+  const mysql = await getMysqlPool();
+  if (mysql && shouldUseMysql()) {
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM payouts WHERE payout_id = ? LIMIT 1`, [payoutId]);
+    return rows[0] ? rowToPayout(rows[0]) : null;
+  }
+  const state = readState();
+  return state.payouts[payoutId] ?? null;
+}
+
+export async function listPayouts() {
+  const mysql = await getMysqlPool();
+  if (mysql && shouldUseMysql()) {
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM payouts ORDER BY created_at DESC`);
+    return rows.map(rowToPayout);
+  }
+  return Object.values(readState().payouts).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function updatePayoutStatus(input: {
+  payoutId: string;
+  from: PayoutStatus[];
+  to: PayoutStatus;
+}) {
+  const mysql = await getMysqlPool();
+  if (mysql && shouldUseMysql()) {
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM payouts WHERE payout_id = ? LIMIT 1`, [input.payoutId]);
+    const currentRow = rows[0];
+    if (!currentRow) return { kind: 'not_found' as const };
+    const current = rowToPayout(currentRow);
+    if (!input.from.includes(current.status)) return { kind: 'invalid_transition' as const, payout: current };
+
+    const now = new Date().toISOString();
+    await mysql.execute<MysqlResult>(`UPDATE payouts SET status = ?, updated_at = ? WHERE payout_id = ?`, [
+      input.to,
+      toMysqlDatetime(now),
+      input.payoutId,
+    ]);
+    const [updatedRows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM payouts WHERE payout_id = ? LIMIT 1`, [input.payoutId]);
+    return { kind: 'updated' as const, previous: current, payout: rowToPayout(updatedRows[0]) };
+  }
+
+  const state = readState();
+  const current = state.payouts[input.payoutId];
+  if (!current) return { kind: 'not_found' as const };
+  if (!input.from.includes(current.status)) return { kind: 'invalid_transition' as const, payout: current };
+  const updated: PayoutRecord = {
+    ...current,
+    status: input.to,
+    updatedAt: new Date().toISOString(),
+  };
+  state.payouts[input.payoutId] = updated;
+  writeState(state);
+  return { kind: 'updated' as const, previous: current, payout: updated };
 }

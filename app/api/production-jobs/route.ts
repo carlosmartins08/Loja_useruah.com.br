@@ -51,11 +51,24 @@ export async function POST(request: Request) {
     });
   }
 
+  const operationalContext = {
+    supplierIds: Array.from(new Set(order.items.map((item) => item.supplierId))),
+    shippingAddress: order.items[0]?.shippingAddress ?? null,
+    items: order.items.map((item) => ({
+      orderItemId: item.orderItemId,
+      catalogItemId: item.catalogItemId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+      supplierId: item.supplierId,
+    })),
+  };
+
   return NextResponse.json(
     {
       ok: true,
       job: result.job,
       created: result.created,
+      operationalContext,
     },
     { status: result.created ? 201 : 200 }
   );

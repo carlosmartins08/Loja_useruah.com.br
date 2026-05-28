@@ -3,6 +3,8 @@ import { appendAuditLog } from '@/lib/audit-log-store';
 import { getActorFromRequest } from '@/lib/access-control';
 import { listCommissionsByOwner, reconcileCommissionAvailabilityForOwner } from '@/lib/commission-store';
 import { createPayoutRequested, listPayoutsByOwner } from '@/lib/payout-store';
+import { createImpactReview } from '@/lib/impact-review-store';
+import { notifyImpactReviewEvent } from '@/lib/impact-notification-service';
 
 interface PayoutPayload {
   amount: number;
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
   const commissions = (await listCommissionsByOwner(actor.actorId)).filter((row) => row.status === 'available');
   const grossAvailable = commissions.reduce((acc, row) => acc + row.amount, 0);
   const requested = (await listPayoutsByOwner(actor.actorId))
-    .filter((row) => row.status === 'requested' || row.status === 'approved')
+    .filter((row) => row.status === 'requested' || row.status === 'under_review' || row.status === 'approved')
     .reduce((acc, row) => acc + row.amount, 0);
   const availableToWithdraw = Number(Math.max(0, grossAvailable - requested).toFixed(2));
 
@@ -71,6 +73,15 @@ export async function POST(request: Request) {
   });
 
   if (result.created) {
+    const impactReview = createImpactReview({
+      domain: 'payout_finance',
+      entityType: 'Payout',
+      entityId: result.payout.payoutId,
+      sensitiveFields: ['payoutDecision'],
+      requestedBy: actor.actorId,
+      priority: 'high',
+      slaHours: 2,
+    });
     appendAuditLog({
       actor_id: actor.actorId,
       actor_role: actor.actorRole,
@@ -80,6 +91,14 @@ export async function POST(request: Request) {
       previous_status: 'none',
       new_status: result.payout.status,
       reason: `owner:${actor.actorId}`,
+    });
+    await notifyImpactReviewEvent({
+      event: 'created_pending',
+      reviewId: impactReview.review.reviewId,
+      entityId: result.payout.payoutId,
+      actorId: actor.actorId,
+      actorRole: actor.actorRole,
+      dueAt: impactReview.review.dueAt,
     });
   }
 

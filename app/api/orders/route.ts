@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
-import { createPlacedOrder, listOrders } from '@/lib/order-store';
+import { createPlacedOrder, listOrders, type ShippingAddress } from '@/lib/order-store';
 import { isTermsGateEnabledFor, validateTermsAcceptance } from '@/lib/terms-enforcement';
 import { findPaymentByOrderId } from '@/lib/payment-store';
 import { getProductionJobByOrderId } from '@/lib/production-store';
 import { getShipmentByOrderId } from '@/lib/shipment-store';
+import { getCatalogItem } from '@/lib/catalog-item-store';
 
 interface OrderCreatePayload {
+  supplierId: string;
+  shippingAddress: ShippingAddress;
+  shippingAddressMode: 'same_as_account' | 'custom';
   items: Array<{
     catalogItemId: string;
     variantId: string;
@@ -18,9 +22,33 @@ interface OrderCreatePayload {
   };
 }
 
+function isValidShippingAddress(shippingAddress: unknown): shippingAddress is ShippingAddress {
+  if (!shippingAddress || typeof shippingAddress !== 'object') return false;
+  const address = shippingAddress as Record<string, unknown>;
+  return (
+    typeof address.recipientName === 'string' &&
+    address.recipientName.trim().length >= 3 &&
+    typeof address.cep === 'string' &&
+    address.cep.trim().length >= 8 &&
+    typeof address.street === 'string' &&
+    address.street.trim().length >= 3 &&
+    typeof address.number === 'string' &&
+    address.number.trim().length >= 1 &&
+    typeof address.city === 'string' &&
+    address.city.trim().length >= 2 &&
+    typeof address.state === 'string' &&
+    address.state.trim().length >= 2 &&
+    typeof address.country === 'string' &&
+    address.country.trim().length >= 2
+  );
+}
+
 function isValidOrderPayload(payload: unknown): payload is OrderCreatePayload {
   if (!payload || typeof payload !== 'object') return false;
   const body = payload as Record<string, unknown>;
+  if (typeof body.supplierId !== 'string' || body.supplierId.trim().length < 3) return false;
+  if (body.shippingAddressMode !== 'same_as_account' && body.shippingAddressMode !== 'custom') return false;
+  if (!isValidShippingAddress(body.shippingAddress)) return false;
   if (!Array.isArray(body.items) || body.items.length === 0) return false;
 
   return body.items.every((item) => {
@@ -39,6 +67,29 @@ function isValidOrderPayload(payload: unknown): payload is OrderCreatePayload {
   });
 }
 
+async function validateCatalogAndInventory(payload: OrderCreatePayload) {
+  for (const item of payload.items) {
+    const catalogItem = await getCatalogItem(item.catalogItemId);
+    if (!catalogItem) {
+      return { ok: false as const, error: 'catalog_item_not_found', detail: item.catalogItemId };
+    }
+    if (catalogItem.publicationStatus !== 'published') {
+      return { ok: false as const, error: 'catalog_item_not_published', detail: item.catalogItemId };
+    }
+    const variant = catalogItem.variants.find((row) => row.variantId === item.variantId);
+    if (!variant) {
+      return { ok: false as const, error: 'variant_not_found', detail: item.variantId };
+    }
+    if (!variant.inStock) {
+      return { ok: false as const, error: 'variant_out_of_stock', detail: item.variantId };
+    }
+    if (Number(item.unitPrice.toFixed(2)) !== Number(variant.price.toFixed(2))) {
+      return { ok: false as const, error: 'price_mismatch', detail: item.catalogItemId };
+    }
+  }
+  return { ok: true as const };
+}
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   if (!isValidOrderPayload(body)) {
@@ -53,8 +104,15 @@ export async function POST(request: Request) {
     }
   }
 
+  const catalogValidation = await validateCatalogAndInventory(body);
+  if (!catalogValidation.ok) {
+    return NextResponse.json({ error: catalogValidation.error, detail: catalogValidation.detail }, { status: 409 });
+  }
+
   const order = await createPlacedOrder({
     customerId,
+    supplierId: body.supplierId,
+    shippingAddress: body.shippingAddress,
     items: body.items,
   });
 
@@ -66,7 +124,7 @@ export async function POST(request: Request) {
     entity_id: order.orderId,
     previous_status: 'draft',
     new_status: order.status,
-    reason: 'checkout_create_order',
+    reason: `checkout_create_order|supplier:${body.supplierId}|address_mode:${body.shippingAddressMode}`,
   });
 
   return NextResponse.json({ ok: true, order }, { status: 201 });
