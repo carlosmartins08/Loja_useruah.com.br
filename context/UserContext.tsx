@@ -10,6 +10,7 @@ interface UserContextType {
   setProfilePhoto: (url: string | null) => void;
   userName: string;
   userRole: UserRole;
+  userRoles: UserRole[];
   setUserRole: (role: UserRole) => void;
   userEmail: string;
   userId: string;
@@ -18,6 +19,7 @@ interface UserContextType {
   registrationStatus: RegistrationStatus | null;
   refreshSession: () => Promise<void>;
   refreshRegistration: () => Promise<void>;
+  switchActiveRole: (role: UserRole) => Promise<{ ok: boolean; error?: string }>;
   logout: () => Promise<void>;
 }
 
@@ -26,6 +28,7 @@ const UserContext = React.createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [profilePhoto, setProfilePhoto] = React.useState<string | null>(null);
   const [userRole, setUserRole] = React.useState<UserRole>('customer');
+  const [userRoles, setUserRoles] = React.useState<UserRole[]>(['customer']);
   const [userName, setUserName] = React.useState('Carlos');
   const [userEmail, setUserEmail] = React.useState('carlos@useruah.com.br');
   const [userId, setUserId] = React.useState('usr:carlos@useruah.com.br');
@@ -36,6 +39,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const resetToGuestSession = React.useCallback(() => {
     setIsAuthenticated(false);
     setUserRole('customer');
+    setUserRoles(['customer']);
     setUserName('Carlos');
     setUserEmail('carlos@useruah.com.br');
     setUserId('usr:carlos@useruah.com.br');
@@ -86,6 +90,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(true);
       const sessionRole = payload.session.activeRole ?? payload.session.userRole;
       setUserRole(sessionRole);
+      setUserRoles(
+        Array.isArray(payload.session.roles) && payload.session.roles.length > 0 ? payload.session.roles : [sessionRole]
+      );
       setUserName(payload.session.userName);
       setUserEmail(payload.session.userEmail);
       setUserId(payload.session.userId);
@@ -106,6 +113,24 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     resetToGuestSession();
     setIsSessionReady(true);
   }, [resetToGuestSession]);
+
+  const switchActiveRole = React.useCallback(
+    async (role: UserRole) => {
+      if (!isAuthenticated) return { ok: false as const, error: 'not_authenticated' };
+      if (!userRoles.includes(role)) return { ok: false as const, error: 'role_not_in_scope' };
+      const response = await fetch('/api/auth/session/active-role', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ activeRole: role }),
+      }).catch(() => null);
+      if (!response || !response.ok) {
+        return { ok: false as const, error: 'switch_failed' };
+      }
+      await refreshSession();
+      return { ok: true as const };
+    },
+    [isAuthenticated, refreshSession, userRoles]
+  );
 
   // Load from localStorage on mount
   React.useEffect(() => {
@@ -139,6 +164,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setProfilePhoto: handleSetProfilePhoto,
         userName,
         userRole,
+        userRoles,
         setUserRole: handleSetUserRole,
         userEmail,
         userId,
@@ -147,6 +173,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         registrationStatus,
         refreshSession,
         refreshRegistration,
+        switchActiveRole,
         logout,
       }}
     >

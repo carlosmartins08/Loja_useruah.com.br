@@ -7,7 +7,8 @@ export type RegistrationRole =
   | 'production_operator'
   | 'support_agent'
   | 'finance_admin'
-  | 'platform_admin';
+  | 'platform_admin'
+  | 'affiliate';
 
 export type RegistrationStatus = 'empty' | 'draft' | 'incomplete' | 'pending_review' | 'approved' | 'active' | 'paused' | 'blocked';
 
@@ -93,6 +94,14 @@ const policies: Record<RegistrationRole, RoleRegistrationPolicy> = {
     impactSensitiveFields: ['rolePermission', 'policyVersion', 'commissionRule', 'gatewayFeeRule'],
     defaultStatus: 'active',
   },
+  affiliate: {
+    role: 'affiliate',
+    sections: ['profile', 'links', 'performance', 'rewards'],
+    requiredFields: ['displayName', 'email'],
+    editableBy: ['affiliate', 'platform_admin'],
+    impactSensitiveFields: ['rewardRecipient'],
+    defaultStatus: 'draft',
+  },
 };
 
 export function getRegistrationPolicy(role: RegistrationRole): RoleRegistrationPolicy {
@@ -123,4 +132,3 @@ export function evaluateRequiredFieldsCompletion(targetRole: RegistrationRole, v
     missing,
   };
 }
-

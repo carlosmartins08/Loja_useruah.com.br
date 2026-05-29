@@ -3,11 +3,19 @@ export function canManageFinancialOperations(actorRole: string | null | undefine
 }
 
 export function canManagePaymentConnectors(actorRole: string | null | undefined) {
-  return actorRole === 'platform_admin';
+  return actorRole === 'platform_admin' || actorRole === 'finance_admin';
 }
 
 export function canApproveImpactReviews(actorRole: string | null | undefined) {
   return actorRole === 'platform_admin';
+}
+
+export function canModerateCampaigns(actorRole: string | null | undefined) {
+  return actorRole === 'platform_admin' || actorRole === 'curator';
+}
+
+export function canModerateArtworks(actorRole: string | null | undefined) {
+  return actorRole === 'platform_admin' || actorRole === 'curator';
 }
 
 export function canOperateSupport(actorRole: string | null | undefined) {

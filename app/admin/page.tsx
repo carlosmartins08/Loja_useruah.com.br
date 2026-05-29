@@ -1,253 +1,231 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
-import { motion } from 'motion/react';
-import { 
-  ShieldCheck, 
-  Package, 
-  Activity, 
-  BarChart3, 
-  Users, 
-  Terminal,
-  Settings,
-  ArrowRight,
-  Zap,
-  Siren
-} from 'lucide-react';
 import Link from 'next/link';
+import { Bell, CalendarDays, Search, TrendingDown, TrendingUp } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
-import type { UserRole } from '@/lib/auth-session';
 
-const modules = [
-  {
-    id: 1,
-    title: 'Captacao de Valor',
-    description: 'Modulo 1: Front-end de vendas e validacao de especificacoes.',
-    icon: Zap,
-    href: '/shop',
-    color: 'text-accent-gold',
-    bg: 'bg-accent-gold/10'
-  },
-  {
-    id: 4,
-    title: 'Gestao Operacional',
-    description: 'Modulo 4: Portal do Parceiro, producao e controle de custos (CVu).',
-    icon: Package,
-    href: '/admin/production',
-    color: 'text-blue-500',
-    bg: 'bg-blue-500/10'
-  },
-  {
-    id: 5,
-    title: 'Analise Preditiva',
-    description: 'Modulo 5: Dashboard estrategico ELIV e KPIs de marca.',
-    icon: BarChart3,
-    href: '/admin/eliv',
-    color: 'text-green-500',
-    bg: 'bg-green-500/10'
-  },
-  {
-    id: 0,
-    title: 'Configuracoes ELIV',
-    description: 'Pilar I: Ajustes de fundamentacao e variaveis de sistema.',
-    icon: Settings,
-    href: '#',
-    color: 'text-ruah-400',
-    bg: 'bg-ruah-100'
-  },
-  {
-    id: 6,
-    title: 'Suporte & Atendimento',
-    description: 'Central de ajuda operacional e acompanhamento de pedidos para suporte.',
-    icon: Users,
-    href: '/admin/support',
-    color: 'text-purple-500',
-    bg: 'bg-purple-500/10'
-  },
-  {
-    id: 7,
-    title: 'Conectores Pagamento',
-    description: 'Gestao self-service de credenciais e teste de integracao por gateway.',
-    icon: ShieldCheck,
-    href: '/admin/payments/connectors',
-    color: 'text-emerald-500',
-    bg: 'bg-emerald-500/10'
-  },
-  {
-    id: 8,
-    title: 'Impact Review',
-    description: 'Fila critica de revisao de preco, frete, prazo e payout com SLA de 2h.',
-    icon: Siren,
-    href: '/admin/impact-reviews',
-    color: 'text-red-500',
-    bg: 'bg-red-500/10'
-  },
-  {
-    id: 9,
-    title: 'Pre-liquidacao',
-    description: 'Validador de ledger para payout com causa de bloqueio e acao sugerida.',
-    icon: ShieldCheck,
-    href: '/admin/finance/payouts',
-    color: 'text-amber-600',
-    bg: 'bg-amber-100'
-  },
-  {
-    id: 10,
-    title: 'Ops Alerts',
-    description: 'Fila executiva unica com alertas de impacto e risco financeiro.',
-    icon: Siren,
-    href: '/admin/ops-alerts',
-    color: 'text-rose-600',
-    bg: 'bg-rose-100'
-  },
-  {
-    id: 11,
-    title: 'Cadastros',
-    description: 'Fila de onboarding por status para tratar incompletos e pendencias.',
-    icon: Users,
-    href: '/admin/registrations',
-    color: 'text-indigo-600',
-    bg: 'bg-indigo-100'
-  },
-];
+type CockpitSummary = {
+  gmv: number;
+  paidOrders: number;
+  shippedOrders: number;
+  delayedOrders: number;
+  campaignsAtRisk: number;
+  supplierAlerts: number;
+  pendingPayouts: number;
+  criticalTickets: number;
+  pendingImpactAlerts: number;
+  overdueImpactAlerts: number;
+  checkoutConversionPct: number;
+  refunds: number;
+  chargebacks: number;
+};
 
-function isModuleAllowed(role: UserRole, moduleId: number) {
-  if (role === 'platform_admin') return true;
-  if (role === 'finance_admin') return moduleId === 7 || moduleId === 6 || moduleId === 5 || moduleId === 9 || moduleId === 10;
-  if (role === 'support_agent') return moduleId === 6 || moduleId === 11;
-  if (role === 'production_operator') return moduleId === 4;
-  return false;
+const TREND_POINTS = [28, 44, 36, 52, 40, 58, 48, 66, 53, 61, 47, 70];
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value);
 }
 
-export default function AdminHub() {
-  const { userRole } = useUser();
-  const allowedModules = modules.filter((module) => isModuleAllowed(userRole, module.id));
-  const [impactSummary, setImpactSummary] = React.useState<{ pending: number; overdue: number } | null>(null);
-
-  const loadImpactSummary = React.useCallback(async () => {
-    if (userRole !== 'platform_admin') return;
-    const [pendingRes, overdueRes] = await Promise.all([
-      fetch('/api/admin/impact-reviews?status=pending_review', { cache: 'no-store' }),
-      fetch('/api/admin/impact-reviews?status=pending_review&onlyOverdue=true', { cache: 'no-store' }),
-    ]);
-    if (!pendingRes.ok || !overdueRes.ok) return;
-    const pendingData = (await pendingRes.json()) as { reviews: unknown[] };
-    const overdueData = (await overdueRes.json()) as { reviews: unknown[] };
-    setImpactSummary({ pending: pendingData.reviews.length, overdue: overdueData.reviews.length });
-  }, [userRole]);
-
-  React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadImpactSummary();
-  }, [loadImpactSummary]);
-
+function KpiCard({
+  label,
+  value,
+  delta,
+  positive = true,
+}: {
+  label: string;
+  value: string;
+  delta: string;
+  positive?: boolean;
+}) {
   return (
-    <div className="min-h-screen bg-ruah-25 font-sans p-6 md:p-12">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <header className="mb-16">
-          <div className="flex items-center gap-3 mb-4">
-             <div className="w-10 h-10 bg-ruah-950 rounded-xl flex items-center justify-center">
-                <Terminal className="text-accent-gold" size={20} />
-             </div>
-             <span className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Sistema Integrado ELIV</span>
-          </div>
-          <h1 className="text-5xl font-serif font-black text-ruah-950 uppercase tracking-tighter leading-none mb-4">
-            Painel de Controle <span className="text-accent-gold italic">Operacional</span>
-          </h1>
-          <p className="text-ruah-500 max-w-2xl font-medium">
-            Gerenciamento centralizado da Marca Propria. 
-            Sincronizacao em tempo real entre Consumidor, Parceiro e Analise Preditiva.
-          </p>
-        </header>
+    <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#7d8197]">{label}</p>
+      <p className="mt-2 text-3xl font-black text-[#1d2033]">{value}</p>
+      <p className={`mt-2 inline-flex items-center gap-1 text-xs font-bold ${positive ? 'text-emerald-600' : 'text-rose-600'}`}>
+        {positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+        {delta}
+      </p>
+    </div>
+  );
+}
 
-        {/* Modules Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {allowedModules.map((module, idx) => (
-            <motion.div
-              key={module.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-            >
-              <Link href={module.href}>
-                <div className="bg-white p-8 rounded-[2.5rem] border border-ruah-50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all h-full flex flex-col group">
-                  <div className={`w-14 h-14 rounded-2xl ${module.bg} ${module.color} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform`}>
-                    <module.icon size={28} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-black text-ruah-950 uppercase tracking-tight mb-2">{module.title}</h3>
-                    <p className="text-sm text-ruah-500 leading-relaxed">{module.description}</p>
-                  </div>
-                  <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-ruah-400 group-hover:text-accent-gold transition-colors">
-                    Acessar Modulo <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
+function TrendChart() {
+  return (
+    <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-bold text-[#1d2033]">Tendencia operacional (12 ciclos)</p>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#7d8197]">tempo real</span>
+      </div>
+      <div className="mt-4 h-44 w-full">
+        <div className="grid h-full grid-cols-12 items-end gap-2">
+          {TREND_POINTS.map((point, index) => (
+            <div key={index} className="flex h-full flex-col justify-end">
+              <div
+                className="rounded-t-md bg-gradient-to-t from-[#5f67f8] to-[#7fa6ff]"
+                style={{ height: `${point}%` }}
+                aria-label={`ponto-${index + 1}`}
+              />
+            </div>
           ))}
-        </div>
-
-        {/* Quick Fusion Monitor */}
-        <div className="mt-16 bg-ruah-950 rounded-[3rem] p-10 text-white overflow-hidden relative">
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent-gold/5 rounded-full blur-3xl"></div>
-          
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-12 relative z-10">
-            <div className="max-w-xl">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="text-xs font-semibold uppercase tracking-[0.12em] text-accent-gold">Fusao Industrial Ativa</span>
-              </div>
-              <h2 className="text-4xl font-serif italic font-black mb-6 leading-tight">
-                Fluxo de pedidos estabilizado com taxa de qualidade de 98.4%.
-              </h2>
-              <p className="text-ruah-400 text-sm font-medium leading-relaxed">
-                As especificacoes operacionais do Modulo 1 estao sendo transmitidas via ELIV para o Modulo 4 sem divergencias detectadas nos ultimos 7 lotes.
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
-              <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-sm">
-                <span className="text-xs font-semibold text-ruah-400 uppercase tracking-widest block mb-2">Pedidos de Hoje</span>
-                <span className="text-3xl font-black text-white">42</span>
-              </div>
-              <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-sm">
-                <span className="text-xs font-semibold text-ruah-400 uppercase tracking-widest block mb-2">Agrupamento Lote</span>
-                <span className="text-3xl font-black text-accent-gold italic">Smart</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {userRole === 'platform_admin' && impactSummary && (
-          <div className="mt-8 bg-white border rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-red-200">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-red-500">Impact Review</p>
-              <p className="text-sm font-semibold text-ruah-900 mt-1">
-                {impactSummary.pending} pendentes, {impactSummary.overdue} atrasados no SLA de 2h.
-              </p>
-            </div>
-            <Link href='/admin/impact-reviews' className='px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold uppercase tracking-[0.1em]'>
-              Abrir fila crítica
-            </Link>
-          </div>
-        )}
-
-        {/* Footer info */}
-        <div className="mt-12 flex justify-between items-center border-t border-ruah-100 pt-8">
-           <span className="text-[10px] font-bold text-ruah-300 uppercase tracking-widest">© 2024 RUAH BRAZIL - Sistema ELIV v2.4</span>
-           <div className="flex gap-6">
-             <span className="text-[10px] font-bold text-ruah-400 uppercase tracking-widest flex items-center gap-2">
-               <ShieldCheck size={14} className="text-green-500" /> Protocolo Seguro
-             </span>
-             <span className="text-[10px] font-bold text-ruah-400 uppercase tracking-widest flex items-center gap-2">
-               <Activity size={14} className="text-accent-gold" /> M4 Sincronizado
-             </span>
-           </div>
         </div>
       </div>
     </div>
   );
 }
 
+function ActionQueue({
+  summary,
+}: {
+  summary: CockpitSummary | null;
+}) {
+  return (
+    <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
+      <p className="text-sm font-bold text-[#1d2033]">Fila de decisao</p>
+      <div className="mt-3 space-y-2">
+        <Link href="/admin/impact-reviews" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
+          <div>
+            <p className="text-xs font-bold text-[#1d2033]">Revisar impactos pendentes</p>
+            <p className="text-[11px] text-[#6d7289]">{summary?.pendingImpactAlerts ?? 0} itens para decisao</p>
+          </div>
+          <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
+        </Link>
+        <Link href="/admin/support" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
+          <div>
+            <p className="text-xs font-bold text-[#1d2033]">Priorizar tickets criticos</p>
+            <p className="text-[11px] text-[#6d7289]">{summary?.criticalTickets ?? 0} tickets sem resolucao</p>
+          </div>
+          <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
+        </Link>
+        <Link href="/admin/finance/payouts" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
+          <div>
+            <p className="text-xs font-bold text-[#1d2033]">Fechar ciclo financeiro</p>
+            <p className="text-[11px] text-[#6d7289]">{summary?.pendingPayouts ?? 0} payouts aguardando acao</p>
+          </div>
+          <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
+        </Link>
+      </div>
+    </div>
+  );
+}
 
+export default function AdminHub() {
+  const { userName, userRole } = useUser();
+  const [summary, setSummary] = React.useState<CockpitSummary | null>(null);
+
+  React.useEffect(() => {
+    let active = true;
+    const run = async () => {
+      const res = await fetch('/api/admin/cockpit/summary', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = (await res.json()) as { summary: CockpitSummary };
+      if (active) setSummary(data.summary);
+    };
+    void run();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen rounded-3xl border border-[#e6e8f5] bg-[#f4f5fb] p-4 md:p-6">
+      <header className="rounded-2xl border border-[#ececf6] bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-[260px] flex-1 items-center gap-2 rounded-xl border border-[#ececf6] bg-[#fafbff] px-3 py-2">
+            <Search size={15} className="text-[#7d8197]" />
+            <input
+              className="w-full bg-transparent text-sm text-[#1d2033] outline-none placeholder:text-[#a0a4b8]"
+              placeholder="Buscar pedido, cliente, ticket, payout..."
+              aria-label="busca-global-admin"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="rounded-full border border-[#ececf6] bg-white p-2 text-[#7d8197] hover:bg-[#f8f9ff]" aria-label="notificacoes">
+              <Bell size={16} />
+            </button>
+            <div className="text-right">
+              <p className="text-sm font-bold text-[#1d2033]">{userName}</p>
+              <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">{userRole}</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
+        <div className="xl:col-span-9 space-y-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <KpiCard label="Faturamento bruto" value={formatCurrency(summary?.gmv ?? 0)} delta="+2.1%" />
+            <KpiCard label="Pedidos pagos" value={String(summary?.paidOrders ?? 0)} delta="+1.4%" />
+            <KpiCard label="Conversao" value={`${summary?.checkoutConversionPct ?? 0}%`} delta="-0.6%" positive={false} />
+            <KpiCard label="Pedidos enviados" value={String(summary?.shippedOrders ?? 0)} delta="+1.0%" />
+          </div>
+
+          <TrendChart />
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
+              <p className="text-sm font-bold text-[#1d2033]">Saude do ecossistema</p>
+              <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl border border-[#eef0fb] p-3">
+                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Pedidos atrasados</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.delayedOrders ?? 0}</p>
+                </div>
+                <div className="rounded-xl border border-[#eef0fb] p-3">
+                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Fornecedores em alerta</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.supplierAlerts ?? 0}</p>
+                </div>
+                <div className="rounded-xl border border-[#eef0fb] p-3">
+                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Campanhas em risco</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.campaignsAtRisk ?? 0}</p>
+                </div>
+                <div className="rounded-xl border border-[#eef0fb] p-3">
+                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Chargebacks</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.chargebacks ?? 0}</p>
+                </div>
+              </div>
+            </div>
+            <ActionQueue summary={summary} />
+          </div>
+        </div>
+
+        <aside className="xl:col-span-3 space-y-3">
+          <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-[#1d2033]">Agenda de hoje</p>
+              <CalendarDays size={16} className="text-[#7d8197]" />
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="rounded-xl border border-[#eef0fb] p-3">
+                <p className="text-xs font-bold text-[#1d2033]">09:00 - Revisao de pedidos</p>
+                <p className="text-[11px] text-[#6d7289]">Fila de envio e pendencias logisticas.</p>
+              </div>
+              <div className="rounded-xl border border-[#eef0fb] p-3">
+                <p className="text-xs font-bold text-[#1d2033]">11:30 - Curadoria de impacto</p>
+                <p className="text-[11px] text-[#6d7289]">Aprovar ou bloquear alteracoes sensiveis.</p>
+              </div>
+              <div className="rounded-xl border border-[#eef0fb] p-3">
+                <p className="text-xs font-bold text-[#1d2033]">15:00 - Conciliacao financeira</p>
+                <p className="text-[11px] text-[#6d7289]">Payouts, refunds e divergencias.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
+            <p className="text-sm font-bold text-[#1d2033]">Alertas imediatos</p>
+            <div className="mt-3 space-y-2">
+              <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">
+                {summary?.overdueImpactAlerts ?? 0} impactos com SLA vencido
+              </p>
+              <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
+                {summary?.pendingPayouts ?? 0} payouts aguardando decisao
+              </p>
+              <p className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700">
+                {summary?.criticalTickets ?? 0} tickets criticos sem resolucao
+              </p>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </div>
+  );
+}

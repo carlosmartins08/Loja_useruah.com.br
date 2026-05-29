@@ -139,6 +139,16 @@ export async function getRefund(refundId: string) {
   return state.refunds[refundId] ?? null;
 }
 
+export async function listRefunds() {
+  const mysql = await getMysqlPool();
+  if (mysql && shouldUseMysql()) {
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM refunds ORDER BY created_at DESC`);
+    return rows.map(rowToRecord);
+  }
+
+  return Object.values(readState().refunds).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
 export async function updateRefundStatus(
   refundId: string,
   input: { status: RefundStatus; approvedBy?: string; rejectedBy?: string }

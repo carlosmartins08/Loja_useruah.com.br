@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
-import { canApproveImpactReviews } from '@/lib/role-matrix/permission-matrix';
+import { canModerateCampaigns } from '@/lib/role-matrix/permission-matrix';
 import { getLatestImpactReviewByEntity, getPendingImpactReviewByEntity } from '@/lib/impact-review-store';
 import { updateCampaignStatus } from '@/lib/campaign-store';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const actor = getActorFromRequest(request);
-  if (isRbacActive() && !canApproveImpactReviews(actor?.actorRole)) {
+  if (isRbacActive() && !canModerateCampaigns(actor?.actorRole)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
@@ -33,7 +33,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     entity_id: result.campaign.campaignId,
     previous_status: result.previous.status,
     new_status: result.campaign.status,
-    reason: 'single_approver_platform_admin',
+    reason: actor?.actorRole === 'curator' ? 'curator_approval' : 'platform_admin_approval',
   });
 
   return NextResponse.json({ ok: true, campaign: result.campaign });

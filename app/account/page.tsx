@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Package, Hash, Calendar, ArrowRight, User, Settings, LogOut, QrCode, Camera } from 'lucide-react';
+import { Package, Hash, ArrowRight, User, QrCode, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { ProductionTimeline, OrderStatus } from '@/components/commerce/ProductionTimeline';
 import { AppImage } from '@/components/shared/AppImage';
@@ -32,8 +32,18 @@ const MOCK_ORDERS = [
 
 export default function AccountPage() {
   const [selectedOrder, setSelectedOrder] = React.useState(MOCK_ORDERS[0]);
-  const { profilePhoto, setProfilePhoto, userName, registrationStatus } = useUser();
+  const { profilePhoto, setProfilePhoto, userName, registrationStatus, userRole } = useUser();
   const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
+  const roleLabel =
+    userRole === 'customer'
+      ? 'Painel do Cliente'
+      : userRole === 'artist'
+        ? 'Painel do Artista'
+        : userRole === 'supplier'
+          ? 'Painel do Fornecedor'
+          : userRole === 'community_manager'
+            ? 'Painel da Comunidade'
+            : 'Painel da Conta';
 
   return (
     <main className="min-h-screen bg-ruah-50">
@@ -65,18 +75,18 @@ export default function AccountPage() {
                       </div>
                    </div>
                    <div className="flex flex-col gap-6">
-                      <span className="tech-label text-accent-gold whitespace-nowrap overflow-hidden">Painel de Comunidade</span>
+                      <span className="tech-label text-accent-gold whitespace-nowrap overflow-hidden">{roleLabel}</span>
                       <h1 className="text-6xl lg:text-8xl font-serif leading-none italic uppercase">OLA, {userName}.</h1>
-                      <p className="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Gestao de Pedidos e Campanhas Ruah</p>
+                      <p className="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Gestao de Pedidos e Conta Ruah</p>
                    </div>
                 </div>
                 <div className="flex gap-4">
-                   <button className="flex items-center gap-2 px-6 py-4 border border-white/10 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-white hover:text-ruah-950 transition-all">
-                      <Settings size={14} /> Configuracoes
-                   </button>
-                   <button className="flex items-center gap-2 px-6 py-4 bg-white text-ruah-950 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-accent-gold hover:text-white transition-all shadow-fancy">
-                      <LogOut size={14} /> Sair
-                   </button>
+                   <Link
+                     href="/register"
+                     className="flex items-center gap-2 px-6 py-4 bg-white text-ruah-950 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-accent-gold hover:text-white transition-all shadow-fancy"
+                   >
+                      Revisar Cadastro
+                   </Link>
                 </div>
              </div>
           </div>

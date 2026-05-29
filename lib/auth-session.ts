@@ -1,12 +1,14 @@
 export type UserRole =
   | 'customer'
   | 'supplier'
+  | 'curator'
   | 'platform_admin'
   | 'support_agent'
   | 'production_operator'
   | 'finance_admin'
   | 'artist'
-  | 'community_manager';
+  | 'community_manager'
+  | 'affiliate';
 
 export interface AuthSession {
   userId: string;
@@ -17,19 +19,21 @@ export interface AuthSession {
   activeRole: UserRole;
 }
 
-const VALID_ROLES: UserRole[] = [
+export const ALL_USER_ROLES: UserRole[] = [
   'customer',
   'supplier',
+  'curator',
   'platform_admin',
   'support_agent',
   'production_operator',
   'finance_admin',
   'artist',
   'community_manager',
+  'affiliate',
 ];
 
 export function isUserRole(value: unknown): value is UserRole {
-  return typeof value === 'string' && VALID_ROLES.includes(value as UserRole);
+  return typeof value === 'string' && ALL_USER_ROLES.includes(value as UserRole);
 }
 
 export function normalizeAuthSession(payload: unknown): AuthSession | null {

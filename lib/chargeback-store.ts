@@ -94,3 +94,13 @@ export async function createChargebackEvent(input: { eventId: string; paymentId:
   writeState(state);
   return { created: true, chargeback };
 }
+
+export async function listChargebackEvents() {
+  const mysql = await getMysqlPool();
+  if (mysql && shouldUseMysql()) {
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM chargeback_events ORDER BY created_at DESC`);
+    return rows.map(rowToRecord);
+  }
+
+  return Object.values(readState().byEvent).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}

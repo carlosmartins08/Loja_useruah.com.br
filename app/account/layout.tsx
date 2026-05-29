@@ -7,9 +7,10 @@ import { User, Package, MapPin, Heart, Wallet, RefreshCcw, LogOut, ChevronRight 
 import { motion } from 'motion/react';
 import { Header } from '@/components/navigation/Header';
 import { useUser } from '@/context/UserContext';
+import type { UserRole } from '@/lib/auth-session';
 import { isAdminRole, resolveHomeByRole } from '@/lib/access-routing';
 
-const NAV_ITEMS = [
+const CUSTOMER_NAV_ITEMS = [
   { href: '/account', label: 'Painel Geral', icon: User },
   { href: '/account/orders', label: 'Meus Pedidos', icon: Package },
   { href: '/account/addresses', label: 'Endereços', icon: MapPin },
@@ -18,10 +19,46 @@ const NAV_ITEMS = [
   { href: '/account/returns', label: 'Trocas e Devoluções', icon: RefreshCcw },
 ];
 
+function navItemsByRole(role: UserRole) {
+  if (role === 'artist') {
+    return [
+      { href: '/account', label: 'Dashboard Artista', icon: User },
+      { href: '/account/orders', label: 'Pedidos Vinculados', icon: Package },
+      { href: '/account/wallet', label: 'Comissões e Payout', icon: Wallet },
+      { href: '/account/returns', label: 'Ocorrências', icon: RefreshCcw },
+    ];
+  }
+  if (role === 'community_manager') {
+    return [
+      { href: '/account', label: 'Dashboard Comunidade', icon: User },
+      { href: '/account/orders', label: 'Pedidos da Campanha', icon: Package },
+      { href: '/account/wallet', label: 'Arrecadação e Payout', icon: Wallet },
+      { href: '/account/returns', label: 'Ocorrências', icon: RefreshCcw },
+    ];
+  }
+  if (role === 'supplier') {
+    return [
+      { href: '/account', label: 'Portal Fornecedor', icon: User },
+      { href: '/account/orders', label: 'Produção Vinculada', icon: Package },
+      { href: '/account/addresses', label: 'Origem e Coleta', icon: MapPin },
+      { href: '/account/returns', label: 'Envios e Ocorrências', icon: RefreshCcw },
+    ];
+  }
+  if (role === 'affiliate') {
+    return [
+      { href: '/account', label: 'Dashboard Affiliate', icon: User },
+      { href: '/account/orders', label: 'Conversões', icon: Package },
+      { href: '/account/wallet', label: 'Recompensas', icon: Wallet },
+    ];
+  }
+  return CUSTOMER_NAV_ITEMS;
+}
+
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { userName, userRole, logout, isAuthenticated, isSessionReady } = useUser();
+  const navItems = React.useMemo(() => navItemsByRole(userRole), [userRole]);
 
   React.useEffect(() => {
     if (!isSessionReady) return;
@@ -53,7 +90,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                 </div>
 
                 <nav className="flex flex-col gap-1">
-                  {NAV_ITEMS.map((item) => {
+                  {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
                       <Link

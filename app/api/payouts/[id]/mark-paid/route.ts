@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
-import { canApproveImpactReviews } from '@/lib/role-matrix/permission-matrix';
+import { canManageFinancialOperations } from '@/lib/role-matrix/permission-matrix';
 import { settlePayoutToPaid } from '@/lib/payout-settlement-service';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const actor = getActorFromRequest(request);
-  if (isRbacActive() && !canApproveImpactReviews(actor?.actorRole)) {
+  if (isRbacActive() && !canManageFinancialOperations(actor?.actorRole)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 

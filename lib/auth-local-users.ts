@@ -1,4 +1,4 @@
-import type { AuthSession, UserRole } from '@/lib/auth-session';
+import { ALL_USER_ROLES, type AuthSession, type UserRole } from '@/lib/auth-session';
 
 interface LocalAuthUser {
   email: string;
@@ -65,6 +65,20 @@ const DEV_USERS: LocalAuthUser[] = [
     userName: 'Community Demo',
     userRole: 'community_manager',
   },
+  {
+    email: 'curator@useruah.com.br',
+    password: 'curator123',
+    userId: 'usr:curator@useruah.com.br',
+    userName: 'Curadoria Demo',
+    userRole: 'curator',
+  },
+  {
+    email: 'affiliate@useruah.com.br',
+    password: 'affiliate123',
+    userId: 'usr:affiliate@useruah.com.br',
+    userName: 'Affiliate Demo',
+    userRole: 'affiliate',
+  },
 ];
 const runtimeUsers = new Map<string, LocalAuthUser>();
 
@@ -86,7 +100,9 @@ function loadUsersFromEnv(): LocalAuthUser[] {
           row.userRole === 'production_operator' ||
           row.userRole === 'finance_admin' ||
           row.userRole === 'artist' ||
-          row.userRole === 'community_manager')
+          row.userRole === 'community_manager' ||
+          row.userRole === 'curator' ||
+          row.userRole === 'affiliate')
     );
   } catch {
     return [];
@@ -132,12 +148,13 @@ export function authenticateLocalUser(email: string, password: string): AuthSess
   const normalizedEmail = email.trim().toLowerCase();
   const user = getLocalUsers().find((row) => row.email.toLowerCase() === normalizedEmail && row.password === password);
   if (!user) return null;
+  const roles = user.userRole === 'platform_admin' ? ALL_USER_ROLES : [user.userRole];
   return {
     userId: user.userId,
     userName: user.userName,
     userEmail: user.email.toLowerCase(),
     userRole: user.userRole,
-    roles: [user.userRole],
+    roles,
     activeRole: user.userRole,
   };
 }

@@ -20,8 +20,20 @@ export function Header() {
   const [isProfilePhotoModalOpen, setIsProfilePhotoModalOpen] = React.useState(false);
   const [mobileTab, setMobileTab] = React.useState<'category' | 'corporate'>('category');
   const { setIsCartOpen, cart, location } = useCart();
-  const { profilePhoto, setProfilePhoto, userRole } = useUser();
+  const { profilePhoto, setProfilePhoto, userRole, userRoles, switchActiveRole, isAuthenticated } = useUser();
   const accountHref = resolveHomeByRole(userRole);
+  const roleLabelMap: Record<string, string> = {
+    customer: 'Cliente',
+    artist: 'Artista',
+    community_manager: 'Comunidade',
+    supplier: 'Fornecedor',
+    curator: 'Curadoria',
+    production_operator: 'Produção',
+    support_agent: 'Suporte',
+    finance_admin: 'Financeiro',
+    platform_admin: 'Admin',
+    affiliate: 'Affiliate',
+  };
   
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -156,6 +168,30 @@ export function Header() {
 
             {/* Right Actions */}
             <div className="flex items-center gap-1 md:gap-4 flex-1 justify-end" id="header-actions">
+               {isAuthenticated && (
+                 <div className="hidden md:flex items-center gap-2 mr-2">
+                   <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-ruah-400">Papel</span>
+                   {userRoles.length > 1 ? (
+                     <select
+                       value={userRole}
+                       onChange={(event) => {
+                         void switchActiveRole(event.target.value as typeof userRole);
+                       }}
+                       className="h-8 rounded-full border border-ruah-100 bg-white px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-950"
+                     >
+                       {userRoles.map((role) => (
+                         <option key={role} value={role}>
+                           {roleLabelMap[role] ?? role}
+                         </option>
+                       ))}
+                     </select>
+                   ) : (
+                     <span className="rounded-full border border-ruah-100 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-950">
+                       {roleLabelMap[userRole] ?? userRole}
+                     </span>
+                   )}
+                 </div>
+               )}
                <button 
                  onClick={() => setIsAiAssistantOpen(true)}
                  data-ai-trigger="true"

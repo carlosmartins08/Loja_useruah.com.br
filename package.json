@@ -48,7 +48,9 @@
     "qa:finance:impact": "set QA_PORT=3211&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-finance-impact.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& node scripts/qa-api-runner.mjs",
     "qa:payout:ledger": "set QA_PORT=3212&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-payout-ledger-paid.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& set PAYOUT_SECURITY_WINDOW_DAYS=0&& node scripts/qa-api-runner.mjs",
     "qa:matrix:audit": "set QA_PORT=3214&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-matrix-audit.mjs&& node scripts/qa-api-runner.mjs",
+    "qa:crossrole:impact": "set QA_PORT=3215&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-cross-role-impact.mjs&& set RBAC_ACTIVE=true&& set QA_EXPECT_RBAC=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& node scripts/qa-api-runner.mjs",
     "qa:blindspots": "node scripts/qa-blindspots.mjs",
+    "backend:gate": "node scripts/backend-readiness-gate.mjs",
     "go:e2e:proof": "node scripts/go-live-e2e-proof.mjs",
     "go:e2e:proof:run": "node scripts/go-live-e2e-proof.mjs --execute",
     "qa:full": "npm run alert:critical && npm run check && npm run qa:brand:colors && npm run qa:typography && npm run qa:content && npm run qa:ux:journeys && npm run qa:catalog && npm run qa:payments21 && npm run qa:exceptions && npm run qa:coreops && npm run qa:campaign:impact && npm run qa:finance:impact && npm run qa:payout:ledger"
