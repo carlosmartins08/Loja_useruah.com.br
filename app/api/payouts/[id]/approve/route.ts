@@ -4,6 +4,7 @@ import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
 import { canManageFinancialOperations } from '@/lib/role-matrix/permission-matrix';
 import { getLatestImpactReviewByEntity, getPendingImpactReviewByEntity } from '@/lib/impact-review-store';
 import { updatePayoutStatus } from '@/lib/payout-store';
+import { ElevationError, requireElevationIfNeeded } from '@/lib/privilege-elevation-service';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const actor = getActorFromRequest(request);
@@ -12,6 +13,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
+  try {
+    requireElevationIfNeeded({
+      request,
+      action: 'payout.approved',
+      requiredRole: 'finance_admin',
+      entityType: 'Payout',
+      entityId: id,
+      scope: 'finance:payout:approve',
+    });
+  } catch (error) {
+    if (error instanceof ElevationError) {
+      return NextResponse.json({ error: error.code, detail: error.detail }, { status: error.status });
+    }
+    throw error;
+  }
   const pendingReview = getPendingImpactReviewByEntity('Payout', id);
   if (pendingReview) {
     return NextResponse.json({ error: 'invalid_transition', detail: 'impact_review_pending', reviewId: pendingReview.reviewId }, { status: 409 });

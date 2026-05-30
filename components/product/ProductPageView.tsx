@@ -40,11 +40,11 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
       <section className="relative min-h-[72vh] flex flex-col justify-start overflow-hidden bg-ruah-50 py-10 lg:py-16">
         <div className="section-container relative z-10">
           <Breadcrumbs items={[{ label: 'Coleções', href: '/shop' }, { label: product.name }]} className="mb-12" />
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <div className="layout-grid-product">
             <div className="lg:col-span-3 flex flex-col gap-12">
               <div className="flex flex-col gap-4">
                 <span className="font-serif text-3xl italic tracking-tighter uppercase mb-4 text-ruah-950">UseRuah.</span>
-                <h1 className="text-5xl lg:text-7xl font-serif leading-[0.84] tracking-tighter uppercase italic font-black">Respiro <br /> <span className="not-italic">Ruah.</span></h1>
+                <h1 className="ur-type-display-xl uppercase italic">Respiro <br /> <span className="not-italic">Ruah.</span></h1>
                 <p className="text-sm font-semibold text-ruah-500 leading-relaxed max-w-[260px] mt-4">Moda que conecta. Design que comunica os valores do Reino de forma autoral.</p>
               </div>
 
@@ -65,7 +65,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
               <div className="relative w-full aspect-square max-w-[500px]">
                 <div className="absolute inset-0 bg-white rounded-full shadow-glass border border-ruah-100 scale-[1.1] pointer-events-none" />
                 <div className="relative w-full h-full rounded-full overflow-hidden group">
-                  <AppImage context="hero" src={activeImage} alt={`${product.name} - ${selectedColor}`} fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover transition-transform duration-1000 group-hover:scale-110" referrerPolicy="no-referrer" />
+                  <AppImage context="hero" src={activeImage} alt={`${product.name} - ${selectedColor}`} fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover transition-transform motion-slow group-hover:scale-110" referrerPolicy="no-referrer" />
                 </div>
               </div>
             </div>
@@ -79,7 +79,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
           </div>
         </div>
 
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 -rotate-90 pointer-events-none opacity-[0.03] origin-top-left">
+        <div className="watermark-editorial">
           <span className="text-[15vw] font-serif uppercase whitespace-nowrap text-ruah-950">GERAÇÃO RUAH</span>
         </div>
       </section>

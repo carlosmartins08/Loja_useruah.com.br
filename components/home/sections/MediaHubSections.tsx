@@ -38,14 +38,14 @@ export function MediaHubSections() {
 
       <section className="section-space bg-white border-b border-ruah-100">
         <div className="section-container">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+          <div className="layout-grid-media">
             <div className="lg:col-span-4 flex flex-col gap-10">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                   <Youtube className="text-red-600" size={24} />
                   <span className="tech-label text-ruah-300">Ruah TV</span>
                 </div>
-                <h3 className="text-5xl lg:text-7xl font-serif italic font-semibold uppercase tracking-tighter text-ruah-950 leading-none">
+                <h3 className="ur-type-display-lg italic uppercase text-ruah-950">
                   Respiro <br /> Criativo.
                 </h3>
               </div>
@@ -63,7 +63,7 @@ export function MediaHubSections() {
             </div>
 
             <div className="lg:col-span-8 relative aspect-video rounded-[3rem] overflow-hidden group shadow-2xl bg-ruah-950">
-              <AppImage context="hero" src="https://picsum.photos/seed/ruah-yt-hero/1280/720" alt="YouTube Featured Video" fill className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" />
+              <AppImage context="hero" src="https://picsum.photos/seed/ruah-yt-hero/1280/720" alt="YouTube Featured Video" fill className="object-cover opacity-60 group-hover:scale-[1.05] transition-transform motion-slow" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:bg-accent-gold group-hover:scale-110 transition-all shadow-2xl">
                   <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[22px] border-l-white border-b-[12px] border-b-transparent ml-1" />
@@ -96,7 +96,7 @@ export function MediaHubSections() {
                       <span className="text-[14px] font-serif italic font-black text-ruah-950 uppercase tracking-tighter">Sopro da Manhã Vol. 1</span>
                       <span className="text-xs font-bold text-accent-gold uppercase tracking-[0.1em]">Curadoria Oficial Ruah</span>
                       <div className="flex items-center gap-2 mt-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                        <div className="w-2 h-2 rounded-full bg-green-500 pulse-soft" />
                         <span className="text-xs font-bold text-ruah-200 uppercase tracking-[0.1em]">Tocando Agora</span>
                       </div>
                     </div>
@@ -133,7 +133,7 @@ export function MediaHubSections() {
                   <Music className="text-green-500" size={24} />
                   <span className="tech-label text-ruah-300">Sopro de Adoração</span>
                 </div>
-                <h2 className="text-5xl lg:text-7xl font-serif italic font-semibold uppercase tracking-tighter text-ruah-950 leading-none">
+                <h2 className="ur-type-display-lg italic uppercase text-ruah-950">
                   A Trilha <br /> do Seu Dia.
                 </h2>
               </div>

@@ -86,7 +86,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(196,164,132,0.15),transparent_60%)]" />
             <div className="w-full lg:w-1/2 relative z-10">
                <span className="tech-label text-accent-gold mb-8">Destaque da ColeÃ§Ã£o</span>
-               <h2 className="text-4xl lg:text-6xl text-white font-serif italic font-black uppercase tracking-tighter leading-none mb-8">
+               <h2 className="ur-type-display-md text-white italic uppercase mb-8">
                  O TraÃ§o de <br /> Lucas Sant&apos;Ana.
                </h2>
                <p className="text-white/40 text-[11px] font-bold uppercase tracking-widest leading-loose mb-10 max-w-md">
@@ -117,7 +117,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           <div className="md:col-span-3 flex flex-col gap-8 pt-6">
              <div className="flex flex-col gap-2">
                 <span className="text-[10px] font-bold text-ruah-200 italic font-serif uppercase tracking-widest">/ColeÃ§Ã£o Geral</span>
-                <h3 className="text-6xl font-serif leading-[0.9] italic tracking-tighter uppercase mb-4 text-ruah-950 font-black">
+                <h3 className="ur-type-display-md italic uppercase mb-4 text-ruah-950">
                   Respiro <br /> Urbano.
                 </h3>
              </div>
@@ -140,7 +140,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         </div>
 
         <div className="mt-32 flex justify-center">
-           <button className="flex items-center gap-3 bg-ruah-950 text-white px-12 py-5 rounded-full font-bold text-[10px] tracking-[0.3em] hover:bg-accent-gold transition-all active:scale-95 shadow-xl shadow-ruah-950/10">
+           <button className="flex items-center gap-3 bg-ruah-950 text-white px-12 py-5 rounded-full font-bold text-[10px] tracking-[0.3em] hover:bg-accent-gold motion-base active:scale-95 shadow-xl shadow-ruah-950/10">
               Carregar Mais Obras <ArrowUpRight size={18} />
            </button>
         </div>

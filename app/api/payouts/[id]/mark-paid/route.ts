@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
 import { canManageFinancialOperations } from '@/lib/role-matrix/permission-matrix';
 import { settlePayoutToPaid } from '@/lib/payout-settlement-service';
+import { ElevationError, requireElevationIfNeeded } from '@/lib/privilege-elevation-service';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const actor = getActorFromRequest(request);
@@ -10,6 +11,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
+  try {
+    requireElevationIfNeeded({
+      request,
+      action: 'payout.paid',
+      requiredRole: 'finance_admin',
+      entityType: 'Payout',
+      entityId: id,
+      scope: 'finance:payout:mark_paid',
+    });
+  } catch (error) {
+    if (error instanceof ElevationError) {
+      return NextResponse.json({ error: error.code, detail: error.detail }, { status: error.status });
+    }
+    throw error;
+  }
   const result = await settlePayoutToPaid({
     payoutId: id,
     actorId: actor?.actorId ?? 'unknown',

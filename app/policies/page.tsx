@@ -16,7 +16,7 @@ export default function PoliciesPage() {
           <div className="section-container relative z-10">
             <div className="max-w-3xl">
               <span className="tech-label text-accent-gold mb-6 block italic">Manifesto de Fé</span>
-              <h1 className="text-5xl lg:text-7xl font-serif italic uppercase leading-[0.92] mb-10 text-balance">
+              <h1 className="ur-type-display-lg italic uppercase mb-10 text-balance">
                 Política de Compra <br />
                 <span className="text-accent-gold">Consciente</span>
               </h1>
@@ -63,11 +63,11 @@ export default function PoliciesPage() {
               <div className="lg:col-span-4 flex flex-col gap-8 lg:sticky lg:top-24">
                 <div className="flex flex-col gap-4">
                   <span className="tech-label text-accent-gold">Framework</span>
-                  <h2 className="text-4xl font-serif italic uppercase leading-tight">Diretrizes de Manufatura</h2>
+                  <h2 className="ur-type-display-md italic uppercase">Diretrizes de Manufatura</h2>
                 </div>
                 <div className="flex flex-col gap-3">
                   {['Arrependimento', 'Ciclo de Sopro', 'Logística Reversa', 'Custos de Envio'].map((tab) => (
-                    <button key={tab} className="w-full p-4 text-left bg-white border border-ruah-100 rounded-2xl text-sm font-semibold hover:border-accent-gold hover:text-accent-gold transition-all">
+                    <button key={tab} className="w-full p-4 text-left bg-white border border-ruah-100 rounded-2xl text-sm font-semibold hover:border-accent-gold hover:text-accent-gold motion-base">
                       {tab}
                     </button>
                   ))}
@@ -142,12 +142,12 @@ export default function PoliciesPage() {
         <section className="bg-white py-20 lg:py-28 border-t border-ruah-100">
           <div className="section-container text-center flex flex-col items-center gap-8">
             <div className="flex flex-col gap-4">
-              <h2 className="text-4xl lg:text-5xl font-serif italic uppercase leading-tight">
+              <h2 className="ur-type-display-md italic uppercase">
                 Resolva <span className="text-accent-gold">Autonomamente</span>
               </h2>
               <p className="text-sm text-ruah-500 max-w-md mx-auto">Acesse o portal com CPF e número do pedido para solicitar troca ou devolução.</p>
             </div>
-            <Link href="/returns" className="bg-ruah-950 text-white px-10 py-5 rounded-2xl text-sm font-semibold uppercase tracking-[0.12em] hover:bg-accent-gold transition-all shadow-fancy flex items-center gap-3 group">
+            <Link href="/returns" className="bg-ruah-950 text-white px-10 py-5 rounded-2xl text-sm font-semibold uppercase tracking-[0.12em] hover:bg-accent-gold motion-base shadow-fancy flex items-center gap-3 group">
               Acessar portal de trocas <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

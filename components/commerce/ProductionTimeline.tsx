@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Check, Box, Cpu, Truck, ShieldCheck, Factory } from 'lucide-react';
+import { Check, Box, Truck, ShieldCheck, Factory } from 'lucide-react';
+import { MOTION_DURATION, MOTION_EASING } from '@/lib/ui/motion';
 
 export type OrderStatus = 'received' | 'production' | 'quality' | 'ready' | 'shipped';
 
@@ -36,7 +37,7 @@ export function ProductionTimeline({ currentStatus }: { currentStatus: OrderStat
             initial={{ width: 0 }}
             animate={{ width: `${(currentIndex / (STEPS.length - 1)) * 100}%` }}
             className="absolute top-6 left-0 h-0.5 bg-accent-gold"
-            transition={{ duration: 1, ease: "circOut" }}
+            transition={{ duration: MOTION_DURATION.glacial, ease: MOTION_EASING.circOut }}
           />
 
           <div className="flex justify-between relative z-10">
@@ -47,7 +48,7 @@ export function ProductionTimeline({ currentStatus }: { currentStatus: OrderStat
 
                return (
                  <div key={step.id} className="flex flex-col items-center gap-4 max-w-[120px] text-center">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 ${
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all motion-slow ${
                       isActive ? 'bg-accent-gold text-white shadow-fancy ring-4 ring-accent-gold/20' : 
                       isCompleted ? 'bg-ruah-950 text-white' : 
                       'bg-white border border-ruah-100 text-ruah-200'
@@ -68,7 +69,7 @@ export function ProductionTimeline({ currentStatus }: { currentStatus: OrderStat
        {currentStep && (
          <div className="bg-white rounded-3xl p-8 border border-ruah-100 shadow-subtle">
             <div className="flex items-center gap-4 mb-4">
-               <div className="w-2 h-2 rounded-full bg-accent-gold animate-ping" />
+               <div className="w-2 h-2 rounded-full bg-accent-gold pulse-soft" />
                <span className="text-xs font-bold uppercase tracking-[0.1em] text-accent-gold">Status do Respiro</span>
             </div>
             <h4 className="text-xl font-serif uppercase italic mb-2">{currentStep.label}</h4>

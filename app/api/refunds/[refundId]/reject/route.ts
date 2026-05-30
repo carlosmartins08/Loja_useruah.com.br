@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
 import { PaymentExceptionError, rejectRefund } from '@/lib/payment-exception-service';
 import { canManageFinancialOperations } from '@/lib/role-matrix/permission-matrix';
+import { ElevationError, requireElevationIfNeeded } from '@/lib/privilege-elevation-service';
 
 interface RejectRefundPayload {
   reason: string;
@@ -25,6 +26,21 @@ export async function POST(request: Request, context: { params: Promise<{ refund
   }
 
   const { refundId } = await context.params;
+  try {
+    requireElevationIfNeeded({
+      request,
+      action: 'refund.rejected',
+      requiredRole: 'finance_admin',
+      entityType: 'Refund',
+      entityId: refundId,
+      scope: 'finance:refund:reject',
+    });
+  } catch (error) {
+    if (error instanceof ElevationError) {
+      return NextResponse.json({ error: error.code, detail: error.detail }, { status: error.status });
+    }
+    throw error;
+  }
   try {
     const refund = await rejectRefund({
       refundId,

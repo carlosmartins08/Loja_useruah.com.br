@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { isUserRole, normalizeAuthSession } from '@/lib/auth-session';
+import { assertRoleScopePolicy } from '@/lib/role-scope';
 import { decodeSessionToken, encodeSessionToken } from '@/lib/session-token';
 
 interface ActiveRolePayload {
@@ -15,6 +16,7 @@ function isValidPayload(payload: unknown): payload is ActiveRolePayload {
 }
 
 export async function PATCH(request: Request) {
+  assertRoleScopePolicy();
   const payload = await request.json().catch(() => null);
   if (!isValidPayload(payload)) {
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });
@@ -33,6 +35,9 @@ export async function PATCH(request: Request) {
   }
   if (!current.roles.includes(nextRole)) {
     return NextResponse.json({ error: 'forbidden', detail: 'role_not_in_session_scope' }, { status: 403 });
+  }
+  if (process.env.NODE_ENV === 'production' && current.userRole !== nextRole) {
+    return NextResponse.json({ error: 'forbidden', detail: 'role_switch_disabled_in_production' }, { status: 403 });
   }
   if (current.activeRole === nextRole) {
     return NextResponse.json({ ok: true, session: current, changed: false });
@@ -66,4 +71,3 @@ export async function PATCH(request: Request) {
 
   return response;
 }
-

@@ -3,6 +3,7 @@ import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
 import { approveRefund, PaymentExceptionError } from '@/lib/payment-exception-service';
 import { canManageFinancialOperations } from '@/lib/role-matrix/permission-matrix';
 import { getLatestImpactReviewByEntity, getPendingImpactReviewByEntity } from '@/lib/impact-review-store';
+import { ElevationError, requireElevationIfNeeded } from '@/lib/privilege-elevation-service';
 
 export async function POST(request: Request, context: { params: Promise<{ refundId: string }> }) {
   const actor = getActorFromRequest(request);
@@ -11,6 +12,21 @@ export async function POST(request: Request, context: { params: Promise<{ refund
   }
 
   const { refundId } = await context.params;
+  try {
+    requireElevationIfNeeded({
+      request,
+      action: 'refund.approved',
+      requiredRole: 'finance_admin',
+      entityType: 'Refund',
+      entityId: refundId,
+      scope: 'finance:refund:approve',
+    });
+  } catch (error) {
+    if (error instanceof ElevationError) {
+      return NextResponse.json({ error: error.code, detail: error.detail }, { status: error.status });
+    }
+    throw error;
+  }
   const pendingReview = getPendingImpactReviewByEntity('Refund', refundId);
   if (pendingReview) {
     return NextResponse.json({ error: 'invalid_transition', detail: 'impact_review_pending', reviewId: pendingReview.reviewId }, { status: 409 });

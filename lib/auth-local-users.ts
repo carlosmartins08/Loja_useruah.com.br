@@ -1,4 +1,5 @@
-import { ALL_USER_ROLES, type AuthSession, type UserRole } from '@/lib/auth-session';
+import type { AuthSession, UserRole } from '@/lib/auth-session';
+import { assertRoleScopePolicy, getSessionRoleScope } from '@/lib/role-scope';
 
 interface LocalAuthUser {
   email: string;
@@ -146,10 +147,11 @@ export function isEmailRegistered(email: string) {
 }
 
 export function authenticateLocalUser(email: string, password: string): AuthSession | null {
+  assertRoleScopePolicy();
   const normalizedEmail = email.trim().toLowerCase();
   const user = getLocalUsers().find((row) => row.email.toLowerCase() === normalizedEmail && row.password === password);
   if (!user) return null;
-  const roles = user.userRole === 'platform_admin' ? ALL_USER_ROLES : [user.userRole];
+  const roles = getSessionRoleScope(user.userRole);
   return {
     userId: user.userId,
     userName: user.userName,

@@ -7,13 +7,13 @@ export function AiCreatorSection() {
   return (
     <section className="section-space bg-white">
       <div className="section-container">
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-16 items-center">
+        <div className="layout-grid-feature">
           <div className="lg:col-span-4 flex flex-col gap-8">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-[1px] bg-accent-gold" />
+              <div className="decor-gold-line" />
               <span className="tech-label text-accent-gold">Ruah Lab AI</span>
             </div>
-            <h2 className="text-6xl font-serif leading-[0.9] italic uppercase font-black tracking-tighter">
+            <h2 className="ur-type-display-md italic uppercase">
               Sua Fé <br /> em Código <br /> Criativo.
             </h2>
             <p className="text-[12px] font-bold text-ruah-400 leading-relaxed max-w-xs tracking-[0.1em] uppercase mb-4">
@@ -32,13 +32,13 @@ export function AiCreatorSection() {
               src="https://picsum.photos/seed/ruah-ai-lab/1200/800"
               alt="AI Laboratory"
               fill
-              className="object-cover opacity-80 group-hover:scale-105 transition-transform duration-1000 grayscale hover:grayscale-0"
+              className="object-cover opacity-80 group-hover:scale-[1.05] transition-transform motion-slow grayscale hover:grayscale-0"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-ruah-950/20 to-transparent" />
             <div className="relative z-10 bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/20 max-w-sm">
               <div className="flex gap-2 mb-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-2 h-2 rounded-full bg-accent-gold animate-pulse" style={{ animationDelay: `${i * 300}ms` }} />
+                  <div key={i} className="w-2 h-2 rounded-full bg-accent-gold pulse-soft" style={{ animationDelay: `${i * 300}ms` }} />
                 ))}
               </div>
               <p className="text-white text-[11px] font-bold leading-relaxed tracking-[0.1em] uppercase">

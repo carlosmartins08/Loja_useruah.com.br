@@ -41,7 +41,7 @@ export default function JournalPage() {
              />
              <div className="max-w-4xl">
                 <span className="tech-label text-accent-blue mb-8 block">UseRuah Journal</span>
-                <h1 className="text-7xl lg:text-9xl font-serif leading-[0.85] tracking-tighter uppercase mb-16 italic">
+                <h1 className="ur-type-display-xl uppercase mb-16 italic">
                    A CIÃŠNCIA <br /> DA <span className="not-italic">LUZ.</span>
                 </h1>
                 <p className="text-lg font-medium uppercase tracking-[0.2em] leading-relaxed text-lumina-500 max-w-xl">
@@ -58,7 +58,7 @@ export default function JournalPage() {
                src={ARTICLES[0].image} 
                alt={ARTICLES[0].title} 
                fill 
-               className="object-cover transition-transform duration-1000 group-hover:scale-105" 
+               className="object-cover transition-transform motion-slow group-hover:scale-[1.05]" 
                referrerPolicy="no-referrer"
              />
              <div className="absolute inset-0 bg-gradient-to-t from-lumina-950/80 via-lumina-950/20 to-transparent flex flex-col justify-end p-20">
@@ -72,10 +72,10 @@ export default function JournalPage() {
                          {ARTICLES[0].date}
                       </div>
                    </div>
-                   <h2 className="text-4xl lg:text-6xl text-white font-serif leading-tight uppercase font-bold tracking-tight">
+                   <h2 className="ur-type-display-md text-white uppercase">
                       {ARTICLES[0].title}
                    </h2>
-                   <div className="flex items-center gap-4 text-white font-bold uppercase text-[10px] tracking-widest border-b border-white/30 self-start pb-1 group-hover:border-white transition-all">
+                   <div className="flex items-center gap-4 text-white font-bold uppercase text-[10px] tracking-widest border-b border-white/30 self-start pb-1 group-hover:border-white motion-base">
                       Ler Artigo Completo <ArrowRight size={16} />
                    </div>
                 </div>
@@ -89,7 +89,7 @@ export default function JournalPage() {
              {ARTICLES.slice(1).map(article => (
                 <Link key={article.id} href={`/journal/${article.id}`} className="group flex flex-col gap-8">
                    <div className="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden shadow-xl">
-                      <AppImage context="content-banner" src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                      <AppImage context="content-banner" src={article.image} alt={article.title} fill className="object-cover group-hover:scale-[1.05] transition-transform motion-slow" />
                    </div>
                    <div className="flex flex-col gap-4">
                       <div className="flex items-center gap-4">

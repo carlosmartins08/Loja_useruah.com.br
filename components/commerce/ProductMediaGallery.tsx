@@ -32,7 +32,7 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
 
   return (
     <section className="py-20 bg-white">
-      <div className="section-container grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div className="section-container layout-grid-product">
         <div className="lg:col-span-7">
           <div className="relative aspect-square rounded-[2rem] overflow-hidden border border-ruah-100 bg-ruah-50 group">
             <AppImage context="content-banner" src={active.src} alt={active.label} fill sizes="(max-width: 1024px) 100vw, 60vw" className="object-cover" />
@@ -56,7 +56,7 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
               <button
                 key={item.label}
                 onClick={() => setActiveIndex(media.findIndex((entry) => entry.label === item.label))}
-                className={`relative aspect-square rounded-2xl overflow-hidden border transition-all ${
+                className={`relative aspect-square rounded-2xl overflow-hidden border transition-all motion-base ${
                   active.label === item.label ? 'border-ruah-950' : 'border-ruah-100 hover:border-accent-gold'
                 }`}
               >

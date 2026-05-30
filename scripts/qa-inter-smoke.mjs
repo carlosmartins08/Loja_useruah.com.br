@@ -1,4 +1,4 @@
-const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3204';
+﻿const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3204';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -27,8 +27,8 @@ async function post(pathname, body, headers = {}) {
   return { status: response.status, data };
 }
 
-async function get(pathname) {
-  const response = await fetch(`${baseUrl}${pathname}`);
+async function get(pathname, headers = {}) {
+  const response = await fetch(`${baseUrl}${pathname}`, { headers });
   let data = null;
   try {
     data = await response.json();
@@ -40,6 +40,7 @@ async function get(pathname) {
 
 async function run() {
   const report = [];
+  const customerId = 'customer-inter-smoke';
 
   // Hard gate: Inter credentials must exist before smoke.
   requiredEnv('PAYMENT_ENABLE_INTER');
@@ -61,7 +62,7 @@ async function run() {
       country: 'BR',
     },
     items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
-    customer: { id: 'customer-inter-smoke' },
+    customer: { id: customerId },
   });
   assert(order.status === 201, `order expected 201, got ${order.status}`);
   const orderId = order.data?.order?.orderId;
@@ -89,7 +90,7 @@ async function run() {
   assert(checkout.data?.payment?.provider === 'inter', `provider expected inter, got ${String(checkout.data?.payment?.provider)}`);
   report.push('INTER-02 checkout inter provider ok');
 
-  const status = await get(`/api/payments/status/${paymentId}`);
+  const status = await get(`/api/payments/status/${paymentId}`, { 'x-actor-id': customerId, 'x-actor-role': 'customer' });
   assert(status.status === 200, `status expected 200, got ${status.status}`);
   report.push('INTER-03 payment status query ok');
 
@@ -117,3 +118,4 @@ run().catch((error) => {
   console.error(JSON.stringify({ status: 'FAIL', baseUrl, error: String(error) }, null, 2));
   process.exit(1);
 });
+

@@ -11,6 +11,7 @@ import { SearchOverlay } from './SearchOverlay';
 import { VirtualAssistant } from '@/components/ai/VirtualAssistant';
 import { ProfilePhotoModal } from './ProfilePhotoModal';
 import { resolveHomeByRole } from '@/lib/access-routing';
+import { ROLE_LABEL, sortRolesForUi } from '@/lib/role-scope';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -22,18 +23,7 @@ export function Header() {
   const { setIsCartOpen, cart, location } = useCart();
   const { profilePhoto, setProfilePhoto, userRole, userRoles, switchActiveRole, isAuthenticated } = useUser();
   const accountHref = resolveHomeByRole(userRole);
-  const roleLabelMap: Record<string, string> = {
-    customer: 'Cliente',
-    artist: 'Artista',
-    community_manager: 'Comunidade',
-    supplier: 'Fornecedor',
-    curator: 'Curadoria',
-    production_operator: 'Produção',
-    support_agent: 'Suporte',
-    finance_admin: 'Financeiro',
-    platform_admin: 'Admin',
-    affiliate: 'Affiliate',
-  };
+  const sortedRoles = React.useMemo(() => sortRolesForUi(userRoles), [userRoles]);
   
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -171,7 +161,7 @@ export function Header() {
                {isAuthenticated && (
                  <div className="hidden md:flex items-center gap-2 mr-2">
                    <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-ruah-400">Papel</span>
-                   {userRoles.length > 1 ? (
+                   {sortedRoles.length > 1 ? (
                      <select
                        value={userRole}
                        onChange={(event) => {
@@ -179,15 +169,15 @@ export function Header() {
                        }}
                        className="h-8 rounded-full border border-ruah-100 bg-white px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-950"
                      >
-                       {userRoles.map((role) => (
+                       {sortedRoles.map((role) => (
                          <option key={role} value={role}>
-                           {roleLabelMap[role] ?? role}
+                           {ROLE_LABEL[role] ?? role}
                          </option>
                        ))}
                      </select>
                    ) : (
                      <span className="rounded-full border border-ruah-100 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-950">
-                       {roleLabelMap[userRole] ?? userRole}
+                       {ROLE_LABEL[userRole] ?? userRole}
                      </span>
                    )}
                  </div>

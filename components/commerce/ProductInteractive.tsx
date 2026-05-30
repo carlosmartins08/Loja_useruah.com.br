@@ -135,7 +135,7 @@ export function ProductInteractive({
        <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-gold pulse-soft" />
               <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Produção Artesanal Sob Demanda</span>
             </div>
           </div>

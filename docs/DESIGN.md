@@ -83,6 +83,7 @@ Ordem obrigatoria:
 
 ## 8) Tipografia
 Fonte de verdade: `docs/TYPOGRAPHY_UX_UI_CHECKLIST.md`
+Complemento sistemico: `docs/DESIGN_SYSTEM_MOTION_GRID_TYPE.md`
 
 Regras reforcadas:
 - texto funcional >= 16px;
@@ -92,6 +93,7 @@ Regras reforcadas:
 
 ## 9) Cor e identidade
 Fonte de verdade: `docs/BRAND_COLOR_SYSTEM.md`
+Contraste e acessibilidade: `docs/ACCESSIBILITY_CONTRAST_MATRIX.md`
 
 Regras reforcadas:
 - nao criar cor fora de token aprovado;
@@ -120,7 +122,9 @@ Antes de subir PR de frontend:
 1. Validar este DESIGN.md.
 2. Validar `docs/BRAND_COLOR_SYSTEM.md`.
 3. Validar `docs/TYPOGRAPHY_UX_UI_CHECKLIST.md`.
-4. Validar checklist integrado em `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`.
+4. Validar `docs/DESIGN_SYSTEM_MOTION_GRID_TYPE.md`.
+5. Validar `docs/UI_VOICE_TONE_GLOSSARY.md`.
+6. Validar checklist integrado em `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`.
 
 ## 13) Definition of Done (frontend)
 Uma tela so esta pronta se:
@@ -136,4 +140,3 @@ Uma tela so esta pronta se:
 - inventar nomenclatura nova para mesma acao;
 - esconder restricao de permissao apenas no frontend;
 - trocar visual sem validar impacto em fluxo operacional.
-

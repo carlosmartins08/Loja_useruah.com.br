@@ -26,6 +26,19 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  async redirects() {
+    return [
+      { source: '/admin/support', destination: '/support', permanent: false },
+      { source: '/admin/support/:orderId', destination: '/support/:orderId', permanent: false },
+      { source: '/admin/production', destination: '/production', permanent: false },
+      { source: '/admin/finance/payouts', destination: '/finance/payouts', permanent: false },
+      { source: '/admin/impact-reviews', destination: '/curation', permanent: false },
+      { source: '/account/artist', destination: '/artist', permanent: false },
+      { source: '/account/community', destination: '/community', permanent: false },
+      { source: '/account/supplier', destination: '/supplier', permanent: false },
+      { source: '/account/affiliate', destination: '/affiliate', permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

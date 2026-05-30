@@ -1,4 +1,4 @@
-const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3209';
+﻿const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3209';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -27,8 +27,8 @@ async function post(pathname, body, headers = {}) {
   return { status: response.status, data };
 }
 
-async function get(pathname) {
-  const response = await fetch(`${baseUrl}${pathname}`);
+async function get(pathname, headers = {}) {
+  const response = await fetch(`${baseUrl}${pathname}`, { headers });
   let data = null;
   try {
     data = await response.json();
@@ -40,6 +40,7 @@ async function get(pathname) {
 
 async function run() {
   const report = [];
+  const customerId = 'customer-infinitepay-smoke';
 
   requiredEnv('PAYMENT_ENABLE_INFINITEPAY');
   requiredEnv('PAYMENT_INFINITEPAY_BASE_URL');
@@ -58,7 +59,7 @@ async function run() {
       country: 'BR',
     },
     items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
-    customer: { id: 'customer-infinitepay-smoke' },
+    customer: { id: customerId },
   });
   assert(order.status === 201, `order expected 201, got ${order.status}`);
   const orderId = order.data?.order?.orderId;
@@ -86,7 +87,7 @@ async function run() {
   assert(checkout.data?.payment?.provider === 'infinitepay', `provider expected infinitepay, got ${String(checkout.data?.payment?.provider)}`);
   report.push('INF-02 checkout infinitepay provider ok');
 
-  const status = await get(`/api/payments/status/${paymentId}`);
+  const status = await get(`/api/payments/status/${paymentId}`, { 'x-actor-id': customerId, 'x-actor-role': 'customer' });
   assert(status.status === 200, `status expected 200, got ${status.status}`);
   report.push('INF-03 payment status query ok');
 
@@ -114,3 +115,4 @@ run().catch((error) => {
   console.error(JSON.stringify({ status: 'FAIL', baseUrl, error: String(error) }, null, 2));
   process.exit(1);
 });
+

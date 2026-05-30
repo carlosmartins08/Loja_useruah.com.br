@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+﻿import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3201';
@@ -23,8 +23,8 @@ async function post(pathname, body, headers = {}) {
   return { status: response.status, data };
 }
 
-async function get(pathname) {
-  const response = await fetch(`${baseUrl}${pathname}`);
+async function get(pathname, headers = {}) {
+  const response = await fetch(`${baseUrl}${pathname}`, { headers });
   let data = null;
   try {
     data = await response.json();
@@ -36,6 +36,7 @@ async function get(pathname) {
 
 async function run() {
   const report = [];
+  const customerId = 'customer-pay-21';
 
   const order = await post('/api/orders', {
     supplierId: 'supplier-default',
@@ -50,7 +51,7 @@ async function run() {
       country: 'BR',
     },
     items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
-    customer: { id: 'customer-pay-21' },
+    customer: { id: customerId },
   });
   assert(order.status === 201, `order expected 201, got ${order.status}`);
   const orderId = order.data?.order?.orderId;
@@ -87,7 +88,7 @@ async function run() {
     report.push('P0-PAY21-03 persistence check skipped');
   }
 
-  const status = await get(`/api/payments/status/${paymentId}`);
+  const status = await get(`/api/payments/status/${paymentId}`, { 'x-actor-id': customerId, 'x-actor-role': 'customer' });
   assert(status.status === 200, `status expected 200, got ${status.status}`);
   report.push('P0-PAY21-04 payment status query ok');
 
@@ -115,3 +116,4 @@ run().catch((error) => {
   console.error(JSON.stringify({ status: 'FAIL', baseUrl, error: String(error) }, null, 2));
   process.exit(1);
 });
+

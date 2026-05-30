@@ -24,6 +24,18 @@
   --ur-type-quote-line: 1.12;
   --ur-type-quote-track: -0.015em;
 
+  --ur-type-display-xl-size: clamp(2.5rem, 8vw, 7rem);
+  --ur-type-display-xl-line: 0.9;
+  --ur-type-display-xl-track: -0.045em;
+
+  --ur-type-display-lg-size: clamp(2.25rem, 6vw, 5.5rem);
+  --ur-type-display-lg-line: 0.92;
+  --ur-type-display-lg-track: -0.04em;
+
+  --ur-type-display-md-size: clamp(1.9rem, 4.5vw, 4rem);
+  --ur-type-display-md-line: 0.95;
+  --ur-type-display-md-track: -0.03em;
+
   --ur-type-body-weight: 400;
   --ur-type-body-size: 1rem;
   --ur-type-body-line: 1.65;
@@ -60,4 +72,28 @@
   letter-spacing: var(--ur-type-eyebrow-track);
   font-weight: var(--ur-type-eyebrow-weight);
   text-transform: uppercase;
+}
+
+.ur-type-display-xl {
+  font-family: var(--ur-font-display-impact);
+  font-size: var(--ur-type-display-xl-size);
+  line-height: var(--ur-type-display-xl-line);
+  letter-spacing: var(--ur-type-display-xl-track);
+  font-weight: 900;
+}
+
+.ur-type-display-lg {
+  font-family: var(--ur-font-display-impact);
+  font-size: var(--ur-type-display-lg-size);
+  line-height: var(--ur-type-display-lg-line);
+  letter-spacing: var(--ur-type-display-lg-track);
+  font-weight: 800;
+}
+
+.ur-type-display-md {
+  font-family: var(--ur-font-display-impact);
+  font-size: var(--ur-type-display-md-size);
+  line-height: var(--ur-type-display-md-line);
+  letter-spacing: var(--ur-type-display-md-track);
+  font-weight: 800;
 }

@@ -1,4 +1,5 @@
 import type { UserRole } from '@/lib/auth-session';
+import { ROLE_HOME_ROUTES } from '@/lib/role-routing/role-namespaces';
 
 export function isAdminRole(
   role: UserRole
@@ -13,17 +14,11 @@ export function isAdminRole(
 }
 
 export function resolveHomeByRole(role: UserRole): string {
-  if (role === 'production_operator') return '/admin';
-  if (role === 'support_agent') return '/admin';
-  if (role === 'finance_admin') return '/admin';
-  if (role === 'curator') return '/admin/impact-reviews';
-  if (role === 'affiliate') return '/account';
-  if (role === 'platform_admin') return '/admin';
-  return '/account';
+  return ROLE_HOME_ROUTES[role] ?? '/account';
 }
 
 export function isAllowedAdminPath(role: UserRole, pathname: string): boolean {
-  if (pathname === '/admin') return true;
+  if (pathname === '/admin') return role === 'platform_admin';
   if (role === 'platform_admin') return true;
   if (role === 'finance_admin') {
     return (

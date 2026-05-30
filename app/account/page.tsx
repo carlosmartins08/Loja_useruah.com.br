@@ -76,14 +76,14 @@ export default function AccountPage() {
                    </div>
                    <div className="flex flex-col gap-6">
                       <span className="tech-label text-accent-gold whitespace-nowrap overflow-hidden">{roleLabel}</span>
-                      <h1 className="text-6xl lg:text-8xl font-serif leading-none italic uppercase">OLA, {userName}.</h1>
+                      <h1 className="ur-type-display-xl leading-none italic uppercase">OLA, {userName}.</h1>
                       <p className="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Gestao de Pedidos e Conta Ruah</p>
                    </div>
                 </div>
                 <div className="flex gap-4">
                    <Link
                      href="/register"
-                     className="flex items-center gap-2 px-6 py-4 bg-white text-ruah-950 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-accent-gold hover:text-white transition-all shadow-fancy"
+                     className="flex items-center gap-2 px-6 py-4 bg-white text-ruah-950 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-accent-gold hover:text-white motion-base shadow-fancy"
                    >
                       Revisar Cadastro
                    </Link>
@@ -115,7 +115,7 @@ export default function AccountPage() {
                          <button 
                            key={order.id}
                            onClick={() => setSelectedOrder(order)}
-                           className={`p-8 rounded-[2rem] border transition-all text-left group ${
+                           className={`p-8 rounded-[2rem] border motion-base text-left group ${
                              selectedOrder.id === order.id 
                              ? 'bg-white border-accent-gold/30 shadow-fancy' 
                              : 'bg-white/50 border-ruah-100 hover:border-ruah-200'
@@ -156,7 +156,7 @@ export default function AccountPage() {
                       <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest leading-relaxed">
                          Nossa equipe esta pronta para ajudar com sua campanha ou pedido personalizado.
                       </p>
-                      <button className="bg-white text-ruah-950 w-full py-4 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-accent-gold hover:text-white transition-all">
+                      <button className="bg-white text-ruah-950 w-full py-4 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-accent-gold hover:text-white motion-base">
                          Falar no WhatsApp
                       </button>
                    </div>
@@ -174,7 +174,7 @@ export default function AccountPage() {
                             {selectedOrder.items.length} ITEM â€¢ TOTAL {selectedOrder.total}
                          </p>
                       </div>
-                      <button className="flex items-center gap-3 px-6 py-4 bg-ruah-50 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-ruah-100 transition-all">
+                      <button className="flex items-center gap-3 px-6 py-4 bg-ruah-50 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-ruah-100 motion-base">
                          <QrCode size={18} className="text-accent-gold" /> Comprovante de Producao
                       </button>
                    </div>
@@ -193,7 +193,7 @@ export default function AccountPage() {
                       <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-300">Especificacoes dos Produtos</h3>
                       <div className="flex flex-col gap-4">
                          {selectedOrder.items.map((item, i) => (
-                            <div key={i} className="flex flex-col md:flex-row gap-8 p-10 bg-white border border-ruah-100 rounded-[2.5rem] group hover:border-accent-gold/30 transition-all">
+                            <div key={i} className="flex flex-col md:flex-row gap-8 p-10 bg-white border border-ruah-100 rounded-[2.5rem] group hover:border-accent-gold/30 motion-base">
                                <div className="relative w-full md:w-40 aspect-square rounded-2xl overflow-hidden bg-ruah-50 shadow-sm shrink-0">
                                   <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" />
                                </div>
@@ -219,7 +219,7 @@ export default function AccountPage() {
                                <div className="flex flex-col justify-center">
                                   <Link 
                                     href={`/product/${i+1}`}
-                                    className="w-12 h-12 rounded-full border border-ruah-100 flex items-center justify-center hover:bg-ruah-950 hover:text-white transition-all group/btn"
+                                    className="w-12 h-12 rounded-full border border-ruah-100 flex items-center justify-center hover:bg-ruah-950 hover:text-white motion-base group/btn"
                                   >
                                      <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
                                   </Link>

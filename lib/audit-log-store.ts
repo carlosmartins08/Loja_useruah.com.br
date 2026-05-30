@@ -5,12 +5,17 @@ export interface AuditLogRecord {
   id: string;
   actor_id: string;
   actor_role: string;
+  primary_role?: string;
+  elevated_role?: string;
   action: string;
   entity_type: string;
   entity_id: string;
+  scope?: string;
   previous_status?: string;
   new_status?: string;
   reason?: string;
+  approved_by?: string;
+  expires_at?: string;
   created_at: string;
 }
 
