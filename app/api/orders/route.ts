@@ -6,6 +6,8 @@ import { findPaymentByOrderId } from '@/lib/payment-store';
 import { getProductionJobByOrderId } from '@/lib/production-store';
 import { getShipmentByOrderId } from '@/lib/shipment-store';
 import { getCatalogItem } from '@/lib/catalog-item-store';
+import { canReadOrder, getActorFromRequest } from '@/lib/access-control';
+import { canManageFinancialOperations, canOperateSupport } from '@/lib/role-matrix/permission-matrix';
 
 interface OrderCreatePayload {
   supplierId: string;
@@ -131,12 +133,27 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const actor = getActorFromRequest(request);
+  if (!actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
+  const isOperationalAdmin = canOperateSupport(actor.actorRole) || canManageFinancialOperations(actor.actorRole);
+  const canReadAll = actor.actorRole === 'platform_admin' || isOperationalAdmin;
+  const canReadOwn = actor.actorRole === 'customer';
+  const canReadSupplierScope = actor.actorRole === 'supplier';
+  if (!canReadAll && !canReadOwn && !canReadSupplierScope) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
   const { searchParams } = new URL(request.url);
-  const customerId = searchParams.get('customerId')?.trim();
+  const requestedCustomerId = searchParams.get('customerId')?.trim();
+  const customerId = canReadOwn ? actor.actorId : requestedCustomerId;
   const orders = await listOrders(customerId ? { customerId } : undefined);
+  const visibleOrders = canReadSupplierScope ? orders.filter((order) => canReadOrder(order, actor)) : orders;
 
   const rows = await Promise.all(
-    orders.map(async (order) => {
+    visibleOrders.map(async (order) => {
       const [payment, production, shipment] = await Promise.all([
         findPaymentByOrderId(order.orderId),
         getProductionJobByOrderId(order.orderId),

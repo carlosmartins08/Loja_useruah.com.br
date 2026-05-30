@@ -1,8 +1,14 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'crypto';
 
 function getMasterKey() {
-  const raw = process.env.CREDENTIALS_MASTER_KEY?.trim() || process.env.SESSION_SECRET?.trim() || 'dev-insecure-credentials-key';
-  return createHash('sha256').update(raw).digest();
+  const configured = process.env.CREDENTIALS_MASTER_KEY?.trim() || process.env.SESSION_SECRET?.trim();
+  if (configured) {
+    return createHash('sha256').update(configured).digest();
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('CREDENTIALS_MASTER_KEY or SESSION_SECRET is required in production');
+  }
+  return createHash('sha256').update('dev-insecure-credentials-key').digest();
 }
 
 export function encryptSecret(plainText: string) {
@@ -25,4 +31,3 @@ export function decryptSecret(cipherText: string) {
   const decrypted = Buffer.concat([decipher.update(body), decipher.final()]);
   return decrypted.toString('utf8');
 }
-

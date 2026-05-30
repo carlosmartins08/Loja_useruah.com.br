@@ -32,6 +32,68 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-05-30] Gate backend consolidado por runners oficiais e prova final de release
+- ID: GOV-0054
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `qa`
+  - `governanca`
+  - `rbac`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Substituir execucao de checks do `backend:gate` para comandos oficiais `npm run qa:*` por dominio.
+  - Aplicar retries pontuais nos scripts QA mais sensiveis a intermitencia de dev server.
+  - Validar fechamento com trilha formal de artefato `json/md`.
+- Contexto:
+  - Fluxo anterior no gate reutilizava servidor unico e introduzia falso negativo operacional sem relacao com regra de negocio.
+- Impacto esperado:
+  - Gate reproduzivel, aderente ao mesmo caminho usado na operacao diaria e menor ruido de release.
+- Riscos conhecidos:
+  - Runtime `next dev` ainda pode apresentar intermitencia isolada; gate agora reduz esse impacto com isolamento por porta.
+- Plano de rollback:
+  - Retornar para gate com servidor unico apenas se houver restricao forte de infraestrutura.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+  - `scripts/backend-readiness-gate.ps1`
+
+### [2026-05-29] Hardening de seguranca de API + estabilizacao do backend gate
+- ID: GOV-0053
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `rbac`
+  - `pagamentos`
+  - `suporte-tickets`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/ARCHITECTURE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/API_ROUTE_CLASSIFICATION.md`
+- Decisao:
+  - Fechar exposicao de leitura sensivel em endpoints criticos com `401/403` padronizado.
+  - Tornar assinatura de webhook obrigatoria fora de QA controlado.
+  - Remover bypass de qualidade no build (`ignoreDuringBuilds` e `ignoreBuildErrors`).
+  - Migrar `backend:gate` para runner PowerShell com artefato formal (`json/md`) e execucao sequencial.
+- Contexto:
+  - Auditoria identificou risco real de exposicao de dados e fragilidade de gate por erro estrutural de subprocesso em Windows/sandbox.
+- Impacto esperado:
+  - Reducao de risco de acesso indevido e melhoria de confiabilidade da prova de readiness.
+- Riscos conhecidos:
+  - Ambientes com restricao de processo podem exigir modo de execucao com servidor unico reutilizado.
+- Plano de rollback:
+  - Reverter gates de endpoint por arquivo e retornar script antigo de backend gate caso necessario.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/ARCHITECTURE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/API_ROUTE_CLASSIFICATION.md`
+
 ### [2026-05-28] Prova E2E de go-live com auditoria automatica de ponto cego
 - ID: GOV-0052
 - Status: `aprovada`

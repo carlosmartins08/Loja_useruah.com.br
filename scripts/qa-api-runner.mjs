@@ -87,18 +87,19 @@ function killProcessTree(child) {
 }
 
 function spawnNpm(args) {
-  if (process.platform === 'win32') {
-    return spawn('cmd.exe', ['/d', '/s', '/c', `npm ${args.join(' ')}`], {
+  const npmExecPath = process.env.npm_execpath;
+  if (npmExecPath) {
+    return spawn(process.execPath, [npmExecPath, ...args], {
       stdio: 'inherit',
-      windowsHide: true,
-      detached: false,
+      windowsHide: process.platform === 'win32',
+      detached: process.platform !== 'win32',
     });
   }
 
   return spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', args, {
     stdio: 'inherit',
-    windowsHide: false,
-    detached: false,
+    windowsHide: process.platform === 'win32',
+    detached: process.platform !== 'win32',
   });
 }
 

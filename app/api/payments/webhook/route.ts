@@ -74,6 +74,7 @@ export async function POST(request: Request) {
   const idempotencyKey = request.headers.get('x-idempotency-key');
   const allowUnsignedInQa = process.env.NODE_ENV !== 'production' && Boolean(process.env.QA_SCRIPT);
   const stripeWebhookSecret = process.env.PAYMENT_STRIPE_WEBHOOK_SECRET?.trim();
+  const webhookSecret = process.env.PAYMENT_WEBHOOK_SECRET?.trim();
   const declaredProvider = request.headers.get('x-provider')?.trim().toLowerCase();
   const isStripeWebhook = Boolean(stripeSignature) || declaredProvider === 'stripe';
 
@@ -81,8 +82,16 @@ export async function POST(request: Request) {
     if (!verifyStripeSignature(rawBody, stripeSignature, stripeWebhookSecret)) {
       return NextResponse.json({ error: 'invalid_webhook_signature' }, { status: 401 });
     }
-  } else if (!verifyWebhookSignature(rawBody, signature) && !allowUnsignedInQa) {
-    return NextResponse.json({ error: 'invalid_webhook_signature' }, { status: 401 });
+  } else if (!allowUnsignedInQa) {
+    if (isStripeWebhook && !stripeWebhookSecret) {
+      return NextResponse.json({ error: 'webhook_secret_not_configured' }, { status: 500 });
+    }
+    if (!isStripeWebhook && !webhookSecret) {
+      return NextResponse.json({ error: 'webhook_secret_not_configured' }, { status: 500 });
+    }
+    if (!verifyWebhookSignature(rawBody, signature)) {
+      return NextResponse.json({ error: 'invalid_webhook_signature' }, { status: 401 });
+    }
   }
 
   const parsed = JSON.parse(rawBody) as WebhookPayload | StripeWebhookPayload;

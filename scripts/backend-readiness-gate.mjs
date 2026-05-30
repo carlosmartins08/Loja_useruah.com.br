@@ -8,34 +8,49 @@ const outDir = join(process.cwd(), 'reports', 'backend-readiness');
 mkdirSync(outDir, { recursive: true });
 
 const checks = [
-  { id: 'B01', name: 'Static quality', cmd: 'npm run check:strict' },
-  { id: 'B02', name: 'Core operations', cmd: 'npm run qa:coreops' },
-  { id: 'B03', name: 'Payment exceptions', cmd: 'npm run qa:exceptions' },
-  { id: 'B04', name: 'Campaign impact', cmd: 'npm run qa:campaign:impact' },
-  { id: 'B05', name: 'Finance impact', cmd: 'npm run qa:finance:impact' },
-  { id: 'B06', name: 'Payout ledger', cmd: 'npm run qa:payout:ledger' },
-  { id: 'B07', name: 'Matrix audit', cmd: 'npm run qa:matrix:audit' },
-  { id: 'B08', name: 'Cross-role impact', cmd: 'npm run qa:crossrole:impact' },
-  { id: 'B09', name: 'Blind spots', cmd: 'npm run qa:blindspots' },
+  { id: 'B01', name: 'Static quality', script: 'check:strict' },
+  { id: 'B02', name: 'Core operations', script: 'qa:coreops' },
+  { id: 'B03', name: 'Payment exceptions', script: 'qa:exceptions' },
+  { id: 'B04', name: 'Campaign impact', script: 'qa:campaign:impact' },
+  { id: 'B05', name: 'Finance impact', script: 'qa:finance:impact' },
+  { id: 'B06', name: 'Payout ledger', script: 'qa:payout:ledger' },
+  { id: 'B07', name: 'Matrix audit', script: 'qa:matrix:audit' },
+  { id: 'B08', name: 'Cross-role impact', script: 'qa:crossrole:impact' },
+  { id: 'B09', name: 'Blind spots', script: 'qa:blindspots' },
 ];
 
-const results = [];
-for (const check of checks) {
-  console.log(`[backend-gate] running ${check.id} - ${check.name}: ${check.cmd}`);
-  const startedAt = new Date().toISOString();
-  const run = spawnSync(check.cmd, {
+function spawnNpmRun(script) {
+  const npmExecPath = process.env.npm_execpath;
+  if (npmExecPath) {
+    return spawnSync(process.execPath, [npmExecPath, 'run', script], {
+      cwd: process.cwd(),
+      encoding: 'utf-8',
+      env: process.env,
+      timeout: 1000 * 60 * 12,
+      maxBuffer: 1024 * 1024 * 20,
+    });
+  }
+  return spawnSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', script], {
     cwd: process.cwd(),
-    shell: true,
     encoding: 'utf-8',
     env: process.env,
     timeout: 1000 * 60 * 12,
     maxBuffer: 1024 * 1024 * 20,
   });
+}
+
+const results = [];
+for (const check of checks) {
+  const command = `npm run ${check.script}`;
+  console.log(`[backend-gate] running ${check.id} - ${check.name}: ${command}`);
+  const startedAt = new Date().toISOString();
+  const run = spawnNpmRun(check.script);
   const endedAt = new Date().toISOString();
   const timedOut = Boolean(run.error && run.error.message && run.error.message.includes('timed out'));
   const effectiveCode = timedOut ? 124 : run.status ?? 1;
   results.push({
     ...check,
+    cmd: command,
     startedAt,
     endedAt,
     ok: effectiveCode === 0,

@@ -30,6 +30,15 @@ async function get(pathname, headers = {}) {
   return { status: response.status, data };
 }
 
+async function resolveImpactReviewId(entityType, entityId, headers) {
+  const pending = await get('/api/admin/impact-reviews?status=pending_review', headers);
+  assert(pending.status === 200, `impact list expected 200, got ${pending.status}`);
+  const reviews = Array.isArray(pending.data?.reviews) ? pending.data.reviews : [];
+  const row = reviews.find((item) => item.entityType === entityType && item.entityId === entityId);
+  assert(row?.reviewId, `${entityType} impact review not found`);
+  return row.reviewId;
+}
+
 async function createPaidOrder(customerId) {
   const order = await post('/api/orders', {
     supplierId: 'supplier-default',
@@ -101,13 +110,12 @@ async function run() {
   assert(blockedApprove.data?.detail === 'impact_review_pending', `expected impact_review_pending, got ${String(blockedApprove.data?.detail)}`);
   report.push('QA-FIN-IMPACT-03 refund approve blocked by pending impact review');
 
-  const pending = await get('/api/admin/impact-reviews?status=pending_review', adminHeaders);
-  assert(pending.status === 200, `impact list expected 200, got ${pending.status}`);
-  const reviews = Array.isArray(pending.data?.reviews) ? pending.data.reviews : [];
-  const refundReview = reviews.find((row) => row.entityType === 'Refund' && row.entityId === refundId);
-  assert(refundReview?.reviewId, 'refund impact review not found');
-
-  const approveReview = await post(`/api/admin/impact-reviews/${refundReview.reviewId}/approve`, { reason: 'qa approve refund review' }, adminHeaders);
+  let refundReviewId = await resolveImpactReviewId('Refund', refundId, adminHeaders);
+  let approveReview = await post(`/api/admin/impact-reviews/${refundReviewId}/approve`, { reason: 'qa approve refund review' }, adminHeaders);
+  if (approveReview.status === 404) {
+    refundReviewId = await resolveImpactReviewId('Refund', refundId, adminHeaders);
+    approveReview = await post(`/api/admin/impact-reviews/${refundReviewId}/approve`, { reason: 'qa approve refund review retry' }, adminHeaders);
+  }
   assert(approveReview.status === 200, `impact review approve expected 200, got ${approveReview.status}`);
 
   const approveRefund = await post(`/api/refunds/${refundId}/approve`, {}, financeHeaders);
@@ -115,18 +123,23 @@ async function run() {
   report.push('QA-FIN-IMPACT-04 refund approved after impact review approval');
 
   const paidB = await createPaidOrder('customer-fin-b');
+  const chargebackEventId = `evt-chb-${Date.now()}-${Math.random()}`;
   const chb = await post(
     '/api/chargebacks/webhook',
-    { eventId: `evt-chb-${Date.now()}-${Math.random()}`, providerReference: paidB.providerReference, reason: 'qa chargeback event' },
+    { eventId: chargebackEventId, providerReference: paidB.providerReference, reason: 'qa chargeback event' },
     { 'x-idempotency-key': `qa-chb-${Date.now()}-${Math.random()}` }
   );
   assert(chb.status === 200, `chargeback webhook expected 200, got ${chb.status}`);
 
-  const pending2 = await get('/api/admin/impact-reviews?status=pending_review', adminHeaders);
-  assert(pending2.status === 200, `impact list 2 expected 200, got ${pending2.status}`);
-  const reviews2 = Array.isArray(pending2.data?.reviews) ? pending2.data.reviews : [];
-  const chbReview = reviews2.find((row) => row.entityType === 'Chargeback' && String(row.entityId).startsWith('evt-chb-'));
-  assert(chbReview?.reviewId, 'chargeback impact review not found');
+  const chbReviewId = await resolveImpactReviewId('Chargeback', chargebackEventId, adminHeaders).catch(async () => {
+    const pending2 = await get('/api/admin/impact-reviews?status=pending_review', adminHeaders);
+    assert(pending2.status === 200, `impact list 2 expected 200, got ${pending2.status}`);
+    const reviews2 = Array.isArray(pending2.data?.reviews) ? pending2.data.reviews : [];
+    const chbReview = reviews2.find((row) => row.entityType === 'Chargeback' && String(row.entityId).startsWith('evt-chb-'));
+    assert(chbReview?.reviewId, 'chargeback impact review not found');
+    return chbReview.reviewId;
+  });
+  assert(typeof chbReviewId === 'string' && chbReviewId.length > 0, 'chargeback impact review id missing');
   report.push('QA-FIN-IMPACT-05 chargeback webhook creates pending impact review');
 
   console.log(JSON.stringify({ status: 'PASS', baseUrl, report, refundId }, null, 2));

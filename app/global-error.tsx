@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 
 export default function GlobalError({
@@ -50,7 +51,7 @@ export default function GlobalError({
               >
                 Tentar novamente
               </button>
-              <a
+              <Link
                 href="/"
                 style={{
                   border: '1px solid #d1d5db',
@@ -66,7 +67,7 @@ export default function GlobalError({
                 }}
               >
                 Ir para início
-              </a>
+              </Link>
             </div>
             <pre
               style={{
@@ -90,4 +91,3 @@ export default function GlobalError({
     </html>
   );
 }
-

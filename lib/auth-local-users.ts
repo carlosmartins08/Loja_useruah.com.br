@@ -111,7 +111,8 @@ function loadUsersFromEnv(): LocalAuthUser[] {
 
 function getLocalUsers() {
   const envUsers = loadUsersFromEnv();
-  const baseUsers = envUsers.length > 0 ? envUsers : process.env.NODE_ENV !== 'production' ? DEV_USERS : [];
+  const isDevLike = process.env.NODE_ENV !== 'production';
+  const baseUsers = envUsers.length > 0 ? envUsers : isDevLike ? DEV_USERS : [];
   return [...baseUsers, ...Array.from(runtimeUsers.values())];
 }
 

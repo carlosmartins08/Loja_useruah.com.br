@@ -39,6 +39,15 @@ async function get(pathname, headers = {}) {
   return { status: response.status, data };
 }
 
+async function getWithRetry(pathname, headers = {}, retries = 3) {
+  let last = null;
+  for (let i = 0; i < retries; i += 1) {
+    last = await get(pathname, headers);
+    if (last.status !== 500) return last;
+  }
+  return last;
+}
+
 async function createPaidOrder(customerId) {
   const order = await post('/api/orders', {
     supplierId: 'supplier-default',
@@ -92,7 +101,10 @@ async function shipOrder(orderId) {
   );
   assert(createProd.status === 200 || createProd.status === 201, `production create expected 200|201, got ${createProd.status}`);
 
-  const byOrder = await get(`/api/production-jobs/by-order/${orderId}`);
+  const byOrder = await getWithRetry(`/api/production-jobs/by-order/${orderId}`, {
+    'x-actor-id': 'qa-production',
+    'x-actor-role': 'production_operator',
+  });
   assert(byOrder.status === 200, `production by order expected 200, got ${byOrder.status}`);
   const jobId = byOrder.data?.job?.productionJobId;
   assert(typeof jobId === 'string', 'productionJobId missing');

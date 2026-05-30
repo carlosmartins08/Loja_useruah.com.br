@@ -2,8 +2,17 @@ import { NextResponse } from 'next/server';
 import { getProductionJobByOrderId } from '@/lib/production-store';
 import { getOrder } from '@/lib/order-store';
 import { getSupplierDispatchByProductionJobId } from '@/lib/supplier-dispatch-store';
+import { canOperateProduction, getActorFromRequest } from '@/lib/access-control';
 
-export async function GET(_: Request, context: { params: Promise<{ orderId: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ orderId: string }> }) {
+  const actor = getActorFromRequest(request);
+  if (!actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  if (!canOperateProduction(actor)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
   const { orderId } = await context.params;
   const job = await getProductionJobByOrderId(orderId);
   if (!job) {

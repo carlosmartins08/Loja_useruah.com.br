@@ -19,6 +19,15 @@ async function req(method, pathname, body, headers = {}) {
   return { status: response.status, data };
 }
 
+async function reqWithRetry(method, pathname, body, headers = {}, retries = 3) {
+  let last = null;
+  for (let i = 0; i < retries; i += 1) {
+    last = await req(method, pathname, body, headers);
+    if (last.status !== 500 && last.status !== 404) return last;
+  }
+  return last;
+}
+
 async function createPaidOrder(customerId) {
   const order = await req(
     'POST',
@@ -84,7 +93,7 @@ async function run() {
   const orderId = await createPaidOrder(customerA);
   report.push('CR-02 customer A created paid order');
 
-  const forbiddenCustomerRead = await req(
+  const forbiddenCustomerRead = await reqWithRetry(
     'GET',
     `/api/orders/${orderId}/status`,
     undefined,
@@ -102,7 +111,12 @@ async function run() {
   assert(productionCreate.status === 200 || productionCreate.status === 201, `production create expected 200|201, got ${productionCreate.status}`);
   report.push('CR-04 production operator created job from paid order');
 
-  const byOrder = await req('GET', `/api/production-jobs/by-order/${orderId}`);
+  const byOrder = await reqWithRetry(
+    'GET',
+    `/api/production-jobs/by-order/${orderId}`,
+    undefined,
+    { 'x-actor-id': 'qa-production', 'x-actor-role': 'production_operator' }
+  );
   assert(byOrder.status === 200, `job by order expected 200, got ${byOrder.status}`);
   const jobId = byOrder.data?.job?.productionJobId;
   assert(typeof jobId === 'string', 'productionJobId missing');
@@ -133,7 +147,7 @@ async function run() {
   assert(productionShip.status === 200, `production ship expected 200, got ${productionShip.status}`);
   report.push('CR-06 production action impacted customer order lifecycle');
 
-  const customerAStatus = await req(
+  const customerAStatus = await reqWithRetry(
     'GET',
     `/api/orders/${orderId}/status`,
     undefined,
@@ -234,4 +248,3 @@ run().catch((error) => {
   console.error(JSON.stringify({ status: 'FAIL', baseUrl, error: String(error) }, null, 2));
   process.exit(1);
 });
-

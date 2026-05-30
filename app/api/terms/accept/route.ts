@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { registerTermsAcceptance } from '@/lib/terms-acceptance-store';
+import { getActorFromRequest } from '@/lib/access-control';
 
 interface AcceptTermsPayload {
   userId: string;
@@ -27,15 +28,23 @@ function isValidPayload(payload: unknown): payload is AcceptTermsPayload {
 }
 
 export async function POST(request: Request) {
+  const actor = getActorFromRequest(request);
+  if (!actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+
   const payload = await request.json().catch(() => null);
   if (!isValidPayload(payload)) {
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });
   }
+  if (payload.userId.trim() !== actor.actorId || payload.entityId.trim() !== actor.actorId) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
 
   const accepted = await registerTermsAcceptance({
-    userId: payload.userId.trim(),
+    userId: actor.actorId,
     entityType: payload.entityType,
-    entityId: payload.entityId.trim(),
+    entityId: actor.actorId,
     termType: payload.termType,
     termVersion: payload.termVersion.trim(),
     ipAddress: request.headers.get('x-forwarded-for') ?? undefined,

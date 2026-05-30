@@ -361,8 +361,8 @@ export async function applyWebhookEvent(input: {
 }
 
 export function verifyWebhookSignature(rawBody: string, signature: string | null): boolean {
-  const secret = process.env.PAYMENT_WEBHOOK_SECRET;
-  if (!secret) return true;
+  const secret = process.env.PAYMENT_WEBHOOK_SECRET?.trim();
+  if (!secret) return false;
   if (!signature) return false;
 
   const digest = createHmac('sha256', secret).update(rawBody).digest('hex');

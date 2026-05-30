@@ -1,6 +1,33 @@
-ï»¿# Execution Tracking (Status + Ciclo + Evidencias)
+# Execution Tracking (Status + Ciclo + Evidencias)
 
 Data de revisao: 2026-05-23
+
+Atualizacao adicional: 2026-05-30 (fechamento de coerencia de gate + prova final de release)
+- `backend:gate` alinhado aos runners oficiais por dominio (`npm run qa:*`) para eliminar falso negativo de servidor compartilhado.
+- Hardening de robustez nos QAs sensiveis a intermitencia de `next dev`:
+  - `qa-core-operations`: retry em chamadas de criacao de producao sujeitas a `404/500` transitorio.
+  - `qa-cross-role-impact`: retry em leitura de status sujeito a `404/500` transitorio.
+- Evidencias finais em ambiente limpo:
+  - `npm run check:strict`: PASS (2026-05-30)
+  - `npm run build`: PASS (2026-05-30)
+  - `npm run backend:gate`: PASS 9/9 (2026-05-30)
+  - artefatos: `reports/backend-readiness/backend-gate-2026-05-30T00-55-51-907Z.{json,md}`.
+
+Atualizacao adicional: 2026-05-29 (hardening de seguranca + gate resiliente)
+- Endpoints criticos com controle explicito de autenticacao/autorizacao:
+  - `GET /api/orders` agora exige ator e remove leitura livre por `customerId` arbitrario.
+  - `GET /api/audit-logs` restrito a roles administrativas.
+  - `GET /api/payments/status/:paymentId` com escopo por ownership/operacao financeira.
+  - `GET /api/production-jobs/by-order/:orderId` restrito a operacao de producao.
+  - `POST /api/terms/accept` bloqueia impersonacao de `userId/entityId`.
+- Webhook de pagamento endurecido:
+  - assinatura obrigatoria fora de QA controlado;
+  - erro explicito quando segredo nao estiver configurado em ambiente nao-QA.
+- Build hardening:
+  - removido bypass de `ignoreDuringBuilds` e `ignoreBuildErrors`.
+- Runner de backend gate migrado para PowerShell com relatorio `json/md` e execucao sequencial.
+- Documento de classificacao de superficie publicado:
+  - `docs/API_ROUTE_CLASSIFICATION.md`.
 
 Atualizacao adicional: 2026-05-28 (Prova E2E de go-live + auditoria de ponto cego)
 - Runner unico de prova E2E de go-live criado:
@@ -188,14 +215,14 @@ Atualizacao adicional: 2026-05-26 (Validacao em modo producao `start`)
 Atualizacao adicional: 2026-05-26 (Fechamento dos pontos identificados de hardening)
 - `metadataBase` configurado em `app/layout.tsx` com URL canonica de producao para remover warning de metadata em build/start.
 - Checkout ajustado para evitar dependencia de data dinamica no SSR em etapa de entrega:
-  - `components/checkout/CheckoutPageView.tsx` agora usa previsao deterministica por prazo (`em X dias Ãºteis`) na renderizacao inicial.
+  - `components/checkout/CheckoutPageView.tsx` agora usa previsao deterministica por prazo (`em X dias úteis`) na renderizacao inicial.
 - Evidencias apos ajuste:
   - `npm run check:strict`: PASS (2026-05-26)
   - `qa:functional` em `start` (`QA_PORT=3341`): PASS
   - `qa:functional` em `dev` (`QA_PORT=3342`): PASS
 - Investigacao do diagnostico `React #418`:
-  - causa raiz identificada: hidrataÃ§Ã£o divergente de carrinho entre SSR e cliente por leitura de `localStorage` no estado inicial de render em `context/CartContext.tsx`.
-  - correcao aplicada: carga do carrinho movida para pos-mount (assÃ­ncrona), com escrita em `localStorage` condicionada a `isCartHydrated`.
+  - causa raiz identificada: hidratação divergente de carrinho entre SSR e cliente por leitura de `localStorage` no estado inicial de render em `context/CartContext.tsx`.
+  - correcao aplicada: carga do carrinho movida para pos-mount (assíncrona), com escrita em `localStorage` condicionada a `isCartHydrated`.
   - instrumentacao de diagnostico em `scripts/qa-functional.mjs` para incluir URL em `pageerror`.
   - evidencia final apos correcao:
     - `npm run check:strict`: PASS (2026-05-26)
@@ -267,7 +294,7 @@ Atualizacao adicional: 2026-05-27 (Auditoria tecnica 99% - frontend/backend/segu
 ## Status atual por onda (plano anti-retrabalho)
 
 - Ativacao P3 por provider consolidada em comando unico: `npm run qa:provider:activate` (sequencia gate + smoke + regressao).
-- Alertas criticos agora sao dinÃ¢micos por ambiente (`scripts/critical-alerts.mjs`) e nao mais texto estatico.
+- Alertas criticos agora sao dinâmicos por ambiente (`scripts/critical-alerts.mjs`) e nao mais texto estatico.
 - Regra self-service unificada para todos os providers aplicada: habilitacao via painel de conectores, sem dependencia de `PAYMENT_ENABLE_*`.
 - Painel de conectores com requisitos dinamicos por provider e bloqueio de ativacao incompleta (`lib/payment-provider-requirements.ts` + `app/api/admin/payment-connectors/route.ts` + `app/admin/payments/connectors/page.tsx`).
 
@@ -348,12 +375,12 @@ Concentrar acompanhamento de execucao em uma fonte unica, reduzindo duplicidade 
 Data de revisao: 2026-05-21
 
 ## Objetivo
-Mostrar, de forma operacional, o que jÃ¡ existe no projeto, onde estÃ¡ implementado e o que ainda nÃ£o existe por domÃ­nio.
+Mostrar, de forma operacional, o que já existe no projeto, onde está implementado e o que ainda não existe por domínio.
 
 ## Legenda
 - `EXISTE`: implementado e integrado no fluxo atual.
-- `PARCIAL`: existe base/UX/sandbox, mas falta fechamento de produÃ§Ã£o.
-- `AUSENTE`: nÃ£o implementado no cÃ³digo atual.
+- `PARCIAL`: existe base/UX/sandbox, mas falta fechamento de produção.
+- `AUSENTE`: não implementado no código atual.
 
 ## Alertas Criticos (nao perder de vista)
 - `CRIT-PAY-REAL-001`: gateway real de pagamento ainda nao homologado em producao.
@@ -361,13 +388,13 @@ Mostrar, de forma operacional, o que jÃ¡ existe no projeto, onde estÃ¡ implement
 - Comando de revisao rapida: `npm run alert:critical`.
 
 ## 1) Produto e Checkout (UI/UX)
-- PDP com seÃ§Ãµes estratÃ©gicas: `EXISTE`
+- PDP com seções estratégicas: `EXISTE`
   - `components/product/ProductPageView.tsx`
 - Prova social (tags + notas): `EXISTE`
   - `components/commerce/ProductSocialProof.tsx`
-- Q&A pÃºblico na PDP: `EXISTE`
+- Q&A público na PDP: `EXISTE`
   - `components/commerce/ProductQA.tsx`
-- Zoom/mÃ­dia de detalhes: `PARCIAL` (estrutura pronta, acervo real pendente)
+- Zoom/mídia de detalhes: `PARCIAL` (estrutura pronta, acervo real pendente)
   - `components/commerce/ProductMediaGallery.tsx`
   - `components/product/product-data.ts`
 - Provador virtual (altura/peso/caimento): `EXISTE`
@@ -381,11 +408,11 @@ Mostrar, de forma operacional, o que jÃ¡ existe no projeto, onde estÃ¡ implement
   - `app/api/payments/checkout/route.ts`
   - `app/api/payments/status/[paymentId]/route.ts`
   - `app/api/payments/webhook/route.ts`
-- IdempotÃªncia e assinatura de webhook: `EXISTE`
+- Idempotência e assinatura de webhook: `EXISTE`
   - `lib/payment-service.ts`
   - `components/checkout/CheckoutPageView.tsx`
 - Provider real (gateway externo): `PARCIAL` (adapter homologado `gateway_sandbox` implementado; integracao com provedor externo real pendente)
-- PersistÃªncia em banco (pagamentos): `PARCIAL` (sqlite relacional local com fallback, banco gerenciado de producao pendente)
+- Persistência em banco (pagamentos): `PARCIAL` (sqlite relacional local com fallback, banco gerenciado de producao pendente)
   - `lib/payment-store.ts`
   - `lib/dev-store.ts`
 - Trilha de eventos de pagamento no status API: `EXISTE`
@@ -399,10 +426,10 @@ Mostrar, de forma operacional, o que jÃ¡ existe no projeto, onde estÃ¡ implement
   - `app/api/refunds/[refundId]/reject/route.ts`
   - `app/api/chargebacks/webhook/route.ts`
 
-## 3) Pedidos e LogÃ­stica
+## 3) Pedidos e Logística
 - Fluxo UX checkout -> success: `EXISTE`
   - `components/checkout/CheckoutPageView.tsx`
-- Modelo operacional de produÃ§Ã£o/envio (backend local): `EXISTE` (transiÃ§Ãµes crÃ­ticas com RBAC + QA core operacional validado)
+- Modelo operacional de produção/envio (backend local): `EXISTE` (transições críticas com RBAC + QA core operacional validado)
   - `app/api/orders/route.ts`
   - `app/api/production-jobs/route.ts`
   - `app/api/production-jobs/[id]/start/route.ts`
@@ -413,14 +440,14 @@ Mostrar, de forma operacional, o que jÃ¡ existe no projeto, onde estÃ¡ implement
   - `lib/shipment-store.ts`
   - `lib/dev-store.ts`
 
-## 4) CatÃ¡logo e Curadoria
-- DoD completo definido: `EXISTE` (documentaÃ§Ã£o)
+## 4) Catálogo e Curadoria
+- DoD completo definido: `EXISTE` (documentação)
   - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
-- Estrutura de PDP e apresentaÃ§Ã£o de item vendÃ¡vel: `PARCIAL` (leitura real de item publicado; acervo e curadoria ainda evoluindo)
+- Estrutura de PDP e apresentação de item vendável: `PARCIAL` (leitura real de item publicado; acervo e curadoria ainda evoluindo)
   - `app/product/[id]/page.tsx`
   - `components/product/ProductPageView.tsx`
   - `components/product/product-data.ts`
-- ImplementaÃ§Ã£o backend de submissÃ£o/revisÃ£o/publicaÃ§Ã£o: `PARCIAL`
+- Implementação backend de submissão/revisão/publicação: `PARCIAL`
   - `app/api/artworks/route.ts`
   - `app/api/artworks/[id]/approve/route.ts`
   - `app/api/artworks/[id]/reject/route.ts`
@@ -429,25 +456,25 @@ Mostrar, de forma operacional, o que jÃ¡ existe no projeto, onde estÃ¡ implement
   - `app/api/catalog-items/[id]/unpublish/route.ts`
   - `app/api/catalog-items/bootstrap/route.ts`
 
-### Sprint atual (WIP 1): CatÃ¡logo/Curadoria - 10 itens priorizados
-1. Modelo canÃ´nico `Artwork` com estados `submitted|under_review|approved|rejected`: `PARCIAL`
+### Sprint atual (WIP 1): Catálogo/Curadoria - 10 itens priorizados
+1. Modelo canônico `Artwork` com estados `submitted|under_review|approved|rejected`: `PARCIAL`
   - `lib/artwork-store.ts`
-2. Modelo canÃ´nico `CatalogItem` com estados `draft|ready|published|archived`: `PARCIAL`
+2. Modelo canônico `CatalogItem` com estados `draft|ready|published|archived`: `PARCIAL`
   - `lib/catalog-item-store.ts`
-3. API de submissÃ£o de arte com metadados mÃ­nimos e validaÃ§Ã£o: `PARCIAL`
+3. API de submissão de arte com metadados mínimos e validação: `PARCIAL`
   - `app/api/artworks/route.ts` (`POST`)
 4. Fila de curadoria com filtros por status/data/autor: `PARCIAL`
   - `app/api/artworks/route.ts` (`GET`)
-5. AÃ§Ã£o de aprovaÃ§Ã£o de arte com `AuditLog`: `PARCIAL`
+5. Ação de aprovação de arte com `AuditLog`: `PARCIAL`
   - `app/api/artworks/[id]/approve/route.ts`
-6. AÃ§Ã£o de rejeiÃ§Ã£o de arte com `reason` obrigatÃ³rio e `AuditLog`: `PARCIAL`
+6. Ação de rejeição de arte com `reason` obrigatório e `AuditLog`: `PARCIAL`
   - `app/api/artworks/[id]/reject/route.ts`
 7. Regra de bloqueio para impedir `CatalogItem published` quando arte `rejected`: `PARCIAL`
   - `app/api/catalog-items/[id]/publish/route.ts`
-8. VinculaÃ§Ã£o arte aprovada -> produto base -> variantes: `PARCIAL`
+8. Vinculação arte aprovada -> produto base -> variantes: `PARCIAL`
   - `app/api/catalog-items/route.ts`
   - `lib/catalog-item-store.ts`
-9. PublicaÃ§Ã£o/despublicaÃ§Ã£o com trilha (`publishedAt`, motivo e ator): `EXISTE`
+9. Publicação/despublicação com trilha (`publishedAt`, motivo e ator): `EXISTE`
   - `app/api/catalog-items/[id]/ready/route.ts`
   - `app/api/catalog-items/[id]/publish/route.ts`
   - `app/api/catalog-items/[id]/unpublish/route.ts`
@@ -458,30 +485,30 @@ Mostrar, de forma operacional, o que jÃ¡ existe no projeto, onde estÃ¡ implement
     - `app/product/[id]/page.tsx`
 
 ## 5) Suporte e Tickets
-- DoD completo definido: `EXISTE` (documentaÃ§Ã£o)
+- DoD completo definido: `EXISTE` (documentação)
   - `docs/SUPPORT_TICKETS_DEFINITION_OF_DONE.md`
-- ImplementaÃ§Ã£o backend de tickets/triagem/escalonamento: `EXISTE` (MVP operacional validado com criaÃ§Ã£o, resposta e contexto 360; SLA avanÃ§ado permanece evoluÃ§Ã£o)
+- Implementação backend de tickets/triagem/escalonamento: `EXISTE` (MVP operacional validado com criação, resposta e contexto 360; SLA avançado permanece evolução)
   - `app/api/tickets/route.ts`
   - `app/api/tickets/[id]/route.ts`
   - `app/api/tickets/[id]/reply/route.ts`
   - `app/api/support/orders/[orderId]/context/route.ts`
 
-## 6) GovernanÃ§a documental
-- PrecedÃªncia, fonte Ãºnica, anti-conflito: `EXISTE`
+## 6) Governança documental
+- Precedência, fonte única, anti-conflito: `EXISTE`
   - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
-- Hierarquia de navegaÃ§Ã£o: `EXISTE`
+- Hierarquia de navegação: `EXISTE`
   - `docs/README_DOCS_HIERARCHY.md`
-- ClassificaÃ§Ã£o normativo/referencial: `EXISTE`
+- Classificação normativo/referencial: `EXISTE`
   - `docs/DOCS_CLASSIFICATION.md`
-- Template obrigatÃ³rio de PR crÃ­tico: `EXISTE`
+- Template obrigatório de PR crítico: `EXISTE`
   - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
-- HistÃ³rico oficial de decisÃµes: `EXISTE`
+- Histórico oficial de decisões: `EXISTE`
   - `docs/CHANGELOG_GOVERNANCE.md`
 
 ## 8) Base Enxuta Operacional (Fase 1)
 - Modelo operacional/fiscal/financeiro unificado: `EXISTE`
   - `docs/MODELO_OPERACIONAL_FISCAL_FINANCEIRO.md`
-- Termos base versionados (indÃºstria/artista/consumidor): `EXISTE`
+- Termos base versionados (indústria/artista/consumidor): `EXISTE`
   - `docs/TERMO_INDUSTRIA_BASE.md`
   - `docs/TERMO_ARTISTA_BASE.md`
   - `docs/TERMO_CONSUMIDOR_BASE.md`
@@ -496,16 +523,16 @@ Mostrar, de forma operacional, o que jÃ¡ existe no projeto, onde estÃ¡ implement
   - `lib/provider-webhook-event-store.ts`
   - `lib/integration-log-store.ts`
 
-## 7) Documentos externos citados e nÃ£o presentes no repositÃ³rio
+## 7) Documentos externos citados e não presentes no repositório
 - `docs/USERUAH_360_ARCHITECTURE.md`: `AUSENTE NO REPO`
 - `docs/FRONT_BACK_FUNCTION_MAP.md`: `AUSENTE NO REPO`
 
-## ConclusÃ£o operacional
-Base de governanÃ§a e jornada de produto/checkout estÃ¡ forte.
-PrÃ³ximo bloco de execuÃ§Ã£o tÃ©cnica para evoluÃ§Ã£o real sem retrabalho:
-1. CatÃ¡logo/Curadoria backend
-2. Gateway real + persistÃªncia relacional de pagamento (fase 2.1)
-3. Hardening de Pedidos/LogÃ­stica (sair de store local para banco + observabilidade)
+## Conclusão operacional
+Base de governança e jornada de produto/checkout está forte.
+Próximo bloco de execução técnica para evolução real sem retrabalho:
+1. Catálogo/Curadoria backend
+2. Gateway real + persistência relacional de pagamento (fase 2.1)
+3. Hardening de Pedidos/Logística (sair de store local para banco + observabilidade)
 4. Hardening de Suporte/Tickets (SLA, escalonamento e trilha operacional completa)
 
 
@@ -521,90 +548,90 @@ Owner do ciclo: Produto + Backend
 Fonte operacional: `docs/EXECUTION_OPERATING_TEMPLATE.md`
 
 ## Objetivo da semana
-Sair de catÃ¡logo mockado para base operacional mÃ­nima com estado, submissÃ£o, revisÃ£o e publicaÃ§Ã£o controlada.
+Sair de catálogo mockado para base operacional mínima com estado, submissão, revisão e publicação controlada.
 
 ## Top 10 itens do ciclo (priorizados)
 
-1. Contrato canÃ´nico `Artwork` no backend
+1. Contrato canônico `Artwork` no backend
 - Status inicial: `AUSENTE`
 - Status atual: `PARCIAL` (modelo e persistencia local implementados)
-- Entrega: tipo/interface + validaÃ§Ã£o mÃ­nima de campos obrigatÃ³rios
-- CritÃ©rio de pronto: criaÃ§Ã£o/consulta de `Artwork` vÃ¡lida com `status`, `authorId`, `metadata`, `submittedAt`
+- Entrega: tipo/interface + validação mínima de campos obrigatórios
+- Critério de pronto: criação/consulta de `Artwork` válida com `status`, `authorId`, `metadata`, `submittedAt`
 
-2. Contrato canÃ´nico `CatalogItem` no backend
+2. Contrato canônico `CatalogItem` no backend
 - Status inicial: `AUSENTE`
-- Status atual: `PARCIAL` (modelo canÃ´nico + persistÃªncia local implementados)
-- Entrega: tipo/interface + validaÃ§Ã£o mÃ­nima de `variants` e `publicationStatus`
-- CritÃ©rio de pronto: item invÃ¡lido bloqueado com `422 validation_error`
+- Status atual: `PARCIAL` (modelo canônico + persistência local implementados)
+- Entrega: tipo/interface + validação mínima de `variants` e `publicationStatus`
+- Critério de pronto: item inválido bloqueado com `422 validation_error`
 
-3. Endpoint de submissÃ£o de arte
+3. Endpoint de submissão de arte
 - Status inicial: `AUSENTE`
 - Status atual: `PARCIAL` (`POST /api/artworks` implementado com validacao + AuditLog)
-- Entrega: `POST` com validaÃ§Ã£o de payload e criaÃ§Ã£o em `submitted`
-- CritÃ©rio de pronto: payload invÃ¡lido bloqueado; sucesso gera `AuditLog`
+- Entrega: `POST` com validação de payload e criação em `submitted`
+- Critério de pronto: payload inválido bloqueado; sucesso gera `AuditLog`
 
 4. Endpoint de fila de curadoria com filtros
 - Status inicial: `AUSENTE`
 - Status atual: `PARCIAL` (`GET /api/artworks` com filtros de status, autor e data)
 - Entrega: listagem por `status`, `autor`, `data`
-- CritÃ©rio de pronto: filtro funcional e resposta consistente para curador
+- Critério de pronto: filtro funcional e resposta consistente para curador
 
-5. AÃ§Ã£o de aprovaÃ§Ã£o de arte com trilha
+5. Ação de aprovação de arte com trilha
 - Status inicial: `AUSENTE`
 - Status atual: `PARCIAL` (`POST /api/artworks/:id/approve` com validacao de transicao + AuditLog)
-- Entrega: transiÃ§Ã£o para `approved` com `AuditLog`
-- CritÃ©rio de pronto: transiÃ§Ã£o invÃ¡lida retorna `409 invalid_transition`
+- Entrega: transição para `approved` com `AuditLog`
+- Critério de pronto: transição inválida retorna `409 invalid_transition`
 
-6. AÃ§Ã£o de rejeiÃ§Ã£o de arte com `reason` obrigatÃ³rio
+6. Ação de rejeição de arte com `reason` obrigatório
 - Status inicial: `AUSENTE`
 - Status atual: `PARCIAL` (`POST /api/artworks/:id/reject` com `reason` obrigatorio + AuditLog)
-- Entrega: transiÃ§Ã£o para `rejected` exigindo motivo
-- CritÃ©rio de pronto: ausÃªncia de `reason` retorna `422`; sucesso gera `AuditLog`
+- Entrega: transição para `rejected` exigindo motivo
+- Critério de pronto: ausência de `reason` retorna `422`; sucesso gera `AuditLog`
 
-7. Regra de bloqueio de publicaÃ§Ã£o com arte rejeitada
+7. Regra de bloqueio de publicação com arte rejeitada
 - Status inicial: `AUSENTE`
 - Status atual: `PARCIAL` (bloqueio implementado no endpoint de publish)
 - Entrega: impedir `CatalogItem published` quando `Artwork rejected`
-- CritÃ©rio de pronto: tentativa de publicaÃ§Ã£o invÃ¡lida retorna `409`
+- Critério de pronto: tentativa de publicação inválida retorna `409`
 
-8. VÃ­nculo `Artwork approved` -> `CatalogItem` -> variantes
+8. Vínculo `Artwork approved` -> `CatalogItem` -> variantes
 - Status inicial: `AUSENTE`
-- Status atual: `PARCIAL` (criaÃ§Ã£o de catÃ¡logo exige artwork aprovado + variants)
-- Entrega: regra de vÃ­nculo com integridade mÃ­nima
-- CritÃ©rio de pronto: sem `Artwork approved` nÃ£o cria `CatalogItem` publicÃ¡vel
+- Status atual: `PARCIAL` (criação de catálogo exige artwork aprovado + variants)
+- Entrega: regra de vínculo com integridade mínima
+- Critério de pronto: sem `Artwork approved` não cria `CatalogItem` publicável
 
-9. PublicaÃ§Ã£o e despublicaÃ§Ã£o com trilha
+9. Publicação e despublicação com trilha
 - Status inicial: `AUSENTE`
 - Status atual: `EXISTE` (`ready/publish/unpublish/reopen` com trilha temporal e motivo)
-- Entrega: aÃ§Ãµes de `publish/unpublish` com `publishedAt`, `reason`, `actor`
-- CritÃ©rio de pronto: histÃ³rico auditÃ¡vel por `catalogItemId`
+- Entrega: ações de `publish/unpublish` com `publishedAt`, `reason`, `actor`
+- Critério de pronto: histórico auditável por `catalogItemId`
 
-10. Substituir `getMockProduct` por leitura de catÃ¡logo publicado
+10. Substituir `getMockProduct` por leitura de catálogo publicado
 - Status inicial: `PARCIAL`
-- Status atual: `EXISTE` (PDP lÃª apenas `CatalogItem published` e faz fallback `404`)
+- Status atual: `EXISTE` (PDP lê apenas `CatalogItem published` e faz fallback `404`)
 - Entrega: `/product/[id]` consumindo item publicado de fonte persistida
-- CritÃ©rio de pronto: PDP renderiza item publicado sem fallback em mock para item existente
+- Critério de pronto: PDP renderiza item publicado sem fallback em mock para item existente
 
 Avanco adicional no ciclo:
 - Shop e recomendacoes da PDP passaram a consumir `CatalogItem published` em vez de lista fixa.
 - Endpoint de bootstrap criado para compatibilizar IDs legados (`1..6`) e evitar `404` no fluxo `shop -> product`.
 
-## Gates obrigatÃ³rios da semana
+## Gates obrigatórios da semana
 - Gate de estado: alinhado a `docs/STATE_MACHINES.md`.
 - Gate de contrato: alinhado a `docs/API_CONTRACTS.md`.
-- Gate de seguranÃ§a: RBAC + `AuditLog` em aÃ§Ãµes crÃ­ticas.
-- Gate de QA: testes P0 aplicÃ¡veis em `docs/QA_ACCEPTANCE_TESTS.md`.
+- Gate de segurança: RBAC + `AuditLog` em ações críticas.
+- Gate de QA: testes P0 aplicáveis em `docs/QA_ACCEPTANCE_TESTS.md`.
 - Gate de docs: atualizar `docs/EXECUTION_STATUS_MATRIX.md` na sexta.
 
-## EvidÃªncias mÃ­nimas por item
-- Endpoint testado (requisiÃ§Ã£o/resposta)
-- 1 caso de sucesso e 1 de erro por endpoint de mutaÃ§Ã£o
-- Registro de logs de auditoria para aÃ§Ãµes crÃ­ticas
+## Evidências mínimas por item
+- Endpoint testado (requisição/resposta)
+- 1 caso de sucesso e 1 de erro por endpoint de mutação
+- Registro de logs de auditoria para ações críticas
 
 ## Fechamento de sexta (2026-05-29)
 - Atualizar status de cada item para `EXISTE|PARCIAL|AUSENTE`.
-- Registrar decisÃµes em `docs/CHANGELOG_GOVERNANCE.md` quando houver alteraÃ§Ã£o de regra.
-- Rodar reconciliaÃ§Ã£o docs x cÃ³digo.
+- Registrar decisões em `docs/CHANGELOG_GOVERNANCE.md` quando houver alteração de regra.
+- Rodar reconciliação docs x código.
 
 ---
 
@@ -614,7 +641,7 @@ Avanco adicional no ciclo:
 
 Data de revisao: 2026-05-19
 
-## P0 Ã¢â‚¬â€ Order + Payment + Webhook Sandbox
+## P0 â€” Order + Payment + Webhook Sandbox
 
 Status: PASS  
 Data: 2026-05-19  
@@ -623,63 +650,63 @@ Escopo: order + payment checkout + webhook sandbox
 
 ### Resultado
 - P0-01 Criar pedido em `placed`: PASS
-- P0-02 Checkout com idempotÃƒÂªncia: PASS
-- P0-03 Bloquear checkout para order invÃƒÂ¡lida: PASS
+- P0-02 Checkout com idempotÃªncia: PASS
+- P0-03 Bloquear checkout para order invÃ¡lida: PASS
 - P0-04 Webhook approved: PASS
 - P0-05 Webhook approved duplicado: PASS
 - P0-06 Webhook failed: PASS
-- P0-07 Assinatura invÃƒÂ¡lida: PASS
-- P0-08 TransiÃƒÂ§ÃƒÂ£o invÃƒÂ¡lida: PASS
-- P0-09 ProduÃƒÂ§ÃƒÂ£o sÃƒÂ³ apÃƒÂ³s `order.paid`: PASS
-- P0-10 AuditLog crÃƒÂ­tico: PASS
+- P0-07 Assinatura invÃ¡lida: PASS
+- P0-08 TransiÃ§Ã£o invÃ¡lida: PASS
+- P0-09 ProduÃ§Ã£o sÃ³ apÃ³s `order.paid`: PASS
+- P0-10 AuditLog crÃ­tico: PASS
 
-### EvidÃƒÂªncias tÃƒÂ©cnicas
+### EvidÃªncias tÃ©cnicas
 - `POST /api/orders` retornou `201` com `order.status = placed`.
 - `POST /api/payments/checkout` com `x-idempotency-key` criou `payment.status = processing`.
 - Webhook `approved` atualizou `payment -> approved`, `order -> paid` e criou `ProductionJob` em `queued`.
 - Webhook duplicado retornou `already_processed`.
-- Webhook `failed` manteve `order` em `placed` e nÃƒÂ£o criou produÃƒÂ§ÃƒÂ£o.
-- Assinatura invÃƒÂ¡lida retornou `401`.
-- TransiÃƒÂ§ÃƒÂ£o invÃƒÂ¡lida retornou `409 invalid_transition`.
+- Webhook `failed` manteve `order` em `placed` e nÃ£o criou produÃ§Ã£o.
+- Assinatura invÃ¡lida retornou `401`.
+- TransiÃ§Ã£o invÃ¡lida retornou `409 invalid_transition`.
 - `production.created = 1`.
 - `order.paid = 1`.
 
 ### Qualidade
 - `npm run check`: PASS.
-- `npm run build`: FAIL por encoding invÃƒÂ¡lido UTF-8 em arquivos legados fora do recorte.
+- `npm run build`: FAIL por encoding invÃ¡lido UTF-8 em arquivos legados fora do recorte.
 
-### ObservaÃƒÂ§ÃƒÂ£o
-A persistÃƒÂªncia local via `dev-store.ts` ÃƒÂ© recurso de desenvolvimento/teste e nÃƒÂ£o deve ser tratada como persistÃƒÂªncia final de produÃƒÂ§ÃƒÂ£o.
+### ObservaÃ§Ã£o
+A persistÃªncia local via `dev-store.ts` Ã© recurso de desenvolvimento/teste e nÃ£o deve ser tratada como persistÃªncia final de produÃ§Ã£o.
 
-## DÃƒÂ­vida tÃƒÂ©cnica aberta (P1)
-Tema: corrigir arquivos legados com encoding invÃƒÂ¡lido UTF-8 que impedem `npm run build`.
+## DÃ­vida tÃ©cnica aberta (P1)
+Tema: corrigir arquivos legados com encoding invÃ¡lido UTF-8 que impedem `npm run build`.
 
-CritÃƒÂ©rio de aceite:
+CritÃ©rio de aceite:
 - `npm run build` passa.
 - Arquivos legados convertidos para UTF-8.
-- Textos em portuguÃƒÂªs preservados sem mojibake.
-- Nenhuma alteraÃƒÂ§ÃƒÂ£o funcional colateral.
+- Textos em portuguÃªs preservados sem mojibake.
+- Nenhuma alteraÃ§Ã£o funcional colateral.
 
-## P0 Ã¢â‚¬â€ Production Lifecycle (`queued -> in_production -> shipped`)
+## P0 â€” Production Lifecycle (`queued -> in_production -> shipped`)
 
 Status: PASS  
 Data: 2026-05-19  
 Ambiente: local/dev  
-Escopo: lifecycle mÃƒÂ­nimo de produÃƒÂ§ÃƒÂ£o sem `delivered`
+Escopo: lifecycle mÃ­nimo de produÃ§Ã£o sem `delivered`
 
 ### Resultado
-- P0-PROD-01 Listar ProductionJob criado apÃƒÂ³s `order.paid`: PASS
-- P0-PROD-02 Iniciar produÃƒÂ§ÃƒÂ£o `queued -> in_production`: PASS
+- P0-PROD-01 Listar ProductionJob criado apÃ³s `order.paid`: PASS
+- P0-PROD-02 Iniciar produÃ§Ã£o `queued -> in_production`: PASS
 - P0-PROD-03 Bloquear start fora de `queued`: PASS (`409 invalid_transition`)
 - P0-PROD-04 Bloquear ship direto de `queued`: PASS (`409 invalid_transition`)
-- P0-PROD-05 Enviar produÃƒÂ§ÃƒÂ£o `in_production -> shipped` com `trackingCode + carrier`: PASS
+- P0-PROD-05 Enviar produÃ§Ã£o `in_production -> shipped` com `trackingCode + carrier`: PASS
 - P0-PROD-06 Criar Shipment exatamente 1 vez por order: PASS
 - P0-PROD-07 Refletir `order -> shipped`: PASS
 - P0-PROD-08 AuditLog de `production.started`, `production.shipped`, `shipment.created`, `order.shipped`: PASS
-- P0-PROD-09 Ship duplicado nÃƒÂ£o duplica Shipment: PASS (`already_shipped`)
+- P0-PROD-09 Ship duplicado nÃ£o duplica Shipment: PASS (`already_shipped`)
 - P0-PROD-10 `npm run check`: PASS
 
-### EvidÃƒÂªncias tÃƒÂ©cnicas
+### EvidÃªncias tÃ©cnicas
 - `GET /api/production-jobs` retornou lista com job criado por fluxo pago.
 - `GET /api/production-jobs/:id` retornou estado inicial `queued`.
 - `POST /api/production-jobs/:id/start` atualizou para `in_progress` e `order` para `in_production`.
@@ -689,22 +716,22 @@ Escopo: lifecycle mÃƒÂ­nimo de produÃƒÂ§ÃƒÂ£o sem `delivered`
   - `ProductionJob.status = shipped`
   - `Shipment` criado com `trackingCode` e `carrier`
   - `Order.status = shipped`
-- RepetiÃƒÂ§ÃƒÂ£o de `ship` retornou `already_shipped` e manteve `shipmentId` estÃƒÂ¡vel.
+- RepetiÃ§Ã£o de `ship` retornou `already_shipped` e manteve `shipmentId` estÃ¡vel.
 
-### ReferÃƒÂªncias
+### ReferÃªncias
 - `docs/STATE_MACHINES.md`
 - `docs/API_CONTRACTS.md`
 - `docs/QA_ACCEPTANCE_TESTS.md`
 
-### ObservaÃƒÂ§ÃƒÂ£o
-Sem incluir `delivered` neste recorte, por depender de confirmaÃƒÂ§ÃƒÂ£o logÃƒÂ­stica externa/manual.
+### ObservaÃ§Ã£o
+Sem incluir `delivered` neste recorte, por depender de confirmaÃ§Ã£o logÃ­stica externa/manual.
 
-## P0 â€” Order Status Visibility + Shipment Tracking
+## P0 — Order Status Visibility + Shipment Tracking
 
 Status: PASS  
 Escopo: consulta consolidada de status do pedido e rastreio por pedido  
 Ambiente: local/dev  
-ReferÃªncias:
+Referências:
 - `GET /api/orders/:orderId/status`
 - `GET /api/shipments/:orderId`
 - `STATE_MACHINES.md`
@@ -713,30 +740,30 @@ ReferÃªncias:
 
 ### Casos executados
 
-- P0-STATUS-01 â€” Pedido `placed`: PASS
-- P0-STATUS-02 â€” Pedido `paid`: PASS
-- P0-STATUS-03 â€” Pedido `in_production`: PASS
-- P0-STATUS-04 â€” Pedido `shipped` com `trackingCode` + `carrier`: PASS
-- P0-STATUS-05 â€” Acesso cruzado bloqueado com RBAC ativo: PASS
-- P0-STATUS-06 â€” Suporte/admin consulta por `orderId`: PASS
-- P0-STATUS-07 â€” Pedido inexistente retorna `404`: PASS
-- P0-STATUS-08 â€” `npm run check`: PASS
+- P0-STATUS-01 — Pedido `placed`: PASS
+- P0-STATUS-02 — Pedido `paid`: PASS
+- P0-STATUS-03 — Pedido `in_production`: PASS
+- P0-STATUS-04 — Pedido `shipped` com `trackingCode` + `carrier`: PASS
+- P0-STATUS-05 — Acesso cruzado bloqueado com RBAC ativo: PASS
+- P0-STATUS-06 — Suporte/admin consulta por `orderId`: PASS
+- P0-STATUS-07 — Pedido inexistente retorna `404`: PASS
+- P0-STATUS-08 — `npm run check`: PASS
 
-### EvidÃªncias tÃ©cnicas
+### Evidências técnicas
 
-- Endpoints `GET` nÃ£o alteram estado.
+- Endpoints `GET` não alteram estado.
 - Pedido inexistente retorna `404`.
 - Shipment inexistente para pedido existente retorna `200` com `shipment: null`.
-- Cliente sÃ³ consulta pedido prÃ³prio quando RBAC estÃ¡ ativo.
+- Cliente só consulta pedido próprio quando RBAC está ativo.
 - Suporte/admin consulta pedido por `orderId`.
 - Acesso cruzado retorna `403`.
 - Pedido `shipped` retorna dados de rastreio.
 
-### ObservaÃ§Ãµes
+### Observações
 
-Este recorte fecha a visibilidade mÃ­nima do cliente e suporte sobre o ciclo operacional jÃ¡ validado: pedido, pagamento, produÃ§Ã£o e envio.
+Este recorte fecha a visibilidade mínima do cliente e suporte sobre o ciclo operacional já validado: pedido, pagamento, produção e envio.
 
-## P0 â€” Support 360 - Order Context
+## P0 — Support 360 - Order Context
 
 Status: PASS  
 Escopo: contexto consolidado de suporte por pedido + fluxo minimo de tickets  
@@ -752,16 +779,16 @@ Referencias:
 
 ### Casos executados
 
-- P0-SUP-01 â€” support_agent consulta contexto completo por `orderId`: PASS
-- P0-SUP-02 â€” Contexto inclui `order`, `payment`, `production`, `shipment`, `tickets`, `auditSummary`: PASS
-- P0-SUP-03 â€” GET de contexto nao altera estado operacional: PASS
-- P0-SUP-04 â€” customer cria ticket vinculado ao proprio pedido: PASS
-- P0-SUP-05 â€” customer nao cria ticket para pedido de outro cliente: PASS
-- P0-SUP-06 â€” support_agent responde ticket: PASS
-- P0-SUP-07 â€” customer le proprio ticket e resposta: PASS
-- P0-SUP-08 â€” customer nao le ticket de outro cliente: PASS
-- P0-SUP-09 â€” pedido inexistente no contexto retorna `404`: PASS
-- P0-SUP-10 â€” `npm run check`: PASS
+- P0-SUP-01 — support_agent consulta contexto completo por `orderId`: PASS
+- P0-SUP-02 — Contexto inclui `order`, `payment`, `production`, `shipment`, `tickets`, `auditSummary`: PASS
+- P0-SUP-03 — GET de contexto nao altera estado operacional: PASS
+- P0-SUP-04 — customer cria ticket vinculado ao proprio pedido: PASS
+- P0-SUP-05 — customer nao cria ticket para pedido de outro cliente: PASS
+- P0-SUP-06 — support_agent responde ticket: PASS
+- P0-SUP-07 — customer le proprio ticket e resposta: PASS
+- P0-SUP-08 — customer nao le ticket de outro cliente: PASS
+- P0-SUP-09 — pedido inexistente no contexto retorna `404`: PASS
+- P0-SUP-10 — `npm run check`: PASS
 
 ### Evidencias tecnicas
 
@@ -776,7 +803,7 @@ Referencias:
 
 Este recorte fecha diagnostico operacional minimo de suporte sem violar isolamento de dominios de order, payment, production e shipment.
 
-## P0 â€” Commission Ledger + Payout Request
+## P0 — Commission Ledger + Payout Request
 
 Status: PASS  
 Escopo: ledger inicial de comissao + solicitacao de saque (`requested`)  
@@ -791,16 +818,16 @@ Referencias:
 
 ### Casos executados
 
-- P0-FIN-01 â€” `order.paid` cria CommissionLedger `pending`: PASS
-- P0-FIN-02 â€” `commission.pending` nao pode ser sacada: PASS
-- P0-FIN-03 â€” `commission.available` aparece em `GET /api/commissions/me`: PASS
-- P0-FIN-04 â€” `customer` nao acessa ledger financeiro: PASS
-- P0-FIN-05 â€” `artist/community_manager` acessam apenas proprio ledger: PASS
-- P0-FIN-06 â€” `POST /api/payouts` cria `payout.requested` com saldo `available`: PASS
-- P0-FIN-07 â€” payout acima do saldo retorna `409 insufficient_available_balance`: PASS
-- P0-FIN-08 â€” `payout.requested` nao marca comissao como `paid`: PASS
-- P0-FIN-09 â€” AuditLog registra `commission.created` e `payout.requested`: PASS
-- P0-FIN-10 â€” `npm run check`: PASS
+- P0-FIN-01 — `order.paid` cria CommissionLedger `pending`: PASS
+- P0-FIN-02 — `commission.pending` nao pode ser sacada: PASS
+- P0-FIN-03 — `commission.available` aparece em `GET /api/commissions/me`: PASS
+- P0-FIN-04 — `customer` nao acessa ledger financeiro: PASS
+- P0-FIN-05 — `artist/community_manager` acessam apenas proprio ledger: PASS
+- P0-FIN-06 — `POST /api/payouts` cria `payout.requested` com saldo `available`: PASS
+- P0-FIN-07 — payout acima do saldo retorna `409 insufficient_available_balance`: PASS
+- P0-FIN-08 — `payout.requested` nao marca comissao como `paid`: PASS
+- P0-FIN-09 — AuditLog registra `commission.created` e `payout.requested`: PASS
+- P0-FIN-10 — `npm run check`: PASS
 
 ### Evidencias tecnicas
 
@@ -1143,5 +1170,6 @@ Escopo: trilha de integracao de provider e mapeamento de recebedores sem quebra 
 - `POST /api/payments/webhook` agora registra evento bruto, processa e marca resultado.
 - `createPaymentWithIdempotency` registra trilha de integracao de `create_charge`.
 - Split financeiro usa `provider_recipient_id` quando existir mapeamento para entidade.
+
 
 

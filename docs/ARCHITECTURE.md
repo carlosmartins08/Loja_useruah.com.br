@@ -2,6 +2,19 @@
 
 Data de revisao: 2026-05-21
 
+Atualizacao adicional: 2026-05-29
+- Superficie de API classificada por nivel de exposicao em `docs/API_ROUTE_CLASSIFICATION.md`.
+- Endpoints criticos agora exigem ator autenticado e escopo por role/ownership:
+  - `GET /api/orders`
+  - `GET /api/audit-logs`
+  - `GET /api/payments/status/[paymentId]`
+  - `GET /api/production-jobs/by-order/[orderId]`
+  - `POST /api/terms/accept`
+- Webhook de pagamento endurecido:
+  - assinatura obrigatoria fora de QA controlado;
+  - erro explicito quando segredo de webhook nao estiver configurado fora de QA.
+- Gate de backend migrado para runner PowerShell sequencial para reduzir fragilidade de subprocesso em ambiente Windows/sandbox.
+
 ## Estado atual (rodando hoje)
 - App Next.js com APIs em `app/api/*`.
 - Persistencia principal de dominio em store local (`lib/dev-store.ts`).
