@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Allow access to remote image placeholder.
   images: {
+    qualities: [65, 68, 70, 72, 75],
     remotePatterns: [
       {
         protocol: 'https',

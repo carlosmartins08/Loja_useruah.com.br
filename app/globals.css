@@ -235,6 +235,46 @@
       padding-bottom: 0;
     }
   }
+
+  .z-base {
+    z-index: 0;
+  }
+
+  .z-raised {
+    z-index: 10;
+  }
+
+  .z-sticky {
+    z-index: 30;
+  }
+
+  .z-dropdown {
+    z-index: 35;
+  }
+
+  .z-header {
+    z-index: 40;
+  }
+
+  .z-overlay {
+    z-index: 45;
+  }
+
+  .z-drawer {
+    z-index: 50;
+  }
+
+  .z-modal {
+    z-index: 60;
+  }
+
+  .z-toast {
+    z-index: 70;
+  }
+
+  .z-max {
+    z-index: 9999;
+  }
 }
 
 @keyframes pulse-soft {

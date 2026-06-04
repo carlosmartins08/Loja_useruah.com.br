@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useUser } from '@/context/UserContext';
 import uxRules from '@/data/ux-rules.json';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 type ExitVariant = {
   id: string;
@@ -41,6 +42,7 @@ export function ExitIntent() {
   const { isSessionReady, isAuthenticated, userRole } = useUser();
   const [show, setShow] = useState(false);
   const [hasShown, setHasShown] = useState(false);
+  const modalRef = React.useRef<HTMLDivElement>(null);
   const isCommercial = config.allowedRoutes.some((pattern) => routeMatches(pattern, pathname));
   const allowAnonymous = config.allowAnonymous !== false;
   const allowedRoles = (config.allowedUserRoles ?? []) as string[];
@@ -90,6 +92,12 @@ export function ExitIntent() {
     return () => document.removeEventListener('keydown', handleEsc);
   }, [show]);
 
+  useFocusTrap({
+    active: show,
+    containerRef: modalRef,
+    onEscape: () => setShow(false),
+  });
+
   if (!config.enabled || !isSessionReady || !roleAllowed || !show || !isCommercial) return null;
 
   return (
@@ -98,7 +106,7 @@ export function ExitIntent() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onClick={() => setShow(false)}
-        className="fixed inset-0 z-[200] bg-lumina-950/40 backdrop-blur-md flex items-center justify-center p-6"
+        className="fixed inset-0 z-modal bg-lumina-950/40 backdrop-blur-md flex items-center justify-center p-6"
       >
         <motion.div
           initial={{ scale: 0.9, y: 20 }}
@@ -106,6 +114,8 @@ export function ExitIntent() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="exit-intent-title"
+          ref={modalRef}
+          tabIndex={-1}
           onClick={(event) => event.stopPropagation()}
           className="bg-white rounded-[3rem] overflow-hidden max-w-xl w-full relative"
         >

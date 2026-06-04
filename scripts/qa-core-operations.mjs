@@ -66,11 +66,15 @@ async function createPaidOrder(customerId) {
     },
     items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
     customer: { id: customerId },
+  }, {
+    'x-actor-id': customerId,
+    'x-actor-role': 'customer',
   });
   assert(order.status === 201, `order expected 201, got ${order.status}`);
   const orderId = order.data?.order?.orderId;
   assert(typeof orderId === 'string', 'orderId missing');
 
+  const idempotencyKey = `qa-core-checkout-${Date.now()}-${Math.random()}`;
   const checkout = await post(
     '/api/payments/checkout',
     {
@@ -81,11 +85,29 @@ async function createPaidOrder(customerId) {
       currency: 'BRL',
       items: [{ id: '1', name: 'Camiseta Respiro', quantity: 1, unitPrice: 89.9 }],
     },
-    { 'x-idempotency-key': `qa-core-checkout-${Date.now()}-${Math.random()}` }
+    { 'x-idempotency-key': idempotencyKey }
   );
   assert(checkout.status === 200, `checkout expected 200, got ${checkout.status}`);
   const providerReference = checkout.data?.payment?.providerReference;
   assert(typeof providerReference === 'string', 'providerReference missing');
+  const paymentId = checkout.data?.payment?.paymentId;
+  assert(typeof paymentId === 'string', 'paymentId missing');
+
+  const checkoutReplay = await post(
+    '/api/payments/checkout',
+    {
+      orderId,
+      method: 'pix',
+      provider: 'sandbox',
+      amount: 89.9,
+      currency: 'BRL',
+      items: [{ id: '1', name: 'Camiseta Respiro', quantity: 1, unitPrice: 89.9 }],
+    },
+    { 'x-idempotency-key': idempotencyKey }
+  );
+  assert(checkoutReplay.status === 200, `checkout replay expected 200, got ${checkoutReplay.status}`);
+  assert(checkoutReplay.data?.reused === true, `checkout replay expected reused=true, got ${String(checkoutReplay.data?.reused)}`);
+  assert(checkoutReplay.data?.payment?.paymentId === paymentId, 'checkout replay changed paymentId');
 
   const webhook = await post(
     '/api/payments/webhook',
@@ -124,6 +146,9 @@ async function run() {
     },
     items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
     customer: { id: 'customer-core-placed' },
+  }, {
+    'x-actor-id': 'customer-core-placed',
+    'x-actor-role': 'customer',
   });
   assert(placedOrder.status === 201, `placed order expected 201, got ${placedOrder.status}`);
   const placedOrderId = placedOrder.data?.order?.orderId;
@@ -140,6 +165,7 @@ async function run() {
 
   const paidOrderId = await createPaidOrder('customer-core-paid');
   report.push('P0-CORE-03 paid order created via checkout+webhook');
+  report.push('P0-CORE-03B checkout idempotency preserved same payment');
 
   const createProd = await postWithRetry(
     '/api/production-jobs',
@@ -190,6 +216,16 @@ async function run() {
   assert(orderStatus.status === 200, `order status expected 200, got ${orderStatus.status}`);
   assert(orderStatus.data?.status === 'shipped', `order status expected shipped, got ${String(orderStatus.data?.status)}`);
   report.push('P0-CORE-08 customer sees shipped order status');
+
+  const crossUserOrderStatus = await get(`/api/orders/${paidOrderId}/status`, {
+    'x-actor-id': 'customer-core-other',
+    'x-actor-role': 'customer',
+  });
+  assert(
+    crossUserOrderStatus.status === 401 || crossUserOrderStatus.status === 403,
+    `cross user order status expected 401|403, got ${crossUserOrderStatus.status}`
+  );
+  report.push('P0-CORE-08B cross-user order access blocked');
 
   const shipment = await get(`/api/shipments/${paidOrderId}`, { 'x-actor-id': 'customer-core-paid', 'x-actor-role': 'customer' });
   assert(shipment.status === 200, `shipment expected 200, got ${shipment.status}`);

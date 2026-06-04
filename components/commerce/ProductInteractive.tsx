@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { AppImage } from '@/components/shared/AppImage';
 import { SmartShipping } from './SmartShipping';
 import { useRouter } from 'next/navigation';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 interface ProductInteractiveProps {
   id: string;
@@ -36,8 +37,15 @@ export function ProductInteractive({
   const [packaging, setPackaging] = React.useState('Pack Respiro');
   const [showSizeGuide, setShowSizeGuide] = React.useState(false);
   const [isReviewing, setIsReviewing] = React.useState(false);
+  const reviewRef = React.useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
   const installmentValue = price / installmentCount;
+
+  useFocusTrap({
+    active: isReviewing,
+    containerRef: reviewRef,
+    onEscape: () => setIsReviewing(false),
+  });
 
   const handleAddToCart = () => {
     addToCart({
@@ -77,13 +85,20 @@ export function ProductInteractive({
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
                exit={{ opacity: 0 }}
-               className="fixed inset-0 bg-ruah-950/80 backdrop-blur-md z-[100] flex items-center justify-center p-6"
+               className="fixed inset-0 bg-ruah-950/80 backdrop-blur-md z-modal flex items-center justify-center p-6"
+               onClick={() => setIsReviewing(false)}
             >
                <motion.div 
                   initial={{ scale: 0.9, y: 20 }}
                   animate={{ scale: 1, y: 0 }}
                   exit={{ scale: 0.9, y: 20 }}
+                  ref={reviewRef}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Revisão da customização"
+                  tabIndex={-1}
                   className="bg-white rounded-[3rem] w-full max-w-lg p-12 flex flex-col gap-8 shadow-2xl border border-ruah-100"
+                  onClick={(event) => event.stopPropagation()}
                >
                   <div className="flex flex-col gap-2">
                      <div className="flex items-center gap-2">
@@ -342,7 +357,7 @@ export function ProductInteractive({
 
 export function WhatsAppSticky() {
   return (
-    <div className="fixed bottom-24 md:bottom-10 right-6 md:right-10 z-[40]">
+    <div className="fixed bottom-24 md:bottom-10 right-6 md:right-10 z-sticky">
        <a 
         href="https://wa.me/5511999999999" 
         target="_blank" rel="noopener noreferrer" className="w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform active:scale-95 group"

@@ -2,6 +2,23 @@
 
 Data de revisao: 2026-05-23
 
+## Nota de precedencia ativa
+Em 2026-06-03 a definicao oficial da fase comercial ativa passou a ser `docs/FASE_1_VENDA_DE_PRODUTO.md`.
+
+Leituras historicas deste documento que usem "Fase 1" com outro significado devem ser tratadas como contexto legado e nao como autoridade de escopo.
+
+Atualizacao adicional: 2026-06-03 (fechamento operacional da Fase 1 comercial)
+- `npm run build`: PASS (2026-06-03)
+- `npm run qa:functional` em `dev`: FAIL por instabilidade de runtime/hot-reload em `/_not-found`
+- validacao funcional repetida em `start` sobre `http://localhost:3319`: PASS (2026-06-03)
+- `npm run qa:matrix:audit`: PASS (2026-06-03)
+- `npm run qa:coreops`: PASS (2026-06-03), incluindo:
+  - pagamento aprovado por webhook
+  - idempotencia de checkout preservando o mesmo `paymentId`
+  - bloqueio de acesso cruzado entre clientes (`403`)
+  - ticket e resposta de suporte sem alterar o estado operacional final (`shipped`)
+- hardening aplicado em leitura publica de catalogo para fallback controlado em `dev-store` quando a leitura MySQL local falhar em runtime
+
 Atualizacao adicional: 2026-05-30 (fechamento de coerencia de gate + prova final de release)
 - `backend:gate` alinhado aos runners oficiais por dominio (`npm run qa:*`) para eliminar falso negativo de servidor compartilhado.
 - Hardening de robustez nos QAs sensiveis a intermitencia de `next dev`:
@@ -143,7 +160,7 @@ Atualizacao adicional: 2026-05-27 (Gate de validacao 360 por papel/usuario)
 
 Atualizacao adicional: 2026-05-25
 - Roadmap seguro de execucao para 2026-05-26 publicado em:
-  - `docs/ROADMAP_2026-05-26_SAFE_EXECUTION.md`
+  - documento historico posteriormente descontinuado e substituido pela combinacao de `docs/FASE_1_VENDA_DE_PRODUTO.md` + `docs/FASE_1_MATRIZ_EXECUCAO.md`
 - Pendencias abertas de 2026-05-25 foram consolidadas no roadmap com gatilho `GO/NO-GO` e fases bloqueantes.
 
 Atualizacao adicional: 2026-05-26 (Fase 2 - compatibilidade de sessao)

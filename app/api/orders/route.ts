@@ -93,12 +93,23 @@ async function validateCatalogAndInventory(payload: OrderCreatePayload) {
 }
 
 export async function POST(request: Request) {
+  const actor = getActorFromRequest(request);
+  if (!actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  if (actor.actorRole !== 'customer') {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
   const body = await request.json().catch(() => null);
   if (!isValidOrderPayload(body)) {
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });
   }
 
-  const customerId = body.customer?.id ?? 'customer-session';
+  const customerId = actor.actorId;
+  if (body.customer?.id && body.customer.id !== customerId) {
+    return NextResponse.json({ error: 'forbidden', detail: 'customer_id_mismatch' }, { status: 403 });
+  }
   if (isTermsGateEnabledFor('consumer')) {
     const accepted = await validateTermsAcceptance({ userId: customerId, termType: 'consumer_base' });
     if (!accepted) {

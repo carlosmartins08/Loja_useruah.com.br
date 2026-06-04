@@ -6,22 +6,19 @@ import { X, ShoppingBag, Trash2, Plus, Minus, ArrowRight, Truck } from 'lucide-r
 import { useCart } from '@/context/CartContext';
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 export function CartDrawer() {
   const { isCartOpen, setIsCartOpen, cart, removeFromCart, updateQuantity, total, subtotal, discount, location } = useCart();
+  const drawerRef = React.useRef<HTMLDivElement>(null);
   const freeShippingThreshold = 3000;
   const progress = Math.min((total / freeShippingThreshold) * 100, 100);
 
-  React.useEffect(() => {
-    if (!isCartOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsCartOpen(false);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isCartOpen, setIsCartOpen]);
+  useFocusTrap({
+    active: isCartOpen,
+    containerRef: drawerRef,
+    onEscape: () => setIsCartOpen(false),
+  });
 
   return (
     <AnimatePresence>
@@ -33,7 +30,7 @@ export function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsCartOpen(false)}
-            className="fixed inset-0 bg-ruah-950/40 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-ruah-950/40 backdrop-blur-sm z-overlay"
           />
 
           {/* Drawer */}
@@ -45,7 +42,9 @@ export function CartDrawer() {
             role="dialog"
             aria-modal="true"
             aria-label="Carrinho de compras"
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[101] flex flex-col"
+            ref={drawerRef}
+            tabIndex={-1}
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-drawer flex flex-col"
           >
             {/* Header */}
             <div className="p-8 border-b border-ruah-100 flex items-center justify-between">

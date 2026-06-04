@@ -94,6 +94,14 @@ function rowToCatalogItem(row: MysqlRow): CatalogItemRecord {
   };
 }
 
+function listCatalogItemsFromStore(filters?: { publicationStatus?: CatalogItemStatus; artworkId?: string }) {
+  return Object.values(readCatalog()).filter((item) => {
+    if (filters?.publicationStatus && item.publicationStatus !== filters.publicationStatus) return false;
+    if (filters?.artworkId && item.artworkId !== filters.artworkId) return false;
+    return true;
+  });
+}
+
 export async function createCatalogItem(
   input: Omit<CatalogItemRecord, 'catalogItemId' | 'publicationStatus' | 'createdAt' | 'updatedAt'> & {
     catalogItemId?: string;
@@ -192,34 +200,39 @@ export async function createCatalogItem(
 export async function listCatalogItems(filters?: { publicationStatus?: CatalogItemStatus; artworkId?: string }) {
   const mysql = await getMysqlPool();
   if (mysql && shouldUseMysql()) {
-    const conditions: string[] = [];
-    const params: string[] = [];
-    if (filters?.publicationStatus) {
-      conditions.push('publication_status = ?');
-      params.push(filters.publicationStatus);
-    }
-    if (filters?.artworkId) {
-      conditions.push('artwork_id = ?');
-      params.push(filters.artworkId);
-    }
+    try {
+      const conditions: string[] = [];
+      const params: string[] = [];
+      if (filters?.publicationStatus) {
+        conditions.push('publication_status = ?');
+        params.push(filters.publicationStatus);
+      }
+      if (filters?.artworkId) {
+        conditions.push('artwork_id = ?');
+        params.push(filters.artworkId);
+      }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items ${whereClause} ORDER BY created_at DESC`, params);
-    return rows.map(rowToCatalogItem);
+      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items ${whereClause} ORDER BY created_at DESC`, params);
+      return rows.map(rowToCatalogItem);
+    } catch {
+      return listCatalogItemsFromStore(filters);
+    }
   }
 
-  return Object.values(readCatalog()).filter((item) => {
-    if (filters?.publicationStatus && item.publicationStatus !== filters.publicationStatus) return false;
-    if (filters?.artworkId && item.artworkId !== filters.artworkId) return false;
-    return true;
-  });
+  return listCatalogItemsFromStore(filters);
 }
 
 export async function getCatalogItem(catalogItemId: string) {
   const mysql = await getMysqlPool();
   if (mysql && shouldUseMysql()) {
-    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items WHERE catalog_item_id = ?`, [catalogItemId]);
-    return rows[0] ? rowToCatalogItem(rows[0]) : null;
+    try {
+      const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items WHERE catalog_item_id = ?`, [catalogItemId]);
+      return rows[0] ? rowToCatalogItem(rows[0]) : null;
+    } catch {
+      const state = readCatalog();
+      return state[catalogItemId] ?? null;
+    }
   }
 
   const state = readCatalog();

@@ -4,6 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Upload, Camera, Image as ImageIcon } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 interface ProfilePhotoModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export function ProfilePhotoModal({ isOpen, onClose, onSave }: ProfilePhotoModal
   const [dragActive, setDragActive] = React.useState(false);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const modalRef = React.useRef<HTMLDivElement>(null);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -58,6 +60,12 @@ export function ProfilePhotoModal({ isOpen, onClose, onSave }: ProfilePhotoModal
     fileInputRef.current?.click();
   };
 
+  useFocusTrap({
+    active: isOpen,
+    containerRef: modalRef,
+    onEscape: onClose,
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -65,13 +73,18 @@ export function ProfilePhotoModal({ isOpen, onClose, onSave }: ProfilePhotoModal
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-ruah-950/60 backdrop-blur-md"
+          className="fixed inset-0 z-modal flex items-center justify-center p-6 bg-ruah-950/60 backdrop-blur-md"
           onClick={onClose}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Foto de perfil"
+            ref={modalRef}
+            tabIndex={-1}
             className="w-full max-w-md bg-white rounded-[2.5rem] p-10 shadow-fancy relative"
             onClick={e => e.stopPropagation()}
           >

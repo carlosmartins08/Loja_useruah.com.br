@@ -32,6 +32,38 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-03] Fase 1 comercial endurecida com prova executavel ponta a ponta
+- ID: GOV-0055
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pedidos-logistica`
+  - `pagamentos`
+  - `catalogo-curadoria`
+  - `suporte-tickets`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/FASE_1_VENDA_DE_PRODUTO.md`
+  - `docs/FASE_1_MATRIZ_EXECUCAO.md`
+- Decisao:
+  - Assumir `Order.items` como contrato oficial de `OrderItemSnapshot`, sem criar estrutura paralela.
+  - Endurecer os QAs do fluxo mestre para exigir ator autenticado, idempotencia real no checkout e bloqueio de acesso cruzado entre clientes.
+  - Adotar fallback controlado de leitura do catalogo para `dev-store` quando a leitura MySQL local falhar em runtime publico.
+- Contexto:
+  - A Fase 1 ja tinha partes prontas, mas ainda faltava prova coerente de nao-duplicidade, ownership do pedido e estabilidade de navegacao publica.
+- Impacto esperado:
+  - Menos retrabalho entre produto, QA e engenharia.
+  - Menos divergencia entre comportamento real da venda e leitura da documentacao.
+- Riscos conhecidos:
+  - `next dev` local continua sujeito a ruido de hot reload; a prova funcional de fechamento deve priorizar `start` ou runner isolado por porta.
+- Plano de rollback:
+  - Reverter contrato explicito do snapshot e restaurar QAs anteriores por arquivo, se necessario.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/FASE_1_MATRIZ_EXECUCAO.md`
+  - `docs/EXECUTION_TRACKING.md`
+
 ### [2026-05-30] Gate backend consolidado por runners oficiais e prova final de release
 - ID: GOV-0054
 - Status: `aprovada`

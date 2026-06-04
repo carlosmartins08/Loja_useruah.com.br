@@ -6,6 +6,7 @@ import { Sparkles, ArrowRight, X, Check, Loader2, Home, Briefcase, Camera, Coffe
 import { GoogleGenAI, Type } from "@google/genai";
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 const ai = geminiApiKey ? new GoogleGenAI({ apiKey: geminiApiKey }) : null;
@@ -58,6 +59,7 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [recommendation, setRecommendation] = useState<AssistantRecommendation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const modalRef = React.useRef<HTMLDivElement>(null);
 
   const handleSelect = (stepId: string, optionId: string) => {
     const newSelections = { ...selections, [stepId]: optionId };
@@ -126,6 +128,12 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
     }
   };
 
+  useFocusTrap({
+    active: isOpen,
+    containerRef: modalRef,
+    onEscape: onClose,
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -133,7 +141,8 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[110] bg-ruah-950 flex items-center justify-center p-6"
+          className="fixed inset-0 z-modal bg-ruah-950 flex items-center justify-center p-6"
+          onClick={onClose}
         >
           <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-accent-gold/40 to-transparent blur-[120px]" />
@@ -143,7 +152,7 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
              <X size={32} />
           </button>
 
-          <div className="max-w-4xl w-full relative z-10">
+          <div className="max-w-4xl w-full relative z-10" role="dialog" aria-modal="true" aria-label="Assistente virtual de estilo" ref={modalRef} tabIndex={-1} onClick={(event) => event.stopPropagation()}>
              {!recommendation && !isLoading ? (
                <div className="flex flex-col gap-16">
                   <div className="flex flex-col gap-6 text-center lg:text-left">

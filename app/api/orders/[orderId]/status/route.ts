@@ -20,6 +20,17 @@ export async function GET(request: Request, context: { params: Promise<{ orderId
     status: view.order.status,
     paymentStatus: view.payment?.status ?? null,
     productionStatus: view.production?.status ?? null,
+    items: view.order.items.map((item) => ({
+      orderItemId: item.orderItemId,
+      catalogItemId: item.catalogItemId,
+      productName: item.productName,
+      productImage: item.productImage,
+      variantId: item.variantId,
+      variantLabel: item.variantLabel,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      snapshotVersion: item.snapshotVersion,
+    })),
     shipment: view.shipment
       ? {
           trackingCode: view.shipment.trackingCode,

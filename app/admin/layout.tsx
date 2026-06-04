@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 import { isAdminRole, isAllowedAdminPath, resolveHomeByRole } from '@/lib/access-routing';
+import { getPhaseOneRoleLabel, isPhaseOneAdminMaster } from '@/lib/phase-one-role';
 import { Header } from '@/components/navigation/Header';
 import { Bell, CircleHelp, Settings } from 'lucide-react';
 import { ADMIN_NAV_ITEMS, isNavActive } from '@/components/admin/navigation-config';
@@ -36,6 +37,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!isAdminRole(userRole)) return null;
   if (!isAllowedAdminPath(userRole, pathname)) return null;
 
+  const activeRoleLabel = getPhaseOneRoleLabel(userRole);
+
   return (
     <div className="min-h-screen bg-ruah-50 page-header-offset">
       <Header />
@@ -43,9 +46,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="section-container flex flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-ruah-950 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
-              Ambiente Operacional
+              {isPhaseOneAdminMaster(userRole) ? 'Admin Master' : 'Ambiente Operacional'}
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-500">Papel ativo: {userRole}</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-500">Papel ativo: {activeRoleLabel}</span>
           </div>
           <div className="flex items-center gap-2">
             <Link

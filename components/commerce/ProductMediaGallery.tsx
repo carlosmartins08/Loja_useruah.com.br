@@ -3,6 +3,7 @@
 import React from 'react';
 import { AppImage } from '@/components/shared/AppImage';
 import { X, ZoomIn } from 'lucide-react';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 interface MediaItem {
   label: string;
@@ -28,7 +29,14 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
 
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [zoomOpen, setZoomOpen] = React.useState(false);
+  const zoomRef = React.useRef<HTMLDivElement>(null);
   const active = media[activeIndex] ?? media[0];
+
+  useFocusTrap({
+    active: zoomOpen,
+    containerRef: zoomRef,
+    onEscape: () => setZoomOpen(false),
+  });
 
   return (
     <section className="py-20 bg-white">
@@ -71,14 +79,14 @@ export function ProductMediaGallery({ heroImage, detailImages, modelMockups, pro
       </div>
 
       {zoomOpen && (
-        <div className="fixed inset-0 z-[120] bg-ruah-950/85 backdrop-blur-sm p-6 flex items-center justify-center" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-modal bg-ruah-950/85 backdrop-blur-sm p-6 flex items-center justify-center" role="dialog" aria-modal="true" aria-label="Zoom da imagem do produto" onClick={() => setZoomOpen(false)} ref={zoomRef} tabIndex={-1}>
           <button
             onClick={() => setZoomOpen(false)}
             className="absolute top-8 right-8 w-10 h-10 rounded-full bg-white text-ruah-950 flex items-center justify-center"
           >
             <X size={18} />
           </button>
-          <div className="relative w-full max-w-4xl aspect-square rounded-3xl overflow-hidden border border-white/20">
+          <div className="relative w-full max-w-4xl aspect-square rounded-3xl overflow-hidden border border-white/20" onClick={(event) => event.stopPropagation()}>
             <AppImage context="content-banner" src={active.src} alt={`${active.label} ampliado`} fill sizes="90vw" className="object-contain bg-ruah-950" />
           </div>
         </div>

@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { Factory, Search, Filter, CheckCircle2, AlertCircle } from 'lucide-react';
-import { getJson, HttpRequestError } from '@/lib/http-client';
+import { getJson, HttpRequestError, postJson } from '@/lib/http-client';
 
 interface ProductionJob {
   productionJobId: string;
@@ -25,30 +25,82 @@ export default function MerchantProductionPage() {
   const [jobs, setJobs] = React.useState<ProductionJob[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [actionLoading, setActionLoading] = React.useState<Record<string, boolean>>({});
+  const [shippingDrafts, setShippingDrafts] = React.useState<Record<string, { trackingCode: string; carrier: string }>>({});
+
+  const load = React.useCallback(async () => {
+    setError(null);
+    const data = await getJson<{ ok: true; jobs: ProductionJob[] }>('/api/production-jobs');
+    setJobs(data.jobs);
+  }, []);
 
   React.useEffect(() => {
     let active = true;
-    getJson<{ ok: true; jobs: ProductionJob[] }>('/api/production-jobs')
-      .then((data) => {
-        if (!active) return;
-        setJobs(data.jobs);
-      })
-      .catch((err) => {
-        if (!active) return;
-        if (err instanceof HttpRequestError && (err.status === 401 || err.status === 403)) {
-          setError('Sessão inválida para produção. Atualize a página para renovar a sessão.');
-          return;
-        }
-        setError('Não foi possível carregar a fila de produção.');
-      })
-      .finally(() => {
-        if (!active) return;
-        setLoading(false);
-      });
+    const timeoutId = window.setTimeout(() => {
+      if (!active) return;
+      load()
+        .catch((err) => {
+          if (!active) return;
+          if (err instanceof HttpRequestError && (err.status === 401 || err.status === 403)) {
+            setError('Sessao invalida para producao. Atualize a pagina para renovar a sessao.');
+            return;
+          }
+          setError('Nao foi possivel carregar a fila de producao.');
+        })
+        .finally(() => {
+          if (!active) return;
+          setLoading(false);
+        });
+    }, 0);
+
     return () => {
       active = false;
+      window.clearTimeout(timeoutId);
     };
-  }, []);
+  }, [load]);
+
+  async function startProduction(jobId: string) {
+    setActionLoading((prev) => ({ ...prev, [jobId]: true }));
+    setError(null);
+    try {
+      await postJson(`/api/production-jobs/${jobId}/start`);
+      await load();
+    } catch (err) {
+      if (err instanceof HttpRequestError && err.status === 409) {
+        setError('Este job nao pode ser iniciado no estado atual.');
+      } else {
+        setError('Nao foi possivel iniciar a producao deste pedido.');
+      }
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [jobId]: false }));
+    }
+  }
+
+  async function shipProduction(jobId: string) {
+    const draft = shippingDrafts[jobId];
+    if (!draft?.trackingCode?.trim() || !draft?.carrier?.trim()) {
+      setError('Informe transportadora e codigo de rastreio para registrar o envio.');
+      return;
+    }
+
+    setActionLoading((prev) => ({ ...prev, [jobId]: true }));
+    setError(null);
+    try {
+      await postJson(`/api/production-jobs/${jobId}/ship`, {
+        trackingCode: draft.trackingCode.trim(),
+        carrier: draft.carrier.trim(),
+      });
+      await load();
+    } catch (err) {
+      if (err instanceof HttpRequestError && err.status === 409) {
+        setError('Este job nao pode ser enviado no estado atual.');
+      } else {
+        setError('Nao foi possivel registrar o envio deste pedido.');
+      }
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [jobId]: false }));
+    }
+  }
 
   const inProgress = jobs.filter((job) => job.status === 'in_progress').length;
   const queued = jobs.filter((job) => job.status === 'queued').length;
@@ -133,6 +185,61 @@ export default function MerchantProductionPage() {
                         <span className='text-sm font-mono text-ruah-950'>{new Date(job.updatedAt).toLocaleString('pt-BR')}</span>
                       </div>
                     </div>
+                    <div className='mt-6 border-t border-ruah-100 pt-6'>
+                      {job.status === 'queued' ? (
+                        <button
+                          type='button'
+                          disabled={Boolean(actionLoading[job.productionJobId])}
+                          onClick={() => void startProduction(job.productionJobId)}
+                          className='rounded-xl bg-ruah-950 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-white disabled:opacity-50'
+                        >
+                          Iniciar producao
+                        </button>
+                      ) : null}
+
+                      {job.status === 'in_progress' ? (
+                        <div className='grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]'>
+                          <input
+                            type='text'
+                            value={shippingDrafts[job.productionJobId]?.carrier ?? ''}
+                            onChange={(event) =>
+                              setShippingDrafts((prev) => ({
+                                ...prev,
+                                [job.productionJobId]: {
+                                  trackingCode: prev[job.productionJobId]?.trackingCode ?? '',
+                                  carrier: event.target.value,
+                                },
+                              }))
+                            }
+                            placeholder='Transportadora'
+                            className='rounded-xl border border-ruah-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em]'
+                          />
+                          <input
+                            type='text'
+                            value={shippingDrafts[job.productionJobId]?.trackingCode ?? ''}
+                            onChange={(event) =>
+                              setShippingDrafts((prev) => ({
+                                ...prev,
+                                [job.productionJobId]: {
+                                  trackingCode: event.target.value,
+                                  carrier: prev[job.productionJobId]?.carrier ?? '',
+                                },
+                              }))
+                            }
+                            placeholder='Codigo de rastreio'
+                            className='rounded-xl border border-ruah-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em]'
+                          />
+                          <button
+                            type='button'
+                            disabled={Boolean(actionLoading[job.productionJobId])}
+                            onClick={() => void shipProduction(job.productionJobId)}
+                            className='rounded-xl bg-emerald-600 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-white disabled:opacity-50'
+                          >
+                            Registrar envio
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -143,5 +250,3 @@ export default function MerchantProductionPage() {
     </main>
   );
 }
-
-

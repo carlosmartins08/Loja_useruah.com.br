@@ -24,6 +24,12 @@ export function ShopPageView({ products }: ShopPageViewProps) {
     if (activeSegment !== 'All') list = list.filter((p) => p.segment === activeSegment);
     return list;
   }, [activeCategory, activeSegment, products]);
+  const hasActiveFilters = activeCategory !== 'All' || activeSegment !== 'All';
+
+  const clearFilters = () => {
+    setActiveCategory('All');
+    setActiveSegment('All');
+  };
 
   return (
     <main className="bg-white min-h-screen page-header-offset">
@@ -112,19 +118,63 @@ export function ShopPageView({ products }: ShopPageViewProps) {
             </button>
           </div>
         </div>
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="section-container mt-3 pb-3"
+            >
+              <div className="rounded-2xl border border-ruah-100 bg-ruah-50/70 p-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Filtros ativos:</span>
+                  <span className="px-3 py-1 rounded-full bg-white border border-ruah-100 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-700">Segmento: {activeSegment}</span>
+                  <span className="px-3 py-1 rounded-full bg-white border border-ruah-100 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-700">Categoria: {activeCategory}</span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={clearFilters}
+                    disabled={!hasActiveFilters}
+                    className="px-4 py-2 rounded-xl border border-ruah-100 bg-white text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-600 disabled:opacity-50 disabled:cursor-not-allowed hover:border-accent-gold hover:text-accent-gold transition-colors"
+                  >
+                    Limpar filtros
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <section className="py-20">
         <div className="section-container">
-          <div className={`grid gap-x-8 gap-y-16 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
-            <AnimatePresence mode="popLayout">
-              {filteredProducts.map((product) => (
-                <motion.div key={product.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.4 }}>
-                  <ProductCard {...product} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+          {filteredProducts.length === 0 ? (
+            <div className="rounded-[2rem] border border-ruah-100 bg-ruah-50/60 p-10 text-center flex flex-col items-center gap-5">
+              <h2 className="text-2xl font-serif italic uppercase text-ruah-950">Nenhuma peca encontrada.</h2>
+              <p className="text-sm font-medium text-ruah-500 max-w-xl">
+                Tente outra combinacao de filtros ou volte para o catalogo completo.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={clearFilters}
+                  className="px-6 py-3 rounded-xl bg-ruah-950 text-white text-xs font-bold uppercase tracking-[0.1em] hover:bg-accent-gold transition-colors"
+                >
+                  Limpar filtros
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className={`grid gap-x-8 gap-y-16 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+              <AnimatePresence mode="popLayout">
+                {filteredProducts.map((product) => (
+                  <motion.div key={product.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.4 }}>
+                    <ProductCard {...product} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
 
           <div className="mt-32 flex flex-col items-center gap-8">
             <div className="w-1.5 h-1.5 bg-accent-gold rounded-full animate-bounce" />

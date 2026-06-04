@@ -1,6 +1,6 @@
 # DESIGN.md - Contrato de Design do Produto
 
-Data de revisao: 2026-05-29  
+Data de revisao: 2026-05-30
 Owner: Produto + Design + Engenharia
 
 ## 1) Objetivo
@@ -9,7 +9,7 @@ Garantir consistencia de experiencia em todo o projeto Use Ruah, preservando:
 - clareza operacional dos ambientes logados;
 - coerencia entre papeis (customer, artist, supplier, admin, suporte, financeiro).
 
-Este documento define **como desenhar** e **como validar** o frontend antes de publicar.
+Este documento define como desenhar e como validar o frontend antes de publicar.
 
 ## 2) Principios de design (nao negociaveis)
 1. Clareza antes de efeito visual.
@@ -30,13 +30,26 @@ Este documento define **como desenhar** e **como validar** o frontend antes de p
 - Estrutura previsivel: menu fixo, topo funcional, cards utilitarios.
 - Sem poetizacao excessiva em rotas transacionais.
 
-## 4) App shell obrigatorio (todos ambientes privados)
+## 4) App shell obrigatorio
+
+### 4.1 Shell de ambientes privados
 Todo ambiente privado deve seguir:
 1. Header com contexto de usuario/papel.
 2. Navegacao principal persistente (sidebar desktop / menu mobile).
 3. Area central por tarefa (conteudo da rota).
 4. Acoes rapidas contextuais.
 5. Rodape discreto com links institucionais e status.
+
+### 4.2 Navegacao global publica
+Toda rota publica deve respeitar contrato de navegacao em:
+- `docs/DESIGN_SYSTEM_NAVIGATION_AND_OVERLAYS.md`
+
+Estados minimos obrigatorios:
+- header no topo;
+- header sticky em scroll;
+- menu mobile aberto;
+- carrinho vazio e com itens;
+- usuario anonimo e autenticado.
 
 ## 5) Estrutura padrao de dashboard (admin e operadores)
 Ordem obrigatoria:
@@ -73,15 +86,30 @@ Ordem obrigatoria:
 - alerta: amarelo
 - critico: vermelho
 
-## 7) Conteudo e microcopy
+## 7) Fluxos de ecommerce (contrato de produto)
+Fonte de verdade:
+- `docs/DESIGN_SYSTEM_ECOMMERCE_FLOWS.md`
+
+Nenhuma entrega em `shop`, `product`, `cart` ou `checkout` pode ignorar estados de:
+- variacao indisponivel;
+- erro de validacao de selecao;
+- carregamento assincrono;
+- falha de pagamento recuperavel;
+- sucesso e proximo passo.
+
+## 8) Conteudo e microcopy
 - Evitar termos de backend na interface.
 - Cada mensagem deve responder: o que ocorreu + o que fazer agora.
 - Padrao de erro:
-  - Titulo curto
-  - Causa em linguagem humana
-  - Acao recomendada
+  - titulo curto
+  - causa em linguagem humana
+  - acao recomendada
 
-## 8) Tipografia
+Observacao de escopo:
+- linguagem poetica/branding vale para contexto comercial/editorial;
+- contexto operacional deve priorizar objetividade e acao.
+
+## 9) Tipografia
 Fonte de verdade: `docs/TYPOGRAPHY_UX_UI_CHECKLIST.md`
 Complemento sistemico: `docs/DESIGN_SYSTEM_MOTION_GRID_TYPE.md`
 
@@ -91,7 +119,7 @@ Regras reforcadas:
 - no maximo 2 familias por tela;
 - foco visual em contraste e hierarquia, nao em efeitos.
 
-## 9) Cor e identidade
+## 10) Cor e identidade
 Fonte de verdade: `docs/BRAND_COLOR_SYSTEM.md`
 Contraste e acessibilidade: `docs/ACCESSIBILITY_CONTRAST_MATRIX.md`
 
@@ -100,13 +128,19 @@ Regras reforcadas:
 - nao criar variacao de logo fora dos arquivos oficiais;
 - diferenciar cor de marca x cor de produto x cor de estampa.
 
-## 10) Acessibilidade e usabilidade
+## 11) Camadas, overlays e conflitos visuais
+- Escala de `z-index` e contratos de sobreposicao sao obrigatorios.
+- Nao usar valores arbitrarios para resolver bug local.
+- Fonte de verdade: `docs/DESIGN_SYSTEM_MOTION_GRID_TYPE.md` e `docs/DESIGN_SYSTEM_NAVIGATION_AND_OVERLAYS.md`.
+
+## 12) Acessibilidade e usabilidade
 - Contraste minimo AA em texto funcional.
 - Navegacao por teclado nas acoes principais.
 - `focus-visible` obrigatorio em links, botoes e inputs.
 - Hover nunca pode ser o unico sinal de interacao.
+- Overlay/drawer/modal devem suportar ESC, click externo e trap de foco.
 
-## 11) Responsividade
+## 13) Responsividade
 
 ### Mobile
 - Priorizar fluxo por cards e CTA claro.
@@ -117,26 +151,31 @@ Regras reforcadas:
 - Sidebar + area principal + painel lateral quando necessario.
 - Tabelas e comparativos para tarefas operacionais.
 
-## 12) Governanca (evitar retrabalho)
+## 14) Governanca (evitar retrabalho)
 Antes de subir PR de frontend:
-1. Validar este DESIGN.md.
+1. Validar este `DESIGN.md`.
 2. Validar `docs/BRAND_COLOR_SYSTEM.md`.
 3. Validar `docs/TYPOGRAPHY_UX_UI_CHECKLIST.md`.
 4. Validar `docs/DESIGN_SYSTEM_MOTION_GRID_TYPE.md`.
-5. Validar `docs/UI_VOICE_TONE_GLOSSARY.md`.
-6. Validar checklist integrado em `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`.
+5. Validar `docs/DESIGN_SYSTEM_NAVIGATION_AND_OVERLAYS.md`.
+6. Validar `docs/DESIGN_SYSTEM_ECOMMERCE_FLOWS.md`.
+7. Validar `docs/UI_VOICE_TONE_GLOSSARY.md`.
+8. Validar checklist integrado em `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`.
 
-## 13) Definition of Done (frontend)
+## 15) Definition of Done (frontend)
 Uma tela so esta pronta se:
 1. segue app shell padrao;
 2. usa componentes/tokens aprovados;
 3. possui estados de loading/empty/error;
 4. possui copy clara e orientada a acao;
 5. passa revisao de acessibilidade basica;
-6. nao cria duplicidade de navegacao/regra.
+6. nao cria duplicidade de navegacao/regra;
+7. respeita contratos de camada e overlay;
+8. documenta excecao quando fugir do padrao.
 
-## 14) O que este documento nao permite
+## 16) O que este documento nao permite
 - criar tela isolada sem padrao de shell;
 - inventar nomenclatura nova para mesma acao;
 - esconder restricao de permissao apenas no frontend;
-- trocar visual sem validar impacto em fluxo operacional.
+- trocar visual sem validar impacto em fluxo operacional;
+- corrigir conflito visual com `z-index` arbitrario sem atualizar contrato.

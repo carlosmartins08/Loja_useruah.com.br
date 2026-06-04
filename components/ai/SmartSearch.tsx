@@ -6,6 +6,7 @@ import { Search, Sparkles, X, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 const ai = geminiApiKey ? new GoogleGenAI({ apiKey: geminiApiKey }) : null;
@@ -27,12 +28,19 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  useFocusTrap({
+    active: isOpen,
+    containerRef: modalRef,
+    onEscape: onClose,
+  });
 
   const handleSearch = async (val: string) => {
     setQuery(val);
@@ -103,7 +111,12 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-white/80 backdrop-blur-3xl flex flex-col pt-32"
+          className="fixed inset-0 z-modal bg-white/80 backdrop-blur-3xl flex flex-col pt-32"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Busca semântica"
+          ref={modalRef}
+          tabIndex={-1}
         >
           <div className="section-container max-w-4xl">
              <div className="flex justify-between items-center mb-12">

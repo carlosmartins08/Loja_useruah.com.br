@@ -281,7 +281,7 @@ export default function AdminRegistrationsPage() {
         </div>
       </div>
       {actionModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-modal bg-black/40 flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-white rounded-2xl border border-ruah-100 p-6 flex flex-col gap-4">
             <h2 className="text-lg font-serif italic text-ruah-950">{actionModal.label}</h2>
             <p className="text-xs text-ruah-500 uppercase tracking-wider">Informe o motivo obrigatorio para auditoria:</p>

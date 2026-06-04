@@ -12,14 +12,23 @@ export type OrderStatus =
   | 'closed'
   | 'cancelled';
 
-export interface OrderItemRecord {
-  orderItemId: string;
+export interface OrderItemSnapshot {
   catalogItemId: string;
+  artworkId: string;
+  productBaseId: string;
+  productName: string;
   variantId: string;
+  variantLabel: string;
+  productImage: string;
   supplierId: string;
   shippingAddress: ShippingAddress;
   quantity: number;
   unitPrice: number;
+  snapshotVersion: 'phase1-v1';
+}
+
+export interface OrderItemRecord extends OrderItemSnapshot {
+  orderItemId: string;
   grossItemAmount: number;
   supplierAmount: number;
   artistLicenseAmount: number;
@@ -97,7 +106,15 @@ function normalizeOrderItem(input: Record<string, unknown>): OrderItemRecord {
   return {
     orderItemId: String(input.orderItemId),
     catalogItemId: String(input.catalogItemId),
+    artworkId: typeof input.artworkId === 'string' && input.artworkId.trim().length > 0 ? input.artworkId : 'artwork-unknown',
+    productBaseId:
+      typeof input.productBaseId === 'string' && input.productBaseId.trim().length > 0 ? input.productBaseId : String(input.catalogItemId),
+    productName:
+      typeof input.productName === 'string' && input.productName.trim().length > 0 ? input.productName : String(input.catalogItemId),
     variantId: String(input.variantId),
+    variantLabel:
+      typeof input.variantLabel === 'string' && input.variantLabel.trim().length > 0 ? input.variantLabel : String(input.variantId),
+    productImage: typeof input.productImage === 'string' && input.productImage.trim().length > 0 ? input.productImage : '',
     supplierId: typeof input.supplierId === 'string' && input.supplierId.trim().length > 0 ? input.supplierId : 'supplier-default',
     shippingAddress:
       input.shippingAddress && typeof input.shippingAddress === 'object'
@@ -108,6 +125,7 @@ function normalizeOrderItem(input: Record<string, unknown>): OrderItemRecord {
         : fallbackShippingAddress(),
     quantity: Number(input.quantity),
     unitPrice: Number(input.unitPrice),
+    snapshotVersion: input.snapshotVersion === 'phase1-v1' ? 'phase1-v1' : 'phase1-v1',
     grossItemAmount: Number(input.grossItemAmount),
     supplierAmount: Number(input.supplierAmount),
     artistLicenseAmount: Number(input.artistLicenseAmount),
@@ -155,7 +173,20 @@ export async function createPlacedOrder(input: {
   const taxReservePct = safePct(process.env.TAX_RESERVE_PCT, 0);
   const round2 = (value: number) => Math.round(value * 100) / 100;
 
-  const items: OrderItemRecord[] = input.items.map((item) => {
+  const { getCatalogItem } = await import('@/lib/catalog-item-store');
+  const itemDetails = await Promise.all(
+    input.items.map(async (item) => {
+      const catalogItem = await getCatalogItem(item.catalogItemId);
+      const variant = catalogItem?.variants.find((row) => row.variantId === item.variantId);
+      return {
+        item,
+        catalogItem,
+        variant,
+      };
+    })
+  );
+
+  const items: OrderItemRecord[] = itemDetails.map(({ item, catalogItem, variant }) => {
     const gross = round2(item.unitPrice * item.quantity);
     const supplierAmount = round2(gross * supplierPct);
     const artistLicenseAmount = round2(gross * artistPct);
@@ -167,11 +198,17 @@ export async function createPlacedOrder(input: {
     return {
       orderItemId: `ITEM-${randomUUID()}`,
       catalogItemId: item.catalogItemId,
+      artworkId: catalogItem?.artworkId ?? 'artwork-unknown',
+      productBaseId: catalogItem?.productBaseId ?? item.catalogItemId,
+      productName: catalogItem?.name ?? item.catalogItemId,
       variantId: item.variantId,
+      variantLabel: variant?.label ?? item.variantId,
+      productImage: variant?.image ?? catalogItem?.image ?? '',
       supplierId: input.supplierId,
       shippingAddress: input.shippingAddress,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
+      snapshotVersion: 'phase1-v1',
       grossItemAmount: gross,
       supplierAmount,
       artistLicenseAmount,

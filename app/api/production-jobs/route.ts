@@ -14,7 +14,12 @@ function isValidPayload(payload: unknown): payload is CreateProductionJobPayload
   return typeof obj.orderId === 'string' && obj.orderId.trim().length > 0;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const actor = getActorFromRequest(request);
+  if (!canOperateProduction(actor)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
   return NextResponse.json({ ok: true, jobs: await listProductionJobs() });
 }
 

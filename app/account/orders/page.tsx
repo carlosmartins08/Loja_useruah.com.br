@@ -1,6 +1,7 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Package, RefreshCcw, ChevronRight, Truck, CheckCircle2, Sparkles } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
 import { getJson } from '@/lib/http-client';
@@ -14,7 +15,13 @@ interface OrdersApiItem {
   status: string;
   productionStatus: string | null;
   shipmentStatus: string | null;
-  items: Array<{ catalogItemId: string; quantity: number }>;
+  items: Array<{
+    catalogItemId: string;
+    productName: string;
+    productImage: string;
+    variantLabel: string;
+    quantity: number;
+  }>;
 }
 
 const STATUS_MAP: Record<OrderStatusUi, { label: string; color: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = {
@@ -38,18 +45,22 @@ export default function MyOrders() {
 
   React.useEffect(() => {
     let active = true;
-    getJson<{ ok: true; orders: OrdersApiItem[] }>('/api/orders?customerId=customer-session')
-      .then((data) => {
-        if (!active) return;
-        setOrders(data.orders);
-      })
-      .finally(() => {
-        if (!active) return;
-        setLoading(false);
-      });
+    const timeoutId = window.setTimeout(() => {
+      if (!active) return;
+      getJson<{ ok: true; orders: OrdersApiItem[] }>('/api/orders')
+        .then((data) => {
+          if (!active) return;
+          setOrders(data.orders);
+        })
+        .finally(() => {
+          if (!active) return;
+          setLoading(false);
+        });
+    }, 0);
 
     return () => {
       active = false;
+      window.clearTimeout(timeoutId);
     };
   }, []);
 
@@ -90,10 +101,17 @@ export default function MyOrders() {
                     {order.items.slice(0, 1).map((item) => (
                       <div key={item.catalogItemId} className='flex items-center gap-6'>
                         <div className='relative w-24 h-24 rounded-2xl overflow-hidden bg-ruah-50'>
-                          <AppImage context="content-banner" src='https://picsum.photos/seed/ruah-order/200/200' alt={item.catalogItemId} fill className='object-cover' />
+                          <AppImage
+                            context="content-banner"
+                            src={item.productImage || 'https://picsum.photos/seed/ruah-order/200/200'}
+                            alt={item.productName}
+                            fill
+                            className='object-cover'
+                          />
                         </div>
                         <div className='flex flex-col gap-1'>
-                          <span className='text-xs font-bold uppercase tracking-tight text-ruah-950'>{item.catalogItemId}</span>
+                          <span className='text-xs font-bold uppercase tracking-tight text-ruah-950'>{item.productName}</span>
+                          <span className='text-xs font-semibold text-ruah-500 uppercase tracking-[0.08em]'>{item.variantLabel}</span>
                           <span className='text-xs font-semibold text-ruah-400 uppercase tracking-[0.1em]'>Qtd: {item.quantity}</span>
                         </div>
                       </div>
@@ -115,10 +133,10 @@ export default function MyOrders() {
                         )}
                       </div>
                     )}
-                    <button className='flex items-center justify-center gap-3 bg-ruah-950 text-white px-8 py-5 rounded-2xl hover:bg-accent-gold transition-all shadow-fancy'>
+                    <Link href={`/account/orders/${order.orderId}`} className='flex items-center justify-center gap-3 bg-ruah-950 text-white px-8 py-5 rounded-2xl hover:bg-accent-gold transition-all shadow-fancy'>
                       <span className='text-xs font-semibold uppercase tracking-[0.1em] whitespace-nowrap'>Detalhes completos</span>
                       <ChevronRight size={14} />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -129,6 +147,3 @@ export default function MyOrders() {
     </div>
   );
 }
-
-
-

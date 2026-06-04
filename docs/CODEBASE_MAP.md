@@ -45,6 +45,9 @@ Evitar perda de contexto no codigo com um mapa unico de localizacao por dominio.
   - `lib/order-store.ts`
   - `lib/production-store.ts`
   - `lib/shipment-store.ts`
+- Frontend:
+  - `app/account/orders/page.tsx`
+  - `app/account/orders/[id]/page.tsx`
 - QA/automacao:
   - `scripts/qa-core-operations.mjs`
 
@@ -66,6 +69,7 @@ Evitar perda de contexto no codigo com um mapa unico de localizacao por dominio.
 - Frontend:
   - `app/shop/page.tsx`
   - `app/product/[id]/page.tsx`
+  - `app/admin/catalog/page.tsx`
   - `app/admin/impact-reviews/page.tsx`
   - `components/product/ProductPageView.tsx`
   - `components/product/product-data.ts`

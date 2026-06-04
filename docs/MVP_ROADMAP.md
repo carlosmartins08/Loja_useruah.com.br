@@ -14,35 +14,54 @@ Executar o MVP por fases sem duplicar regra entre perfis, priorizando receita, e
 - Proibido quebrar compatibilidade dos campos: `paymentId`, `orderId`, `providerReference`, `status`, `method`, `amount`, `currency`.
 - Idempotência (`x-idempotency-key`) e assinatura de webhook (`x-signature`) permanecem obrigatórias.
 
-## Fase 1: Fundação
+## Fase 0: Fundacao operacional
 ### Escopo
-- RBAC com 9 perfis oficiais.
-- `Organization` multi-tipo (`artist`, `community`, `supplier`).
-- Máquina de estados canônica:
-  - Pedido: `draft -> placed -> paid -> in_production -> shipped -> delivered -> closed`
-  - Arte: `submitted -> under_review -> approved|rejected`
-  - Saque: `requested -> approved -> paid|rejected`
-- `AuditLog` para ações críticas.
+- RBAC minimo e guardas de acesso.
+- Maquinas de estado canonicas.
+- `AuditLog` para acoes criticas.
+- Base arquitetural para fases seguintes.
+
+### Criterios de aceite
+- Permissoes respeitadas por rota e por acao nos fluxos ativos.
+- Estado nao pode pular etapas invalidas.
+- Toda acao critica deixa rastro em `AuditLog`.
+
+Observacao:
+- Esta fundacao existe para sustentar a fase comercial.
+- Ela nao substitui a definicao oficial da fase ativa.
+
+## Fase 1: Venda de Produto
+Fonte oficial:
+- `docs/FASE_1_VENDA_DE_PRODUTO.md`
+
+### Escopo
+- ecommerce publico
+- `CatalogItem` publicado
+- carrinho
+- checkout sandbox
+- conta do cliente (`/account`)
+- operacao centralizada do `admin_master` (`/admin`)
+- pedido, pagamento, envio, rastreio e suporte basico
+- `OrderItemSnapshot`
+
+### Criterios de aceite
+- fluxo mestre ponta a ponta validado
+- cliente nao acessa dados de outro usuario
+- cliente nao ve dados internos de custo, margem e fornecedor
+- envio e rastreio refletem no acompanhamento do pedido
+- gates tecnicos da fase passam
+
+## Fase 2: Expansao comercial e operacional
+### Escopo
+- ampliar papeis ativos sem quebrar a operacao da Fase 1
+- evoluir catalogo, operacao e paineis especializados
+- preparar transicao para receitas complementares
 
 ### Critérios de aceite
-- Permissões respeitadas por rota e por ação.
-- Estado não pode pular etapas inválidas.
-- Toda ação crítica deixa rastro em `AuditLog`.
+- sem regressao no fluxo mestre da Fase 1
+- escopo novo validado por dominio
 
-## Fase 2: Checkout operacional (Sandbox estável)
-### Escopo
-- Checkout funcional (criação de pedido + pagamento sandbox).
-- Webhook de confirmação no contrato atual.
-- Idempotência de pedido/cobrança no contrato atual.
-- Fluxo operacional mínimo `paid -> in_production -> shipped`.
-- Atendimento com visão 360 de pedido.
-
-### Critérios de aceite
-- 10 compras sandbox sem inconsistência.
-- Duplo clique não duplica pedido/cobrança.
-- Webhook atrasado não quebra conciliação.
-
-## Fase 2.1: Pagamento real e persistência financeira
+## Fase 2.1: Pagamento real e persistencia financeira
 ### Escopo
 - Integrar gateway real via adapter (tokenização, antifraude e captura).
 - Persistir transações em banco com reconciliação idempotente por `providerReference`.
@@ -101,7 +120,7 @@ Executar o MVP por fases sem duplicar regra entre perfis, priorizando receita, e
 - Alterações de política versionadas.
 - Alertas operacionais mínimos configurados.
 
-## Shared vs Specific (Regra prática)
+## Shared vs Specific (Regra pratica)
 ### Shared (uma vez só)
 - Pedido, pagamento, webhook, comissão, rastreio, ticket, auditoria.
 
@@ -112,7 +131,7 @@ Executar o MVP por fases sem duplicar regra entre perfis, priorizando receita, e
 - `npm run check`
 - `npm run build`
 - `npm run qa:functional`
-- Critérios de negócio da fase (tabela acima)
+- criterios de negocio da fase conforme sua fonte oficial
 
 Documento de apoio operacional: docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md
 

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ChevronRight, Home } from 'lucide-react';
+import { Home } from 'lucide-react';
 
 interface BreadcrumbItem {
   label: string;
@@ -32,7 +32,7 @@ export function Breadcrumbs({ items, className = '' }: BreadcrumbsProps) {
 
       {items.map((item, index) => (
         <React.Fragment key={index}>
-          <ChevronRight size={10} className="text-ruah-200 shrink-0" />
+          <span className="text-ruah-200 shrink-0 text-xs">/</span>
           {index === items.length - 1 ? (
             <span 
               className="text-[10px] font-bold uppercase tracking-widest text-ruah-950 whitespace-nowrap truncate max-w-[150px] md:max-w-none"

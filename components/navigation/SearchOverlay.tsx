@@ -6,6 +6,7 @@ import { Search, X, ArrowUpRight, History, Sparkles, TrendingUp } from 'lucide-r
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 import { GoogleGenAI, Type } from '@google/genai';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ const initialSuggestions = [
 const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
 export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
+  const overlayRef = React.useRef<HTMLDivElement>(null);
   const [query, setQuery] = React.useState('');
   const [aiResults, setAiResults] = React.useState<SearchResultItem[]>([]);
   const [isAiSearching, setIsAiSearching] = React.useState(false);
@@ -99,10 +101,16 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     { title: 'Nova Série: Respiro', tag: 'Sopro Novo', image: 'https://picsum.photos/seed/ruah-sb-2/600/800' },
   ];
 
+  useFocusTrap({
+    active: isOpen,
+    containerRef: overlayRef,
+    onEscape: onClose,
+  });
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-white z-[100] flex flex-col">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-white z-modal flex flex-col" role="dialog" aria-modal="true" aria-label="Busca inteligente" ref={overlayRef} tabIndex={-1}>
           <div className="section-container pt-12">
             <div className="flex justify-between items-center mb-12">
               <span className="font-serif text-2xl uppercase tracking-tighter">Exploração Ruah</span>

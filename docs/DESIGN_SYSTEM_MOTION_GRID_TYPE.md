@@ -4,7 +4,7 @@ Data de revisao: 2026-05-30
 Owner: Produto + Design + Engenharia Frontend
 
 ## Objetivo
-Formalizar os contratos de motion, grid/layout e escala tipografica responsiva para eliminar drift visual entre home, product e novas rotas.
+Formalizar contratos de motion, grid/layout, escala tipografica responsiva, camadas e densidade para eliminar drift visual entre home, product, checkout e novas rotas.
 
 ## 1. Motion System
 
@@ -22,7 +22,8 @@ Formalizar os contratos de motion, grid/layout e escala tipografica responsiva p
 ### 1.3 Orquestracao obrigatoria
 - Entrada de secao: stagger de 80ms entre itens.
 - Hover de midia: usar `motion-slow` para imagem e `motion-base` para overlay.
-- Feedback de CTA: `motion-fast` para states de hover/active.
+- Feedback de CTA: `motion-fast` para `hover` e `active`.
+- Drawer/modal: entrada em 300-350ms, saida em 200-240ms.
 
 ## 2. Grid and Layout System
 
@@ -39,6 +40,7 @@ Formalizar os contratos de motion, grid/layout e escala tipografica responsiva p
 - `layout-grid-product`: `1 col mobile`, `12 cols desktop`, gap 48px
 - `layout-grid-feature`: `1 col mobile`, `10 cols desktop`, gap 64px
 - `layout-grid-media`: `1 col mobile`, `12 cols desktop`, gap 64px
+- `layout-grid-catalog`: `1 col mobile`, `2 cols tablet`, `4 cols desktop`
 
 ## 3. Escala Responsiva de Tipografia
 
@@ -65,7 +67,44 @@ Formalizar os contratos de motion, grid/layout e escala tipografica responsiva p
   - display-lg: 88px
   - display-md: 64px
 
-## 4. Iconografia e Decoracao
+## 4. Camadas e Z-Index
+Escala obrigatoria (nao usar valor arbitrario fora desta lista):
+- `z-base`: 0
+- `z-raised`: 10
+- `z-sticky`: 30
+- `z-dropdown`: 35
+- `z-header`: 40
+- `z-overlay`: 45
+- `z-drawer`: 50
+- `z-modal`: 60
+- `z-toast`: 70
+- `z-max`: 9999 (uso excepcional: loading/splash global)
+
+Regras de precedencia:
+- Toast acima de modal/drawer.
+- Modal acima de drawer.
+- Drawer acima de header.
+
+## 5. Densidade responsiva por componente
+Tabela minima obrigatoria para novos componentes:
+- Card base:
+  - mobile: padding 16-20
+  - tablet: 24-28
+  - desktop: 32-40
+- Botao principal:
+  - mobile: h 44-48
+  - desktop: h 48-56
+- Input:
+  - mobile: h >= 44
+  - desktop: h >= 48
+- Header:
+  - mobile: 52-56
+  - desktop: 64-72
+- Drawer:
+  - mobile: largura 100vw
+  - desktop: 320-420
+
+## 6. Iconografia e Decoracao
 - Tamanhos canonicos:
   - `icon-sm`: 14
   - `icon-md`: 18
@@ -75,7 +114,7 @@ Formalizar os contratos de motion, grid/layout e escala tipografica responsiva p
 - Ponto de status: usar `pulse-soft`.
 - Watermark rotacionado: usar `watermark-editorial`.
 
-## 5. Image and Media
+## 7. Image and Media
 - Aspect ratios oficiais:
   - produto: `3:4` ou `1:1` quando hero isolado
   - video: `16:9`
@@ -84,7 +123,7 @@ Formalizar os contratos de motion, grid/layout e escala tipografica responsiva p
   - escala: `hover:scale-[1.05]`
   - grayscale: usar apenas em contexto editorial.
 
-## 6. Form Inputs e Feedback
+## 8. Form Inputs e Feedback
 - Estados obrigatorios em componentes de input:
   - `default`, `focus-visible`, `disabled`, `error`
 - Feedback:
@@ -92,18 +131,19 @@ Formalizar os contratos de motion, grid/layout e escala tipografica responsiva p
   - skeleton para blocos de dados assincronos
   - toast para confirmacao de acao e erro recuperavel
 
-## 7. Dark Mode
-- Decisao atual: `light-first` com dark parcial manual em secoes editoriais.
-- Sem suporte global `prefers-color-scheme` por enquanto.
-- Nova rota so pode introduzir dark nativo com ADR previa.
+## 9. Dark Mode (decisao formal)
+- Estrategia atual: `light-first`.
+- Nao existe suporte global `prefers-color-scheme` na plataforma inteira.
+- Dark nativo global esta explicitamente fora de escopo no estado atual.
+- Uso permitido: secoes editoriais pontuais com dark manual.
+- Qualquer proposta de dark global exige ADR aprovada antes de implementacao.
 
-## 8. Acessibilidade e Contraste
+## 10. Acessibilidade e Contraste
 - Contraste minimo AA em texto funcional.
 - `focus-visible` obrigatorio para links, botoes e campos.
 - Hover nao pode ser unico sinal de estado.
 
-## 9. Voice and Tone
+## 11. Voice and Tone
 - Linguagem orientada a proximo passo.
 - Evitar CTA generico sem personalidade.
 - Nomenclatura funcional deve seguir glossario em `docs/UI_VOICE_TONE_GLOSSARY.md`.
-

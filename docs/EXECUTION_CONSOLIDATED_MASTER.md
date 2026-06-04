@@ -6,13 +6,14 @@ Data de revisao: 2026-05-21
 Eliminar conflitos e duplicidades entre documentos, definindo fonte única por domínio, estados canônicos e regras de precedência para execução.
 
 ## Regra de precedencia documental
-1. Documento de domínio específico (fonte primária).
-2. `docs/MVP_ROADMAP.md` (sequenciamento macro).
-3. `docs/ROUTE_DEFINITION_OF_DONE.md` (qualidade por rota/interface).
-4. `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md` (gate único de PR).
-5. `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md` (baseline de controle e operação).
+1. `docs/FASE_1_VENDA_DE_PRODUTO.md` para tudo que define escopo, objetivo, corte de fase e sequencia de execucao da fase comercial atual.
+2. Documento de dominio especifico para regras normativas do dominio.
+3. `docs/MVP_ROADMAP.md` como mapa macro de evolucao, sem autoridade para redefinir a Fase 1 oficial.
+4. `docs/ROUTE_DEFINITION_OF_DONE.md` (qualidade por rota/interface).
+5. `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md` (gate unico de PR).
+6. `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md` (baseline de controle e operacao).
 
-Se houver divergência entre documentos, prevalece o de domínio específico.
+Se houver divergencia entre documentos, prevalece a fonte mais alta na lista acima.
 
 ## Precedência normativa — Máquinas de Estado
 O documento `docs/STATE_MACHINES.md` é a fonte normativa única para estados, transições, bloqueios e eventos de auditoria das entidades operacionais críticas.
@@ -29,7 +30,8 @@ Os demais documentos devem apenas referenciar a máquina de estados aplicável, 
 - Contratos de API críticos: `docs/API_CONTRACTS.md`
 - Aceite e validacao QA: `docs/QA_ACCEPTANCE_TESTS.md`
 - Permissões (RBAC): `docs/ROLES_MATRIX.md`
-- Sequenciamento macro: `docs/MVP_ROADMAP.md`
+- Sequenciamento oficial da fase atual: `docs/FASE_1_VENDA_DE_PRODUTO.md`
+- Sequenciamento macro posterior: `docs/MVP_ROADMAP.md`
 - Qualidade de rota/UI: `docs/ROUTE_DEFINITION_OF_DONE.md`
 - Localizacao tecnica no codigo: `docs/CODEBASE_MAP.md`
 
@@ -94,12 +96,13 @@ Objetivo: impedir dispersão, conflito de prioridade e retrabalho por troca de c
 - Domínio ativo atual deve ser explicitado no início de cada ciclo.
 - Itens de outros domínios entram somente como backlog, não como execução paralela.
 
-### Regra 2: sequência oficial de execução
-1. `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
-2. `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
-3. `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+### Regra 2: sequencia oficial de execucao
+1. `docs/FASE_1_VENDA_DE_PRODUTO.md`
+2. `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+3. `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
+4. `docs/PAYMENTS_DEFINITION_OF_DONE.md`
 
-Motivo: fechar oferta vendável primeiro, depois operação de pedido/envio, depois infraestrutura financeira final.
+Motivo: fechar o fluxo mestre vendavel primeiro, depois endurecer os dominios que o sustentam.
 
 ### Regra 3: ritual semanal fixo
 Segunda (planejamento):

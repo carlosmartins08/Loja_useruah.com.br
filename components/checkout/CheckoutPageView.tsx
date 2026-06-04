@@ -31,7 +31,7 @@ export function CheckoutPageView() {
   const [checkoutError, setCheckoutError] = React.useState<string | null>(null);
   const [paymentSummary, setPaymentSummary] = React.useState<PaymentRecord | null>(null);
   const requestKeyRef = React.useRef<string | null>(null);
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, userId } = useUser();
   const t = (id: string, vars?: Record<string, string | number>) => renderContentMessage(id, vars);
 
   if (cart.length === 0 && !isProcessing && step !== 3) {
@@ -64,7 +64,7 @@ export function CheckoutPageView() {
 
     try {
       const orderPayload = await postJson<{ order: OrderRecord }>('/api/orders', {
-        customer: { id: 'customer-session' },
+        customer: { id: userId },
         supplierId,
         shippingAddressMode: selectedAddress === 'home' ? 'same_as_account' : 'custom',
         shippingAddress,

@@ -110,11 +110,39 @@ function buildPricingPolicy(payload: CreateCatalogItemPayload) {
   };
 }
 
+function toPublicCatalogItem(item: Awaited<ReturnType<typeof listCatalogItems>>[number]) {
+  return {
+    catalogItemId: item.catalogItemId,
+    name: item.name,
+    price: item.price,
+    image: item.image,
+    colorImages: item.colorImages,
+    fit: item.fit,
+    fabric: item.fabric,
+    printTypeDescription: item.printTypeDescription,
+    washGuide: item.washGuide,
+    installmentCount: item.installmentCount,
+    detailImages: item.detailImages,
+    modelMockups: item.modelMockups,
+    variants: item.variants,
+    category: item.category,
+    segment: item.segment,
+    tags: item.tags ?? [],
+  };
+}
+
 export async function GET(request: Request) {
+  const actor = getActorFromRequest(request);
   const { searchParams } = new URL(request.url);
-  const publicationStatus = parseStatus(searchParams.get('publicationStatus'));
+  const requestedStatus = parseStatus(searchParams.get('publicationStatus'));
   const artworkId = searchParams.get('artworkId') ?? undefined;
-  const items = await listCatalogItems({ publicationStatus, artworkId });
+
+  if (!canManageCatalog(actor)) {
+    const publicItems = await listCatalogItems({ publicationStatus: 'published' });
+    return NextResponse.json({ ok: true, items: publicItems.map(toPublicCatalogItem) });
+  }
+
+  const items = await listCatalogItems({ publicationStatus: requestedStatus, artworkId });
   return NextResponse.json({ ok: true, items });
 }
 
