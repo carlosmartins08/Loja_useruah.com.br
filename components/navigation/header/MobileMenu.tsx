@@ -73,7 +73,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 onClick={() => setMobileTab('corporate')}
                 className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all ${mobileTab === 'corporate' ? 'bg-white shadow-sm text-ruah-950' : 'text-ruah-400'}`}
               >
-                Sobre Nós
+                Sobre nós
               </button>
             </div>
 
@@ -95,11 +95,11 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     className="flex flex-col gap-10"
                   >
                     {[
-                      { label: 'Novidades', href: '/shop' },
-                      { label: 'Autoral', href: '/category/autoral' },
-                      { label: 'Grupos', href: '/category/grupos' },
-                      { label: 'Artistas', href: '/category/artistas' },
-                      { label: 'Acessórios', href: '/category/acessorios' },
+                      { label: 'Catálogo completo', href: '/shop' },
+                      { label: 'Linha autoral', href: '/shop' },
+                      { label: 'Campanhas', href: '/shop' },
+                      { label: 'Fardamento', href: '/shop' },
+                      { label: 'Acessórios', href: '/shop' },
                     ].map((item) => (
                       <motion.div
                         key={item.label}
@@ -128,10 +128,10 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     className="flex flex-col gap-8"
                   >
                     {[
-                      { label: 'Nosso Journal', href: '/journal' },
-                      { label: 'Ajuda e Suporte', href: '/help-center' },
-                      { label: 'Rastrear Pedido', href: '/account/orders' },
-                      { label: 'Políticas de Amor', href: '/policies' },
+                      { label: 'Quem somos', href: '/quem-somos' },
+                      { label: 'Ajuda e suporte', href: '/help-center' },
+                      { label: 'Rastrear pedido', href: '/account/orders' },
+                      { label: 'Políticas da loja', href: '/policies' },
                     ].map((item) => (
                       <motion.div
                         key={item.label}
@@ -163,7 +163,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     <MessageSquare size={18} />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest block text-ruah-950">Concierge</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest block text-ruah-950">Atendimento</span>
                     <span className="text-[9px] font-medium uppercase tracking-widest text-ruah-400">WhatsApp Oficial</span>
                   </div>
                 </Link>
@@ -172,8 +172,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     <Package size={18} />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest block text-ruah-950">Logística</span>
-                    <span className="text-[9px] font-medium uppercase tracking-widest text-ruah-400">Rastrear Pedido</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest block text-ruah-950">Pedidos</span>
+                    <span className="text-[9px] font-medium uppercase tracking-widest text-ruah-400">Rastrear pedido</span>
                   </div>
                 </Link>
               </motion.div>
@@ -184,4 +184,3 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     </AnimatePresence>
   );
 }
-

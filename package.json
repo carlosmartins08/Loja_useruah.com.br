@@ -25,7 +25,7 @@
     "ops:impact:window": "node scripts/impact-daily-window-runner.mjs",
     "alert:critical": "node scripts/critical-alerts.mjs",
     "clean": "next clean",
-    "qa:functional": "set QA_PORT=3310&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-functional.mjs&& node scripts/qa-api-runner.mjs",
+    "qa:functional": "set QA_PORT=3310&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa-functional.mjs&& node scripts/qa-api-runner.mjs",
     "qa:catalog": "set QA_PORT=3200&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-catalog-lifecycle.mjs&& node scripts/qa-api-runner.mjs",
     "qa:providers:ready": "node scripts/qa-providers-ready.mjs",
     "qa:provider:requirements": "node scripts/qa-provider-requirements.mjs",

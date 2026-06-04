@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -19,29 +19,11 @@ interface TicketSummary {
 export default function SupportTicketsPage() {
   const pathname = usePathname();
   const isAdminContext = pathname.startsWith('/admin');
-  const impactReviewsHref = isAdminContext ? '/admin/impact-reviews' : '/support/escalations';
   const supportOrderBaseHref = isAdminContext ? '/admin/support' : '/support';
   const [orderId, setOrderId] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [tickets, setTickets] = React.useState<TicketSummary[]>([]);
-  const [impactAlert, setImpactAlert] = React.useState<{ pending: number; overdue: number } | null>(null);
-
-  const loadImpactAlert = React.useCallback(async () => {
-    const [pendingRes, overdueRes] = await Promise.all([
-      fetch('/api/admin/impact-reviews?status=pending_review', { cache: 'no-store' }),
-      fetch('/api/admin/impact-reviews?status=pending_review&onlyOverdue=true', { cache: 'no-store' }),
-    ]);
-    if (!pendingRes.ok || !overdueRes.ok) return;
-    const pendingData = (await pendingRes.json()) as { reviews: unknown[] };
-    const overdueData = (await overdueRes.json()) as { reviews: unknown[] };
-    setImpactAlert({ pending: pendingData.reviews.length, overdue: overdueData.reviews.length });
-  }, []);
-
-  React.useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadImpactAlert();
-  }, [loadImpactAlert]);
 
   const handleLookup = async () => {
     if (!orderId.trim()) return;
@@ -80,17 +62,9 @@ export default function SupportTicketsPage() {
         </header>
 
         <section className='bg-white border border-ruah-100 rounded-3xl p-8 flex flex-col gap-6'>
-          {impactAlert && (impactAlert.pending > 0 || impactAlert.overdue > 0) && (
-            <div className='rounded-2xl border border-red-200 bg-red-50 p-4 flex flex-col md:flex-row md:items-center justify-between gap-3'>
-              <div className='flex items-center gap-2 text-red-700 text-xs font-bold uppercase tracking-widest'>
-                <AlertCircle size={14} />
-                Risco operacional ativo: {impactAlert.pending} pendentes / {impactAlert.overdue} atrasados
-              </div>
-              <Link href={impactReviewsHref} className='text-xs font-bold uppercase tracking-widest text-red-700 hover:opacity-80'>
-                Revisar fila crítica
-              </Link>
-            </div>
-          )}
+          <div className='rounded-2xl border border-ruah-100 bg-ruah-50 p-4 text-xs font-semibold uppercase tracking-widest text-ruah-500'>
+            Busque o pedido, veja o ticket e abra o contexto operacional sem sair do fluxo da Fase 1.
+          </div>
 
           <form
             className='flex flex-col md:flex-row gap-4'
@@ -159,5 +133,3 @@ export default function SupportTicketsPage() {
     </main>
   );
 }
-
-

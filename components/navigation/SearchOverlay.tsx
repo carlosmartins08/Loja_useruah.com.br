@@ -33,7 +33,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [query, setQuery] = React.useState('');
   const [aiResults, setAiResults] = React.useState<SearchResultItem[]>([]);
   const [isAiSearching, setIsAiSearching] = React.useState(false);
-  const [recentSearches] = React.useState(['Camisetas', 'Artistas', 'Autoral']);
+  const [recentSearches] = React.useState(['Camisetas', 'Autoral', 'Acessórios']);
 
   React.useEffect(() => {
     if (query.length < 3) return;

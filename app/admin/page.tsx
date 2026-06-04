@@ -83,10 +83,10 @@ function ActionQueue({
     <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
       <p className="text-sm font-bold text-[#1d2033]">Fila de decisao</p>
       <div className="mt-3 space-y-2">
-        <Link href="/admin/impact-reviews" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
+        <Link href="/admin/catalog" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
           <div>
-            <p className="text-xs font-bold text-[#1d2033]">Revisar pendencias do catalogo</p>
-            <p className="text-[11px] text-[#6d7289]">{summary?.pendingImpactAlerts ?? 0} itens aguardando decisao operacional</p>
+            <p className="text-xs font-bold text-[#1d2033]">Revisar pendências do catálogo</p>
+            <p className="text-[11px] text-[#6d7289]">{summary?.pendingImpactAlerts ?? 0} itens aguardando publicação ou ajuste</p>
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
@@ -97,7 +97,7 @@ function ActionQueue({
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
-        <Link href="/admin/production" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
+        <Link href="/admin/shipments" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
           <div>
             <p className="text-xs font-bold text-[#1d2033]">Fechar ciclo de envio</p>
             <p className="text-[11px] text-[#6d7289]">{summary?.shippedOrders ?? 0} pedidos enviados no ciclo atual</p>

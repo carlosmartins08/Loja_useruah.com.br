@@ -45,7 +45,7 @@ export function Header() {
                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-accent-gold">Frete Grátis acima de R$ 200</span>
             </div>
             <div className="flex items-center gap-6">
-               <Link href="/journal" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Journal</Link>
+               <Link href="/quem-somos" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Quem Somos</Link>
                <Link href="/help-center" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Ajuda</Link>
                <Link href="/policies" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Logística</Link>
                <div className="h-3 w-px bg-white/10" />
@@ -99,10 +99,10 @@ export function Header() {
                            <h4 className="text-[10px] font-bold text-accent-gold uppercase tracking-[0.2em] mb-8 bg-accent-gold/5 py-1 px-4 rounded-full inline-block">Conectar</h4>
                            <ul className="space-y-5">
                               {[
-                                { label: 'Comunidade Ruah', href: '/shop' },
-                                { label: 'Artistas do Reino', href: '/shop' },
-                                { label: 'Grupos & Pastorais', href: '/shop' },
-                                { label: 'Coleções Autorais', href: '/shop' }
+                                { label: 'Catálogo completo', href: '/shop' },
+                                { label: 'Linha autoral', href: '/shop' },
+                                { label: 'Campanhas', href: '/shop' },
+                                { label: 'Coleções publicadas', href: '/shop' }
                               ].map(item => (
                                 <li key={item.label} className="group/item">
                                    <Link href={item.href} className="flex items-center justify-between group-hover/item:text-accent-gold transition-colors">
@@ -138,12 +138,12 @@ export function Header() {
                
                <motion.div whileHover={{ y: -2 }}>
                   <Link href="/shop" className="group flex items-center gap-2 py-2 px-4 rounded-full hover:bg-ruah-50 transition-all duration-300">
-                     <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-950 group-hover:text-accent-gold transition-colors">Artistas</span>
+                     <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-950 group-hover:text-accent-gold transition-colors">Coleções</span>
                      <div className="w-1 h-1 rounded-full bg-accent-gold animate-pulse" />
                   </Link>
                </motion.div>
                <motion.div whileHover={{ y: -2 }}>
-                  <Link href="/journal" className="py-2 px-4 rounded-full hover:bg-ruah-50 text-xs font-semibold uppercase tracking-[0.1em] text-ruah-950 hover:text-accent-gold transition-all duration-300">Journal</Link>
+                  <Link href="/help-center" className="py-2 px-4 rounded-full hover:bg-ruah-50 text-xs font-semibold uppercase tracking-[0.1em] text-ruah-950 hover:text-accent-gold transition-all duration-300">Ajuda</Link>
                </motion.div>
             </nav>
 

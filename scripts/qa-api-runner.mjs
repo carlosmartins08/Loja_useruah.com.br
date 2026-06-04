@@ -1,5 +1,6 @@
-﻿import net from 'node:net';
+import net from 'node:net';
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 
 const PORT = Number(process.env.QA_PORT ?? 3200);
 const QA_SCRIPT = process.env.QA_SCRIPT;
@@ -88,7 +89,7 @@ function killProcessTree(child) {
 
 function spawnNpm(args) {
   const npmExecPath = process.env.npm_execpath;
-  if (npmExecPath) {
+  if (npmExecPath && existsSync(npmExecPath)) {
     return spawn(process.execPath, [npmExecPath, ...args], {
       stdio: 'inherit',
       windowsHide: process.platform === 'win32',
@@ -122,7 +123,9 @@ async function main() {
     process.exit(1);
   }
 
-  const startArgs = QA_SERVER_MODE === 'start' ? ['run', 'start', '--', '-p', String(PORT)] : ['run', 'dev', '--', '-p', String(PORT)];
+  const startArgs =
+    QA_SERVER_MODE === 'start' ? ['run', 'start', '--', '-p', String(PORT)] : ['run', 'dev', '--', '-p', String(PORT)];
+
   if (!portAlreadyOpen && QA_SERVER_MODE === 'start') {
     const build = spawnNpm(['run', 'build']);
     const buildExit = await waitForExit(build);
@@ -131,6 +134,7 @@ async function main() {
       process.exit(buildExit);
     }
   }
+
   const server = portAlreadyOpen ? null : spawnNpm(startArgs);
 
   try {

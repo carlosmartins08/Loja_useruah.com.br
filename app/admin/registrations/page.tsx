@@ -22,12 +22,12 @@ type Row = {
 };
 
 const STATUS_OPTIONS = ['all', 'incomplete', 'pending_review', 'active', 'draft', 'blocked'] as const;
-const ROLE_OPTIONS = ['all', 'customer', 'artist', 'community_manager'] as const;
+const ROLE_OPTIONS = ['customer'] as const;
 
 export default function AdminRegistrationsPage() {
   const [rows, setRows] = React.useState<Row[]>([]);
   const [status, setStatus] = React.useState<(typeof STATUS_OPTIONS)[number]>('all');
-  const [role, setRole] = React.useState<(typeof ROLE_OPTIONS)[number]>('all');
+  const [role] = React.useState<(typeof ROLE_OPTIONS)[number]>('customer');
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [actionLoading, setActionLoading] = React.useState<Record<string, boolean>>({});
@@ -53,7 +53,7 @@ export default function AdminRegistrationsPage() {
     setError(null);
     const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
     if (status !== 'all') params.set('status', status);
-    if (role !== 'all') params.set('role', role);
+    params.set('role', role);
     const res = await fetch(`/api/admin/registrations?${params.toString()}`, { cache: 'no-store' });
     if (!res.ok) {
       setLoading(false);
@@ -119,8 +119,8 @@ export default function AdminRegistrationsPage() {
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-ruah-400">Onboarding</p>
-            <h1 className="text-3xl font-serif italic text-ruah-950">Fila de Cadastros</h1>
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-ruah-400">Clientes</p>
+            <h1 className="text-3xl font-serif italic text-ruah-950">Fila de Cadastros da Fase 1</h1>
           </div>
           <Link href="/admin" className="px-4 py-2 rounded-xl border border-ruah-200 text-xs font-semibold uppercase tracking-[0.1em]">
             Voltar ao painel
@@ -133,11 +133,9 @@ export default function AdminRegistrationsPage() {
               <option key={item} value={item}>{item}</option>
             ))}
           </select>
-          <select value={role} onChange={(e) => { setRole(e.target.value as (typeof ROLE_OPTIONS)[number]); setOffset(0); }} className="px-3 py-2 rounded-lg border border-ruah-200 text-xs font-semibold uppercase tracking-wider">
-            {ROLE_OPTIONS.map((item) => (
-              <option key={item} value={item}>{item}</option>
-            ))}
-          </select>
+          <div className="px-3 py-2 rounded-lg border border-ruah-200 text-xs font-semibold uppercase tracking-wider bg-ruah-50 text-ruah-700">
+            role: customer
+          </div>
           <button onClick={() => void load()} className="px-4 py-2 rounded-lg bg-ruah-950 text-white text-xs font-bold uppercase tracking-[0.1em]">
             Atualizar
           </button>
@@ -145,7 +143,7 @@ export default function AdminRegistrationsPage() {
             onClick={() => {
               const params = new URLSearchParams({ limit: '1200' });
               if (status !== 'all') params.set('status', status);
-              if (role !== 'all') params.set('role', role);
+              params.set('role', role);
               if (quickFilter === 'critical') params.set('quick', 'critical');
               params.set('offset', String(offset));
               params.set('limit', String(limit));
@@ -165,9 +163,9 @@ export default function AdminRegistrationsPage() {
 
         <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="rounded-2xl border border-ruah-100 bg-white p-4 text-xs">Total <b>{summary.total}</b></div>
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs">Incomplete <b>{summary.incomplete}</b></div>
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs">Criticos 24h+ <b>{summary.critical24h}</b></div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs">Blocked <b>{summary.blocked}</b></div>
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs">Incompletos <b>{summary.incomplete}</b></div>
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-xs">Críticos 24h+ <b>{summary.critical24h}</b></div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs">Bloqueados <b>{summary.blocked}</b></div>
         </section>
 
         {error && <p className="text-xs font-semibold uppercase tracking-wider text-red-600">{error}</p>}

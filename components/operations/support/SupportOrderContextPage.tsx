@@ -60,7 +60,6 @@ export default function SupportOrderContextPage() {
   const pathname = usePathname();
   const isAdminContext = pathname.startsWith('/admin');
   const supportHomeHref = isAdminContext ? '/admin/support' : '/support';
-  const impactReviewsHref = isAdminContext ? '/admin/impact-reviews' : '/support/escalations';
   const params = useParams<{ orderId: string }>();
   const orderId = String(params?.orderId ?? '');
   const [loading, setLoading] = React.useState(true);
@@ -173,7 +172,7 @@ export default function SupportOrderContextPage() {
             {context.impactReview.hasRisk && (
               <section className='bg-red-50 border border-red-200 rounded-3xl p-6 flex flex-col gap-3'>
                 <p className='text-xs font-bold uppercase tracking-[0.1em] text-red-700'>
-                  Risco de impacto no pedido: {context.impactReview.pendingCount} pendente(s), {context.impactReview.overduePendingCount} atrasada(s), {context.impactReview.rejectedCount} rejeitada(s)
+                  Pendência operacional no pedido: {context.impactReview.pendingCount} pendente(s), {context.impactReview.overduePendingCount} atrasada(s), {context.impactReview.rejectedCount} rejeitada(s)
                 </p>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
                   {context.impactReview.reviewsByCatalogItem.map((row) => (
@@ -186,8 +185,8 @@ export default function SupportOrderContextPage() {
                     </div>
                   ))}
                 </div>
-                <Link href={impactReviewsHref} className='text-xs font-semibold uppercase tracking-[0.1em] text-red-700 hover:opacity-80'>
-                  Ir para fila critica de revisao
+                <Link href={supportHomeHref} className='text-xs font-semibold uppercase tracking-[0.1em] text-red-700 hover:opacity-80'>
+                  Voltar para a central de suporte
                 </Link>
               </section>
             )}
