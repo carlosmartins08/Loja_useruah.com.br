@@ -41,12 +41,12 @@ export function ShopPageView({ products }: ShopPageViewProps) {
 
           <div className="flex flex-col gap-16">
             <div className="max-w-3xl">
-              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-gold mb-6 block">Ecossistema UseRuah 2026</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-gold mb-6 block">Coleção UseRuah 2026</span>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif leading-[0.9] tracking-tight uppercase mb-6 italic font-black text-ruah-950 opacity-95">
                 O SOPRO <br /> DA ARTE.
               </h1>
               <p className="text-sm font-medium text-ruah-500 max-w-xl leading-relaxed">
-                Direcionando sua jornada entre volume recorrente e peças autênticas de design exclusivo.
+                Produtos publicados para compra imediata, com foco em peças autorais, campanhas e básicos da coleção.
               </p>
             </div>
 
@@ -63,7 +63,7 @@ export function ShopPageView({ products }: ShopPageViewProps) {
                   }`}
                 >
                   <span className={`text-xs font-semibold uppercase tracking-[0.12em] ${activeSegment === seg.id ? 'text-accent-gold' : 'text-ruah-300'}`}>
-                    {seg.id === 'All' ? 'Filtro Global' : seg.id === 'Base' ? 'Segmento A' : 'Segmento B'}
+                    {seg.id === 'All' ? 'Catálogo completo' : seg.id === 'Base' ? 'Linha essencial' : 'Linha personalizada'}
                   </span>
                   <h3 className="text-xl font-serif italic uppercase leading-none">{seg.label}</h3>
                   <p className={`text-sm font-medium leading-relaxed ${activeSegment === seg.id ? 'text-white/70' : 'text-ruah-500'}`}>{seg.detail}</p>
@@ -98,10 +98,10 @@ export function ShopPageView({ products }: ShopPageViewProps) {
           <div className="flex items-center gap-8">
             <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.1em] hover:text-accent-gold transition-colors text-ruah-950">
               <SlidersHorizontal size={14} className="text-accent-gold" />
-              Filtros de Propósito
+              Filtros do catálogo
             </button>
             <div className="h-4 w-px bg-ruah-100 hidden sm:block" />
-            <span className="text-xs font-mono text-ruah-500 hidden sm:block">{filteredProducts.length} peças encontradas</span>
+            <span className="text-xs font-mono text-ruah-500 hidden sm:block">{filteredProducts.length} produtos encontrados</span>
           </div>
 
           <div className="flex items-center gap-6">
@@ -129,7 +129,7 @@ export function ShopPageView({ products }: ShopPageViewProps) {
               <div className="rounded-2xl border border-ruah-100 bg-ruah-50/70 p-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-wrap gap-2">
                   <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Filtros ativos:</span>
-                  <span className="px-3 py-1 rounded-full bg-white border border-ruah-100 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-700">Segmento: {activeSegment}</span>
+                  <span className="px-3 py-1 rounded-full bg-white border border-ruah-100 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-700">Linha: {activeSegment}</span>
                   <span className="px-3 py-1 rounded-full bg-white border border-ruah-100 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-700">Categoria: {activeCategory}</span>
                 </div>
                 <div className="flex gap-2">
@@ -151,9 +151,9 @@ export function ShopPageView({ products }: ShopPageViewProps) {
         <div className="section-container">
           {filteredProducts.length === 0 ? (
             <div className="rounded-[2rem] border border-ruah-100 bg-ruah-50/60 p-10 text-center flex flex-col items-center gap-5">
-              <h2 className="text-2xl font-serif italic uppercase text-ruah-950">Nenhuma peca encontrada.</h2>
+              <h2 className="text-2xl font-serif italic uppercase text-ruah-950">Nenhum produto encontrado.</h2>
               <p className="text-sm font-medium text-ruah-500 max-w-xl">
-                Tente outra combinacao de filtros ou volte para o catalogo completo.
+                Tente outra combinação de filtros ou volte para o catálogo completo.
               </p>
               <div className="flex gap-3">
                 <button
@@ -179,7 +179,7 @@ export function ShopPageView({ products }: ShopPageViewProps) {
           <div className="mt-32 flex flex-col items-center gap-8">
             <div className="w-1.5 h-1.5 bg-accent-gold rounded-full animate-bounce" />
             <button className="text-[10px] font-bold uppercase tracking-[0.4em] text-ruah-950 border-b-2 border-ruah-950 pb-2 hover:text-accent-gold hover:border-accent-gold transition-all">
-              Ver Mais Arte
+              Ver mais produtos
             </button>
           </div>
         </div>

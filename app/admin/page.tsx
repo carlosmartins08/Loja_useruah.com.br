@@ -85,8 +85,8 @@ function ActionQueue({
       <div className="mt-3 space-y-2">
         <Link href="/admin/impact-reviews" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
           <div>
-            <p className="text-xs font-bold text-[#1d2033]">Revisar impactos pendentes</p>
-            <p className="text-[11px] text-[#6d7289]">{summary?.pendingImpactAlerts ?? 0} itens para decisao</p>
+            <p className="text-xs font-bold text-[#1d2033]">Revisar pendencias do catalogo</p>
+            <p className="text-[11px] text-[#6d7289]">{summary?.pendingImpactAlerts ?? 0} itens aguardando decisao operacional</p>
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
@@ -97,10 +97,10 @@ function ActionQueue({
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
-        <Link href="/admin/finance/payouts" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
+        <Link href="/admin/production" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
           <div>
-            <p className="text-xs font-bold text-[#1d2033]">Fechar ciclo financeiro</p>
-            <p className="text-[11px] text-[#6d7289]">{summary?.pendingPayouts ?? 0} payouts aguardando acao</p>
+            <p className="text-xs font-bold text-[#1d2033]">Fechar ciclo de envio</p>
+            <p className="text-[11px] text-[#6d7289]">{summary?.shippedOrders ?? 0} pedidos enviados no ciclo atual</p>
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
@@ -154,9 +154,9 @@ export default function AdminHub() {
       <section className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
         <div className="xl:col-span-9 space-y-4">
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <KpiCard label="Faturamento bruto" value={formatCurrency(summary?.gmv ?? 0)} delta="+2.1%" />
+            <KpiCard label="Receita bruta" value={formatCurrency(summary?.gmv ?? 0)} delta="ciclo atual" />
             <KpiCard label="Pedidos pagos" value={String(summary?.paidOrders ?? 0)} delta="+1.4%" />
-            <KpiCard label="Conversao" value={`${summary?.checkoutConversionPct ?? 0}%`} delta="-0.6%" positive={false} />
+            <KpiCard label="Pagamentos com falha" value={String(summary?.refunds ?? 0)} delta="monitorar" positive={false} />
             <KpiCard label="Pedidos enviados" value={String(summary?.shippedOrders ?? 0)} delta="+1.0%" />
           </div>
 
@@ -164,7 +164,7 @@ export default function AdminHub() {
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
-              <p className="text-sm font-bold text-[#1d2033]">Saude do ecossistema</p>
+              <p className="text-sm font-bold text-[#1d2033]">Saude da operacao Fase 1</p>
               <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-xl border border-[#eef0fb] p-3">
                   <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Pedidos atrasados</p>
@@ -175,12 +175,12 @@ export default function AdminHub() {
                   <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.supplierAlerts ?? 0}</p>
                 </div>
                 <div className="rounded-xl border border-[#eef0fb] p-3">
-                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Campanhas em risco</p>
-                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.campaignsAtRisk ?? 0}</p>
+                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Tickets criticos</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.criticalTickets ?? 0}</p>
                 </div>
                 <div className="rounded-xl border border-[#eef0fb] p-3">
-                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Chargebacks</p>
-                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.chargebacks ?? 0}</p>
+                  <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Checkout</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.checkoutConversionPct ?? 0}%</p>
                 </div>
               </div>
             </div>
@@ -200,12 +200,12 @@ export default function AdminHub() {
                 <p className="text-[11px] text-[#6d7289]">Fila de envio e pendencias logisticas.</p>
               </div>
               <div className="rounded-xl border border-[#eef0fb] p-3">
-                <p className="text-xs font-bold text-[#1d2033]">11:30 - Curadoria de impacto</p>
-                <p className="text-[11px] text-[#6d7289]">Aprovar ou bloquear alteracoes sensiveis.</p>
+                <p className="text-xs font-bold text-[#1d2033]">11:30 - Publicacao de catalogo</p>
+                <p className="text-[11px] text-[#6d7289]">Revisar itens prontos antes de publicar.</p>
               </div>
               <div className="rounded-xl border border-[#eef0fb] p-3">
-                <p className="text-xs font-bold text-[#1d2033]">15:00 - Conciliacao financeira</p>
-                <p className="text-[11px] text-[#6d7289]">Payouts, refunds e divergencias.</p>
+                <p className="text-xs font-bold text-[#1d2033]">15:00 - Envio e rastreio</p>
+                <p className="text-[11px] text-[#6d7289]">Atualizar producao, transportadora e rastreio.</p>
               </div>
             </div>
           </div>
@@ -214,13 +214,13 @@ export default function AdminHub() {
             <p className="text-sm font-bold text-[#1d2033]">Alertas imediatos</p>
             <div className="mt-3 space-y-2">
               <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">
-                {summary?.overdueImpactAlerts ?? 0} impactos com SLA vencido
+                {summary?.criticalTickets ?? 0} tickets exigem resposta
               </p>
               <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
-                {summary?.pendingPayouts ?? 0} payouts aguardando decisao
+                {summary?.delayedOrders ?? 0} pedidos atrasados no ciclo
               </p>
               <p className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700">
-                {summary?.criticalTickets ?? 0} tickets criticos sem resolucao
+                {summary?.pendingImpactAlerts ?? 0} itens aguardando publicacao ou ajuste
               </p>
             </div>
           </div>

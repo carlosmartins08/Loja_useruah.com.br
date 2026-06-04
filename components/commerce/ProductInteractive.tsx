@@ -33,7 +33,6 @@ export function ProductInteractive({
   const [printType, setPrintType] = React.useState('Serigrafia');
   const [color, setColor] = React.useState('Off White');
   const [size, setSize] = React.useState('M');
-  const [supplierId, setSupplierId] = React.useState('supplier-default');
   const [packaging, setPackaging] = React.useState('Pack Respiro');
   const [showSizeGuide, setShowSizeGuide] = React.useState(false);
   const [isReviewing, setIsReviewing] = React.useState(false);
@@ -57,7 +56,7 @@ export function ProductInteractive({
       spec: `${size} | ${color} | ${printType} | ${packaging}`,
       productionDays,
       customSpecs: {
-        supplierId,
+        supplierId: 'supplier-default',
         size,
         color,
         printType,
@@ -103,18 +102,18 @@ export function ProductInteractive({
                   <div className="flex flex-col gap-2">
                      <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-accent-gold" />
-                        <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-accent-gold font-bold">Revisão do Sopro Criativo</h3>
+                        <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-accent-gold font-bold">Revisão do pedido</h3>
                      </div>
-                     <h2 className="text-4xl font-serif italic text-ruah-950">Validar Customização.</h2>
+                     <h2 className="text-4xl font-serif italic text-ruah-950">Confirmar seleção.</h2>
                   </div>
 
                   <div className="flex flex-col gap-6 bg-ruah-50 rounded-3xl p-8 border border-ruah-100 font-bold">
                      {[
                         { label: 'Peça', value: name },
                         { label: 'Tamanho', value: size },
-                        { label: 'Cor da Fé', value: color },
-                        { label: 'Estamparia', value: printType },
-                        { label: 'Experiência', value: packaging },
+                        { label: 'Cor', value: color },
+                        { label: 'Estampa', value: printType },
+                        { label: 'Embalagem', value: packaging },
                         { label: 'Quantidade', value: quantity }
                      ].map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center pb-4 border-b border-ruah-100 last:border-0 last:pb-0">
@@ -126,7 +125,7 @@ export function ProductInteractive({
 
                   <div className="p-6 bg-accent-gold/5 rounded-2xl border border-accent-gold/20 flex flex-col gap-2">
                      <p className="text-xs text-accent-gold font-bold uppercase tracking-[0.1em] leading-relaxed">
-                        Ao confirmar, sua peça entra no <span className="underline">KPI de Produção de {productionDays} dias</span>. Não será possível alterar arte ou tamanho após o início do tear.
+                        Ao confirmar, seu item segue para produção em até {productionDays} dias úteis. Depois da aprovação, alterações de arte, cor ou tamanho podem ficar indisponíveis.
                      </p>
                   </div>
 
@@ -134,7 +133,7 @@ export function ProductInteractive({
                      <button type="button" onClick={handleAddToCart}
                        className="w-full bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-gold transition-all"
                      >
-                        Confirmar e Soprar para o Carrinho
+                        Confirmar e adicionar ao carrinho
                      </button>
                      <button type="button" onClick={() => setIsReviewing(false)}
                        className="w-full text-ruah-300 py-2 font-bold uppercase text-xs tracking-[0.2em] hover:text-ruah-950 transition-all font-bold"
@@ -151,23 +150,22 @@ export function ProductInteractive({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-gold pulse-soft" />
-              <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Produção Artesanal Sob Demanda</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Produção sob demanda</span>
             </div>
           </div>
           <span className="text-5xl font-serif text-ruah-950 tracking-tighter">R$ {price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
           <div className="flex items-center gap-3">
              <span className="text-xs text-ruah-300 line-through font-bold tracking-[0.1em] uppercase">DE R$ {(price * 1.4).toFixed(2)}</span>
-             <span className="bg-ruah-50 text-ruah-950 text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">Valor do Artista</span>
+             <span className="bg-ruah-50 text-ruah-950 text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">Oferta atual</span>
           </div>
           <p className="text-sm font-medium text-ruah-500 mt-2">
             ou {installmentCount}x de R$ {installmentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
        </div>
 
-       {/* Production Timeline Display (BPMN Visualization) */}
        <div className="bg-ruah-950 text-white p-6 rounded-3xl flex flex-col gap-4 shadow-xl">
           <div className="flex justify-between items-center">
-             <span className="text-xs font-bold uppercase tracking-[0.1em] text-white/40 italic">Prazo de Criação & Sopro</span>
+             <span className="text-xs font-bold uppercase tracking-[0.1em] text-white/40 italic">Prazo estimado</span>
              <div className="flex items-center gap-2">
                 <span className="text-lg font-serif italic">{productionDays}</span>
                 <span className="text-xs font-bold uppercase text-white/40">Dias Úteis</span>
@@ -180,14 +178,14 @@ export function ProductInteractive({
           </div>
           <div className="flex justify-between text-xs font-bold uppercase tracking-[0.1em]">
              <span className="text-accent-gold">Produção ({productionDays}d)</span>
-             <span className="text-white/40">Logística (2d)</span>
+             <span className="text-white/40">Entrega (2d)</span>
           </div>
        </div>
 
        <div className="flex flex-col gap-8">
           {/* Color Selection */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Paleta de Fé (Cores)</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Cores disponíveis</h3>
             <div className="flex gap-3">
                {[
                  { name: 'Off White', bg: 'bg-[#F5F5F0]' },
@@ -212,7 +210,6 @@ export function ProductInteractive({
             </div>
           </div>
 
-          {/* Size Selection */}
           <div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Tamanhos Disponíveis</h3>
@@ -239,30 +236,6 @@ export function ProductInteractive({
             </div>
           </div>
 
-          {/* Print Technique */}
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Fornecedor</h3>
-            <div className="flex flex-wrap gap-3">
-              {[
-                { id: 'supplier-default', label: 'Parceiro Base' },
-                { id: 'supplier-premium', label: 'Atelie Premium' },
-              ].map((supplier) => (
-                <button
-                  type="button"
-                  key={supplier.id}
-                  onClick={() => setSupplierId(supplier.id)}
-                  className={`px-6 py-3 rounded-xl text-xs font-bold tracking-[0.1em] transition-all border ${
-                    supplierId === supplier.id
-                      ? 'bg-ruah-950 text-white border-ruah-950 shadow-md'
-                      : 'bg-white text-ruah-400 border-ruah-100 hover:border-accent-gold hover:text-accent-gold'
-                  }`}
-                >
-                  {supplier.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Técnica de Estamparia</h3>
              <div className="flex flex-wrap gap-3">
@@ -281,9 +254,8 @@ export function ProductInteractive({
              </div>
           </div>
 
-          {/* Packaging Selection (T.1.2.a critical) */}
           <div>
-             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Experiência de Recebimento (Embalagem)</h3>
+             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Embalagem</h3>
              <div className="flex gap-4">
                 {['Pack Respiro', 'Gift Experience'].map(pkg => (
                   <button type="button" key={pkg}
@@ -307,7 +279,7 @@ export function ProductInteractive({
        <div className="flex flex-col gap-4">
           <div className="p-6 border border-dashed border-ruah-200 rounded-3xl bg-ruah-50/30">
              <p className="text-sm font-medium text-ruah-500 leading-relaxed">
-                <span className="text-ruah-950">MANIFESTO DE PRODUÇÃO</span>: Seu pedido será soprado por mãos humanas. O prazo de {productionDays} dias garante a cura da estampa e a perfeição do acabamento.
+                <span className="text-ruah-950">Produção do pedido</span>: seu item é preparado sob demanda. O prazo de {productionDays} dias úteis cobre produção, acabamento e conferência.
              </p>
           </div>
           <div className="flex items-center gap-4 bg-ruah-50 rounded-2xl p-2 px-4 self-start">
@@ -318,7 +290,7 @@ export function ProductInteractive({
           <button type="button" onClick={() => setIsReviewing(true)}
             className="w-full bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-[11px] tracking-[0.1em] hover:bg-accent-gold transition-all active:scale-[0.98] shadow-2xl flex items-center justify-center gap-3 group"
           >
-             CONFIRMAR E SOPRAR 
+             ADICIONAR AO CARRINHO 
              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </button>
           <button type="button" id="buy-now"

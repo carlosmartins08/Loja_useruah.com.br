@@ -3,67 +3,33 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { User, Package, MapPin, Heart, Wallet, RefreshCcw, LogOut, ChevronRight } from 'lucide-react';
+import { User, Package, MapPin, MessageSquare, LogOut, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Header } from '@/components/navigation/Header';
 import { useUser } from '@/context/UserContext';
-import type { UserRole } from '@/lib/auth-session';
 import { isAdminRole, resolveHomeByRole } from '@/lib/access-routing';
 
 const CUSTOMER_NAV_ITEMS = [
   { href: '/account', label: 'Painel Geral', icon: User },
   { href: '/account/orders', label: 'Meus Pedidos', icon: Package },
   { href: '/account/addresses', label: 'Endereços', icon: MapPin },
-  { href: '/account/wishlist', label: 'Favoritos', icon: Heart },
-  { href: '/account/wallet', label: 'Carteira e Créditos', icon: Wallet },
-  { href: '/account/returns', label: 'Trocas e Devoluções', icon: RefreshCcw },
+  { href: '/account/support', label: 'Suporte', icon: MessageSquare },
 ];
-
-function navItemsByRole(role: UserRole) {
-  if (role === 'artist') {
-    return [
-      { href: '/account', label: 'Dashboard Artista', icon: User },
-      { href: '/account/orders', label: 'Pedidos Vinculados', icon: Package },
-      { href: '/account/wallet', label: 'Comissões e Payout', icon: Wallet },
-      { href: '/account/returns', label: 'Ocorrências', icon: RefreshCcw },
-    ];
-  }
-  if (role === 'community_manager') {
-    return [
-      { href: '/account', label: 'Dashboard Comunidade', icon: User },
-      { href: '/account/orders', label: 'Pedidos da Campanha', icon: Package },
-      { href: '/account/wallet', label: 'Arrecadação e Payout', icon: Wallet },
-      { href: '/account/returns', label: 'Ocorrências', icon: RefreshCcw },
-    ];
-  }
-  if (role === 'supplier') {
-    return [
-      { href: '/account', label: 'Portal Fornecedor', icon: User },
-      { href: '/account/orders', label: 'Produção Vinculada', icon: Package },
-      { href: '/account/addresses', label: 'Origem e Coleta', icon: MapPin },
-      { href: '/account/returns', label: 'Envios e Ocorrências', icon: RefreshCcw },
-    ];
-  }
-  if (role === 'affiliate') {
-    return [
-      { href: '/account', label: 'Dashboard Affiliate', icon: User },
-      { href: '/account/orders', label: 'Conversões', icon: Package },
-      { href: '/account/wallet', label: 'Recompensas', icon: Wallet },
-    ];
-  }
-  return CUSTOMER_NAV_ITEMS;
-}
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { userName, userRole, logout, isAuthenticated, isSessionReady } = useUser();
-  const navItems = React.useMemo(() => navItemsByRole(userRole), [userRole]);
+  const navItems = CUSTOMER_NAV_ITEMS;
 
   React.useEffect(() => {
     if (!isSessionReady) return;
     if (!isAuthenticated) {
       router.replace('/login');
+      return;
+    }
+    if (userRole !== 'customer') {
+      router.replace(resolveHomeByRole(userRole));
       return;
     }
     if (isAdminRole(userRole)) {
@@ -74,7 +40,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
   if (!isSessionReady || !isAuthenticated) {
     return null;
   }
-  if (isAdminRole(userRole)) return null;
+  if (userRole !== 'customer' || isAdminRole(userRole)) return null;
 
   return (
     <div className="min-h-screen bg-ruah-50 page-header-offset">

@@ -50,7 +50,7 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
     <div className={`flex flex-col gap-8 transition-opacity ${isActive ? '' : 'opacity-40 pointer-events-none'}`}>
       <div className="flex items-center gap-6 text-ruah-950">
         <div className="w-10 h-10 bg-ruah-950 text-white rounded-full flex items-center justify-center font-serif italic text-lg">2</div>
-        <h2 className="text-3xl font-serif italic uppercase tracking-tighter">Pagamento Executivo</h2>
+        <h2 className="text-3xl font-serif italic uppercase tracking-tighter">Pagamento</h2>
       </div>
 
       <div className="bg-white p-10 rounded-[2.5rem] border border-ruah-100 shadow-sm text-ruah-950 font-bold">
@@ -116,26 +116,10 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
                 : 'Pagamento instantâneo via carteira digital habilitado para este pedido.'}
             </p>
             <p className="text-xs font-medium text-ruah-500 mt-2">
-              Confirme para finalizar em fluxo de 1 clique com fallback para checkout padrão.
+              Confirme para concluir o pedido com o método selecionado.
             </p>
           </div>
         )}
-
-        <div className="mt-8 flex flex-col gap-2">
-          <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Gateway de pagamento</label>
-          <select
-            value={effectiveProvider}
-            onChange={(event) => setProvider(event.target.value as PaymentProviderKey)}
-            className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all appearance-none cursor-pointer"
-          >
-            {availableProviders.map((item) => (
-              <option key={item.key} value={item.key}>
-                {item.isDefault ? `${item.label} (Padrao)` : item.label}
-              </option>
-            ))}
-            {availableProviders.length === 0 && <option value="sandbox">Sandbox interno</option>}
-          </select>
-        </div>
       </div>
 
       <button type="button" onClick={() => onFinish(paymentMethod, effectiveProvider)} disabled={isProcessing} aria-busy={isProcessing} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-gold transition-all relative overflow-hidden">

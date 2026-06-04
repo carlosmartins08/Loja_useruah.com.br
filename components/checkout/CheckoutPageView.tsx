@@ -13,6 +13,7 @@ import type { OrderRecord } from '@/lib/order-store';
 import { HttpRequestError, postJson } from '@/lib/http-client';
 import { useUser } from '@/context/UserContext';
 import { renderContentMessage } from '@/lib/content-messages';
+import { readAddressBook, toShippingAddress } from '@/lib/address-book';
 
 export function CheckoutPageView() {
   const { cart, total, subtotal, location, gifting, setGifting, clearCart } = useCart();
@@ -33,6 +34,16 @@ export function CheckoutPageView() {
   const requestKeyRef = React.useRef<string | null>(null);
   const { isAuthenticated, userId } = useUser();
   const t = (id: string, vars?: Record<string, string | number>) => renderContentMessage(id, vars);
+
+  React.useEffect(() => {
+    const savedAddresses = readAddressBook(userId);
+    const defaultAddress = savedAddresses.find((entry) => entry.isDefault) ?? savedAddresses[0];
+    if (!defaultAddress) return;
+    const timeoutId = window.setTimeout(() => {
+      setShippingAddress(toShippingAddress(defaultAddress));
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [userId]);
 
   if (cart.length === 0 && !isProcessing && step !== 3) {
     return (

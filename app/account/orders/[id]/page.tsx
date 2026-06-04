@@ -5,6 +5,13 @@ import Link from 'next/link';
 import { ChevronLeft, Package, Truck, Wallet } from 'lucide-react';
 import { getJson, HttpRequestError } from '@/lib/http-client';
 import { AppImage } from '@/components/shared/AppImage';
+import {
+  humanizeOrderStatus,
+  humanizePaymentStatus,
+  humanizeProductionStatus,
+  humanizeShipmentStatus,
+  humanizeTimelineEvent,
+} from '@/lib/order-ui';
 
 interface OrderStatusPayload {
   ok: true;
@@ -31,21 +38,6 @@ interface OrderStatusPayload {
   timeline: Array<{ event: string; createdAt: string }>;
 }
 
-function humanizeEvent(event: string) {
-  const map: Record<string, string> = {
-    'order.placed': 'Pedido criado',
-    'order.paid': 'Pagamento aprovado',
-    'order.in_production': 'Pedido em producao',
-    'order.shipped': 'Pedido enviado',
-    'production.started': 'Producao iniciada',
-    'production.shipped': 'Producao concluida e enviada',
-    'shipment.created': 'Rastreio gerado',
-    'payment.checkout_started': 'Pagamento iniciado',
-    'payment.approved': 'Pagamento aprovado',
-  };
-  return map[event] ?? event;
-}
-
 export default function AccountOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = React.use(params);
   const [data, setData] = React.useState<OrderStatusPayload | null>(null);
@@ -63,6 +55,10 @@ export default function AccountOrderDetailPage({ params }: { params: Promise<{ i
         })
         .catch((err) => {
           if (!active) return;
+          if (err instanceof HttpRequestError && err.status === 401) {
+            setError('Sua sessao expirou. Entre novamente para acompanhar seu pedido.');
+            return;
+          }
           if (err instanceof HttpRequestError && err.status === 403) {
             setError('Este pedido nao esta disponivel para a sua conta.');
             return;
@@ -100,15 +96,15 @@ export default function AccountOrderDetailPage({ params }: { params: Promise<{ i
               <div className='mt-8 grid grid-cols-1 gap-4 md:grid-cols-3'>
                 <div className='rounded-2xl border border-ruah-100 bg-ruah-50 p-4'>
                   <p className='text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-400'>Pedido</p>
-                  <p className='mt-2 text-sm font-semibold uppercase text-ruah-950'>{data.status}</p>
+                  <p className='mt-2 text-sm font-semibold uppercase text-ruah-950'>{humanizeOrderStatus(data.status)}</p>
                 </div>
                 <div className='rounded-2xl border border-ruah-100 bg-ruah-50 p-4'>
                   <p className='text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-400'>Pagamento</p>
-                  <p className='mt-2 text-sm font-semibold uppercase text-ruah-950'>{data.paymentStatus ?? 'n/a'}</p>
+                  <p className='mt-2 text-sm font-semibold uppercase text-ruah-950'>{humanizePaymentStatus(data.paymentStatus)}</p>
                 </div>
                 <div className='rounded-2xl border border-ruah-100 bg-ruah-50 p-4'>
                   <p className='text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-400'>Producao</p>
-                  <p className='mt-2 text-sm font-semibold uppercase text-ruah-950'>{data.productionStatus ?? 'n/a'}</p>
+                  <p className='mt-2 text-sm font-semibold uppercase text-ruah-950'>{humanizeProductionStatus(data.productionStatus)}</p>
                 </div>
               </div>
             </section>
@@ -154,8 +150,8 @@ export default function AccountOrderDetailPage({ params }: { params: Promise<{ i
                       <p className='text-xs font-semibold uppercase tracking-widest text-ruah-400'>Sem eventos registrados.</p>
                     ) : (
                       data.timeline.map((entry, index) => (
-                        <div key={`${entry.event}-${entry.createdAt}-${index}`} className='rounded-2xl border border-ruah-100 bg-ruah-50 p-4'>
-                          <p className='text-xs font-bold uppercase tracking-[0.1em] text-ruah-950'>{humanizeEvent(entry.event)}</p>
+                      <div key={`${entry.event}-${entry.createdAt}-${index}`} className='rounded-2xl border border-ruah-100 bg-ruah-50 p-4'>
+                          <p className='text-xs font-bold uppercase tracking-[0.1em] text-ruah-950'>{humanizeTimelineEvent(entry.event)}</p>
                           <p className='mt-2 text-xs text-ruah-500'>{new Date(entry.createdAt).toLocaleString('pt-BR')}</p>
                         </div>
                       ))
@@ -174,7 +170,7 @@ export default function AccountOrderDetailPage({ params }: { params: Promise<{ i
                     <div className='mt-6 space-y-3 text-sm'>
                       <p><span className='font-semibold text-ruah-950'>Transportadora:</span> {data.shipment.carrier}</p>
                       <p><span className='font-semibold text-ruah-950'>Codigo:</span> {data.shipment.trackingCode}</p>
-                      <p><span className='font-semibold text-ruah-950'>Status:</span> {data.shipment.status}</p>
+                      <p><span className='font-semibold text-ruah-950'>Status:</span> {humanizeShipmentStatus(data.shipment.status)}</p>
                     </div>
                   ) : (
                     <p className='mt-6 text-xs font-semibold uppercase tracking-widest text-ruah-400'>Rastreio ainda nao disponivel.</p>
@@ -186,7 +182,7 @@ export default function AccountOrderDetailPage({ params }: { params: Promise<{ i
                     <Wallet size={18} className='text-accent-gold' />
                     <h2 className='text-lg font-bold text-ruah-950'>Pagamento</h2>
                   </div>
-                  <p className='mt-6 text-sm text-ruah-700'>Status atual: <span className='font-semibold uppercase text-ruah-950'>{data.paymentStatus ?? 'n/a'}</span></p>
+                  <p className='mt-6 text-sm text-ruah-700'>Status atual: <span className='font-semibold uppercase text-ruah-950'>{humanizePaymentStatus(data.paymentStatus)}</span></p>
                 </div>
               </div>
             </section>

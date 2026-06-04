@@ -4,9 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { Package, RefreshCcw, ChevronRight, Truck, CheckCircle2, Sparkles } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
-import { getJson } from '@/lib/http-client';
-
-type OrderStatusUi = 'recebido' | 'producao' | 'enviado' | 'entregue';
+import { getJson, HttpRequestError } from '@/lib/http-client';
+import { mapToUiStatus, type OrderStatusUi } from '@/lib/order-ui';
 
 interface OrdersApiItem {
   orderId: string;
@@ -31,26 +30,33 @@ const STATUS_MAP: Record<OrderStatusUi, { label: string; color: string; icon: Re
   entregue: { label: 'Entregue', color: 'text-green-600', icon: CheckCircle2 },
 };
 
-function mapToUiStatus(order: OrdersApiItem): OrderStatusUi {
-  if (order.status === 'delivered') return 'entregue';
-  if (order.status === 'shipped' || order.shipmentStatus === 'created' || order.shipmentStatus === 'in_transit') return 'enviado';
-  if (order.status === 'in_production' || order.productionStatus === 'queued' || order.productionStatus === 'in_progress') return 'producao';
-  return 'recebido';
-}
-
 export default function MyOrders() {
   const [ratedOrders, setRatedOrders] = React.useState<string[]>([]);
   const [orders, setOrders] = React.useState<OrdersApiItem[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let active = true;
     const timeoutId = window.setTimeout(() => {
       if (!active) return;
+      setError(null);
       getJson<{ ok: true; orders: OrdersApiItem[] }>('/api/orders')
         .then((data) => {
           if (!active) return;
           setOrders(data.orders);
+        })
+        .catch((err) => {
+          if (!active) return;
+          if (err instanceof HttpRequestError && err.status === 401) {
+            setError('Sua sessao expirou. Entre novamente para ver seus pedidos.');
+            return;
+          }
+          if (err instanceof HttpRequestError && err.status === 403) {
+            setError('Voce nao tem permissao para ver estes pedidos.');
+            return;
+          }
+          setError('Nao foi possivel carregar seus pedidos agora.');
         })
         .finally(() => {
           if (!active) return;
@@ -65,6 +71,7 @@ export default function MyOrders() {
   }, []);
 
   if (loading) return <div className='text-sm text-ruah-500'>Carregando pedidos...</div>;
+  if (error) return <div className='text-sm text-ruah-500'>{error}</div>;
   if (!orders.length) return <div className='text-sm text-ruah-500'>Nenhum pedido encontrado.</div>;
 
   return (

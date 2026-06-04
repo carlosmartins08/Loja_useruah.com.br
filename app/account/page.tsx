@@ -1,241 +1,228 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
-import { motion } from 'motion/react';
-import { Package, Hash, ArrowRight, User, QrCode, Camera } from 'lucide-react';
 import Link from 'next/link';
-import { ProductionTimeline, OrderStatus } from '@/components/commerce/ProductionTimeline';
-import { AppImage } from '@/components/shared/AppImage';
+import { ArrowRight, MapPin, MessageSquare, Package } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
-import { ProfilePhotoModal } from '@/components/navigation/ProfilePhotoModal';
+import { getJson, HttpRequestError } from '@/lib/http-client';
+import { humanizeOrderStatus, mapToUiStatus } from '@/lib/order-ui';
 
-const MOCK_ORDERS = [
-  {
-    id: 'RUAH-001',
-    date: '04 Mai, 2026',
-    status: 'production' as OrderStatus,
-    total: 'R$ 129,00',
-    items: [
-      { name: 'Camiseta Ruah Signature', spec: 'G | Algodao Penteado | Branco', image: 'https://picsum.photos/seed/ruah1/200/200' }
-    ]
-  },
-  {
-    id: 'RUAH-002',
-    date: '20 Abr, 2026',
-    status: 'shipped' as OrderStatus,
-    total: 'R$ 249,00',
-    items: [
-      { name: 'Moletom Minimal Faith', spec: 'M | Moletom 3 cabos | Preto', image: 'https://picsum.photos/seed/ruah2/200/200' }
-    ]
-  }
-];
+interface DashboardOrderItem {
+  orderId: string;
+  totalAmount: number;
+  createdAt: string;
+  status: string;
+  productionStatus: string | null;
+  shipmentStatus: string | null;
+  items: Array<{
+    catalogItemId: string;
+    productName: string;
+    productImage: string;
+    variantLabel: string;
+    quantity: number;
+  }>;
+}
 
-export default function AccountPage() {
-  const [selectedOrder, setSelectedOrder] = React.useState(MOCK_ORDERS[0]);
-  const { profilePhoto, setProfilePhoto, userName, registrationStatus, userRole } = useUser();
-  const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
-  const roleLabel =
-    userRole === 'customer'
-      ? 'Painel do Cliente'
-      : userRole === 'artist'
-        ? 'Painel do Artista'
-        : userRole === 'supplier'
-          ? 'Painel do Fornecedor'
-          : userRole === 'community_manager'
-            ? 'Painel da Comunidade'
-            : 'Painel da Conta';
+interface DashboardTicket {
+  ticketId: string;
+  orderId: string;
+  subject: string;
+  status: string;
+  updatedAt: string;
+}
 
+function SummaryCard({
+  href,
+  label,
+  value,
+  helper,
+  icon: Icon,
+}: {
+  href: string;
+  label: string;
+  value: string;
+  helper: string;
+  icon: typeof Package;
+}) {
   return (
-    <main className="min-h-screen bg-ruah-50">
-       <ProfilePhotoModal 
-         isOpen={isPhotoModalOpen} 
-         onClose={() => setIsPhotoModalOpen(false)} 
-         onSave={(url) => setProfilePhoto(url)}
-       />
-       {/* Dashboard Header */}
-       <section className="bg-ruah-950 text-white pt-12 pb-20 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-gold/5 blur-[120px] -translate-y-1/2 translate-x-1/2" />
-          <div className="section-container relative z-10">
-             <div className="flex flex-col lg:flex-row justify-between items-end gap-12">
-                <div className="flex items-center gap-10">
-                   <div 
-                     onClick={() => setIsPhotoModalOpen(true)}
-                     className="w-32 h-32 rounded-[2.5rem] overflow-hidden relative group cursor-pointer border-2 border-white/10 hover:border-accent-gold transition-all"
-                   >
-                      {profilePhoto ? (
-                        <AppImage context="content-banner" src={profilePhoto} alt={userName} fill className="object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                           <User size={40} className="text-white/20" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-bold">
-                         <Camera size={24} className="text-white mb-1" />
-                         <span className="text-xs font-semibold uppercase tracking-widest text-white">Alterar</span>
-                      </div>
-                   </div>
-                   <div className="flex flex-col gap-6">
-                      <span className="tech-label text-accent-gold whitespace-nowrap overflow-hidden">{roleLabel}</span>
-                      <h1 className="ur-type-display-xl leading-none italic uppercase">OLA, {userName}.</h1>
-                      <p className="text-xs font-bold text-white/40 uppercase tracking-[0.4em]">Gestao de Pedidos e Conta Ruah</p>
-                   </div>
-                </div>
-                <div className="flex gap-4">
-                   <Link
-                     href="/register"
-                     className="flex items-center gap-2 px-6 py-4 bg-white text-ruah-950 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-accent-gold hover:text-white motion-base shadow-fancy"
-                   >
-                      Revisar Cadastro
-                   </Link>
-                </div>
-             </div>
-          </div>
-       </section>
-
-       <section className="py-24">
-          <div className="section-container">
-             {registrationStatus === 'incomplete' && (
-               <div className="mb-10 rounded-3xl border border-amber-200 bg-amber-50 p-6 flex flex-col gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-amber-700">Cadastro incompleto</span>
-                  <p className="text-sm text-amber-900">
-                    Finalize seus dados para liberar toda a jornada de compra e suporte sem bloqueios operacionais.
-                  </p>
-                  <Link href="/register" className="text-[11px] font-bold uppercase tracking-widest text-amber-800 underline">
-                    Revisar cadastro agora
-                  </Link>
-               </div>
-             )}
-             <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
-                
-                {/* Sidebar - Orders List */}
-                <div className="lg:col-span-4 flex flex-col gap-8">
-                   <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-300">Seus Pedidos Ativos</h3>
-                   <div className="flex flex-col gap-4">
-                      {MOCK_ORDERS.map((order) => (
-                         <button 
-                           key={order.id}
-                           onClick={() => setSelectedOrder(order)}
-                           className={`p-8 rounded-[2rem] border motion-base text-left group ${
-                             selectedOrder.id === order.id 
-                             ? 'bg-white border-accent-gold/30 shadow-fancy' 
-                             : 'bg-white/50 border-ruah-100 hover:border-ruah-200'
-                           }`}
-                         >
-                            <div className="flex justify-between items-start mb-4">
-                               <div className="flex flex-col gap-1">
-                                  <span className="text-[10px] font-bold text-accent-gold uppercase tracking-widest leading-none mb-1">#{order.id}</span>
-                                  <span className="text-xs font-serif italic text-ruah-950">{order.date}</span>
-                               </div>
-                               <span className={`text-xs font-semibold uppercase px-2 py-1 rounded-md ${
-                                 order.status === 'production' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'
-                               }`}>
-                                 {order.status === 'production' ? 'Em Producao' : 'Enviado'}
-                               </span>
-                            </div>
-                            <div className="flex -space-x-4 mb-6">
-                               {order.items.map((item, i) => (
-                                 <div key={i} className="w-12 h-12 rounded-full border-2 border-white overflow-hidden bg-ruah-50 relative shadow-sm">
-                                    <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" />
-                                 </div>
-                               ))}
-                            </div>
-                            <div className="flex justify-between items-center">
-                               <span className="text-xs font-bold text-ruah-950">{order.total}</span>
-                               <ArrowRight size={16} className={`transition-transform ${selectedOrder.id === order.id ? 'translate-x-0 opacity-100 text-accent-gold' : '-translate-x-4 opacity-0'}`} />
-                            </div>
-                         </button>
-                      ))}
-                   </div>
-
-                   <div className="mt-8 p-10 bg-ruah-950 rounded-[3rem] text-white flex flex-col gap-6 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-accent-gold/20 blur-3xl" />
-                      <div className="flex flex-col gap-2">
-                         <span className="tech-label text-accent-gold uppercase tracking-widest text-[8px] inline-block mb-1">Suporte Ruah</span>
-                         <h4 className="text-2xl font-serif uppercase leading-tight italic">PRECISA DE <br /> AJUDA?</h4>
-                      </div>
-                      <p className="text-[10px] text-white/40 uppercase font-bold tracking-widest leading-relaxed">
-                         Nossa equipe esta pronta para ajudar com sua campanha ou pedido personalizado.
-                      </p>
-                      <button className="bg-white text-ruah-950 w-full py-4 rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-accent-gold hover:text-white motion-base">
-                         Falar no WhatsApp
-                      </button>
-                   </div>
-                </div>
-
-                {/* Main Content - Order Details & Lifecycle */}
-                <div className="lg:col-span-8 flex flex-col gap-12">
-                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-ruah-100 pb-12">
-                      <div className="flex flex-col gap-2">
-                         <div className="flex items-center gap-3">
-                            <h2 className="text-4xl font-serif uppercase tracking-tighter italic">Detalhes do Pedido</h2>
-                            <span className="tech-label text-accent-gold">#{selectedOrder.id}</span>
-                         </div>
-                         <p className="text-xs font-bold text-ruah-400 uppercase tracking-widest">
-                            {selectedOrder.items.length} ITEM â€¢ TOTAL {selectedOrder.total}
-                         </p>
-                      </div>
-                      <button className="flex items-center gap-3 px-6 py-4 bg-ruah-50 rounded-2xl text-xs font-semibold uppercase tracking-[0.1em] hover:bg-ruah-100 motion-base">
-                         <QrCode size={18} className="text-accent-gold" /> Comprovante de Producao
-                      </button>
-                   </div>
-
-                   {/* Production Lifecycle Timeline */}
-                   <div className="flex flex-col gap-6">
-                      <div className="flex items-center gap-3">
-                         <Package size={20} className="text-accent-gold" />
-                         <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-950">Acompanhamento do Ciclo</h3>
-                      </div>
-                      <ProductionTimeline currentStatus={selectedOrder.status} />
-                   </div>
-
-                   {/* Items Drilldown */}
-                   <div className="flex flex-col gap-8 mt-8">
-                      <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-300">Especificacoes dos Produtos</h3>
-                      <div className="flex flex-col gap-4">
-                         {selectedOrder.items.map((item, i) => (
-                            <div key={i} className="flex flex-col md:flex-row gap-8 p-10 bg-white border border-ruah-100 rounded-[2.5rem] group hover:border-accent-gold/30 motion-base">
-                               <div className="relative w-full md:w-40 aspect-square rounded-2xl overflow-hidden bg-ruah-50 shadow-sm shrink-0">
-                                  <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" />
-                               </div>
-                               <div className="flex-1 flex flex-col justify-center gap-4">
-                                  <div>
-                                     <h4 className="text-2xl font-serif uppercase italic leading-tight mb-2">{item.name}</h4>
-                                     <div className="flex items-center gap-2">
-                                        <Hash size={12} className="text-accent-gold" />
-                                        <span className="text-[10px] font-medium text-ruah-400 uppercase tracking-widest">{item.spec}</span>
-                                     </div>
-                                  </div>
-                                  <div className="flex flex-wrap gap-4 mt-2">
-                                     <div className="px-4 py-2 bg-ruah-50 rounded-lg">
-                                        <span className="text-xs font-semibold text-ruah-300 uppercase block mb-1">Status Interno</span>
-                                        <span className="text-[10px] font-bold uppercase text-accent-gold">Em Confeccao</span>
-                                     </div>
-                                     <div className="px-4 py-2 bg-ruah-50 rounded-lg">
-                                        <span className="text-xs font-semibold text-ruah-300 uppercase block mb-1">Previsao Despacho</span>
-                                        <span className="text-[10px] font-bold uppercase">12 Mai</span>
-                                     </div>
-                                  </div>
-                               </div>
-                               <div className="flex flex-col justify-center">
-                                  <Link 
-                                    href={`/product/${i+1}`}
-                                    className="w-12 h-12 rounded-full border border-ruah-100 flex items-center justify-center hover:bg-ruah-950 hover:text-white motion-base group/btn"
-                                  >
-                                     <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
-                                  </Link>
-                               </div>
-                            </div>
-                         ))}
-                      </div>
-                   </div>
-
-                </div>
-             </div>
-          </div>
-       </section>
-    </main>
+    <Link
+      href={href}
+      className="rounded-[2rem] border border-ruah-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-400">{label}</p>
+          <p className="mt-3 text-3xl font-serif italic text-ruah-950">{value}</p>
+          <p className="mt-3 text-sm text-ruah-500">{helper}</p>
+        </div>
+        <div className="rounded-2xl bg-ruah-50 p-3 text-accent-gold">
+          <Icon size={18} />
+        </div>
+      </div>
+    </Link>
   );
 }
 
+export default function AccountPage() {
+  const { userName, registrationStatus } = useUser();
+  const [orders, setOrders] = React.useState<DashboardOrderItem[]>([]);
+  const [tickets, setTickets] = React.useState<DashboardTicket[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
+  React.useEffect(() => {
+    let active = true;
+    const timeoutId = window.setTimeout(() => {
+      if (!active) return;
+      setError(null);
+      Promise.all([
+        getJson<{ ok: true; orders: DashboardOrderItem[] }>('/api/orders'),
+        getJson<{ ok: true; tickets: DashboardTicket[] }>('/api/tickets'),
+      ])
+        .then(([ordersPayload, ticketsPayload]) => {
+          if (!active) return;
+          setOrders(ordersPayload.orders);
+          setTickets(ticketsPayload.tickets);
+        })
+        .catch((err) => {
+          if (!active) return;
+          if (err instanceof HttpRequestError && err.status === 401) {
+            setError('Sua sessao expirou. Entre novamente para ver sua conta.');
+            return;
+          }
+          setError('Nao foi possivel carregar o resumo da sua conta.');
+        })
+        .finally(() => {
+          if (!active) return;
+          setLoading(false);
+        });
+    }, 0);
 
+    return () => {
+      active = false;
+      window.clearTimeout(timeoutId);
+    };
+  }, []);
+
+  const latestOrder = orders[0] ?? null;
+  const activeOrders = orders.filter((order) => mapToUiStatus(order) !== 'entregue').length;
+  const openTickets = tickets.filter((ticket) => ticket.status !== 'resolved').length;
+
+  return (
+    <div className="flex flex-col gap-10">
+      <section className="rounded-[2.5rem] border border-ruah-100 bg-white p-8 shadow-sm">
+        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-accent-gold">Fase 1</span>
+        <h1 className="mt-3 text-4xl font-serif italic uppercase text-ruah-950">Minha conta</h1>
+        <p className="mt-4 max-w-2xl text-sm text-ruah-500">
+          Oi, {userName}. Aqui voce acompanha pedidos, organiza enderecos e resolve suporte sem sair do fluxo da compra.
+        </p>
+        {registrationStatus === 'incomplete' ? (
+          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            Seu cadastro ainda esta incompleto. Finalize seus dados para evitar bloqueios no checkout e no suporte.
+          </div>
+        ) : null}
+      </section>
+
+      {loading ? <p className="text-sm text-ruah-500">Carregando resumo da conta...</p> : null}
+      {error ? <p className="text-sm text-ruah-500">{error}</p> : null}
+
+      {!loading && !error ? (
+        <>
+          <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <SummaryCard
+              href="/account/orders"
+              label="Pedidos ativos"
+              value={String(activeOrders)}
+              helper="Pedidos que ainda exigem acompanhamento."
+              icon={Package}
+            />
+            <SummaryCard
+              href="/account/addresses"
+              label="Enderecos"
+              value="Revisar"
+              helper="Confira seus dados de entrega antes de finalizar a compra."
+              icon={MapPin}
+            />
+            <SummaryCard
+              href="/account/support"
+              label="Suporte aberto"
+              value={String(openTickets)}
+              helper="Tickets em andamento vinculados aos seus pedidos."
+              icon={MessageSquare}
+            />
+          </section>
+
+          <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-[2rem] border border-ruah-100 bg-white p-8 shadow-sm">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-400">Ultimo pedido</p>
+                  <h2 className="mt-2 text-2xl font-serif italic text-ruah-950">
+                    {latestOrder ? latestOrder.orderId : 'Nenhum pedido ainda'}
+                  </h2>
+                </div>
+                <Link
+                  href="/account/orders"
+                  className="inline-flex items-center gap-2 rounded-xl border border-ruah-200 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.08em] text-ruah-700"
+                >
+                  Ver todos <ArrowRight size={14} />
+                </Link>
+              </div>
+
+              {latestOrder ? (
+                <div className="mt-6 space-y-4">
+                  <div className="rounded-2xl border border-ruah-100 bg-ruah-50 p-5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-400">Status atual</p>
+                    <p className="mt-2 text-lg font-semibold uppercase text-ruah-950">
+                      {humanizeOrderStatus(latestOrder.status)}
+                    </p>
+                    <p className="mt-3 text-sm text-ruah-500">
+                      Criado em {new Date(latestOrder.createdAt).toLocaleDateString('pt-BR')} • Total R${' '}
+                      {latestOrder.totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {latestOrder.items.slice(0, 2).map((item) => (
+                      <div
+                        key={`${latestOrder.orderId}-${item.catalogItemId}-${item.variantLabel}`}
+                        className="rounded-2xl border border-ruah-100 bg-white p-4"
+                      >
+                        <p className="text-sm font-semibold text-ruah-950">{item.productName}</p>
+                        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.08em] text-ruah-500">
+                          {item.variantLabel} • Qtd {item.quantity}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-6 rounded-2xl border border-ruah-100 bg-ruah-50 p-5 text-sm text-ruah-500">
+                  Voce ainda nao fez nenhum pedido. Explore a loja e encontre seu primeiro produto.
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-[2rem] border border-ruah-100 bg-white p-8 shadow-sm">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-400">Atalhos da Fase 1</p>
+              <div className="mt-6 space-y-3">
+                <Link href="/shop" className="flex items-center justify-between rounded-2xl border border-ruah-100 p-4 text-sm font-semibold text-ruah-950">
+                  Voltar para a loja <ArrowRight size={14} />
+                </Link>
+                <Link href="/account/orders" className="flex items-center justify-between rounded-2xl border border-ruah-100 p-4 text-sm font-semibold text-ruah-950">
+                  Acompanhar meus pedidos <ArrowRight size={14} />
+                </Link>
+                <Link href="/account/addresses" className="flex items-center justify-between rounded-2xl border border-ruah-100 p-4 text-sm font-semibold text-ruah-950">
+                  Revisar enderecos <ArrowRight size={14} />
+                </Link>
+                <Link href="/account/support" className="flex items-center justify-between rounded-2xl border border-ruah-100 p-4 text-sm font-semibold text-ruah-950">
+                  Abrir suporte <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+          </section>
+        </>
+      ) : null}
+    </div>
+  );
+}

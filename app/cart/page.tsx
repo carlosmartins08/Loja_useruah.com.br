@@ -63,7 +63,7 @@ export default function CartPage() {
             <div className="bg-white p-10 rounded-[2.5rem] border border-ruah-100 flex flex-col gap-6 items-start">
               <h2 className="text-2xl font-serif italic uppercase text-ruah-950">Seu carrinho esta vazio.</h2>
               <p className="text-sm font-medium text-ruah-500 max-w-xl">
-                Adicione pecas para iniciar o fluxo de compra e acompanhar seu handover de producao.
+                Adicione produtos para iniciar a compra e acompanhar o pedido pela sua conta.
               </p>
               <Link href="/shop" className="inline-flex items-center gap-2 bg-ruah-950 text-white px-8 py-4 rounded-xl text-xs font-bold uppercase tracking-[0.16em] hover:bg-accent-gold transition-colors">
                 Voltar para a colecao <ArrowRight size={14} />
@@ -149,8 +149,8 @@ export default function CartPage() {
             <div className="relative z-10">
               <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-gold mb-2">Compromisso Ruah</h4>
               <p className="text-xs text-ruah-400 font-medium uppercase tracking-widest leading-loose">
-                Esta peca entra em producao artesanal no Modulo 4 (Parceiro) imediatamente apos o Handover.
-                O tempo de cura e sopro garante a energia exclusiva da sua peca autoral.
+                Este item pode ser produzido sob demanda após a confirmação do pagamento.
+                O prazo cobre produção, acabamento e separação para envio.
               </p>
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function CartPage() {
 
         <div className="lg:col-span-4">
           <div className="bg-white p-10 rounded-[3rem] sticky top-32 border border-ruah-100 shadow-fancy">
-            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-ruah-300 mb-10 pb-4 border-b border-ruah-50">Resumo da Arte</h2>
+            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-ruah-300 mb-10 pb-4 border-b border-ruah-50">Resumo do pedido</h2>
 
             <div className="space-y-4 mb-10">
               <div className="flex justify-between text-xs uppercase font-bold tracking-widest">
@@ -168,13 +168,13 @@ export default function CartPage() {
                 <span className="font-mono font-bold text-ruah-950">R$ {subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
               </div>
               <div className="flex justify-between text-xs uppercase font-bold tracking-widest">
-                <span className="text-ruah-500">Fluxo de Entrega</span>
+                <span className="text-ruah-500">Frete</span>
                 <span className={`font-mono font-bold uppercase tracking-[0.2em] ${shippingFee === 0 ? 'text-green-600' : 'text-ruah-950'}`}>
-                  {shippingFee === 0 ? 'Gratis (Sopro de Fe)' : `R$ ${shippingFee.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+                  {shippingFee === 0 ? 'Grátis' : `R$ ${shippingFee.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
                 </span>
               </div>
               <div className="flex justify-between text-xs uppercase font-bold tracking-widest">
-                <span className="text-ruah-500">Desconto Progressivo</span>
+                <span className="text-ruah-500">Descontos</span>
                 <span className="font-mono font-bold text-ruah-950">{discount > 0 ? `- R$ ${discount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}</span>
               </div>
             </div>
@@ -190,12 +190,12 @@ export default function CartPage() {
             </div>
 
             <Link href="/checkout" aria-disabled={cart.length === 0} className={`w-full py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl shadow-ruah-950/20 transition-all flex items-center justify-center gap-3 active:scale-[0.98] group ${cart.length === 0 ? 'bg-ruah-200 text-ruah-400 pointer-events-none' : 'bg-ruah-950 text-white hover:bg-accent-gold'}`}>
-              Validar Handover <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+              Ir para checkout <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
             </Link>
 
             <div className="mt-10 pt-10 border-t border-ruah-50">
               <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest text-ruah-400">
-                <ShieldCheck size={16} className="text-green-500" /> Transacao Protegida Protocolo Ruah
+                <ShieldCheck size={16} className="text-green-500" /> Compra protegida
               </div>
               <div className="mt-3 text-[9px] font-bold uppercase tracking-[0.12em] text-ruah-400">
                 Entrega estimada: {location.region} + {location.shippingDays}d uteis

@@ -45,7 +45,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
               <div className="flex flex-col gap-4">
                 <span className="font-serif text-3xl italic tracking-tighter uppercase mb-4 text-ruah-950">UseRuah.</span>
                 <h1 className="ur-type-display-xl uppercase italic">Respiro <br /> <span className="not-italic">Ruah.</span></h1>
-                <p className="text-sm font-semibold text-ruah-500 leading-relaxed max-w-[260px] mt-4">Moda que conecta. Design que comunica os valores do Reino de forma autoral.</p>
+                <p className="text-sm font-semibold text-ruah-500 leading-relaxed max-w-[260px] mt-4">Produto publicado para venda simples, com personalização visível ao cliente e compra direta pela loja.</p>
               </div>
 
               <div className="flex flex-col gap-6 pt-8 border-t border-ruah-100">
@@ -55,7 +55,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
                   </div>
                   <div className="flex flex-col">
                     <span className="text-lg font-serif italic text-ruah-950">4.9</span>
-                    <span className="text-xs font-semibold text-ruah-400">41 avaliações de irmãos</span>
+                    <span className="text-xs font-semibold text-ruah-400">41 avaliações de clientes</span>
                   </div>
                 </div>
               </div>
@@ -137,16 +137,16 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
             <div className="lg:col-span-3 flex flex-col gap-10">
               <div className="flex flex-col gap-6">
-                <span className="tech-label text-accent-gold font-black">Base de Respiro</span>
+                <span className="tech-label text-accent-gold font-black">Ajuda ao cliente</span>
                 <h2 className="text-4xl font-serif italic uppercase leading-tight font-black text-ruah-950">AJUDA & <br /> SUPORTE.</h2>
-                <p className="text-sm font-medium text-ruah-500 leading-relaxed">Sua jornada sem dúvidas. Encontre respostas para as questões mais frequentes da nossa plataforma.</p>
+                <p className="text-sm font-medium text-ruah-500 leading-relaxed">Encontre respostas rápidas sobre produto, entrega, pagamento e políticas da loja.</p>
               </div>
               <div className="flex flex-col gap-4">
                 <Link href="/help-center" className="flex items-center justify-between p-6 bg-ruah-50 rounded-2xl text-sm font-semibold hover:bg-ruah-950 hover:text-white transition-all group">
                   Central de Ajuda <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link href="/policies" className="flex items-center justify-between p-6 bg-ruah-50 rounded-2xl text-sm font-semibold hover:bg-ruah-950 hover:text-white transition-all group">
-                  Políticas de Amor <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  Políticas da loja <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>

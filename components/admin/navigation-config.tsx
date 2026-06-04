@@ -1,36 +1,36 @@
 import type { LucideIcon } from 'lucide-react';
-import { FileClock, Headset, LayoutDashboard, Package, ShoppingBag, Siren, Users, Wallet } from 'lucide-react';
+import { FileClock, Headset, LayoutDashboard, Package, ShoppingBag, Truck, Users } from 'lucide-react';
 
 export interface AdminNavItem {
   href: string;
   label: string;
   icon: LucideIcon;
-  section: 'visao' | 'operacao' | 'financeiro';
+  section: 'visao' | 'operacao';
 }
 
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: '/admin', label: 'Cockpit', icon: LayoutDashboard, section: 'visao' },
   { href: '/admin/catalog', label: 'Catalogo', icon: ShoppingBag, section: 'visao' },
   { href: '/admin/registrations', label: 'Cadastros', icon: Users, section: 'visao' },
+  { href: '/admin/orders', label: 'Pedidos', icon: FileClock, section: 'operacao' },
+  { href: '/admin/shipments', label: 'Envios', icon: Truck, section: 'operacao' },
   { href: '/admin/support', label: 'Suporte', icon: Headset, section: 'operacao' },
   { href: '/admin/production', label: 'Producao', icon: Package, section: 'operacao' },
-  { href: '/admin/impact-reviews', label: 'Impacto', icon: Siren, section: 'operacao' },
-  { href: '/admin/finance/payouts', label: 'Financeiro', icon: Wallet, section: 'financeiro' },
 ];
 
 export const ADMIN_QUICK_ACTIONS = [
   { href: '/admin/catalog', label: 'Catalogo publicado' },
-  { href: '/admin/impact-reviews', label: 'Impactos atrasados' },
+  { href: '/admin/registrations', label: 'Cadastros da base' },
+  { href: '/admin/orders', label: 'Pedidos em andamento' },
   { href: '/admin/support', label: 'Tickets em aberto' },
-  { href: '/admin/finance/payouts', label: 'Payout pendente' },
-  { href: '/admin/registrations', label: 'Cadastros com pendencia' },
+  { href: '/admin/shipments', label: 'Fila de envio' },
 ] as const;
 
 export const ADMIN_SHORTCUTS = [
   { href: '/admin/catalog', label: 'Publicar catalogo', icon: ShoppingBag },
-  { href: '/admin/impact-reviews', label: 'Decisao de impacto', icon: Siren },
-  { href: '/admin/finance/payouts', label: 'Payout e caixa', icon: Wallet },
   { href: '/admin/registrations', label: 'Cadastros e matriz', icon: FileClock },
+  { href: '/admin/orders', label: 'Acompanhar pedidos', icon: FileClock },
+  { href: '/admin/shipments', label: 'Producao e envio', icon: Truck },
 ] as const;
 
 export function isNavActive(pathname: string, href: string) {
