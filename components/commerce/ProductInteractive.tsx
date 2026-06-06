@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Minus, ArrowRight, Zap, Star, Heart, Ruler, ShoppingBag, Wallet, QrCode } from 'lucide-react';
+import { Plus, Minus, ArrowRight, Zap, Star, Heart, Ruler, ShoppingBag, Wallet, QrCode, CreditCard } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { AppImage } from '@/components/shared/AppImage';
 import { SmartShipping } from './SmartShipping';
@@ -317,10 +317,19 @@ export function ProductInteractive({
 
           <SmartShipping />
 
-          <div className="flex items-center justify-center gap-6 mt-4 opacity-50">
-             <AppImage context="content-banner" src="https://picsum.photos/seed/visa/100/40" alt="Visa" width={30} height={15} className="grayscale" />
-             <AppImage context="content-banner" src="https://picsum.photos/seed/master/100/40" alt="Master" width={30} height={15} className="grayscale" />
-             <AppImage context="content-banner" src="https://picsum.photos/seed/pix/100/40" alt="Pix" width={30} height={15} className="grayscale" />
+          <div className="flex items-center justify-center gap-3 mt-4 flex-wrap">
+             <span className="inline-flex items-center gap-2 rounded-full border border-ruah-100 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-400">
+               <CreditCard size={12} className="text-accent-gold" />
+               Visa
+             </span>
+             <span className="inline-flex items-center gap-2 rounded-full border border-ruah-100 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-400">
+               <CreditCard size={12} className="text-accent-gold" />
+               Mastercard
+             </span>
+             <span className="inline-flex items-center gap-2 rounded-full border border-ruah-100 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-400">
+               <QrCode size={12} className="text-accent-gold" />
+               Pix
+             </span>
           </div>
        </div>
     </div>

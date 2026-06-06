@@ -3,10 +3,23 @@
 import React from 'react';
 import { Heart, ShoppingBag, Trash2 } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
+import { BRAND_PRODUCT_SEEDS } from '@/lib/brand-assets';
 
 const WISHLIST = [
-  { id: '3', name: 'Aura Panel', price: 5200, image: 'https://picsum.photos/seed/p3/600/800', stock: 'restam 2' },
-  { id: '4', name: 'Zenit Spot', price: 2100, image: 'https://picsum.photos/seed/p4/600/800', stock: 'em estoque' },
+  {
+    id: BRAND_PRODUCT_SEEDS[1].id,
+    name: BRAND_PRODUCT_SEEDS[1].name,
+    price: BRAND_PRODUCT_SEEDS[1].price,
+    image: BRAND_PRODUCT_SEEDS[1].image,
+    stock: 'restam 2',
+  },
+  {
+    id: BRAND_PRODUCT_SEEDS[3].id,
+    name: BRAND_PRODUCT_SEEDS[3].name,
+    price: BRAND_PRODUCT_SEEDS[3].price,
+    image: BRAND_PRODUCT_SEEDS[3].image,
+    stock: 'em estoque',
+  },
 ];
 
 export default function Wishlist() {

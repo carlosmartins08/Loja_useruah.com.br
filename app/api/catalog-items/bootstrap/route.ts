@@ -4,14 +4,15 @@ import { canManageCatalog, getActorFromRequest } from '@/lib/access-control';
 import { createCatalogItem, markCatalogItemReady, publishCatalogItem } from '@/lib/catalog-item-store';
 import { upsertApprovedArtwork } from '@/lib/artwork-store';
 import { approveImpactReview, createImpactReview, getPendingImpactReviewByEntity } from '@/lib/impact-review-store';
+import { getBrandProductVisual } from '@/lib/brand-assets';
 
 const SEED_ITEMS = [
-  { id: '1', name: 'Camiseta Respiro', price: 89.9, category: 'autoral', segment: 'customizada', image: 'https://picsum.photos/seed/ruah-p1/1000/1000' },
-  { id: '2', name: 'Moletom Fé Viva', price: 159.9, category: 'campanhas', segment: 'customizada', image: 'https://picsum.photos/seed/ruah-p2/1000/1000' },
-  { id: '3', name: 'Bolsa Sopro', price: 45, category: 'acessorios', segment: 'customizada', image: 'https://picsum.photos/seed/ruah-p3/1000/1000' },
-  { id: '4', name: 'Uniforme Base G1', price: 55, category: 'fardamento', segment: 'base', image: 'https://picsum.photos/seed/ruah-p4/1000/1000' },
-  { id: '5', name: 'Camiseta Base Cotton', price: 42.9, category: 'fardamento', segment: 'base', image: 'https://picsum.photos/seed/ruah-p5/1000/1000' },
-  { id: '6', name: 'Botton Símbolo', price: 12, category: 'acessorios', segment: 'customizada', image: 'https://picsum.photos/seed/ruah-p6/1000/1000' },
+  { id: '1', name: 'Camiseta Oração', price: 89.9, category: 'autoral', segment: 'customizada', image: getBrandProductVisual('1').image },
+  { id: '2', name: 'Moletom Presença', price: 159.9, category: 'campanhas', segment: 'customizada', image: getBrandProductVisual('2').image },
+  { id: '3', name: 'Ecobag Reino', price: 45, category: 'acessorios', segment: 'customizada', image: getBrandProductVisual('3').image },
+  { id: '4', name: 'Uniforme Base G1', price: 55, category: 'fardamento', segment: 'base', image: getBrandProductVisual('4').image },
+  { id: '5', name: 'Camiseta Base Cotton', price: 42.9, category: 'fardamento', segment: 'base', image: getBrandProductVisual('5').image },
+  { id: '6', name: 'Ecobag Presença', price: 12, category: 'acessorios', segment: 'customizada', image: getBrandProductVisual('6').image },
 ] as const;
 
 export async function POST(request: Request) {

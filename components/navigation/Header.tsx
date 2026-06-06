@@ -13,6 +13,7 @@ import { ProfilePhotoModal } from './ProfilePhotoModal';
 import { resolveHomeByRole } from '@/lib/access-routing';
 import { ROLE_LABEL, sortRolesForUi } from '@/lib/role-scope';
 import { MobileMenu } from '@/components/navigation/header/MobileMenu';
+import { BRAND_EDITORIAL_ASSETS } from '@/lib/brand-assets';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = React.useState(false);
@@ -125,7 +126,7 @@ export function Header() {
                         </div>
                         <div className="col-span-4">
                            <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden group/img">
-                              <AppImage context="content-banner" src="https://picsum.photos/seed/ruah-menu-1/400/500" alt="Respiro" fill className="object-cover group-hover/img:scale-110 transition-all duration-1000" />
+                              <AppImage context="content-banner" src={BRAND_EDITORIAL_ASSETS.megaMenuCard} alt="Respiro" fill className="object-cover group-hover/img:scale-110 transition-all duration-1000" />
                               <div className="absolute inset-0 bg-gradient-to-t from-ruah-950/80 to-transparent flex flex-col justify-end p-6">
                                  <span className="text-white text-[11px] font-serif italic font-black uppercase mb-1">Inspirar.</span>
                                  <p className="text-white/60 text-[8px] font-bold uppercase tracking-widest leading-relaxed">Conheça nosso Manifesto e as histórias por trás das peças.</p>

@@ -1,0 +1,24 @@
+<svg width="1400" height="1000" viewBox="0 0 1400 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1400" height="1000" rx="72" fill="#EFE9E0"/>
+  <rect x="86" y="86" width="1228" height="828" rx="54" fill="#F8F3EC"/>
+  <rect x="132" y="132" width="532" height="736" rx="40" fill="url(#panel)"/>
+  <rect x="720" y="152" width="490" height="196" rx="34" fill="#172C36"/>
+  <rect x="770" y="390" width="388" height="420" rx="36" fill="#F0E7DA"/>
+  <circle cx="1010" cy="588" r="116" fill="#C5A059" fill-opacity="0.22"/>
+  <path d="M222 224H568" stroke="#FFF9F1" stroke-width="5" stroke-linecap="round" stroke-opacity="0.75"/>
+  <path d="M222 278H512" stroke="#FFF9F1" stroke-width="5" stroke-linecap="round" stroke-opacity="0.55"/>
+  <path d="M222 332H486" stroke="#FFF9F1" stroke-width="5" stroke-linecap="round" stroke-opacity="0.55"/>
+  <text x="220" y="474" fill="#FFF9F1" font-family="Georgia, serif" font-size="102" font-style="italic" font-weight="700">Vista</text>
+  <text x="220" y="566" fill="#FFF9F1" font-family="Georgia, serif" font-size="102" font-style="italic" font-weight="700">o seu</text>
+  <text x="220" y="658" fill="#FFF9F1" font-family="Georgia, serif" font-size="102" font-style="italic" font-weight="700">sopro.</text>
+  <text x="772" y="234" fill="#C5A059" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">EDITORIAL RUAH</text>
+  <text x="772" y="302" fill="#FFF9F1" font-family="Georgia, serif" font-size="48" font-style="italic" font-weight="700">Moda com direcao</text>
+  <text x="816" y="768" fill="#172C36" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="7">CURADORIA</text>
+  <defs>
+    <linearGradient id="panel" x1="132" y1="132" x2="664" y2="868" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7E7A75"/>
+      <stop offset="0.45" stop-color="#B4A89A"/>
+      <stop offset="1" stop-color="#D8CDBF"/>
+    </linearGradient>
+  </defs>
+</svg>

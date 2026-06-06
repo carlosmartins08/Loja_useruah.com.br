@@ -1,0 +1,22 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" rx="72" fill="#EDE6DB"/>
+  <rect x="70" y="70" width="1060" height="1060" rx="60" fill="url(#bg)"/>
+  <circle cx="880" cy="300" r="170" fill="#C5A059" fill-opacity="0.18"/>
+  <circle cx="970" cy="470" r="86" fill="#F4EEE5" fill-opacity="0.8"/>
+  <rect x="150" y="170" width="430" height="560" rx="42" fill="#172C36"/>
+  <rect x="652" y="592" width="338" height="198" rx="36" fill="#172C36" fill-opacity="0.84"/>
+  <text x="210" y="308" fill="#FFF9F1" font-family="Georgia, serif" font-size="94" font-style="italic" font-weight="700">Sopro</text>
+  <text x="210" y="398" fill="#FFF9F1" font-family="Georgia, serif" font-size="94" font-style="italic" font-weight="700">da</text>
+  <text x="210" y="488" fill="#FFF9F1" font-family="Georgia, serif" font-size="94" font-style="italic" font-weight="700">criacao</text>
+  <path d="M210 574H486" stroke="#C5A059" stroke-width="5" stroke-linecap="round"/>
+  <path d="M210 618H452" stroke="#FFF9F1" stroke-opacity="0.5" stroke-width="5" stroke-linecap="round"/>
+  <text x="700" y="664" fill="#FFF9F1" fill-opacity="0.52" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">IMPACTO</text>
+  <text x="700" y="736" fill="#FFF9F1" font-family="Georgia, serif" font-size="58" font-style="italic" font-weight="700">Arte com direcao</text>
+  <defs>
+    <linearGradient id="bg" x1="70" y1="70" x2="1130" y2="1130" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F1E8"/>
+      <stop offset="0.48" stop-color="#D1C4B2"/>
+      <stop offset="1" stop-color="#9C948A"/>
+    </linearGradient>
+  </defs>
+</svg>

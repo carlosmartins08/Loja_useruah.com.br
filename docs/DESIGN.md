@@ -159,8 +159,14 @@ Antes de subir PR de frontend:
 4. Validar `docs/DESIGN_SYSTEM_MOTION_GRID_TYPE.md`.
 5. Validar `docs/DESIGN_SYSTEM_NAVIGATION_AND_OVERLAYS.md`.
 6. Validar `docs/DESIGN_SYSTEM_ECOMMERCE_FLOWS.md`.
-7. Validar `docs/UI_VOICE_TONE_GLOSSARY.md`.
-8. Validar checklist integrado em `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`.
+7. Validar `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`.
+8. Validar `docs/UI_VOICE_TONE_GLOSSARY.md`.
+9. Validar checklist integrado em `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`.
+
+Regra operacional anti-drift:
+- excecao local nao substitui contrato global;
+- se token, grid, camada ou container estiverem errados em mais de uma tela, corrigir na fonte de verdade antes da pagina;
+- nenhuma variacao visual nova entra sem justificar por que o sistema atual nao cobre o caso.
 
 ## 15) Definition of Done (frontend)
 Uma tela so esta pronta se:

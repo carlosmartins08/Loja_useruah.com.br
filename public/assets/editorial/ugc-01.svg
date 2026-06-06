@@ -1,0 +1,9 @@
+<svg width="800" height="1000" viewBox="0 0 800 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="1000" rx="56" fill="#F0E8DD"/>
+  <rect x="66" y="66" width="668" height="868" rx="44" fill="#D8CCBE"/>
+  <circle cx="548" cy="248" r="126" fill="#C5A059" fill-opacity="0.26"/>
+  <circle cx="286" cy="634" r="174" fill="#172C36"/>
+  <text x="132" y="188" fill="#172C36" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">GERACAO RUAH</text>
+  <text x="132" y="820" fill="#FFF9F1" font-family="Georgia, serif" font-size="74" font-style="italic" font-weight="700">Sopro</text>
+  <text x="132" y="892" fill="#FFF9F1" font-family="Georgia, serif" font-size="74" font-style="italic" font-weight="700">em vida.</text>
+</svg>

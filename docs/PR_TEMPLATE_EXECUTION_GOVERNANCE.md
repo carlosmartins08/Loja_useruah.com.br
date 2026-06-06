@@ -80,15 +80,21 @@ Observacao de gate automatizado:
 - Evidencias (prints/logs/sumario):
 
 ## 6) Checklist integrado de frontend (quando aplicavel)
+- [ ] Consultei `docs/DESIGN.md`, `docs/BRAND_COLOR_SYSTEM.md` e `docs/DESIGN_SYSTEM_MOTION_GRID_TYPE.md` antes de aprovar a alteracao visual.
 - [ ] Todos os `href` alterados apontam para rotas existentes em `app/`.
 - [ ] Fluxo principal validado manualmente: `home -> shop -> product -> cart -> checkout`.
 - [ ] Metadata/SEO coerentes (`sitemap`, `robots`, JSON-LD) quando houver mudanca de rota/indexacao.
 - [ ] Acessibilidade minima validada (semantica, teclado, foco, `alt`).
 - [ ] Responsividade validada em mobile (>=360px), tablet e desktop.
 - [ ] Sem overflow horizontal nao intencional.
+- [ ] Sem token legado ou paralelo reintroduzido (`lumina-*`, `accent-blue`, cor hardcoded fora de contrato).
+- [ ] Sem `z-index` arbitrario; apenas escala oficial de camadas.
+- [ ] Sem padding lateral paralelo ao `section-container` sem justificativa explicita.
+- [ ] A pagina usa familia de grid semantica coerente com o tipo de superficie.
 - [ ] Checkout/pagamentos mantiveram contrato compativel e `x-idempotency-key`.
 - [ ] Webhook manteve validacao de assinatura (`x-signature`) quando segredo existir.
 - [ ] Se alterou PDP ou checkout, anexou evidencia visual desktop + mobile.
+- [ ] Se alterou copy institucional ou editorial, validou acentuacao/UTF-8 e anexou resultado de `npm run qa:content:governance` quando aplicavel.
 - [ ] Se alterou pagamento, anexou evidencia de 1 sucesso sandbox + 1 falha sandbox.
 
 ## 7) Impacto por camada

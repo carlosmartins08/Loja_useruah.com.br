@@ -1,0 +1,26 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1000" rx="72" fill="#F1E9DD"/>
+  <rect x="84" y="84" width="1432" height="832" rx="56" fill="url(#bg)"/>
+  <rect x="170" y="156" width="520" height="688" rx="42" fill="#172C36"/>
+  <rect x="764" y="168" width="572" height="236" rx="36" fill="#FFF9F1" fill-opacity="0.92"/>
+  <rect x="764" y="450" width="572" height="320" rx="44" fill="#EFE4D5"/>
+  <circle cx="1188" cy="298" r="104" fill="#C5A059" fill-opacity="0.24"/>
+  <circle cx="1036" cy="620" r="116" fill="#C5A059" fill-opacity="0.18"/>
+  <text x="236" y="296" fill="#FFF9F1" font-family="Georgia, serif" font-size="92" font-style="italic" font-weight="700">Vista-se</text>
+  <text x="236" y="386" fill="#FFF9F1" font-family="Georgia, serif" font-size="92" font-style="italic" font-weight="700">de</text>
+  <text x="236" y="476" fill="#FFF9F1" font-family="Georgia, serif" font-size="92" font-style="italic" font-weight="700">oração.</text>
+  <text x="236" y="640" fill="#C5A059" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="6">MANIFESTO RUAH</text>
+  <path d="M236 694H532" stroke="#FFF9F1" stroke-opacity="0.48" stroke-width="6" stroke-linecap="round"/>
+  <text x="814" y="264" fill="#C5A059" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">CURADORIA</text>
+  <text x="814" y="344" fill="#172C36" font-family="Georgia, serif" font-size="58" font-style="italic" font-weight="700">Fe com direção</text>
+  <text x="814" y="566" fill="#172C36" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="7">EDITORIAL</text>
+  <text x="814" y="640" fill="#172C36" font-family="Georgia, serif" font-size="62" font-style="italic" font-weight="700">Coleção que</text>
+  <text x="814" y="714" fill="#172C36" font-family="Georgia, serif" font-size="62" font-style="italic" font-weight="700">respira marca.</text>
+  <defs>
+    <linearGradient id="bg" x1="84" y1="84" x2="1516" y2="916" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F2EA"/>
+      <stop offset="0.48" stop-color="#E7DCCB"/>
+      <stop offset="1" stop-color="#D5C8B8"/>
+    </linearGradient>
+  </defs>
+</svg>

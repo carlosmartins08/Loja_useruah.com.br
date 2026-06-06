@@ -1,0 +1,23 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1920" height="1080" fill="#101D25"/>
+  <rect x="88" y="88" width="1744" height="904" rx="64" fill="url(#bg)"/>
+  <circle cx="1412" cy="300" r="204" fill="#C5A059" fill-opacity="0.18"/>
+  <circle cx="1258" cy="640" r="144" fill="#FFF9F1" fill-opacity="0.08"/>
+  <rect x="170" y="176" width="592" height="700" rx="48" fill="#172C36"/>
+  <text x="244" y="292" fill="#C5A059" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="7">MANIFESTO USERUAH</text>
+  <text x="242" y="426" fill="#FFF9F1" font-family="Georgia, serif" font-size="108" font-style="italic" font-weight="700">Orações</text>
+  <text x="242" y="528" fill="#FFF9F1" font-family="Georgia, serif" font-size="108" font-style="italic" font-weight="700">em arte</text>
+  <text x="242" y="630" fill="#FFF9F1" font-family="Georgia, serif" font-size="108" font-style="italic" font-weight="700">com</text>
+  <text x="242" y="732" fill="#FFF9F1" font-family="Georgia, serif" font-size="108" font-style="italic" font-weight="700">propósito.</text>
+  <text x="960" y="332" fill="#FFF9F1" fill-opacity="0.82" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="7">SOPRO • VENTO • ESPIRITO</text>
+  <text x="960" y="458" fill="#FFF9F1" font-family="Georgia, serif" font-size="86" font-style="italic" font-weight="700">Uma marca que</text>
+  <text x="960" y="556" fill="#FFF9F1" font-family="Georgia, serif" font-size="86" font-style="italic" font-weight="700">veste intenção.</text>
+  <path d="M960 648H1436" stroke="#C5A059" stroke-width="7" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="bg" x1="88" y1="88" x2="1832" y2="992" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#172C36"/>
+      <stop offset="0.5" stop-color="#0D181F"/>
+      <stop offset="1" stop-color="#203642"/>
+    </linearGradient>
+  </defs>
+</svg>

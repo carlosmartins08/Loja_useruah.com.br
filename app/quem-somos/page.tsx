@@ -6,6 +6,7 @@ import { Footer } from '@/components/navigation/Footer';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppImage } from '@/components/shared/AppImage';
 import { ChevronDown } from 'lucide-react';
+import { BRAND_EDITORIAL_ASSETS } from '@/lib/brand-assets';
 
 const FAQ_ITEMS = [
   {
@@ -69,11 +70,10 @@ export default function AboutPage() {
       <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-ruah-950 text-white">
          <div className="absolute inset-0 z-0 overflow-hidden opacity-40">
             <AppImage context="content-banner" 
-              src="https://picsum.photos/seed/ruah-about-hero/1920/1080" 
+              src={BRAND_EDITORIAL_ASSETS.aboutHero} 
               alt="UseRuah Hero"
               fill
               className="object-cover grayscale"
-              referrerPolicy="no-referrer"
             />
          </div>
 
@@ -126,13 +126,13 @@ export default function AboutPage() {
                   </div>
                </div>
                <div className="lg:col-span-7 relative aspect-square rounded-[4rem] overflow-hidden shadow-fancy">
-                  <AppImage context="content-banner" src="https://picsum.photos/seed/ruah-art-1/1000/1000" alt="Arte UseRuah" fill className="object-cover" referrerPolicy="no-referrer" />
+                  <AppImage context="content-banner" src={BRAND_EDITORIAL_ASSETS.aboutArt} alt="Arte UseRuah" fill className="object-cover" />
                </div>
             </div>
 
             <div className="layout-grid-media gap-20 lg:gap-24 items-center">
                <div className="lg:col-span-7 relative aspect-square rounded-[4rem] overflow-hidden shadow-fancy order-2 lg:order-1">
-                  <AppImage context="content-banner" src="https://picsum.photos/seed/ruah-com-1/1000/1000" alt="Comunidade UseRuah" fill className="object-cover" referrerPolicy="no-referrer" />
+                  <AppImage context="content-banner" src={BRAND_EDITORIAL_ASSETS.aboutCommunity} alt="Comunidade UseRuah" fill className="object-cover" />
                </div>
                <div className="lg:col-span-5 flex flex-col gap-12 order-1 lg:order-2 self-center">
                   <h2 className="text-5xl font-serif uppercase italic leading-none tracking-tighter font-black text-ruah-950">VISTA-SE DE <br /> PROPÓSITO.</h2>

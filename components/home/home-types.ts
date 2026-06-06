@@ -9,6 +9,7 @@ export interface HomeProduct {
   category: string;
   price: number;
   image: string;
+  hoverImage?: string;
   badge?: string;
 }
 

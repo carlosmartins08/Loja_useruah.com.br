@@ -1,0 +1,20 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" rx="72" fill="#0F1E26"/>
+  <rect x="68" y="68" width="1464" height="764" rx="52" fill="url(#bg)"/>
+  <circle cx="1110" cy="340" r="184" fill="#C5A059" fill-opacity="0.14"/>
+  <rect x="156" y="148" width="506" height="604" rx="42" fill="#182E38"/>
+  <text x="220" y="290" fill="#FFF9F1" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="7">RUAH TV</text>
+  <text x="220" y="408" fill="#FFF9F1" font-family="Georgia, serif" font-size="92" font-style="italic" font-weight="700">O traco</text>
+  <text x="220" y="500" fill="#FFF9F1" font-family="Georgia, serif" font-size="92" font-style="italic" font-weight="700">antes da</text>
+  <text x="220" y="592" fill="#FFF9F1" font-family="Georgia, serif" font-size="92" font-style="italic" font-weight="700">peca.</text>
+  <circle cx="1080" cy="452" r="124" fill="#FFF9F1" fill-opacity="0.12" stroke="#FFF9F1" stroke-opacity="0.2" stroke-width="6"/>
+  <path d="M1058 392L1156 452L1058 512V392Z" fill="#FFF9F1"/>
+  <text x="892" y="724" fill="#FFF9F1" fill-opacity="0.7" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">DOCUMENTARIO CURTO • 04:20</text>
+  <defs>
+    <linearGradient id="bg" x1="68" y1="68" x2="1532" y2="832" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#172C36"/>
+      <stop offset="0.55" stop-color="#09161D"/>
+      <stop offset="1" stop-color="#203743"/>
+    </linearGradient>
+  </defs>
+</svg>

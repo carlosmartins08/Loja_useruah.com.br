@@ -1,0 +1,17 @@
+<svg width="1000" height="1000" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1000" height="1000" rx="72" fill="#F3ECE2"/>
+  <rect x="80" y="80" width="840" height="840" rx="56" fill="url(#bg)"/>
+  <circle cx="684" cy="278" r="162" fill="#C5A059" fill-opacity="0.3"/>
+  <path d="M168 700C254 540 386 476 512 476C642 476 746 560 824 700V814H168V700Z" fill="#172C36"/>
+  <text x="162" y="236" fill="#172C36" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="6">NOSSA MISSAO</text>
+  <text x="158" y="340" fill="#172C36" font-family="Georgia, serif" font-size="88" font-style="italic" font-weight="700">Cada oração</text>
+  <text x="158" y="424" fill="#172C36" font-family="Georgia, serif" font-size="88" font-style="italic" font-weight="700">é única.</text>
+  <text x="200" y="792" fill="#FFF9F1" font-family="Georgia, serif" font-size="72" font-style="italic" font-weight="700">Manifesto Ruah</text>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="80" x2="920" y2="920" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F4ED"/>
+      <stop offset="0.52" stop-color="#E3D7C7"/>
+      <stop offset="1" stop-color="#CFC2B1"/>
+    </linearGradient>
+  </defs>
+</svg>

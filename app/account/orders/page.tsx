@@ -6,6 +6,7 @@ import { Package, RefreshCcw, ChevronRight, Truck, CheckCircle2, Sparkles } from
 import { AppImage } from '@/components/shared/AppImage';
 import { getJson, HttpRequestError } from '@/lib/http-client';
 import { mapToUiStatus, type OrderStatusUi } from '@/lib/order-ui';
+import { getBrandProductVisual } from '@/lib/brand-assets';
 
 interface OrdersApiItem {
   orderId: string;
@@ -110,7 +111,7 @@ export default function MyOrders() {
                         <div className='relative w-24 h-24 rounded-2xl overflow-hidden bg-ruah-50'>
                           <AppImage
                             context="content-banner"
-                            src={item.productImage || 'https://picsum.photos/seed/ruah-order/200/200'}
+                            src={item.productImage || getBrandProductVisual(item.catalogItemId).image}
                             alt={item.productName}
                             fill
                             className='object-cover'

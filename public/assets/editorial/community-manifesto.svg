@@ -1,0 +1,19 @@
+<svg width="1400" height="820" viewBox="0 0 1400 820" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1400" height="820" rx="72" fill="#ECE6DD"/>
+  <rect x="74" y="74" width="1252" height="672" rx="48" fill="url(#bg)"/>
+  <circle cx="304" cy="368" r="178" fill="#172C36"/>
+  <circle cx="1048" cy="292" r="148" fill="#C5A059" fill-opacity="0.32"/>
+  <circle cx="1094" cy="498" r="92" fill="#FFF9F1" fill-opacity="0.86"/>
+  <text x="208" y="602" fill="#FFF9F1" font-family="Georgia, serif" font-size="104" font-style="italic" font-weight="700">Arte</text>
+  <text x="208" y="686" fill="#FFF9F1" font-family="Georgia, serif" font-size="104" font-style="italic" font-weight="700">&amp; Missao</text>
+  <text x="760" y="230" fill="#172C36" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="7">ESSENCIA</text>
+  <text x="760" y="314" fill="#172C36" font-family="Georgia, serif" font-size="64" font-style="italic" font-weight="700">Fe com linguagem</text>
+  <text x="760" y="388" fill="#172C36" font-family="Georgia, serif" font-size="64" font-style="italic" font-weight="700">visual.</text>
+  <defs>
+    <linearGradient id="bg" x1="74" y1="74" x2="1326" y2="746" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F9F5EE"/>
+      <stop offset="0.52" stop-color="#F0E8DC"/>
+      <stop offset="1" stop-color="#E4D7C6"/>
+    </linearGradient>
+  </defs>
+</svg>

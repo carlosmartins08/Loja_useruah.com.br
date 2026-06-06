@@ -1,0 +1,14 @@
+<svg width="1200" height="450" viewBox="0 0 1200 450" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="450" rx="56" fill="#172C36"/>
+  <rect x="56" y="56" width="1088" height="338" rx="40" fill="url(#bg)"/>
+  <circle cx="912" cy="198" r="112" fill="#C5A059" fill-opacity="0.28"/>
+  <text x="132" y="174" fill="#FFF9F1" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">BEST SELLERS</text>
+  <text x="128" y="286" fill="#FFF9F1" font-family="Georgia, serif" font-size="80" font-style="italic" font-weight="700">Peças que já</text>
+  <text x="128" y="364" fill="#FFF9F1" font-family="Georgia, serif" font-size="80" font-style="italic" font-weight="700">respiram forte.</text>
+  <defs>
+    <linearGradient id="bg" x1="56" y1="56" x2="1144" y2="394" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E3440"/>
+      <stop offset="1" stop-color="#0E1A21"/>
+    </linearGradient>
+  </defs>
+</svg>

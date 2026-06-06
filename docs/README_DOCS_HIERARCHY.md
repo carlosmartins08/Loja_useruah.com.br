@@ -63,10 +63,14 @@ Evitar retrabalho, duplicidade e conflito de interpretação sobre qual document
 ### Qualidade por rota e UX
 - Usar: `docs/ROUTE_DEFINITION_OF_DONE.md`
 - Quando: validar completude de rota e qualidade de experiência por página.
+- Usar em conjunto: `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`
+- Quando: a mudança tocar layout, componente visual, copy institucional, navegação, grid, tokens, overlay ou responsividade.
 
 ### Template obrigatório de PR crítico
 - Usar: `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
 - Quando: PR tocar estado, contrato, permissão, fluxo operacional ou regra de domínio.
+- Usar em conjunto: `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`
+- Quando: o PR também alterar frontend visível ao usuário.
 
 ### Baseline de controle (COBIT/ITIL)
 - Usar: `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`

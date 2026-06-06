@@ -27,10 +27,10 @@ export default function PoliciesPage() {
           </div>
         </section>
 
-        <section className="py-16 lg:py-24 border-b border-ruah-100">
+        <section className="py-16 lg:py-24 border-b border-ruah-100 bg-[linear-gradient(180deg,rgba(250,250,250,0.85),rgba(255,255,255,1))]">
           <div className="section-container">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 rounded-[2rem] border border-ruah-100 bg-white p-6 shadow-subtle">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-600"><Check size={16} /></div>
                   <h2 className="text-sm font-semibold text-ruah-950">Arrependimento</h2>
@@ -38,7 +38,7 @@ export default function PoliciesPage() {
                 <p className="text-sm text-ruah-600 leading-relaxed">Até 7 dias após o recebimento, conforme CDC.</p>
               </div>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 rounded-[2rem] border border-ruah-100 bg-white p-6 shadow-subtle">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-accent-gold/10 flex items-center justify-center text-accent-gold"><RefreshCcw size={16} /></div>
                   <h2 className="text-sm font-semibold text-ruah-950">Troca de Arte</h2>
@@ -46,7 +46,7 @@ export default function PoliciesPage() {
                 <p className="text-sm text-ruah-600 leading-relaxed">Até 30 dias para troca de cor ou tamanho, com novo ciclo de produção.</p>
               </div>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 rounded-[2rem] border border-ruah-100 bg-white p-6 shadow-subtle">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-600"><AlertTriangle size={16} /></div>
                   <h2 className="text-sm font-semibold text-ruah-950">Falha Técnica</h2>
@@ -57,7 +57,8 @@ export default function PoliciesPage() {
           </div>
         </section>
 
-        <section className="py-20 lg:py-28">
+        <section className="py-20 lg:py-28 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_26%,rgba(197,160,89,0.08),transparent_24%)]" />
           <div className="section-container">
             <div className="layout-grid-product gap-10 lg:gap-16">
               <div className="lg:col-span-4 flex flex-col gap-8 lg:sticky lg:top-24">
@@ -65,7 +66,7 @@ export default function PoliciesPage() {
                   <span className="tech-label text-accent-gold">Framework</span>
                   <h2 className="ur-type-display-md italic uppercase">Diretrizes de Manufatura</h2>
                 </div>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 rounded-[2.5rem] border border-ruah-100 bg-white p-5 shadow-subtle">
                   {['Arrependimento', 'Ciclo de Sopro', 'Logística Reversa', 'Custos de Envio'].map((tab) => (
                     <button key={tab} className="w-full p-4 text-left bg-white border border-ruah-100 rounded-2xl text-sm font-semibold hover:border-accent-gold hover:text-accent-gold motion-base">
                       {tab}
@@ -129,7 +130,7 @@ export default function PoliciesPage() {
                   </div>
                 </div>
 
-                <div className="p-6 border border-dashed border-ruah-200 rounded-3xl bg-ruah-50">
+                <div className="p-6 border border-dashed border-ruah-200 rounded-3xl bg-ruah-50 shadow-subtle">
                   <p className="text-sm text-ruah-600 leading-relaxed">
                     <span className="text-ruah-950 font-semibold">Importante:</span> peças com artes customizadas ou sob medida só serão aceitas em caso comprovado de falha de manufatura.
                   </p>
@@ -139,7 +140,8 @@ export default function PoliciesPage() {
           </div>
         </section>
 
-        <section className="bg-white py-20 lg:py-28 border-t border-ruah-100">
+        <section className="bg-white py-20 lg:py-28 border-t border-ruah-100 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(197,160,89,0.06),transparent_28%)]" />
           <div className="section-container text-center flex flex-col items-center gap-8">
             <div className="flex flex-col gap-4">
               <h2 className="ur-type-display-md italic uppercase">
@@ -147,7 +149,7 @@ export default function PoliciesPage() {
               </h2>
               <p className="text-sm text-ruah-500 max-w-md mx-auto">Acesse o portal com CPF e número do pedido para solicitar troca ou devolução.</p>
             </div>
-            <Link href="/returns" className="bg-ruah-950 text-white px-10 py-5 rounded-2xl text-sm font-semibold uppercase tracking-[0.12em] hover:bg-accent-gold motion-base shadow-fancy flex items-center gap-3 group">
+            <Link href="/returns" className="bg-ruah-950 text-white px-10 py-5 rounded-2xl text-sm font-semibold uppercase tracking-[0.12em] hover:bg-accent-gold motion-base shadow-fancy flex items-center gap-3 group relative z-10">
               Acessar portal de trocas <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

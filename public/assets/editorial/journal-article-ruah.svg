@@ -1,0 +1,17 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="675" rx="56" fill="#F2EADE"/>
+  <rect x="60" y="60" width="1080" height="555" rx="40" fill="url(#bg)"/>
+  <circle cx="860" cy="214" r="126" fill="#C5A059" fill-opacity="0.26"/>
+  <circle cx="372" cy="446" r="108" fill="#172C36"/>
+  <text x="130" y="172" fill="#172C36" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">EDITORIAL RUAH</text>
+  <text x="126" y="286" fill="#172C36" font-family="Georgia, serif" font-size="72" font-style="italic" font-weight="700">Comunidade,</text>
+  <text x="126" y="356" fill="#172C36" font-family="Georgia, serif" font-size="72" font-style="italic" font-weight="700">arte e servico.</text>
+  <text x="664" y="522" fill="#172C36" font-family="Georgia, serif" font-size="58" font-style="italic" font-weight="700">Uma leitura viva</text>
+  <text x="664" y="584" fill="#172C36" font-family="Georgia, serif" font-size="58" font-style="italic" font-weight="700">da marca.</text>
+  <defs>
+    <linearGradient id="bg" x1="60" y1="60" x2="1140" y2="615" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F2EA"/>
+      <stop offset="1" stop-color="#E2D6C7"/>
+    </linearGradient>
+  </defs>
+</svg>

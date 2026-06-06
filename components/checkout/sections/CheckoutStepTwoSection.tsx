@@ -1,7 +1,6 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
-import { AppImage } from '@/components/shared/AppImage';
 import { CreditCard, QrCode, Wallet } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import type { PaymentMethod, PaymentProviderKey } from '@/lib/payments';
@@ -130,13 +129,20 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
             : `Finalizar 1 clique ${paymentMethod === 'pix' ? 'PIX' : 'CARTEIRA'}`}
       </button>
 
-      <div className="flex items-center justify-center gap-8 py-8 opacity-40 grayscale scale-90">
-        <AppImage context="icon" src="https://picsum.photos/seed/visa/100/50" alt="Visa" width={40} height={20} />
-        <AppImage context="icon" src="https://picsum.photos/seed/master/100/50" alt="Mastercard" width={40} height={20} />
-        <AppImage context="icon" src="https://picsum.photos/seed/pix/100/50" alt="Pix" width={40} height={20} />
+      <div className="flex items-center justify-center gap-3 py-8 flex-wrap">
+        <span className="inline-flex items-center gap-2 rounded-full border border-ruah-100 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-400">
+          <CreditCard size={12} className="text-accent-gold" />
+          Visa
+        </span>
+        <span className="inline-flex items-center gap-2 rounded-full border border-ruah-100 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-400">
+          <CreditCard size={12} className="text-accent-gold" />
+          Mastercard
+        </span>
+        <span className="inline-flex items-center gap-2 rounded-full border border-ruah-100 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-400">
+          <QrCode size={12} className="text-accent-gold" />
+          Pix
+        </span>
       </div>
     </div>
   );
 }
-
-

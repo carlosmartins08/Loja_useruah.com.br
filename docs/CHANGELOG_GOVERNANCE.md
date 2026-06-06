@@ -32,6 +32,41 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-06] Gate unico de coerencia para alteracoes visuais no frontend
+- ID: GOV-0066
+- Status: `aprovada`
+- Dono da decisao: Produto + Design + Engenharia Frontend
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `ui-rotas`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/DESIGN.md`
+  - `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`
+  - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+- Decisao:
+  - Consolidar o gate de coerencia de frontend nos documentos ja existentes, sem criar checklist paralelo.
+  - Exigir validacao explicita de tokens, familias de grid, container oficial, escala de camadas e encoding/copy quando houver alteracao visual.
+  - Formalizar que excecao local nao substitui contrato global e que problema sistemico deve ser corrigido na fonte de verdade antes da tela isolada.
+- Contexto:
+  - O projeto ja possuia contrato visual suficiente, mas ainda permitia drift entre documento, CSS global e paginas por falta de um gate operacional mais especifico.
+- Impacto esperado:
+  - Menos retrabalho por correcao repetida de token, grid e camada.
+  - Menos reintroducao de vocabulos visuais legados.
+  - Revisao de frontend mais objetiva e auditavel.
+- Riscos conhecidos:
+  - Se o time tratar o checklist como ritual de preenchimento, sem usar os documentos como fonte de decisao, o drift volta.
+- Plano de rollback:
+  - Reverter apenas se um documento normativo mais central absorver integralmente esse gate sem duplicidade.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/DESIGN.md`
+  - `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`
+  - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
 ### [2026-06-05] Runbooks de go-live e cutover alinhados ao recorte ativo do gateway_real
 - ID: GOV-0065
 - Status: `aprovada`

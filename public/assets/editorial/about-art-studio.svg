@@ -1,0 +1,19 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1200" rx="72" fill="#F3ECE2"/>
+  <rect x="74" y="74" width="1052" height="1052" rx="56" fill="url(#bg)"/>
+  <rect x="170" y="178" width="446" height="844" rx="42" fill="#172C36"/>
+  <circle cx="852" cy="322" r="142" fill="#C5A059" fill-opacity="0.28"/>
+  <circle cx="828" cy="756" r="172" fill="#E6D9C8"/>
+  <text x="228" y="294" fill="#FFF9F1" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="6">ARTE USERUAH</text>
+  <text x="228" y="444" fill="#FFF9F1" font-family="Georgia, serif" font-size="88" font-style="italic" font-weight="700">Sopro</text>
+  <text x="228" y="530" fill="#FFF9F1" font-family="Georgia, serif" font-size="88" font-style="italic" font-weight="700">que vira</text>
+  <text x="228" y="616" fill="#FFF9F1" font-family="Georgia, serif" font-size="88" font-style="italic" font-weight="700">traço.</text>
+  <text x="700" y="976" fill="#172C36" font-family="Georgia, serif" font-size="66" font-style="italic" font-weight="700">Criação com origem</text>
+  <defs>
+    <linearGradient id="bg" x1="74" y1="74" x2="1126" y2="1126" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8F3EB"/>
+      <stop offset="0.5" stop-color="#E6DBCC"/>
+      <stop offset="1" stop-color="#D5C7B4"/>
+    </linearGradient>
+  </defs>
+</svg>

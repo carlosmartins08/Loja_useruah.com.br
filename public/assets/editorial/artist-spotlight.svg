@@ -1,0 +1,17 @@
+<svg width="1000" height="1000" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1000" height="1000" rx="72" fill="#0F1E26"/>
+  <rect x="72" y="72" width="856" height="856" rx="52" fill="url(#bg)"/>
+  <circle cx="634" cy="318" r="154" fill="#C5A059" fill-opacity="0.26"/>
+  <circle cx="418" cy="356" r="118" fill="#E8DDD0"/>
+  <path d="M250 768C310 616 406 538 520 538C642 538 738 622 800 768V850H250V768Z" fill="#172C36"/>
+  <text x="196" y="180" fill="#172C36" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="6">ARTISTA EM DESTAQUE</text>
+  <text x="196" y="846" fill="#FFF9F1" font-family="Georgia, serif" font-size="72" font-style="italic" font-weight="700">Trazo com</text>
+  <text x="196" y="910" fill="#FFF9F1" font-family="Georgia, serif" font-size="72" font-style="italic" font-weight="700">origem.</text>
+  <defs>
+    <linearGradient id="bg" x1="72" y1="72" x2="928" y2="928" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F2EBDD"/>
+      <stop offset="0.48" stop-color="#C9B8A6"/>
+      <stop offset="1" stop-color="#9F9284"/>
+    </linearGradient>
+  </defs>
+</svg>

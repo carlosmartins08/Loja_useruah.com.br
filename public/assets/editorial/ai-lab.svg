@@ -1,0 +1,29 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1000" rx="72" fill="#F4F0EA"/>
+  <rect x="80" y="80" width="1440" height="840" rx="54" fill="url(#bg)"/>
+  <rect x="170" y="180" width="560" height="520" rx="44" fill="#13232C"/>
+  <rect x="790" y="180" width="620" height="280" rx="38" fill="#FFF9F1" fill-opacity="0.94"/>
+  <rect x="790" y="500" width="620" height="200" rx="38" fill="#1C2F39"/>
+  <circle cx="1270" cy="310" r="78" fill="#C5A059" fill-opacity="0.28"/>
+  <circle cx="1370" cy="260" r="24" fill="#C5A059"/>
+  <circle cx="1324" cy="564" r="16" fill="#C5A059"/>
+  <path d="M220 286H544" stroke="#C5A059" stroke-width="4" stroke-linecap="round"/>
+  <path d="M220 330H622" stroke="#E7DAC6" stroke-width="4" stroke-linecap="round" stroke-opacity="0.6"/>
+  <path d="M220 374H510" stroke="#E7DAC6" stroke-width="4" stroke-linecap="round" stroke-opacity="0.6"/>
+  <path d="M220 418H474" stroke="#E7DAC6" stroke-width="4" stroke-linecap="round" stroke-opacity="0.6"/>
+  <rect x="220" y="506" width="260" height="92" rx="28" fill="#C5A059"/>
+  <text x="220" y="250" fill="#FFF9F1" font-family="Georgia, serif" font-size="88" font-style="italic" font-weight="700">RUAH</text>
+  <text x="220" y="610" fill="#13232C" font-family="Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="7">ESTUDIO AI</text>
+  <text x="850" y="274" fill="#C5A059" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="6">PROMPT VIVO</text>
+  <text x="850" y="350" fill="#13232C" font-family="Georgia, serif" font-size="62" font-style="italic" font-weight="700">Sua missao</text>
+  <text x="850" y="420" fill="#13232C" font-family="Georgia, serif" font-size="62" font-style="italic" font-weight="700">vira forma.</text>
+  <text x="850" y="588" fill="#FFF9F1" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">COROINHAS SAO JOSE</text>
+  <text x="850" y="646" fill="#FFF9F1" fill-opacity="0.72" font-family="Arial, sans-serif" font-size="26" font-weight="700">gravura • algodao • direcao de marca</text>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="80" x2="1520" y2="920" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFE5D7"/>
+      <stop offset="0.5" stop-color="#F7F3ED"/>
+      <stop offset="1" stop-color="#E6DDD0"/>
+    </linearGradient>
+  </defs>
+</svg>

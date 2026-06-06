@@ -20,16 +20,46 @@ export const HOME_FAQ: HomeFaqItem[] = [
 ];
 
 export const HOME_PRODUCTS: HomeProduct[] = [
-  { id: '1', name: 'Camiseta Respiro', category: 'Autoral', price: 89.9, image: 'https://picsum.photos/seed/ruah-p1/800/1000', badge: 'Popular' },
-  { id: '2', name: 'Moletom Fé Viva', category: 'Campanha', price: 159.9, image: 'https://picsum.photos/seed/ruah-p2/800/1000' },
-  { id: '3', name: 'Bolsa Sopro', category: 'Acessórios', price: 45, image: 'https://picsum.photos/seed/ruah-p3/800/1000', badge: 'Novo' },
-  { id: '4', name: 'Camiseta Geração', category: 'Artistas', price: 95, image: 'https://picsum.photos/seed/ruah-p4/800/1000' },
+  {
+    id: '1',
+    name: 'Camiseta Respiro',
+    category: 'Autoral',
+    price: 89.9,
+    image: '/assets/products/mockups/camiseta-regular/offwhite-oracao/mockup-camiseta-regular-offwhite-oracao-front.png',
+    hoverImage: '/assets/products/mockups/camiseta-regular/offwhite-oracao/mockup-camiseta-regular-offwhite-oracao-left-3q.png',
+    badge: 'Popular',
+  },
+  {
+    id: '2',
+    name: 'Moletom Fé Viva',
+    category: 'Campanha',
+    price: 159.9,
+    image: '/assets/products/mockups/moletom-unissex/preto-presenca/mockup-moletom-unissex-preto-presenca-front.png',
+    hoverImage: '/assets/products/mockups/moletom-unissex/preto-presenca/mockup-moletom-unissex-preto-presenca-left-3q.png',
+  },
+  {
+    id: '3',
+    name: 'Bolsa Sopro',
+    category: 'Acessórios',
+    price: 45,
+    image: '/assets/products/mockups/ecobag/areia-serena/mockup-ecobag-areia-serena-front.png',
+    hoverImage: '/assets/products/mockups/ecobag/areia-serena/mockup-ecobag-areia-serena-left-3q.png',
+    badge: 'Novo',
+  },
+  {
+    id: '4',
+    name: 'Boné Presença',
+    category: 'Artistas',
+    price: 95,
+    image: '/assets/products/mockups/bone/preto-presenca/mockup-bone-preto-presenca-front.png',
+    hoverImage: '/assets/products/mockups/bone/preto-presenca/mockup-bone-preto-presenca-left-3q.png',
+  },
 ];
 
 export const HOME_CATEGORIES: HomeCategory[] = [
-  { name: 'Autoral', image: 'https://picsum.photos/seed/ruah-cat-1/600/800', link: '/shop' },
-  { name: 'Artistas', image: 'https://picsum.photos/seed/ruah-cat-2/600/800', link: '/shop' },
-  { name: 'Grupos', image: 'https://picsum.photos/seed/ruah-cat-3/600/800', link: '/shop' },
+  { name: 'Autoral', image: '/assets/products/mockups/camiseta-regular/preto-presenca/mockup-camiseta-regular-preto-presenca-front.png', link: '/shop' },
+  { name: 'Artistas', image: '/assets/products/mockups/moletom-unissex/offwhite-oracao/mockup-moletom-unissex-offwhite-oracao-front.png', link: '/shop' },
+  { name: 'Grupos', image: '/assets/products/mockups/ecobag/preto-presenca/mockup-ecobag-preto-presenca-front.png', link: '/shop' },
 ];
 
 export const HOME_TESTIMONIALS: HomeTestimonial[] = [
@@ -37,25 +67,25 @@ export const HOME_TESTIMONIALS: HomeTestimonial[] = [
     name: 'Ana Silva',
     city: 'Rio de Janeiro, RJ',
     quote: 'A qualidade do tecido me surpreendeu, mas o propósito por trás da estampa é o que realmente me conectou com a marca.',
-    image: 'https://picsum.photos/seed/ruah-user-1/200/200',
+    image: '/assets/editorial/portrait-ana.svg',
   },
   {
     name: 'Marcos Oliveira',
     city: 'Belo Horizonte, MG',
     quote: 'Comprei para o meu grupo de oração e todos amaram. É uma forma linda e contemporânea de evangelizar no dia a dia.',
-    image: 'https://picsum.photos/seed/ruah-user-2/200/200',
+    image: '/assets/editorial/portrait-marcos.svg',
   },
   {
     name: 'Julia Costa',
     city: 'Curitiba, PR',
     quote: 'O atendimento do Concierge Ruah foi impecável. Senti o cuidado e o carinho em cada detalhe do pedido até a entrega.',
-    image: 'https://picsum.photos/seed/ruah-user-3/200/200',
+    image: '/assets/editorial/portrait-julia.svg',
   },
   {
     name: 'Pedro Santos',
     city: 'Recife, PE',
     quote: 'Design autêntico que foge do óbvio. Finalmente uma marca que une fé e estática de alto nível.',
-    image: 'https://picsum.photos/seed/ruah-user-4/200/200',
+    image: '/assets/editorial/portrait-pedro.svg',
   },
 ];
 

@@ -1,20 +1,24 @@
-﻿export interface CategoryProduct {
+import { BRAND_PRODUCT_SEEDS } from '@/lib/brand-assets';
+
+export interface CategoryProduct {
   id: string;
   name: string;
   category: string;
   price: number;
   image: string;
+  hoverImage?: string;
   badge?: string;
 }
 
-export const categoryProducts: CategoryProduct[] = [
-  { id: '1', name: 'Camiseta Respiro', category: 'Autoral', price: 89.9, image: 'https://picsum.photos/seed/ruah-p1/800/1000' },
-  { id: '2', name: 'Moletom Fé Viva', category: 'Autoral', price: 159.9, image: 'https://picsum.photos/seed/ruah-p2/800/1000' },
-  { id: '3', name: 'Bolsa Sopro', category: 'Autoral', price: 45.0, image: 'https://picsum.photos/seed/ruah-p3/800/1000' },
-  { id: '4', name: 'T-Shirt Geração', category: 'Autoral', price: 95.0, image: 'https://picsum.photos/seed/ruah-p4/800/1000' },
-  { id: '5', name: 'Almofada Paz', category: 'Autoral', price: 65.0, image: 'https://picsum.photos/seed/ruah-p5/800/1000' },
-  { id: '6', name: 'Ecobag Reino', category: 'Autoral', price: 35.0, image: 'https://picsum.photos/seed/ruah-p6/800/1000', badge: 'Limitado' },
-];
+export const categoryProducts: CategoryProduct[] = BRAND_PRODUCT_SEEDS.map((product, index) => ({
+  id: product.id,
+  name: product.name,
+  category: 'Autoral',
+  price: product.price,
+  image: product.image,
+  hoverImage: product.hoverImage,
+  badge: index === BRAND_PRODUCT_SEEDS.length - 1 ? 'Limitado' : undefined,
+}));
 
 export const categoryFilters = ['Minimalista', 'Histórica', 'Tipografia', 'Iconografia'];
 

@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { AppImage } from '@/components/shared/AppImage';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { BRAND_EDITORIAL_ASSETS } from '@/lib/brand-assets';
 
 export function Hero() {
   return (
@@ -16,24 +17,22 @@ export function Hero() {
               <div className="flex gap-4 lg:gap-6">
                 <div className="relative w-1/3 aspect-[3/4] rounded-[2rem] lg:rounded-3xl overflow-hidden mt-8 lg:mt-16">
                   <AppImage context="content-banner"
-                    src="https://picsum.photos/seed/ruah-hero-1/600/800"
+                    src={BRAND_EDITORIAL_ASSETS.heroLeft}
                     alt="Fé 1"
                     fill
                     priority
                     sizes="(max-width: 1024px) 33vw, 25vw"
                     className="object-cover"
-                    referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="relative w-2/3 aspect-[16/10] lg:aspect-[16/9] rounded-[2rem] lg:rounded-3xl overflow-hidden">
                   <AppImage context="content-banner"
-                    src="https://picsum.photos/seed/ruah-hero-2/1200/800"
+                    src={BRAND_EDITORIAL_ASSETS.heroCenter}
                     alt="Fé 2"
                     fill
                     priority
                     sizes="(max-width: 1024px) 66vw, 50vw"
                     className="object-cover"
-                    referrerPolicy="no-referrer"
                   />
                 </div>
               </div>
@@ -71,13 +70,12 @@ export function Hero() {
 
             <div className="relative w-full aspect-square rounded-[2.5rem] lg:rounded-3xl overflow-hidden mb-2 shadow-2xl">
               <AppImage context="content-banner"
-                src="https://picsum.photos/seed/ruah-hero-3/800/800"
+                src={BRAND_EDITORIAL_ASSETS.heroRight}
                 alt="Fé 3"
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 33vw"
                 className="object-cover"
-                referrerPolicy="no-referrer"
               />
               <div className="absolute bottom-8 left-8 bg-white/95 backdrop-blur-md px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest text-accent-gold shadow-xl">
                 Manifesto Ruah

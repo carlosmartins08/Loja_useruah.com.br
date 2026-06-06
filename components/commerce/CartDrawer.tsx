@@ -7,12 +7,27 @@ import { useCart } from '@/context/CartContext';
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
+import { BRAND_PRODUCT_SEEDS } from '@/lib/brand-assets';
 
 export function CartDrawer() {
   const { isCartOpen, setIsCartOpen, cart, removeFromCart, updateQuantity, total, subtotal, discount, location } = useCart();
   const drawerRef = React.useRef<HTMLDivElement>(null);
   const freeShippingThreshold = 3000;
   const progress = Math.min((total / freeShippingThreshold) * 100, 100);
+  const cartUpsellItems = [
+    {
+      id: BRAND_PRODUCT_SEEDS[4].id,
+      name: BRAND_PRODUCT_SEEDS[4].name,
+      price: BRAND_PRODUCT_SEEDS[4].price,
+      image: BRAND_PRODUCT_SEEDS[4].image,
+    },
+    {
+      id: BRAND_PRODUCT_SEEDS[5].id,
+      name: BRAND_PRODUCT_SEEDS[5].name,
+      price: BRAND_PRODUCT_SEEDS[5].price,
+      image: BRAND_PRODUCT_SEEDS[5].image,
+    },
+  ];
 
   useFocusTrap({
     active: isCartOpen,
@@ -104,7 +119,7 @@ export function CartDrawer() {
                   {cart.map((item, idx) => (
                     <div key={`${item.id}-${idx}`} className="flex gap-6 group">
                       <div className="relative w-24 h-32 rounded-2xl overflow-hidden bg-ruah-50 border border-ruah-100 shadow-sm">
-                        <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" referrerPolicy="no-referrer" />
+                        <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" />
                         {item.productionDays && (
                           <div className="absolute top-2 left-2 bg-accent-gold text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-[0.1em]">
                              Bespoke
@@ -166,10 +181,7 @@ export function CartDrawer() {
                 <div className="pt-12 border-t border-ruah-50">
                    <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-ruah-300 mb-6 font-bold">Complete sua Experiência</h4>
                    <div className="grid grid-cols-1 gap-4">
-                      {[
-                        { id: 'acc-4', name: 'Almofada Paz', price: 75, image: 'https://picsum.photos/seed/ruah-p5/100/100' },
-                        { id: 'acc-5', name: 'Botton Símbolo', price: 12, image: 'https://picsum.photos/seed/ruah-p6/100/100' }
-                      ].map((acc) => (
+                      {cartUpsellItems.map((acc) => (
                         <div key={acc.id} className="flex items-center gap-4 p-4 bg-ruah-50 rounded-2xl border border-ruah-100 group cursor-pointer hover:border-accent-gold/30 transition-all font-bold">
                            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0">
                               <AppImage context="content-banner" src={acc.image} alt={acc.name} fill className="object-cover" />

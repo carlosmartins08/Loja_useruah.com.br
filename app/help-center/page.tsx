@@ -77,27 +77,53 @@ export default function HelpCenterPage() {
       <Header />
       <main>
         <section className="bg-ruah-950 text-white pt-28 lg:pt-36 pb-16 lg:pb-24 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-accent-gold/10 blur-[120px] -skew-x-12" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(197,160,89,0.18),transparent_28%),radial-gradient(circle_at_88%_16%,rgba(255,255,255,0.05),transparent_24%)]" />
           <div className="section-container relative z-10">
-            <div className="max-w-3xl">
-              <span className="tech-label text-accent-gold mb-6 block">Central de Ajuda</span>
-              <h1 className="ur-type-display-lg italic uppercase mb-10">Como Podemos Ajudar?</h1>
+            <div className="layout-grid-media gap-12 lg:gap-16 items-end">
+              <div className="lg:col-span-7 max-w-3xl">
+                <span className="tech-label text-accent-gold mb-6 block">Central de Ajuda</span>
+                <h1 className="ur-type-display-lg italic uppercase mb-10">Como Podemos Ajudar?</h1>
 
-              <div className="relative group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-accent-gold transition-colors" size={24} />
-                <input
-                  type="text"
-                  placeholder="Busque por prazos, trocas, tecidos..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-3xl py-6 pl-16 pr-8 text-lg font-medium outline-none focus:border-accent-gold focus:bg-white/10 motion-base placeholder:text-white/30"
-                />
+                <div className="relative group">
+                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-accent-gold transition-colors" size={24} />
+                  <input
+                    type="text"
+                    placeholder="Busque por prazos, trocas, tecidos..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-3xl py-6 pl-16 pr-8 text-lg font-medium outline-none focus:border-accent-gold focus:bg-white/10 motion-base placeholder:text-white/30"
+                  />
+                </div>
+              </div>
+
+              <div className="lg:col-span-5">
+                <div className="rounded-[3rem] border border-white/10 bg-white/5 p-8 lg:p-10 backdrop-blur-sm shadow-fancy">
+                  <span className="tech-label text-accent-gold">Concierge editorial</span>
+                  <h2 className="mt-5 text-3xl font-serif italic uppercase leading-none text-white">Ajuda que resolve sem matar a atmosfera.</h2>
+                  <p className="mt-5 text-sm font-medium leading-relaxed text-white/65">
+                    Atendimento, rastreio e política precisam ser claros, mas não precisam parecer uma área fria ou burocrática.
+                  </p>
+                  <div className="mt-8 grid grid-cols-3 gap-4 border-t border-white/10 pt-6">
+                    <div className="flex flex-col gap-2">
+                      <span className="text-2xl font-serif italic text-white">3</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Tópicos</span>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-2xl font-serif italic text-white">FAQ</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Guiado</span>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-2xl font-serif italic text-white">1</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/45">Próximo passo</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="py-14 lg:py-20 border-b border-ruah-100">
+        <section className="py-14 lg:py-20 border-b border-ruah-100 bg-[linear-gradient(180deg,rgba(250,250,250,0.8),rgba(255,255,255,1))]">
           <div className="section-container">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Link href="/account" className="group p-8 bg-ruah-50 rounded-[2.5rem] border border-ruah-100 hover:border-accent-gold/30 motion-base">
@@ -130,10 +156,11 @@ export default function HelpCenterPage() {
           </div>
         </section>
 
-        <section className="py-20 lg:py-28">
+        <section className="py-20 lg:py-28 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(197,160,89,0.08),transparent_24%)]" />
           <div className="section-container">
             <div className="layout-grid-product gap-10 lg:gap-16">
-              <div className="lg:col-span-4 flex flex-col gap-4 lg:sticky lg:top-24">
+              <div className="lg:col-span-4 flex flex-col gap-4 lg:sticky lg:top-24 self-start rounded-[2.5rem] border border-ruah-100 bg-white/90 p-6 shadow-subtle backdrop-blur-sm">
                 <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-ruah-400 mb-2">Tópicos</h4>
                 {FAQ_CATEGORIES.map((cat) => (
                   <button
@@ -180,7 +207,8 @@ export default function HelpCenterPage() {
           </div>
         </section>
 
-        <section className="bg-ruah-50 py-20 lg:py-28 border-t border-ruah-100">
+        <section className="bg-ruah-50 py-20 lg:py-28 border-t border-ruah-100 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(197,160,89,0.08),transparent_30%)]" />
           <div className="section-container">
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto gap-10">
               <div className="flex flex-col gap-4">
@@ -190,17 +218,17 @@ export default function HelpCenterPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
-                <div className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base">
+                <div className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base shadow-subtle">
                   <Mail size={24} className="text-ruah-300" />
                   <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">E-mail</span>
                   <span className="text-sm font-semibold">falecom@useruah.com</span>
                 </div>
-                <div className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base">
+                <div className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base shadow-subtle">
                   <Phone size={24} className="text-ruah-300" />
                   <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">Telefone</span>
                   <span className="text-sm font-semibold">+55 11 9999-9999</span>
                 </div>
-                <div className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base">
+                <div className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base shadow-subtle">
                   <MessageSquare size={24} className="text-ruah-300" />
                   <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">WhatsApp</span>
                   <span className="text-sm font-semibold">Atendimento Viva</span>

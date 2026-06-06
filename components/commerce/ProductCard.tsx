@@ -13,10 +13,11 @@ interface ProductCardProps {
   category: string;
   price: number;
   image: string;
+  hoverImage?: string;
   badge?: string;
 }
 
-export function ProductCard({ id, name, category, price, image, badge }: ProductCardProps) {
+export function ProductCard({ id, name, category, price, image, hoverImage, badge }: ProductCardProps) {
   const { addToCart } = useCart();
   const [isFavorite, setIsFavorite] = React.useState(false);
   const [isAdded, setIsAdded] = React.useState(false);
@@ -69,7 +70,7 @@ export function ProductCard({ id, name, category, price, image, badge }: Product
           referrerPolicy="no-referrer"
         />
         <AppImage context="content-banner"
-          src={`https://picsum.photos/seed/alt-${id}/800/1200`}
+          src={hoverImage ?? image}
           alt={`${name} detail`}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

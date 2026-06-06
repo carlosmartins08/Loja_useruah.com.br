@@ -7,6 +7,7 @@ import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 import { GoogleGenAI, Type } from '@google/genai';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
+import { BRAND_SEARCH_BANNERS, getBrandProductVisual } from '@/lib/brand-assets';
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -96,11 +97,6 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
 
   const resultsToDisplay = query.length < 3 ? initialSuggestions : aiResults.length > 0 ? aiResults : [];
 
-  const featuredBanners = [
-    { title: 'Best Sellers', tag: 'Destaques', image: 'https://picsum.photos/seed/ruah-sb-1/600/800' },
-    { title: 'Nova Série: Respiro', tag: 'Sopro Novo', image: 'https://picsum.photos/seed/ruah-sb-2/600/800' },
-  ];
-
   useFocusTrap({
     active: isOpen,
     containerRef: overlayRef,
@@ -150,23 +146,27 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
 
                 {resultsToDisplay.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {resultsToDisplay.map((item, i) => (
-                      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} key={item.id}>
-                        <Link href={`/product/${item.id}`} onClick={onClose} className="flex gap-6 group bg-ruah-50/30 p-4 rounded-[2rem] border border-transparent hover:border-ruah-100 hover:bg-white transition-all shadow-sm">
-                          <div className="relative w-28 h-36 rounded-2xl overflow-hidden shrink-0 bg-ruah-100">
-                            <AppImage context="content-banner" src={`https://picsum.photos/seed/rp${item.id}/400/500`} alt={item.name} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
-                          </div>
-                          <div className="flex flex-col justify-center gap-2">
-                            <span className="text-xs font-semibold text-accent-gold uppercase tracking-[0.1em]">{item.category}</span>
-                            <h4 className="text-xl font-serif italic group-hover:text-accent-gold transition-colors leading-tight">{item.name}</h4>
-                            {item.reason && <p className="text-sm text-ruah-500 font-medium leading-relaxed mt-1">{item.reason}</p>}
-                            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-ruah-400 group-hover:text-ruah-950 transition-colors mt-2">
-                              Ver detalhes <ArrowUpRight size={14} />
+                    {resultsToDisplay.map((item, i) => {
+                      const visual = getBrandProductVisual(item.id);
+
+                      return (
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} key={item.id}>
+                          <Link href={`/product/${item.id}`} onClick={onClose} className="flex gap-6 group bg-ruah-50/30 p-4 rounded-[2rem] border border-transparent hover:border-ruah-100 hover:bg-white transition-all shadow-sm">
+                            <div className="relative w-28 h-36 rounded-2xl overflow-hidden shrink-0 bg-ruah-100">
+                              <AppImage context="content-banner" src={visual.image} alt={item.name} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
                             </div>
-                          </div>
-                        </Link>
-                      </motion.div>
-                    ))}
+                            <div className="flex flex-col justify-center gap-2">
+                              <span className="text-xs font-semibold text-accent-gold uppercase tracking-[0.1em]">{item.category}</span>
+                              <h4 className="text-xl font-serif italic group-hover:text-accent-gold transition-colors leading-tight">{item.name}</h4>
+                              {item.reason && <p className="text-sm text-ruah-500 font-medium leading-relaxed mt-1">{item.reason}</p>}
+                              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-ruah-400 group-hover:text-ruah-950 transition-colors mt-2">
+                                Ver detalhes <ArrowUpRight size={14} />
+                              </div>
+                            </div>
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 ) : query.length >= 3 && !isAiSearching ? (
                   <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
@@ -178,7 +178,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   <div className="mt-10 pt-10 border-t border-ruah-50">
                     <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-ruah-400 mb-6">Navegação visual</h3>
                     <div className="grid grid-cols-2 gap-6">
-                      {featuredBanners.map((banner, idx) => (
+                      {BRAND_SEARCH_BANNERS.map((banner, idx) => (
                         <Link key={idx} href="/shop" onClick={onClose} className="relative aspect-[16/6] rounded-[2.5rem] overflow-hidden group">
                           <AppImage context="content-banner" src={banner.image} alt={banner.title} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
                           <div className="absolute inset-0 bg-ruah-950/30 flex items-center justify-between px-8">

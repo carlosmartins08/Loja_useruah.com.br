@@ -1,0 +1,9 @@
+<svg width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="800" rx="56" fill="#172C36"/>
+  <rect x="68" y="68" width="664" height="664" rx="44" fill="#223742"/>
+  <circle cx="540" cy="236" r="110" fill="#C5A059"/>
+  <rect x="148" y="404" width="340" height="160" rx="32" fill="#FFF9F1" fill-opacity="0.9"/>
+  <text x="148" y="200" fill="#FFF9F1" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="6">COMUNIDADE</text>
+  <text x="188" y="488" fill="#172C36" font-family="Georgia, serif" font-size="58" font-style="italic" font-weight="700">Fe que</text>
+  <text x="188" y="548" fill="#172C36" font-family="Georgia, serif" font-size="58" font-style="italic" font-weight="700">aparece.</text>
+</svg>

@@ -1,4 +1,4 @@
-﻿import { AppImage } from '@/components/shared/AppImage';
+import { Gift } from 'lucide-react';
 
 interface CheckoutStepOneSectionProps {
   isActive: boolean;
@@ -116,7 +116,7 @@ export function CheckoutStepOneSection({
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-ruah-50 rounded-xl flex items-center justify-center text-accent-gold">
-              <AppImage context="icon" src="https://picsum.photos/seed/gift/100/100" alt="Gift" width={20} height={20} className="grayscale" />
+              <Gift size={20} />
             </div>
             <div>
               <h3 className="text-sm font-bold uppercase tracking-tight text-ruah-950">Embalagem para presente</h3>
@@ -135,7 +135,7 @@ export function CheckoutStepOneSection({
               <textarea
                 placeholder="Escreva a mensagem que deve acompanhar o pedido."
                 value={gifting.message}
-                onChange={(e) => onGiftMessageChange(e.target.value)}
+                onChange={(event) => onGiftMessageChange(event.target.value)}
                 className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-medium focus:border-accent-gold outline-none transition-all h-24 resize-none"
               />
             </div>
@@ -149,7 +149,3 @@ export function CheckoutStepOneSection({
     </div>
   );
 }
-
-
-
-
