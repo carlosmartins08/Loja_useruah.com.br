@@ -9,7 +9,7 @@ export function CatalogHighlights() {
     <>
       <section className="section-space">
         <div className="section-container">
-          <div className="flex justify-between items-end mb-16 px-4">
+          <div className="flex justify-between items-end mb-16">
             <div className="flex flex-col gap-4">
               <span className="tech-label">Catálogo</span>
               <h2 className="text-5xl lg:text-7xl font-serif tracking-tight text-ruah-950 uppercase italic font-black leading-none">Nossas Frentes.</h2>
@@ -42,7 +42,7 @@ export function CatalogHighlights() {
 
       <section className="section-space bg-white">
         <div className="section-container">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-20 px-4 gap-8">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div className="flex flex-col gap-4">
               <span className="tech-label text-accent-gold">Drops Exclusivos</span>
               <h2 className="text-5xl lg:text-7xl font-serif tracking-tight text-ruah-950 uppercase italic font-black leading-none">Lançamentos <br /> Recentes.</h2>
@@ -52,7 +52,7 @@ export function CatalogHighlights() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+          <div className="layout-grid-catalog gap-y-16">
             {HOME_PRODUCTS.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}

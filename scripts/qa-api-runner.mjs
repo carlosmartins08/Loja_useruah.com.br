@@ -1,6 +1,6 @@
 import net from 'node:net';
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, rmSync } from 'node:fs';
 
 const PORT = Number(process.env.QA_PORT ?? 3200);
 const QA_SCRIPT = process.env.QA_SCRIPT;
@@ -104,6 +104,16 @@ function spawnNpm(args) {
   });
 }
 
+function cleanNextBuildArtifacts() {
+  const nextDir = '.next';
+  if (!existsSync(nextDir)) return;
+  try {
+    rmSync(nextDir, { recursive: true, force: true });
+  } catch (error) {
+    console.warn(`QA runner warning: failed to clean ${nextDir} before build: ${String(error)}`);
+  }
+}
+
 function waitForExit(child) {
   return new Promise((resolve, reject) => {
     child.on('error', reject);
@@ -127,6 +137,7 @@ async function main() {
     QA_SERVER_MODE === 'start' ? ['run', 'start', '--', '-p', String(PORT)] : ['run', 'dev', '--', '-p', String(PORT)];
 
   if (!portAlreadyOpen && QA_SERVER_MODE === 'start') {
+    cleanNextBuildArtifacts();
     const build = spawnNpm(['run', 'build']);
     const buildExit = await waitForExit(build);
     if (buildExit !== 0) {

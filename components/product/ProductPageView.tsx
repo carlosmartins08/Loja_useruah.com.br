@@ -106,8 +106,8 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
       </section>
 
       <section className="py-24 bg-white">
-        <div className="section-container grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-          <div className="bg-ruah-50 rounded-3xl p-8 border border-ruah-100 self-start">
+        <div className="section-container layout-grid-product">
+          <div className="lg:col-span-6 bg-ruah-50 rounded-3xl p-8 border border-ruah-100 self-start">
             <span className="text-xs font-black text-accent-gold uppercase tracking-[0.18em]">Ficha técnica</span>
             <h2 className="text-3xl font-serif italic uppercase text-ruah-950 mt-4">Detalhes do produto</h2>
             <ul className="mt-6 flex flex-col gap-4 text-sm font-semibold text-ruah-600">
@@ -117,7 +117,9 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
               <li><span className="text-ruah-950">Lavagem:</span> {product.washGuide}</li>
             </ul>
           </div>
-          <TechnicalGuide />
+          <div className="lg:col-span-6 self-start">
+            <TechnicalGuide />
+          </div>
         </div>
       </section>
 
@@ -134,8 +136,8 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
 
       <section className="py-32 bg-white">
         <div className="section-container">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
-            <div className="lg:col-span-3 flex flex-col gap-10">
+          <div className="layout-grid-product">
+            <div className="lg:col-span-4 flex flex-col gap-10 self-start">
               <div className="flex flex-col gap-6">
                 <span className="tech-label text-accent-gold font-black">Ajuda ao cliente</span>
                 <h2 className="text-4xl font-serif italic uppercase leading-tight font-black text-ruah-950">AJUDA & <br /> SUPORTE.</h2>
@@ -150,7 +152,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
                 </Link>
               </div>
             </div>
-            <div className="lg:col-span-9">
+            <div className="lg:col-span-8 self-start">
               <ProductFAQ />
             </div>
           </div>

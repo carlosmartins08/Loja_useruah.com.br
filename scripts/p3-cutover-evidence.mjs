@@ -15,13 +15,16 @@ function loadDotEnvFile() {
     if (idx <= 0) continue;
     const key = trimmed.slice(0, idx).trim();
     if (!key) continue;
+    if (Object.prototype.hasOwnProperty.call(process.env, key) && process.env[key] !== undefined && String(process.env[key]).trim() !== '') {
+      continue;
+    }
     process.env[key] = trimmed.slice(idx + 1).trim();
   }
 }
 
 loadDotEnvFile();
 
-const PROVIDERS = ['inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe'];
+const DIRECT_PROVIDERS = ['inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe'];
 
 function hasValue(key) {
   const value = process.env[key];
@@ -33,6 +36,9 @@ function req(keys) {
 }
 
 function providerRequirements(provider) {
+  if (provider === 'gateway_real') {
+    return ['PAYMENT_GATEWAY_BASE_URL', 'PAYMENT_GATEWAY_API_KEY', 'PAYMENT_GATEWAY_MERCHANT_ID'];
+  }
   const upper = provider.toUpperCase();
   if (provider === 'inter') {
     return [`PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_TOKEN_URL`, `PAYMENT_${upper}_CLIENT_ID`, `PAYMENT_${upper}_CLIENT_SECRET`];
@@ -50,10 +56,10 @@ if (missingGlobal.length > 0) {
 }
 
 const providerMode = String(process.env.PAYMENT_PROVIDER ?? '').trim().toLowerCase();
-if (providerMode !== 'gateway_real' && !PROVIDERS.includes(providerMode)) {
+if (providerMode !== 'gateway_real' && !DIRECT_PROVIDERS.includes(providerMode)) {
   console.error(
     JSON.stringify(
-      { status: 'FAIL', reason: 'invalid_provider_mode', expected: ['gateway_real', ...PROVIDERS], got: process.env.PAYMENT_PROVIDER },
+      { status: 'FAIL', reason: 'invalid_provider_mode', expected: ['gateway_real', ...DIRECT_PROVIDERS], got: process.env.PAYMENT_PROVIDER },
       null,
       2
     )
@@ -61,24 +67,8 @@ if (providerMode !== 'gateway_real' && !PROVIDERS.includes(providerMode)) {
   process.exit(1);
 }
 
-const targetProvider =
-  providerMode === 'gateway_real' ? String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase() : providerMode;
-if (!PROVIDERS.includes(targetProvider)) {
-  console.error(
-    JSON.stringify(
-      {
-        status: 'FAIL',
-        reason: 'invalid_or_missing_target_provider',
-        expected: PROVIDERS,
-        got: targetProvider || null,
-        hint: 'Defina PAYMENT_GATEWAY_TARGET com o provider real deste cutover.',
-      },
-      null,
-      2
-    )
-  );
-  process.exit(1);
-}
+const rawTargetProvider = String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
+const targetProvider = providerMode === 'gateway_real' ? (DIRECT_PROVIDERS.includes(rawTargetProvider) ? rawTargetProvider : 'gateway_real') : providerMode;
 
 const providerMissing = req(providerRequirements(targetProvider));
 if (providerMissing.length > 0) {
@@ -117,7 +107,7 @@ console.log(
       checklist: [
         'Executar npm run check',
         'Executar npm run qa:providers:ready',
-        `Executar smoke dedicado: npm run qa:${targetProvider}:smoke`,
+        `Executar smoke dedicado: ${targetProvider === 'gateway_real' ? 'npm run qa:gateway-real:smoke' : `npm run qa:${targetProvider}:smoke`}`,
         'Executar npm run qa:payments21',
         'Executar npm run qa:exceptions',
         'Registrar 10 transacoes sequenciais sem divergencia por providerReference',

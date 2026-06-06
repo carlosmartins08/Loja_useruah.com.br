@@ -10,8 +10,8 @@ export function Hero() {
   return (
     <section id="hero-section" className="relative min-h-screen flex items-center bg-white py-16 lg:py-24 overflow-hidden">
       <div className="section-container relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-10 items-start">
-          <div className="lg:col-span-8">
+        <div className="layout-grid-media">
+          <div className="lg:col-span-8 self-start">
             <div className="flex flex-col gap-10 lg:gap-14">
               <div className="flex gap-4 lg:gap-6">
                 <div className="relative w-1/3 aspect-[3/4] rounded-[2rem] lg:rounded-3xl overflow-hidden mt-8 lg:mt-16">
@@ -43,7 +43,7 @@ export function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <h1 className="text-5xl md:text-6xl lg:text-[7.2vw] font-serif leading-[0.86] tracking-tight text-ruah-950 uppercase italic font-black max-w-[10ch]">
+                <h1 className="ur-type-display-xl leading-[0.86] tracking-tight text-ruah-950 uppercase italic font-black max-w-[10ch]">
                   VISTA-SE DE <br />
                   <span className="not-italic">ORAÇÃO.</span>
                 </h1>
@@ -57,7 +57,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="lg:col-span-4 flex flex-col gap-10 lg:gap-8 pb-4 relative">
+          <div className="lg:col-span-4 self-start flex flex-col gap-10 lg:gap-8 pb-4 relative">
             <div className="hidden lg:flex absolute -left-16 top-0 h-full items-center">
               <div className="flex flex-col items-center gap-6">
                 <span className="[writing-mode:vertical-lr] text-[9px] font-bold uppercase tracking-[0.5em] text-ruah-200">Inspiração</span>

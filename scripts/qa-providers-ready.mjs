@@ -3,6 +3,16 @@ import { providerConfigState } from './_provider-config.mjs';
 
 const PROVIDERS = [
   {
+    key: 'gateway_real',
+    label: 'Gateway real (generico)',
+    smoke: 'npm run qa:gateway-real:smoke',
+    required: [
+      { env: 'PAYMENT_GATEWAY_BASE_URL', setting: 'baseUrl' },
+      { env: 'PAYMENT_GATEWAY_API_KEY', setting: 'apiKey' },
+      { env: 'PAYMENT_GATEWAY_MERCHANT_ID', setting: 'merchantId' },
+    ],
+  },
+  {
     key: 'inter',
     label: 'Inter',
     smoke: 'npm run qa:inter:smoke',

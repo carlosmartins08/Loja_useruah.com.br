@@ -93,7 +93,7 @@ export function ShopPageView({ products }: ShopPageViewProps) {
         </div>
       </div>
 
-      <div className="sticky top-[64px] z-30 bg-white/95 backdrop-blur-md border-b border-ruah-100 py-3 shadow-sm transition-all duration-300">
+      <div className="sticky top-[64px] z-sticky bg-white/95 backdrop-blur-md border-b border-ruah-100 py-3 shadow-sm transition-all duration-300">
         <div className="section-container flex justify-between items-center">
           <div className="flex items-center gap-8">
             <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.1em] hover:text-accent-gold transition-colors text-ruah-950">
@@ -165,7 +165,7 @@ export function ShopPageView({ products }: ShopPageViewProps) {
               </div>
             </div>
           ) : (
-            <div className={`grid gap-x-8 gap-y-16 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+            <div className={viewMode === 'grid' ? 'layout-grid-catalog gap-y-16' : 'grid grid-cols-1 gap-y-16'}>
               <AnimatePresence mode="popLayout">
                 {filteredProducts.map((product) => (
                   <motion.div key={product.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.4 }}>

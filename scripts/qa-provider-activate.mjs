@@ -1,16 +1,24 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
 
-const providers = new Set(['inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe']);
+const providerSmokeCommands = {
+  gateway_real: 'qa:gateway-real:smoke',
+  inter: 'qa:inter:smoke',
+  infinitepay: 'qa:infinitepay:smoke',
+  mercadopago: 'qa:mercadopago:smoke',
+  pagarme: 'qa:pagarme:smoke',
+  cielo: 'qa:cielo:smoke',
+  stripe: 'qa:stripe:smoke',
+};
 const targetProvider = String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
 
-if (!providers.has(targetProvider)) {
+if (!(targetProvider in providerSmokeCommands)) {
   console.error(
     JSON.stringify(
       {
         status: 'FAIL',
         reason: 'invalid_or_missing_PAYMENT_GATEWAY_TARGET',
-        expected: Array.from(providers),
+        expected: Object.keys(providerSmokeCommands),
         got: targetProvider || null,
       },
       null,
@@ -24,7 +32,7 @@ const steps = [
   { id: 'STEP-01', cmd: ['run', 'check'] },
   { id: 'STEP-02', cmd: ['run', 'alert:critical'] },
   { id: 'STEP-03', cmd: ['run', 'qa:providers:ready'] },
-  { id: 'STEP-04', cmd: ['run', `qa:${targetProvider}:smoke`] },
+  { id: 'STEP-04', cmd: ['run', providerSmokeCommands[targetProvider]] },
   { id: 'STEP-05', cmd: ['run', 'qa:payments21'] },
   { id: 'STEP-06', cmd: ['run', 'qa:exceptions'] },
 ];

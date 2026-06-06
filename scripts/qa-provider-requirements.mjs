@@ -3,6 +3,16 @@ import process from 'node:process';
 import { providerConfigState } from './_provider-config.mjs';
 
 const PROVIDERS = {
+  gateway_real: {
+    label: 'Gateway real (generico)',
+    required: [
+      { env: 'PAYMENT_GATEWAY_BASE_URL', setting: 'baseUrl' },
+      { env: 'PAYMENT_GATEWAY_API_KEY', setting: 'apiKey' },
+      { env: 'PAYMENT_GATEWAY_MERCHANT_ID', setting: 'merchantId' },
+    ],
+    connectorSettings: ['baseUrl', 'apiKey', 'merchantId', 'chargePath'],
+    smoke: 'npm run qa:gateway-real:smoke',
+  },
   inter: {
     label: 'Inter',
     required: [
@@ -62,7 +72,16 @@ const PROVIDERS = {
   },
 };
 
-const provider = String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
+const DIRECT_PROVIDERS = ['inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe'];
+const providerMode = String(process.env.PAYMENT_PROVIDER ?? '').trim().toLowerCase();
+const rawTargetProvider = String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
+const provider =
+  providerMode === 'gateway_real'
+    ? DIRECT_PROVIDERS.includes(rawTargetProvider)
+      ? rawTargetProvider
+      : 'gateway_real'
+    : rawTargetProvider;
+
 const selected = PROVIDERS[provider];
 
 if (!selected) {
@@ -70,9 +89,11 @@ if (!selected) {
     JSON.stringify(
       {
         status: 'FAIL',
-        reason: 'invalid_or_missing_PAYMENT_GATEWAY_TARGET',
+        reason: 'invalid_provider_selection',
         expected: Object.keys(PROVIDERS),
-        got: provider || null,
+        paymentProvider: providerMode || null,
+        paymentGatewayTarget: rawTargetProvider || null,
+        resolvedProvider: provider || null,
       },
       null,
       2
@@ -89,6 +110,8 @@ console.log(
       status: missingEnv.length === 0 ? 'READY_FOR_SMOKE' : 'MISSING_ENV',
       provider,
       label: selected.label,
+      paymentProvider: providerMode || null,
+      paymentGatewayTarget: rawTargetProvider || null,
       missingEnv,
       connectorSettings: selected.connectorSettings,
       nextCommands: ['npm run qa:providers:ready', selected.smoke, 'npm run qa:provider:activate'],

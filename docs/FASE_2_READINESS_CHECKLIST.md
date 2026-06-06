@@ -38,10 +38,12 @@ Cada pergunta abaixo precisa de resposta objetiva. Se vier resposta vaga, a Fase
 ### 2.1 Qual e o dominio que abre primeiro?
 Escolher um e apenas um:
 - expansao comercial e operacional de papeis
-- pagamento real e persistencia financeira
-- catalogo escalavel com artista/curadoria
 - comunidade e campanhas
+- catalogo escalavel com artista/curadoria
 - financeiro e comissionamento
+
+Ou, antes da abertura oficial da Fase 2:
+- pre-condicao operacional de pagamento real e persistencia financeira
 
 Se a resposta for "um pouco de cada", a fase nao esta pronta.
 
@@ -77,6 +79,8 @@ Antes de implementar, a Fase 2 precisa ter um documento proprio com:
 - contratos novos ou alterados
 - criterio de aceite P0
 - regra de nao-regressao sobre a Fase 1
+
+Se a frente escolhida for apenas de readiness transversal, ela deve ter documento proprio, mas nao pode se declarar fase oficial nem substituir o handoff Fase 1 -> Fase 2.
 
 Se isso nao existir, a implementacao ainda e prematura.
 

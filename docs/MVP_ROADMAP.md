@@ -61,7 +61,7 @@ Fonte oficial:
 - sem regressao no fluxo mestre da Fase 1
 - escopo novo validado por dominio
 
-## Fase 2.1: Pagamento real e persistencia financeira
+## Trilha transversal: Pagamento real e persistencia financeira
 ### Escopo
 - Integrar gateway real via adapter (tokenização, antifraude e captura).
 - Persistir transações em banco com reconciliação idempotente por `providerReference`.
@@ -72,6 +72,9 @@ Fonte oficial:
 - Compra real homologada ponta a ponta em ambiente de teste do provedor.
 - Reprocessamento de webhook não duplica efeito financeiro.
 - Falha de provedor retorna fallback seguro sem perda de pedido.
+
+Regra:
+- Esta trilha sustenta a evolucao das fases seguintes, mas nao substitui a Fase 2 oficial.
 
 ## Fase 3: Catálogo escalável (Artista + Curadoria)
 ### Escopo

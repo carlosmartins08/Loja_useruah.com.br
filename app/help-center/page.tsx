@@ -132,7 +132,7 @@ export default function HelpCenterPage() {
 
         <section className="py-20 lg:py-28">
           <div className="section-container">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+            <div className="layout-grid-product gap-10 lg:gap-16">
               <div className="lg:col-span-4 flex flex-col gap-4 lg:sticky lg:top-24">
                 <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-ruah-400 mb-2">Tópicos</h4>
                 {FAQ_CATEGORIES.map((cat) => (

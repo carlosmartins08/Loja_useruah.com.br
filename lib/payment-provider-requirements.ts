@@ -14,6 +14,18 @@ export interface ProviderRequirement {
 }
 
 const MAP: Partial<Record<PaymentProviderKey, ProviderRequirement>> = {
+  gateway_real: {
+    provider: 'gateway_real',
+    fields: [
+      { key: 'baseUrl', label: 'Base URL', required: true, placeholder: 'https://api.gateway...' },
+      { key: 'apiKey', label: 'API Key', required: true, placeholder: 'api-key' },
+      { key: 'merchantId', label: 'Merchant ID', required: true, placeholder: 'merchant-id' },
+      { key: 'chargePath', label: 'Charge Path', required: false, placeholder: '/charges' },
+    ],
+    defaults: {
+      chargePath: '/charges',
+    },
+  },
   inter: {
     provider: 'inter',
     fields: [
@@ -89,4 +101,3 @@ export function validateProviderSettings(provider: PaymentProviderKey, settings:
     missing,
   };
 }
-

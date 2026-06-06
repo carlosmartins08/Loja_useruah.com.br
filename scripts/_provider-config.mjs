@@ -15,6 +15,9 @@ function loadDotEnvFile() {
     if (idx <= 0) continue;
     const key = trimmed.slice(0, idx).trim();
     if (!key) continue;
+    if (Object.prototype.hasOwnProperty.call(process.env, key) && process.env[key] !== undefined && String(process.env[key]).trim() !== '') {
+      continue;
+    }
     const value = trimmed.slice(idx + 1).trim();
     process.env[key] = value;
   }

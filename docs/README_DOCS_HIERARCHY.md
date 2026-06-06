@@ -35,6 +35,8 @@ Evitar retrabalho, duplicidade e conflito de interpretação sobre qual document
 ### Pagamentos
 - Usar: `docs/PAYMENTS_DEFINITION_OF_DONE.md`
 - Quando: alterar checkout, webhook, status de pagamento, idempotência ou segurança de pagamento.
+- Usar em conjunto: `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+- Quando: preencher ambiente, validar homologacao do `gateway_real` generico e registrar evidencia sem reabrir escopo.
 
 ### Pedidos e logística
 - Usar: `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`

@@ -6,6 +6,15 @@
   --font-mono: "Consolas", "Courier New", monospace;
   --font-serif: "Georgia", "Times New Roman", serif;
   
+  --color-preto-ruah: #050505;
+  --color-offwhite-oracao: #f8f5ee;
+  --color-areia-liturgica: #d6c0a0;
+  --color-terracota-humana: #a95f45;
+  --color-azul-profundidade: #172c36;
+  --color-verde-oliva: #75806b;
+  --color-dourado-fosco: #b89b5e;
+  --color-kraft-natural: #c8a06e;
+
   --color-ruah-950: #1a1a1a;
   --color-ruah-900: #262626;
   --color-ruah-800: #404040;
@@ -207,6 +216,18 @@
     align-items: center;
   }
 
+  .layout-grid-catalog {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .layout-grid-catalog {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
   @media (min-width: 1024px) {
     .layout-grid-product,
     .layout-grid-media {
@@ -215,6 +236,10 @@
 
     .layout-grid-feature {
       grid-template-columns: repeat(10, minmax(0, 1fr));
+    }
+
+    .layout-grid-catalog {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 

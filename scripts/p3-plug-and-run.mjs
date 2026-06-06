@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import process from 'node:process';
 
 const COMMANDS_BY_PROVIDER = {
+  gateway_real: 'npm run qa:gateway-real:smoke',
   inter: 'npm run qa:inter:smoke',
   infinitepay: 'npm run qa:infinitepay:smoke',
   mercadopago: 'npm run qa:mercadopago:smoke',
@@ -13,7 +14,10 @@ const COMMANDS_BY_PROVIDER = {
 
 function resolveProvider() {
   const mode = String(process.env.PAYMENT_PROVIDER ?? '').trim().toLowerCase();
-  if (mode === 'gateway_real') return String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
+  if (mode === 'gateway_real') {
+    const target = String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
+    return target || 'gateway_real';
+  }
   return mode;
 }
 
@@ -71,4 +75,3 @@ function main() {
 }
 
 main();
-

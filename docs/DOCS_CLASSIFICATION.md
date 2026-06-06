@@ -28,6 +28,7 @@ Eliminar ambiguidade de uso documental, classificando cada arquivo como fonte de
 
 ### Referenciais
 - `docs/CHANGELOG_GOVERNANCE.md` (histórico de decisão; não define regra primária)
+- `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md` (folha operacional de preenchimento e validacao; nao redefine regra de dominio)
 
 ## Documentos citados e não localizados no repositório atual
 - `docs/USERUAH_360_ARCHITECTURE.md`

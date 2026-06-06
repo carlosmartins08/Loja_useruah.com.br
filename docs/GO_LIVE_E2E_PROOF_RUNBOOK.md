@@ -6,10 +6,15 @@ Objetivo: provar, com evidência executável, que não há bloqueio crítico con
 ## 1) Pré-condições
 - `.env` sem duplicidade de chave crítica.
 - `PAYMENT_PROVIDER=gateway_real`
-- `PAYMENT_GATEWAY_TARGET=stripe`
+- `PAYMENT_GATEWAY_TARGET` so e obrigatorio quando o cutover estiver roteando para provider direto.
 - `PAYMENT_PERSISTENCE=mysql`
 - `DATABASE_URL=mysql://...`
-- Webhook Stripe configurado no endpoint final do ambiente avaliado.
+- Validacao operacional do ambiente seguindo `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`.
+- Credenciais do `gateway_real` preenchidas:
+  - `PAYMENT_GATEWAY_BASE_URL`
+  - `PAYMENT_GATEWAY_API_KEY`
+  - `PAYMENT_GATEWAY_MERCHANT_ID`
+- Se houver provider direto por tras do bridge, webhook e segredo desse provider devem estar configurados no endpoint final do ambiente avaliado.
 
 ## 2) Prova única (comando)
 - Dry-run:
@@ -50,4 +55,3 @@ Sequência executada:
 - `GO`: todos os passos PASS.
 - `GO condicionado`: no máximo 1-2 pendências não críticas com owner e prazo D+2.
 - `NO-GO`: qualquer falha em pagamento, webhook, matriz, conciliação ou guardas de rota admin.
-

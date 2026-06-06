@@ -69,7 +69,7 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
   - execucao: `npm run go:preflight:run`
 - Comandos:
   - `npm run qa:providers:ready`
-  - smoke dedicado do provider escolhido (`qa:inter:smoke|qa:infinitepay:smoke|qa:mercadopago:smoke|qa:pagarme:smoke|qa:cielo:smoke|qa:stripe:smoke`)
+  - smoke dedicado do modo escolhido (`qa:gateway-real:smoke|qa:inter:smoke|qa:infinitepay:smoke|qa:mercadopago:smoke|qa:pagarme:smoke|qa:cielo:smoke|qa:stripe:smoke`)
   - `npm run alert:critical`
   - `npm run check`
   - `npm run qa:payments21`
@@ -77,7 +77,9 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
   - `npm run qa:coreops`
   - `npm run qa:full`
 - Aceite:
-  - todos em PASS
+  - todos em PASS, exceto `qa:providers:ready` quando o recorte ativo for `gateway_real` generico
+  - para `gateway_real` generico, `qa:providers:ready` pode permanecer `PARTIAL_READY` se `gateway_real` estiver pronto e as demais pendencias estiverem fora do escopo do ciclo
+  - seguir validacao operacional de `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
 
 3. Testar rollback operacional.
 - Dono: Engenharia

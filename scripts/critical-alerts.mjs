@@ -1,6 +1,6 @@
 import { providerConfigState } from './_provider-config.mjs';
 
-const PROVIDERS = ['inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe'];
+const PROVIDERS = ['gateway_real', 'inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe'];
 
 function hasValue(key) {
   const value = process.env[key];
@@ -9,7 +9,13 @@ function hasValue(key) {
 
 function isProviderReady(provider) {
   const required =
-    provider === 'inter'
+    provider === 'gateway_real'
+      ? [
+          { env: 'PAYMENT_GATEWAY_BASE_URL', setting: 'baseUrl' },
+          { env: 'PAYMENT_GATEWAY_API_KEY', setting: 'apiKey' },
+          { env: 'PAYMENT_GATEWAY_MERCHANT_ID', setting: 'merchantId' },
+        ]
+      : provider === 'inter'
       ? [
           { env: 'PAYMENT_INTER_BASE_URL', setting: 'baseUrl' },
           { env: 'PAYMENT_INTER_TOKEN_URL', setting: 'tokenUrl' },

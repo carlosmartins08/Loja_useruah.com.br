@@ -23,6 +23,12 @@ Em caso de conflito entre DoDs, checklists, documentação de rota ou qualquer o
 Os demais documentos devem apenas referenciar a máquina de estados aplicável, sem duplicar regras de transição.
 
 ## Fonte unica por dominio
+- Passagem oficial Fase 1 -> Fase 2: `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+- Escopo funcional oficial da Fase 2: `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Frontend oficial da Fase 2: `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Backend oficial da Fase 2: `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Pre-condicao operacional de pagamentos: `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+- Folha operacional de homologacao `gateway_real`: `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
 - Pagamentos: `docs/PAYMENTS_DEFINITION_OF_DONE.md`
 - Pedidos e logística: `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
 - Catálogo e curadoria: `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
@@ -72,6 +78,11 @@ Pagamento (Payment Deferred ativo):
 
 ## Observacao final
 Se um requisito novo não se encaixar claramente em um domínio, ele não deve ser implementado até o domínio responsável ser definido neste documento.
+
+## Regra de classificacao entre fase e readiness
+- `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` nao redefine a Fase 2.
+- Pagamentos reais, cutover e persistencia financeira sao trilha transversal de readiness.
+- A Fase 2 oficial continua sendo `movimentos, campanhas e afiliados`.
 
 Template oficial de PR para governança de execução: docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md
 Baseline oficial de governança operacional (COBIT + ITIL): docs/GOVERNANCE_COBIT_ITIL_BASELINE.md

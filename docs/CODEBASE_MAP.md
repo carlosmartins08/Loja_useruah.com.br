@@ -28,6 +28,7 @@ Evitar perda de contexto no codigo com um mapa unico de localizacao por dominio.
   - `lib/integration-log-store.ts`
 - QA/automacao:
   - `scripts/qa-payments-2-1.mjs`
+  - `scripts/qa-gateway-real-smoke.mjs`
   - `scripts/qa-exceptions.mjs`
 
 ### Pedidos e Logistica

@@ -40,11 +40,11 @@ export default function JournalPage() {
                className="mb-12"
              />
              <div className="max-w-4xl">
-                <span className="tech-label text-accent-blue mb-8 block">UseRuah Journal</span>
+                <span className="tech-label text-accent-gold mb-8 block">UseRuah Journal</span>
                 <h1 className="ur-type-display-xl uppercase mb-16 italic">
                    A CIÃŠNCIA <br /> DA <span className="not-italic">LUZ.</span>
                 </h1>
-                <p className="text-lg font-medium uppercase tracking-[0.2em] leading-relaxed text-lumina-500 max-w-xl">
+                <p className="text-lg font-medium uppercase tracking-[0.2em] leading-relaxed text-ruah-500 max-w-xl">
                    Explorando a intersecÃ§Ã£o entre biologia, engenharia e design. Uma curadoria de insights para arquitetos e visionÃ¡rios.
                 </p>
              </div>
@@ -61,7 +61,7 @@ export default function JournalPage() {
                className="object-cover transition-transform motion-slow group-hover:scale-[1.05]" 
                referrerPolicy="no-referrer"
              />
-             <div className="absolute inset-0 bg-gradient-to-t from-lumina-950/80 via-lumina-950/20 to-transparent flex flex-col justify-end p-20">
+             <div className="absolute inset-0 bg-gradient-to-t from-azul-profundidade/80 via-azul-profundidade/20 to-transparent flex flex-col justify-end p-20">
                 <div className="flex flex-col gap-6 max-w-3xl">
                    <div className="flex items-center gap-6">
                       <span className="bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-[8px] font-bold uppercase tracking-widest text-white border border-white/20">
@@ -93,18 +93,18 @@ export default function JournalPage() {
                    </div>
                    <div className="flex flex-col gap-4">
                       <div className="flex items-center gap-4">
-                         <span className="text-accent-blue text-[10px] font-bold uppercase tracking-widest">{article.category}</span>
-                         <span className="text-lumina-300 text-[10px] font-bold uppercase tracking-widest">{article.date}</span>
+                         <span className="text-accent-gold text-[10px] font-bold uppercase tracking-widest">{article.category}</span>
+                         <span className="text-ruah-300 text-[10px] font-bold uppercase tracking-widest">{article.date}</span>
                       </div>
                       <h3 className="text-3xl font-serif leading-tight uppercase">{article.title}</h3>
-                      <p className="text-sm text-lumina-400 font-medium uppercase tracking-widest leading-relaxed">
+                      <p className="text-sm text-ruah-400 font-medium uppercase tracking-widest leading-relaxed">
                          {article.excerpt}
                       </p>
                       <div className="flex items-center gap-3 mt-4">
-                         <div className="w-8 h-8 rounded-full bg-lumina-50 flex items-center justify-center">
-                            <User size={14} className="text-lumina-300" />
+                         <div className="w-8 h-8 rounded-full bg-ruah-50 flex items-center justify-center">
+                            <User size={14} className="text-ruah-300" />
                          </div>
-                         <span className="text-[10px] font-bold uppercase tracking-widest text-lumina-300">By {article.author}</span>
+                         <span className="text-[10px] font-bold uppercase tracking-widest text-ruah-300">By {article.author}</span>
                       </div>
                    </div>
                 </Link>

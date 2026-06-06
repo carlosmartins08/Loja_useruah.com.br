@@ -32,6 +32,334 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-05] Runbooks de go-live e cutover alinhados ao recorte ativo do gateway_real
+- ID: GOV-0065
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/RUNBOOK_GO_LIVE.md`
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+  - `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md`
+  - `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+- Decisao:
+  - Explicitar nos runbooks de go-live e cutover que `qa:providers:ready` nao precisa ser `READY` global quando o recorte ativo for `gateway_real` generico.
+  - Aceitar `PARTIAL_READY` globalmente desde que `gateway_real` esteja pronto e as pendencias remanescentes estejam fora do escopo do ciclo.
+  - Fazer os runbooks apontarem explicitamente para a folha operacional oficial como interpretacao normativa deste gate operacional.
+- Contexto:
+  - A folha operacional ja tratava corretamente o recorte ativo, mas os runbooks de go-live ainda podiam induzir uma leitura de `READY` global como bloqueio obrigatorio.
+- Impacto esperado:
+  - Menos falso bloqueio operacional.
+  - Menos divergencia de leitura entre homologacao, cutover e go-live.
+- Riscos conhecidos:
+  - Se outro ciclo passar a exigir um provider direto, os runbooks precisam ser revisitados para refletir o novo recorte.
+- Plano de rollback:
+  - Reverter apenas se a folha operacional deixar de ser a referencia correta para o modo `gateway_real` generico.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/RUNBOOK_GO_LIVE.md`
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+  - `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+### [2026-06-05] Runbooks de homologacao alinhados a folha operacional oficial do gateway_real
+- ID: GOV-0064
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/P3_ENV_READY_TO_FILL.md`
+  - `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md`
+  - `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+- Decisao:
+  - Remover criterio legado que tratava `qa:provider:requirements` como `PASS` no template de evidencia.
+  - Explicitar que `qa:providers:ready` pode permanecer `PARTIAL_READY` globalmente, desde que `gateway_real` esteja pronto no recorte ativo.
+  - Fazer os runbooks apontarem explicitamente para a folha operacional oficial.
+- Contexto:
+  - A trilha de homologacao ja estava correta na folha operacional, mas dois documentos ainda podiam induzir leitura errada do gate de provider e do readiness global.
+- Impacto esperado:
+  - Menos falso bloqueio por interpretacao documental.
+  - Menos risco de reintroduzir criterio antigo ou misturar readiness global com readiness do recorte ativo.
+- Riscos conhecidos:
+  - Se a folha operacional mudar e esses runbooks nao forem atualizados no mesmo ciclo, a ambiguidade volta.
+- Plano de rollback:
+  - Reverter apenas se a fonte oficial do fluxo de homologacao deixar de ser a folha operacional atual.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/P3_ENV_READY_TO_FILL.md`
+  - `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+### [2026-06-05] Folha operacional unica para homologacao do gateway_real generico
+- ID: GOV-0063
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+- Decisao:
+  - Instituir uma folha operacional unica para preencher ambiente, validar readiness e registrar evidencia da homologacao do `gateway_real` generico.
+  - Manter esse documento como artefato referencial, sem autoridade para redefinir contrato, fluxo ou escopo de fase.
+- Contexto:
+  - As instrucoes corretas ja existiam espalhadas em runbooks e docs de readiness, mas isso ainda deixava margem para preenchimento errado de variavel, mistura com Stripe ou execucao fora de ordem.
+- Impacto esperado:
+  - Menos ambiguidade operacional.
+  - Menos falsa falha tecnica por configuracao incorreta.
+  - Handoff mais objetivo entre engenharia, financeiro e operacao.
+- Riscos conhecidos:
+  - Se a folha divergir dos docs normativos de pagamentos, ela deve ser corrigida imediatamente; ela nao pode sobrepor a fonte de dominio.
+- Plano de rollback:
+  - Remover a folha apenas se o conteudo voltar a caber integralmente nos docs operacionais existentes sem perda de clareza.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+
+### [2026-06-05] Bloco minimo de pagamentos executado com veredito BLOCKED-ENV
+- ID: GOV-0060
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+- Decisao:
+  - Executar o bloco minimo de readiness de pagamentos no modo `gateway_real` generico.
+  - Classificar o resultado atual como `BLOCKED-ENV`, preservando a Fase 1 e sem abrir a Fase 2 oficial.
+  - Endurecer os runners e scripts de QA para usar `start` nos gates criticos, limpar artefatos de build antes do start e assinar webhooks de QA conforme o contrato real.
+- Contexto:
+  - O ciclo anterior ja tinha coerencia documental, mas os gates criticos ainda sofriam com fragilidade de runner e os scripts de QA nao carregavam `.env` nem assinavam webhook fora do fluxo dev.
+  - O ambiente atual tambem continuava sem as tres credenciais minimas do `gateway_real` generico.
+- Impacto esperado:
+  - Evidencia executavel mais confiavel nos gates criticos.
+  - Separacao clara entre falha de logica e bloqueio de ambiente.
+  - Menor risco de chamar de regressao o que e apenas falta de configuracao operacional.
+- Riscos conhecidos:
+  - Enquanto `PAYMENT_GATEWAY_BASE_URL`, `PAYMENT_GATEWAY_API_KEY` e `PAYMENT_GATEWAY_MERCHANT_ID` permanecerem vazios, o bloco continuara bloqueado.
+  - `payments21` em `gateway_real` ainda devolve `500/internal_error` no checkout enquanto o provider generico estiver sem configuracao minima.
+- Plano de rollback:
+  - Voltar os runners criticos para a configuracao anterior apenas se a validacao em `start` se mostrar inviavel de forma recorrente.
+  - Manter a trilha de pagamentos em status bloqueado e nao prosseguir para cutover.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `package.json`
+  - `scripts/qa-api-runner.mjs`
+  - `scripts/_qa-env.mjs`
+  - `scripts/_qa-webhook-signature.mjs`
+  - `scripts/qa-core-operations.mjs`
+  - `scripts/qa-payments-2-1.mjs`
+  - `scripts/qa-gateway-real-smoke.mjs`
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+
+### [2026-06-05] Ambiente ativo alinhado ao modo gateway_real generico
+- ID: GOV-0061
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+- Decisao:
+  - Remover `PAYMENT_GATEWAY_TARGET=stripe` do ambiente ativo para que a trilha siga o modo escolhido de `gateway_real` generico.
+  - Fazer `qa-payments-2-1` falhar com `missing_env:*` quando o provider ativo for `gateway_real` sem credenciais minimas, em vez de devolver `500` opaco no checkout.
+- Contexto:
+  - O ambiente ainda apontava para Stripe apesar da decisao de homologar primeiro o bridge generico.
+  - Isso escondia o bloqueio real do ciclo e produzia diagnostico ruim no QA.
+- Impacto esperado:
+  - Menos ambiguidade operacional.
+  - Falha de QA diretamente acionavel pela equipe.
+- Riscos conhecidos:
+  - O bloco continua bloqueado ate o preenchimento de `PAYMENT_GATEWAY_BASE_URL`, `PAYMENT_GATEWAY_API_KEY` e `PAYMENT_GATEWAY_MERCHANT_ID`.
+- Plano de rollback:
+  - Reintroduzir `PAYMENT_GATEWAY_TARGET` apenas se o cutover voltar oficialmente a um provider direto.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `.env`
+  - `scripts/qa-payments-2-1.mjs`
+  - `scripts/qa-gateway-real-smoke.mjs`
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+
+### [2026-06-05] Validacao oficial de homologacao alinhada ao gateway_real generico
+- ID: GOV-0062
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/P3_ENV_READY_TO_FILL.md`
+  - `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md`
+- Decisao:
+  - Fazer `qa:provider:requirements` resolver corretamente `gateway_real` quando `PAYMENT_PROVIDER=gateway_real` e `PAYMENT_GATEWAY_TARGET` estiver vazio.
+  - Incluir `qa:provider:requirements` e a checagem de configuracao validada na trilha oficial de homologacao e evidencia.
+- Contexto:
+  - A validacao oficial ainda assumia provider direto e gerava ambiguidade exatamente no modo escolhido para este ciclo.
+- Impacto esperado:
+  - Menos falso diagnostico.
+  - Menos tempo perdido antes do smoke real.
+  - Evidencia de homologacao mais objetiva.
+- Riscos conhecidos:
+  - O ambiente continua bloqueado ate o preenchimento das tres credenciais minimas do `gateway_real`.
+- Plano de rollback:
+  - Voltar a exigir `PAYMENT_GATEWAY_TARGET` apenas se a estrategia oficial abandonar o bridge generico.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `scripts/qa-provider-requirements.mjs`
+  - `docs/P3_ENV_READY_TO_FILL.md`
+  - `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md`
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+
+### [2026-06-05] Reclassificacao da trilha de pagamentos como pre-condicao operacional
+- ID: GOV-0059
+- Status: `aprovada`
+- Dono da decisao: Produto + Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `pagamentos`
+- Documento fonte afetado:
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Decisao:
+  - Reclassificar `pagamento real e persistencia financeira` como trilha transversal de readiness operacional.
+  - Restaurar `movimentos, campanhas e afiliados` como Fase 2 oficial.
+  - Preservar o trabalho tecnico ja executado em pagamentos sem permitir que ele redefina a sequencia oficial das fases.
+- Contexto:
+  - Os documentos exportados de fase e handoff mostraram que a hierarquia original do projeto tratava a Fase 2 como extensao comercial/contextual da Fase 1, nao como abertura pelo dominio de pagamentos.
+- Impacto esperado:
+  - Menos ambiguidade de precedencia.
+  - Melhor encaixe entre docs de fase, handoff e readiness operacional.
+  - Preservacao do trabalho em pagamentos sem conflito de nomenclatura.
+- Riscos conhecidos:
+  - Referencias antigas ainda podem apontar para o arquivo legado de `Fase 2.1` ate serem totalmente absorvidas.
+- Plano de rollback:
+  - Retornar a classificacao de `Fase 2.1` apenas se a governanca oficial de fases for revisada explicitamente.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/FASE_2_1_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/FRONTEND_FASE_1_VENDA_DE_PRODUTO.md`
+  - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/FASE_2_READINESS_CHECKLIST.md`
+  - `docs/MVP_ROADMAP.md`
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+
+### [2026-06-05] P3 e go-live alinhados ao modo gateway_real generico
+- ID: GOV-0058
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/P3_ENV_READY_TO_FILL.md`
+  - `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md`
+  - `docs/RUNBOOK_GO_LIVE.md`
+- Decisao:
+  - Alinhar templates, prechecks e runners de P3/go-live para aceitar `gateway_real` como modo operacional valido, sem forcar `PAYMENT_GATEWAY_TARGET` quando o bridge generico for o recorte escolhido.
+  - Incluir smoke real do modo escolhido nos runners automatizados de preflight e prova E2E.
+- Contexto:
+  - O projeto ja reconhecia `gateway_real` como frente oficial da Fase 2.1, mas parte dos artefatos ainda empurrava a execucao para providers diretos ou pulava o smoke dedicado no fluxo automatizado.
+- Impacto esperado:
+  - Menos contradicao entre documentacao, scripts e operacao real.
+  - Dry-run e execucao automatizada mais confiaveis para homologacao.
+- Riscos conhecidos:
+  - Sem credenciais reais, os novos gates continuam bloqueando a execucao completa, como devem.
+- Plano de rollback:
+  - Voltar os runners para o comportamento anterior e tratar `gateway_real` apenas como prerequisito documental.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/P3_ENV_READY_TO_FILL.md`
+  - `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md`
+  - `docs/RUNBOOK_GO_LIVE.md`
+
+### [2026-06-05] Gateway real promovido a citizen de primeira classe nos gates de prontidao
+- ID: GOV-0057
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Tratar `gateway_real` como configuracao operacional explicita no painel e nos scripts de readiness, em vez de depender apenas dos providers diretos.
+  - Adicionar smoke dedicado para o bridge generico e incluir esse caminho na prontidao unificada.
+- Contexto:
+  - A Fase 2.1 foi oficialmente aberta por `pagamento real e persistencia financeira`, mas os gates ainda priorizavam apenas providers diretos, deixando incoerencia entre documentacao, painel e execucao.
+- Impacto esperado:
+  - Menos ambiguidade na homologacao inicial do cutover financeiro.
+  - Melhor alinhamento entre fase oficial, self-service e automacao.
+- Riscos conhecidos:
+  - `gateway_real` continua dependente de credenciais reais e endpoint valido; gate melhora coerencia, nao substitui homologacao externa.
+- Plano de rollback:
+  - Remover o smoke dedicado e voltar a tratar `gateway_real` apenas como adaptador interno sem gate operacional proprio.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/CODEBASE_MAP.md`
+
+### [2026-06-05] Abertura formal da Fase 2.1 com corte unico em pagamento real
+- ID: GOV-0056
+- Status: `aprovada`
+- Dono da decisao: Produto + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/FASE_2_1_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+- Decisao:
+  - Abrir a Fase 2 apenas pelo dominio `pagamento real e persistencia financeira`.
+  - Tratar esta abertura como `READY CONDICIONADO`, exigindo rerun dos gates de freeze da Fase 1 antes de qualquer implementacao de cutover.
+  - Formalizar `finance_admin` como novo ator ativo desta frente, sem alterar contrato publico nem navegacao canonica da Fase 1.
+- Contexto:
+  - A documentacao ja mostrava a Fase 1 como bem-sucedida e congelada, mas a expressao "Fase 2" ainda estava ampla demais para virar execucao segura.
+  - O recorte mais maduro no repositorio e o de pagamentos reais, com DoD, runbook e superficies tecnicas ja existentes.
+- Impacto esperado:
+  - Reducao de ambiguidade de escopo.
+  - Menor risco de reabrir a Fase 1 sob o nome de evolucao.
+  - Sequencia tecnica coerente para cutover financeiro.
+- Riscos conhecidos:
+  - Se o time misturar catalogo, campanhas ou financeiro amplo no mesmo ciclo, a Fase 2 perde corte e vira backlog disfarçado.
+- Plano de rollback:
+  - Suspender a abertura da Fase 2.1 e retornar ao estado documental anterior, mantendo apenas `docs/MVP_ROADMAP.md` e `docs/PAYMENTS_DEFINITION_OF_DONE.md` como referencia.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/FASE_2_1_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+
 ### [2026-06-03] Fase 1 comercial endurecida com prova executavel ponta a ponta
 - ID: GOV-0055
 - Status: `aprovada`

@@ -59,7 +59,7 @@ export default function PoliciesPage() {
 
         <section className="py-20 lg:py-28">
           <div className="section-container">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+            <div className="layout-grid-product gap-10 lg:gap-16">
               <div className="lg:col-span-4 flex flex-col gap-8 lg:sticky lg:top-24">
                 <div className="flex flex-col gap-4">
                   <span className="tech-label text-accent-gold">Framework</span>

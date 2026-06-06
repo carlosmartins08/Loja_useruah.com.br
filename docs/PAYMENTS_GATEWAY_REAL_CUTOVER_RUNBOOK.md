@@ -10,6 +10,8 @@ Executar migracao controlada de `gateway_sandbox` para provedor real sem quebrar
 
 ## Pre-condicoes obrigatorias
 - `npm run check` em PASS.
+- `npm run qa:provider:requirements` em `READY_FOR_SMOKE`.
+- `npm run qa:providers:ready` com `gateway_real` pronto para o recorte ativo.
 - `npm run qa:payments21` em PASS.
 - `npm run qa:coreops` em PASS.
 - Chaves e segredos configurados por ambiente:
@@ -21,6 +23,10 @@ Executar migracao controlada de `gateway_sandbox` para provedor real sem quebrar
   - credenciais do provedor real
 - Endpoint de webhook do provedor apontando para ambiente correto.
 - Time de suporte avisado da janela de cutover.
+
+Leitura obrigatoria para este ciclo:
+- `qa:providers:ready` pode continuar `PARTIAL_READY` globalmente se outros providers permanecerem fora do escopo ativo.
+- A interpretacao operacional correta deste gate esta consolidada em `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`.
 
 ## Politica de risco
 - Nao alterar payload/shape dos endpoints publicos.

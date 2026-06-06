@@ -67,6 +67,13 @@ Resolucao do provider em ordem:
   - `npm run qa:payments21`
   - smoke real `checkout -> status -> webhook -> duplicate`.
 
+## Smoke dedicado Gateway Real (generico)
+- Comando: `npm run qa:gateway-real:smoke`
+- Env minima:
+  - `PAYMENT_GATEWAY_BASE_URL`
+  - `PAYMENT_GATEWAY_API_KEY`
+  - `PAYMENT_GATEWAY_MERCHANT_ID`
+
 ## Smoke dedicado Inter
 - Comando: `npm run qa:inter:smoke`
 - Valida:
@@ -116,13 +123,15 @@ Se faltar env obrigatoria (`PAYMENT_INTER_*`), o teste falha com `missing_env:*`
   - se esta pronto para smoke
   - quais envs ainda faltam
   - qual comando executar em seguida
+- Inclui tambem o recorte generico `gateway_real`, que e a trilha transversal de readiness operacional para pagamento real.
 
 ## Sequencia minima para primeiro provider real
 1. Configurar credenciais no painel `/admin/payments/connectors` e habilitar o provider.
-2. Definir `PAYMENT_GATEWAY_TARGET=<provider>` no ambiente.
-3. Rodar `npm run qa:provider:requirements` para ver faltas de env e campos do conector.
-4. Rodar `npm run qa:provider:activate` (orquestra `check -> alert:critical -> providers:ready -> smoke -> payments21 -> exceptions`).
-5. Registrar evidencias e risco residual em `docs/EXECUTION_TRACKING.md` e `docs/CHANGELOG_GOVERNANCE.md`.
+2. Se a homologacao for pelo bridge generico, validar `gateway_real` com `npm run qa:gateway-real:smoke`.
+3. Se a homologacao for por provider direto, definir `PAYMENT_GATEWAY_TARGET=<provider>` no ambiente.
+4. Rodar `npm run qa:provider:requirements` para ver faltas de env e campos do conector.
+5. Rodar `npm run qa:provider:activate` (orquestra `check -> alert:critical -> providers:ready -> smoke -> payments21 -> exceptions`).
+6. Registrar evidencias e risco residual em `docs/EXECUTION_TRACKING.md` e `docs/CHANGELOG_GOVERNANCE.md`.
 
 Template pronto para Inter (homolog):
 - `infra/env/.env.hml.inter.example`

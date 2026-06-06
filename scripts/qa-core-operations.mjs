@@ -1,3 +1,8 @@
+import { withWebhookSignature } from './_qa-webhook-signature.mjs';
+import { ensureQaEnvLoaded } from './_qa-env.mjs';
+
+ensureQaEnvLoaded();
+
 const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3202';
 const expectRbac = process.env.QA_EXPECT_RBAC !== 'false';
 
@@ -109,10 +114,11 @@ async function createPaidOrder(customerId) {
   assert(checkoutReplay.data?.reused === true, `checkout replay expected reused=true, got ${String(checkoutReplay.data?.reused)}`);
   assert(checkoutReplay.data?.payment?.paymentId === paymentId, 'checkout replay changed paymentId');
 
+  const webhookPayload = { eventId: `evt-core-${Date.now()}-${Math.random()}`, providerReference, event: 'payment.approved' };
   const webhook = await post(
     '/api/payments/webhook',
-    { eventId: `evt-core-${Date.now()}-${Math.random()}`, providerReference, event: 'payment.approved' },
-    { 'x-idempotency-key': `qa-core-wh-${Date.now()}-${Math.random()}` }
+    webhookPayload,
+    withWebhookSignature(webhookPayload, { 'x-idempotency-key': `qa-core-wh-${Date.now()}-${Math.random()}` })
   );
   assert(webhook.status === 200, `webhook expected 200, got ${webhook.status}`);
 

@@ -106,7 +106,7 @@ export function ExitIntent() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onClick={() => setShow(false)}
-        className="fixed inset-0 z-modal bg-lumina-950/40 backdrop-blur-md flex items-center justify-center p-6"
+        className="fixed inset-0 z-modal bg-ruah-950/40 backdrop-blur-md flex items-center justify-center p-6"
       >
         <motion.div
           initial={{ scale: 0.9, y: 20 }}
@@ -119,35 +119,35 @@ export function ExitIntent() {
           onClick={(event) => event.stopPropagation()}
           className="bg-white rounded-[3rem] overflow-hidden max-w-xl w-full relative"
         >
-           <button aria-label="Fechar oferta" onClick={() => setShow(false)} className="absolute top-8 right-8 text-lumina-300 hover:text-lumina-950 transition-colors">
+           <button aria-label="Fechar oferta" onClick={() => setShow(false)} className="absolute top-8 right-8 text-ruah-300 hover:text-ruah-950 transition-colors">
               <X size={24} />
            </button>
 
            <div className="p-16 flex flex-col items-center text-center gap-8">
-              <div className="w-20 h-20 bg-accent-blue/5 rounded-full flex items-center justify-center text-accent-blue">
+              <div className="w-20 h-20 bg-accent-gold/5 rounded-full flex items-center justify-center text-accent-gold">
                  <Percent size={32} />
               </div>
               
               <div className="flex flex-col gap-4">
-                 <span className="tech-label text-accent-blue">{badge}</span>
+                 <span className="tech-label text-accent-gold">{badge}</span>
                  <h2 id="exit-intent-title" className="text-4xl lg:text-5xl font-serif leading-none italic uppercase">{headline}</h2>
-                 <p className="text-sm font-medium uppercase tracking-[0.1em] text-lumina-400 leading-relaxed max-w-xs mx-auto">
+                 <p className="text-sm font-medium uppercase tracking-[0.1em] text-ruah-400 leading-relaxed max-w-xs mx-auto">
                     {body.split(config.couponCode)[0]}
-                    <span className="text-lumina-950 font-bold">{config.couponCode}</span>
+                    <span className="text-ruah-950 font-bold">{config.couponCode}</span>
                     {body.split(config.couponCode).slice(1).join(config.couponCode)}
                  </p>
               </div>
 
               <button 
                 onClick={() => setShow(false)}
-                className="w-full bg-lumina-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-blue transition-all"
+                className="w-full bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-gold transition-all"
               >
                  {ctaPrimary}
               </button>
 
               <button 
                  onClick={() => setShow(false)}
-                 className="text-xs font-bold text-lumina-300 uppercase tracking-[0.1em] border-b border-lumina-100 pb-1"
+                 className="text-xs font-bold text-ruah-300 uppercase tracking-[0.1em] border-b border-ruah-100 pb-1"
               >
                  {ctaSecondary}
               </button>

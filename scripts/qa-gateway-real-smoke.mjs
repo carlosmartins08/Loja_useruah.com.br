@@ -1,15 +1,12 @@
-﻿import { existsSync } from 'node:fs';
-import path from 'node:path';
+#!/usr/bin/env node
+import { providerConfigState } from './_provider-config.mjs';
 import { withWebhookSignature } from './_qa-webhook-signature.mjs';
 import { ensureQaEnvLoaded } from './_qa-env.mjs';
-import { providerConfigState } from './_provider-config.mjs';
 
 ensureQaEnvLoaded();
 
-const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3201';
-const expectedPersistence = process.env.QA_EXPECT_PERSISTENCE ?? process.env.PAYMENT_PERSISTENCE ?? 'sqlite';
-const provider = process.env.QA_PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER ?? 'sandbox';
-const gatewayRealRequired = [
+const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3216';
+const required = [
   { env: 'PAYMENT_GATEWAY_BASE_URL', setting: 'baseUrl' },
   { env: 'PAYMENT_GATEWAY_API_KEY', setting: 'apiKey' },
   { env: 'PAYMENT_GATEWAY_MERCHANT_ID', setting: 'merchantId' },
@@ -46,13 +43,11 @@ async function get(pathname, headers = {}) {
 }
 
 async function run() {
-  if (provider === 'gateway_real') {
-    const readiness = providerConfigState('gateway_real', gatewayRealRequired);
-    assert(readiness.configured, `missing_env:${readiness.missing.join(',')}`);
-  }
+  const readiness = providerConfigState('gateway_real', required);
+  assert(readiness.configured, `missing_env:${readiness.missing.join(',')}`);
 
   const report = [];
-  const customerId = 'customer-pay-21';
+  const customerId = 'customer-gateway-real-smoke';
 
   const order = await post('/api/orders', {
     supplierId: 'supplier-default',
@@ -60,7 +55,7 @@ async function run() {
     shippingAddress: {
       recipientName: 'QA Customer',
       cep: '01000-000',
-      street: 'Rua QA',
+      street: 'Rua QA Gateway Real',
       number: '100',
       city: 'Sao Paulo',
       state: 'SP',
@@ -75,59 +70,48 @@ async function run() {
   assert(order.status === 201, `order expected 201, got ${order.status}`);
   const orderId = order.data?.order?.orderId;
   assert(typeof orderId === 'string', 'orderId missing');
-  report.push('P0-PAY21-01 order created');
+  report.push('P0-GWREAL-01 order created');
 
-  const key = `qa-pay21-${Date.now()}`;
   const checkout = await post(
     '/api/payments/checkout',
     {
       orderId,
       method: 'pix',
-      provider,
+      provider: 'gateway_real',
       amount: 89.9,
       currency: 'BRL',
       items: [{ id: '1', name: 'Camiseta Respiro', quantity: 1, unitPrice: 89.9 }],
     },
-    { 'x-idempotency-key': key }
+    { 'x-idempotency-key': `gw-real-${Date.now()}` }
   );
   assert(checkout.status === 200, `checkout expected 200, got ${checkout.status}`);
   const paymentId = checkout.data?.payment?.paymentId;
   const providerReference = checkout.data?.payment?.providerReference;
   assert(typeof paymentId === 'string', 'paymentId missing');
-  assert(typeof providerReference === 'string', 'providerReference missing');
-  report.push(`P0-PAY21-02 checkout processing via ${provider}`);
-
-  if (expectedPersistence === 'sqlite') {
-    const sqliteFile = path.resolve('.tmp-store', 'payments.sqlite');
-    assert(existsSync(sqliteFile), 'payments.sqlite not found');
-    report.push('P0-PAY21-03 relational sqlite file created');
-  } else if (expectedPersistence === 'mysql') {
-    report.push('P0-PAY21-03 relational mysql mode selected');
-  } else {
-    report.push('P0-PAY21-03 persistence check skipped');
-  }
+  assert(typeof providerReference === 'string' && providerReference.length > 0, 'providerReference missing');
+  report.push('P0-GWREAL-02 checkout via gateway_real');
 
   const status = await get(`/api/payments/status/${paymentId}`, { 'x-actor-id': customerId, 'x-actor-role': 'customer' });
   assert(status.status === 200, `status expected 200, got ${status.status}`);
-  report.push('P0-PAY21-04 payment status query ok');
+  report.push('P0-GWREAL-03 payment status query ok');
 
-  const webhookEventId = `evt-${Date.now()}`;
-  const webhookPayload = { eventId: webhookEventId, providerReference, event: 'payment.approved', ...(provider ? { provider } : {}) };
+  const webhookEventId = `evt-gw-real-${Date.now()}`;
+  const webhookPayload = { eventId: webhookEventId, provider: 'gateway_real', providerReference, event: 'payment.approved' };
   const webhook = await post(
     '/api/payments/webhook',
     webhookPayload,
-    withWebhookSignature(webhookPayload, { 'x-idempotency-key': `wh-${Date.now()}`, ...(provider ? { 'x-provider': provider } : {}) })
+    withWebhookSignature(webhookPayload, { 'x-idempotency-key': `wh-gw-real-${Date.now()}`, 'x-provider': 'gateway_real' })
   );
   assert(webhook.status === 200, `webhook expected 200, got ${webhook.status}`);
-  report.push('P0-PAY21-05 webhook approved processed');
+  report.push('P0-GWREAL-04 webhook approved processed');
 
   const webhookDuplicate = await post(
     '/api/payments/webhook',
     webhookPayload,
-    withWebhookSignature(webhookPayload, { 'x-idempotency-key': `wh-dup-${Date.now()}`, ...(provider ? { 'x-provider': provider } : {}) })
+    withWebhookSignature(webhookPayload, { 'x-idempotency-key': `wh-gw-real-dup-${Date.now()}`, 'x-provider': 'gateway_real' })
   );
   assert(webhookDuplicate.status === 200, `webhook duplicate expected 200, got ${webhookDuplicate.status}`);
-  report.push('P0-PAY21-06 webhook duplicate handled');
+  report.push('P0-GWREAL-05 webhook duplicate handled');
 
   console.log(JSON.stringify({ status: 'PASS', baseUrl, report }, null, 2));
 }
@@ -136,4 +120,3 @@ run().catch((error) => {
   console.error(JSON.stringify({ status: 'FAIL', baseUrl, error: String(error) }, null, 2));
   process.exit(1);
 });
-
