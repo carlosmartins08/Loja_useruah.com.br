@@ -106,6 +106,7 @@ export async function createCatalogItem(
   input: Omit<CatalogItemRecord, 'catalogItemId' | 'publicationStatus' | 'createdAt' | 'updatedAt'> & {
     catalogItemId?: string;
     initialStatus?: CatalogItemStatus;
+    overwriteExisting?: boolean;
   }
 ) {
   const now = new Date().toISOString();
@@ -117,6 +118,40 @@ export async function createCatalogItem(
     const [existingRows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items WHERE catalog_item_id = ?`, [catalogItemId]);
     if (existingRows[0]) {
       const existing = rowToCatalogItem(existingRows[0]);
+      if (input.overwriteExisting) {
+        await mysql.execute<MysqlResult>(
+          `UPDATE catalog_items SET
+            artwork_id = ?, product_base_id = ?, name = ?, price = ?, image = ?, color_images_json = ?, fit = ?,
+            fabric = ?, print_type_description = ?, wash_guide = ?, installment_count = ?, detail_images_json = ?,
+            model_mockups_json = ?, variants_json = ?, category = ?, segment = ?, tags_json = ?, pricing_policy_json = ?,
+            updated_at = ?
+          WHERE catalog_item_id = ?`,
+          [
+            input.artworkId,
+            input.productBaseId,
+            input.name,
+            input.price,
+            input.image,
+            JSON.stringify(input.colorImages),
+            input.fit,
+            input.fabric,
+            input.printTypeDescription,
+            input.washGuide,
+            input.installmentCount,
+            JSON.stringify(input.detailImages),
+            JSON.stringify(input.modelMockups),
+            JSON.stringify(input.variants),
+            input.category ?? null,
+            input.segment ?? null,
+            input.tags ? JSON.stringify(input.tags) : null,
+            input.pricingPolicy ? JSON.stringify(input.pricingPolicy) : existing.pricingPolicy ? JSON.stringify(existing.pricingPolicy) : null,
+            toMysqlDatetime(now),
+            catalogItemId,
+          ]
+        );
+        const [patchedRows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items WHERE catalog_item_id = ?`, [catalogItemId]);
+        return { item: rowToCatalogItem(patchedRows[0]), created: false as const };
+      }
       if (!existing.pricingPolicy && input.pricingPolicy) {
         await mysql.execute<MysqlResult>(
           `UPDATE catalog_items SET pricing_policy_json = ?, updated_at = ? WHERE catalog_item_id = ?`,
@@ -171,6 +206,19 @@ export async function createCatalogItem(
   const state = readCatalog();
   if (state[catalogItemId]) {
     const existing = state[catalogItemId];
+    if (input.overwriteExisting) {
+      const overwritten: CatalogItemRecord = {
+        ...existing,
+        ...input,
+        catalogItemId,
+        publicationStatus: existing.publicationStatus,
+        createdAt: existing.createdAt,
+        updatedAt: now,
+      };
+      state[catalogItemId] = overwritten;
+      writeCatalog(state);
+      return { item: overwritten, created: false as const };
+    }
     if (!existing.pricingPolicy && input.pricingPolicy) {
       const patched: CatalogItemRecord = {
         ...existing,

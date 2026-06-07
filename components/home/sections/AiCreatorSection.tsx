@@ -1,4 +1,3 @@
-﻿
 import { ArrowRight } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
@@ -11,38 +10,38 @@ export function AiCreatorSection() {
           <div className="lg:col-span-4 flex flex-col gap-8">
             <div className="flex items-center gap-4">
               <div className="decor-gold-line" />
-              <span className="tech-label text-accent-gold">Ruah Lab AI</span>
+              <span className="tech-label text-accent-gold">Estúdio de coleção</span>
             </div>
             <h2 className="ur-type-display-md italic uppercase">
-              Sua Fé <br /> em Código <br /> Criativo.
+              Sua Fé <br /> em Direção <br /> Criativa.
             </h2>
             <p className="text-[12px] font-bold text-ruah-400 leading-relaxed max-w-xs tracking-[0.1em] uppercase mb-4">
-              Nossa IA entende sua missão. Selecione seu grupo ou pastoral e deixe a tecnologia desenhar o sopro que falta.
+              Em vez de prometer automação vazia, mostramos caminhos de coleção, combinação e leitura para sua peça nascer com propósito.
             </p>
             <Link href="/shop" className="flex items-center gap-4 group">
               <div className="w-14 h-14 bg-ruah-950 text-white rounded-full flex items-center justify-center group-hover:bg-accent-gold transition-colors">
                 <ArrowRight size={20} />
               </div>
-              <span className="text-xs font-bold uppercase tracking-[0.1em] group-hover:text-accent-gold transition-colors">Abrir Estúdio AI</span>
+              <span className="text-xs font-bold uppercase tracking-[0.1em] group-hover:text-accent-gold transition-colors">Explorar a coleção</span>
             </Link>
           </div>
           <div className="lg:col-span-6 relative aspect-square lg:aspect-video rounded-[3rem] overflow-hidden bg-ruah-50 border border-ruah-100 flex items-center justify-center group">
             <AppImage
               context="hero"
               src="/assets/editorial/ai-lab.svg"
-              alt="AI Laboratory"
+              alt="Estúdio editorial UseRuah"
               fill
               className="object-cover opacity-80 group-hover:scale-[1.05] transition-transform motion-slow grayscale hover:grayscale-0"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-ruah-950/20 to-transparent" />
             <div className="relative z-10 bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/20 max-w-sm">
               <div className="flex gap-2 mb-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-2 h-2 rounded-full bg-accent-gold pulse-soft" style={{ animationDelay: `${i * 300}ms` }} />
+                {[1, 2, 3].map((index) => (
+                  <div key={index} className="w-2 h-2 rounded-full bg-accent-gold pulse-soft" style={{ animationDelay: `${index * 300}ms` }} />
                 ))}
               </div>
               <p className="text-white text-[11px] font-bold leading-relaxed tracking-[0.1em] uppercase">
-                &quot;Gerando estampa para: <span className="text-accent-gold italic">Coroinhas São José</span>. Aplicando técnica de gravura em tecido algodão 30.1...&quot;
+                &quot;Definindo direção para: <span className="text-accent-gold italic">Grupo de oração São José</span>. Paleta clara, leitura contemplativa e base regular para uso recorrente.&quot;
               </p>
             </div>
           </div>
@@ -51,6 +50,3 @@ export function AiCreatorSection() {
     </section>
   );
 }
-
-
-

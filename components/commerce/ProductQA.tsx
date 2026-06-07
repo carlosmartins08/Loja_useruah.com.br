@@ -15,7 +15,7 @@ const QA_LIST: QAItem[] = [
   {
     id: 'q1',
     question: 'A modelagem é justa ou padrão?',
-    answer: 'A Camiseta Respiro segue modelagem regular. Se preferir visual mais solto, recomendamos um tamanho acima.',
+    answer: 'A peça segue modelagem regular. Se preferir um visual mais solto, recomendamos um tamanho acima.',
     author: 'Equipe UseRuah',
     likes: 32,
   },

@@ -15,10 +15,24 @@ Atualizacao adicional: 2026-05-29
   - erro explicito quando segredo de webhook nao estiver configurado fora de QA.
 - Gate de backend migrado para runner PowerShell sequencial para reduzir fragilidade de subprocesso em ambiente Windows/sandbox.
 
+Atualizacao adicional: 2026-06-06
+- IA removida do produto público por decisão de coerência e governança.
+- Busca e guia de estilo agora são locais/determinísticos, sem provider externo no client.
+- Catálogo oficial deixou de depender de `public/assets/products/mockups/**`.
+- Mídia oficial dos seeds publicados agora vive em `public/assets/editorial/catalog/**`.
+- QA de catálogo passou a bloquear:
+  - `picsum`
+  - paths de `mockups` placeholder
+  - asset inexistente
+  - reintrodução de IA client-side no produto
+
 ## Estado atual (rodando hoje)
 - App Next.js com APIs em `app/api/*`.
 - Persistencia principal de dominio em store local (`lib/dev-store.ts`).
 - Pagamentos fase 2.1 em `sqlite` local (`.tmp-store/payments.sqlite`) por padrao.
+- Catálogo seed com fonte canônica em `lib/brand-assets.ts`.
+- Descoberta de produto local em `lib/brand-discovery.ts`.
+- Mídia editorial gerada em `public/assets/editorial/catalog/**`.
 - Adaptadores MySQL implementados para:
   - `orders`
   - `production_jobs`
@@ -40,6 +54,9 @@ Atualizacao adicional: 2026-05-29
 - `lib/payment-provider.ts`: adapter de provedor (`sandbox|gateway_sandbox`).
 - `lib/payment-store.ts`: persistencia (`sqlite` hoje) e trilha de eventos.
 - `lib/webhook-event-store.ts`: idempotencia de webhook com retencao.
+- `lib/brand-assets.ts`: catálogo canônico e merchandising seed.
+- `lib/product-artwork.ts`: normalização entre legado de mockup e asset editorial oficial.
+- `lib/brand-discovery.ts`: busca e recomendação local sem IA.
 
 ## Regras operacionais ja aplicadas
 - Retry controlado no webhook por `PAYMENT_WEBHOOK_MAX_RETRIES`.

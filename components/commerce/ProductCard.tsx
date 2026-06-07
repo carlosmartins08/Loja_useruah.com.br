@@ -2,6 +2,9 @@
 
 import React from 'react';
 import { AppImage } from '@/components/shared/AppImage';
+import { ProductArtworkFallback } from '@/components/shared/ProductArtworkFallback';
+import { isProductMockupPlaceholder } from '@/lib/product-artwork';
+import { getProductStageTone } from '@/lib/product-stage';
 import { Plus, Heart, Star, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
@@ -21,6 +24,9 @@ export function ProductCard({ id, name, category, price, image, hoverImage, badg
   const { addToCart } = useCart();
   const [isFavorite, setIsFavorite] = React.useState(false);
   const [isAdded, setIsAdded] = React.useState(false);
+  const [imageFailed, setImageFailed] = React.useState(false);
+  const stage = getProductStageTone(image);
+  const useEditorialArtwork = isProductMockupPlaceholder(image) || isProductMockupPlaceholder(hoverImage ?? image);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -53,7 +59,11 @@ export function ProductCard({ id, name, category, price, image, hoverImage, badg
       viewport={{ once: true }}
       className="group"
     >
-      <Link href={`/product/${id}`} className="block relative aspect-[3/4] rounded-[2.5rem] overflow-hidden mb-6 bg-ruah-50 shadow-subtle group-hover:shadow-xl transition-all duration-700" style={{ position: 'relative' }}>
+      <Link
+        href={`/product/${id}`}
+        className={`block relative aspect-[3/4] rounded-[2.5rem] overflow-hidden mb-6 border shadow-subtle group-hover:shadow-xl transition-all duration-700 ${stage.frameClassName}`}
+        style={{ position: 'relative' }}
+      >
         {badge && (
           <div className="absolute top-6 left-6 z-20">
             <span className="px-4 py-1.5 bg-accent-gold text-white text-xs font-semibold uppercase tracking-[0.1em] rounded-full shadow-lg">
@@ -61,22 +71,29 @@ export function ProductCard({ id, name, category, price, image, hoverImage, badg
             </span>
           </div>
         )}
-        <AppImage context="content-banner"
-          src={image}
-          alt={name}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover transition-all duration-1000 group-hover:scale-110 group-hover:opacity-0"
-          referrerPolicy="no-referrer"
-        />
-        <AppImage context="content-banner"
-          src={hoverImage ?? image}
-          alt={`${name} detail`}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          className="object-cover transition-all duration-1000 scale-110 opacity-0 group-hover:opacity-100 group-hover:scale-100"
-          referrerPolicy="no-referrer"
-        />
+        <div className={`absolute inset-0 ${stage.glowClassName}`} />
+        <div className={`absolute inset-[7%] rounded-[2rem] ${stage.surfaceClassName}`} />
+        {useEditorialArtwork || imageFailed ? <ProductArtworkFallback title={name} subtitle={category} src={image} compact /> : null}
+        {!useEditorialArtwork ? (
+          <>
+            <AppImage context="content-banner"
+              src={image}
+              alt={name}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className={`${imageFailed ? 'hidden ' : ''}${stage.imageClassName} transition-all duration-1000 group-hover:scale-110 group-hover:opacity-0`}
+              onError={() => setImageFailed(true)}
+            />
+            <AppImage context="content-banner"
+              src={hoverImage ?? image}
+              alt={`${name} detail`}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className={`${imageFailed ? 'hidden ' : ''}${stage.imageClassName} transition-all duration-1000 scale-110 opacity-0 group-hover:opacity-100 group-hover:scale-100`}
+              onError={() => setImageFailed(true)}
+            />
+          </>
+        ) : null}
         
         {/* Hover Actions */}
         <div className="absolute top-6 right-6 flex flex-col gap-3 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500 z-10">

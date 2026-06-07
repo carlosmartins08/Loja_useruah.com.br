@@ -2,6 +2,7 @@
 import { notFound } from 'next/navigation';
 import { ProductPageView } from '@/components/product/ProductPageView';
 import { buildProductJsonLd, mapCatalogItemToProductPageModel } from '@/components/product/product-data';
+import { findBrandProductMerchandising, findBrandProductSeed } from '@/lib/brand-assets';
 import { getCatalogItem, listCatalogItems } from '@/lib/catalog-item-store';
 
 interface ProductPageParams {
@@ -39,16 +40,39 @@ export default async function ProductPage({ params }: { params: Promise<ProductP
   if (!product) notFound();
 
   const catalog = await listCatalogItems({ publicationStatus: 'published' });
+  const scoreRecommendation = (item: Awaited<ReturnType<typeof listCatalogItems>>[number]) => {
+    const merchandising = findBrandProductMerchandising(item.catalogItemId);
+    const category = merchandising?.category ?? item.category;
+    const segment = merchandising?.segment ?? item.segment;
+    let score = 0;
+    if (category === product.category) score += 2;
+    if (segment === product.segment) score += 1;
+    return score;
+  };
+
   const recommendations = catalog
     .filter((item) => item.catalogItemId !== id)
+    .sort((left, right) => scoreRecommendation(right) - scoreRecommendation(left))
     .slice(0, 3)
-    .map((item) => ({
-      id: item.catalogItemId,
-      name: item.name,
-      price: item.price,
-      image: item.image,
-      bundleHint: 'Complete o look com este item da coleção.',
-    }));
+    .map((item) => {
+      const seed = findBrandProductSeed(item.catalogItemId);
+      const merchandising = findBrandProductMerchandising(item.catalogItemId);
+      const category = merchandising?.category ?? item.category;
+      const segment = merchandising?.segment ?? item.segment;
+
+      return {
+        id: item.catalogItemId,
+        name: seed?.name ?? item.name,
+        price: seed?.price ?? item.price,
+        image: merchandising?.image ?? item.image,
+        bundleHint:
+          category === product.category
+            ? `Continua a leitura da categoria ${product.category.toLowerCase()}.`
+            : segment === product.segment
+              ? `Segue a mesma linha ${product.segment.toLowerCase()} do produto atual.`
+              : 'Amplia a coleção com outra leitura da UseRuah.',
+      };
+    });
 
   const jsonLd = buildProductJsonLd(product);
   return <ProductPageView product={product} jsonLd={jsonLd} recommendations={recommendations} />;

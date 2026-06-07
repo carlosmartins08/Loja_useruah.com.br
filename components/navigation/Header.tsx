@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Search, ShoppingBag, User, Menu, ChevronDown, ArrowRight, Sparkles, Globe } from 'lucide-react';
+import { Search, ShoppingBag, User, Menu, ChevronDown, ArrowRight, Compass, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { AppImage } from '@/components/shared/AppImage';
 import { useCart } from '@/context/CartContext';
@@ -19,7 +19,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
-  const [isAiAssistantOpen, setIsAiAssistantOpen] = React.useState(false);
+  const [isGuideOpen, setIsGuideOpen] = React.useState(false);
   const [isProfilePhotoModalOpen, setIsProfilePhotoModalOpen] = React.useState(false);
   const { setIsCartOpen, cart, location } = useCart();
   const { profilePhoto, setProfilePhoto, userRole, userRoles, switchActiveRole, isAuthenticated } = useUser();
@@ -62,7 +62,7 @@ export function Header() {
         isScrolled ? 'bg-white/95 backdrop-blur-xl border-b border-ruah-100 py-2 md:py-3 shadow-glass' : 'bg-white/85 backdrop-blur-lg py-4 md:py-8'
       }`}>
         <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-        <VirtualAssistant isOpen={isAiAssistantOpen} onClose={() => setIsAiAssistantOpen(false)} />
+        <VirtualAssistant isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
         <ProfilePhotoModal 
           isOpen={isProfilePhotoModalOpen} 
           onClose={() => setIsProfilePhotoModalOpen(false)} 
@@ -187,12 +187,12 @@ export function Header() {
                  </div>
                )}
                <button 
-                 onClick={() => setIsAiAssistantOpen(true)}
-                 data-ai-trigger="true"
+                 onClick={() => setIsGuideOpen(true)}
+                 data-guide-trigger="true"
                  className="hidden lg:flex items-center gap-2 px-4 py-2 border border-ruah-100 rounded-full group hover:bg-ruah-950 hover:text-white transition-all mr-2"
                >
-                  <Sparkles size={10} className="text-accent-gold" />
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-950 group-hover:text-white">Estilo AI</span>
+                  <Compass size={10} className="text-accent-gold" />
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-950 group-hover:text-white">Guia de estilo</span>
                </button>
                <button 
                  onClick={() => setIsSearchOpen(true)}

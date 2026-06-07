@@ -2,15 +2,12 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, X, Home, Briefcase, Camera, Coffee } from 'lucide-react';
-import { GoogleGenAI, Type } from '@google/genai';
+import { X, Home, Briefcase, Camera, Coffee } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
 import { getBrandProductSeed } from '@/lib/brand-assets';
-
-const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-const ai = geminiApiKey ? new GoogleGenAI({ apiKey: geminiApiKey }) : null;
+import { recommendBrandProductFromSelections } from '@/lib/brand-discovery';
 
 interface Option {
   id: string;
@@ -39,117 +36,38 @@ const STEPS: Step[] = [
     options: [
       { id: 'residential', label: 'Cotidiano', icon: Home, detail: 'Para o dia a dia com propósito.' },
       { id: 'office', label: 'Manifesto', icon: Briefcase, detail: 'Expressando sua fé no trabalho.' },
-      { id: 'gallery', label: 'Criação', icon: Camera, detail: 'Momentos de pura inspiração.' },
-      { id: 'hospitality', label: 'Comunhão', icon: Coffee, detail: 'Encontros que alimentam a alma.' },
+      { id: 'gallery', label: 'Criação', icon: Camera, detail: 'Momentos de inspiração e presença visual.' },
+      { id: 'hospitality', label: 'Comunhão', icon: Coffee, detail: 'Encontros que pedem calor e acolhimento.' },
     ],
   },
   {
     id: 'mood',
-    question: 'Qual a mensagem que quer transmitir?',
+    question: 'Qual a leitura que essa peça precisa carregar?',
     options: [
-      { id: 'cozy', label: 'Respiro', detail: 'Paz e tranquilidade em cada fio.' },
-      { id: 'neutral', label: 'Firmeza', detail: 'Consistência e base sólida.' },
-      { id: 'technical', label: 'Geração', detail: 'Atitude e impacto visual.' },
-      { id: 'dynamic', label: 'Sopro', detail: 'Fluidez e movimento constante.' },
+      { id: 'cozy', label: 'Respiro', detail: 'Paz, suavidade e pouca interferência visual.' },
+      { id: 'neutral', label: 'Firmeza', detail: 'Base sólida, uso recorrente e clareza.' },
+      { id: 'technical', label: 'Presença', detail: 'Impacto mais direto, com mais peso.' },
+      { id: 'dynamic', label: 'Movimento', detail: 'Energia, contraste e circulação.' },
     ],
   },
 ];
-
-function getFallbackRecommendation(data: Record<string, string>): AssistantRecommendation {
-  const fallbackId =
-    data.mood === 'technical'
-      ? '4'
-      : data.space === 'hospitality'
-        ? '2'
-        : data.mood === 'dynamic'
-          ? '3'
-          : '1';
-
-  const product = getBrandProductSeed(fallbackId);
-
-  return {
-    productId: product.id,
-    productName: product.name,
-    technicalReason: product.shortReason,
-    layoutTip: product.stylingTip,
-  };
-}
 
 export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [recommendation, setRecommendation] = useState<AssistantRecommendation | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const modalRef = React.useRef<HTMLDivElement>(null);
 
   const handleSelect = (stepId: string, optionId: string) => {
-    const newSelections = { ...selections, [stepId]: optionId };
-    setSelections(newSelections);
+    const nextSelections = { ...selections, [stepId]: optionId };
+    setSelections(nextSelections);
 
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
       return;
     }
 
-    void generateRecommendation(newSelections);
-  };
-
-  const generateRecommendation = async (data: Record<string, string>) => {
-    setIsLoading(true);
-
-    try {
-      if (!ai) {
-        setRecommendation(getFallbackRecommendation(data));
-        return;
-      }
-
-      const prompt = `Como curador de estilo da UseRuah, recomende produtos para um momento ${data.space} com mensagem de ${data.mood}.
-
-Produtos:
-1. Camiseta Oração (algodão, leitura contemplativa, editorial)
-2. Moletom Presença (conforto, densidade visual, encontro)
-3. Ecobag Reino (praticidade, presente, rotina)
-4. Boné Presença (afirmação sutil, identidade, impacto)
-5. Camiseta Serena (base, suavidade, recorrência)
-6. Ecobag Presença (entrada de marca, utilidade, contraste)
-
-Retorne um JSON com {productId, productName, technicalReason, layoutTip}.`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              productId: { type: Type.STRING },
-              productName: { type: Type.STRING },
-              technicalReason: { type: Type.STRING },
-              layoutTip: { type: Type.STRING },
-            },
-          },
-        },
-      });
-
-      const parsed = JSON.parse(response.text || '{}');
-      if (
-        typeof parsed?.productId === 'string' &&
-        typeof parsed?.productName === 'string' &&
-        typeof parsed?.technicalReason === 'string' &&
-        typeof parsed?.layoutTip === 'string'
-      ) {
-        setRecommendation(parsed);
-        return;
-      }
-
-      setRecommendation(getFallbackRecommendation(data));
-    } catch (error) {
-      console.error(error);
-      setRecommendation(getFallbackRecommendation(data));
-    } finally {
-      setIsLoading(false);
-    }
+    setRecommendation(recommendBrandProductFromSelections(nextSelections));
   };
 
   useFocusTrap({
@@ -162,7 +80,7 @@ Retorne um JSON com {productId, productName, technicalReason, layoutTip}.`;
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {isOpen ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -182,39 +100,39 @@ Retorne um JSON com {productId, productName, technicalReason, layoutTip}.`;
             className="max-w-4xl w-full relative z-10"
             role="dialog"
             aria-modal="true"
-            aria-label="Assistente virtual de estilo"
+            aria-label="Guia de estilo UseRuah"
             ref={modalRef}
             tabIndex={-1}
             onClick={(event) => event.stopPropagation()}
           >
-            {!recommendation && !isLoading ? (
+            {!recommendation ? (
               <div className="flex flex-col gap-16">
                 <div className="flex flex-col gap-6 text-center lg:text-left">
-                  <span className="tech-label text-accent-gold">UseRuah AI Curator</span>
+                  <span className="tech-label text-accent-gold">Guia de estilo UseRuah</span>
                   <h2 className="text-5xl lg:text-7xl font-serif text-white leading-none uppercase italic">
                     {STEPS[currentStep].question}
                   </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {STEPS[currentStep].options.map((opt) => (
+                  {STEPS[currentStep].options.map((option) => (
                     <button
-                      key={opt.id}
-                      onClick={() => handleSelect(STEPS[currentStep].id, opt.id)}
+                      key={option.id}
+                      onClick={() => handleSelect(STEPS[currentStep].id, option.id)}
                       className="bg-white/5 border border-white/10 p-10 rounded-[2.5rem] text-left hover:bg-white hover:border-white group transition-all"
                     >
-                      {opt.icon ? <opt.icon size={24} className="text-accent-gold mb-6 group-hover:text-ruah-950" /> : null}
+                      {option.icon ? <option.icon size={24} className="text-accent-gold mb-6 group-hover:text-ruah-950" /> : null}
                       <div className="flex flex-col gap-2">
-                        <span className="text-xl font-serif text-white group-hover:text-ruah-950 uppercase">{opt.label}</span>
+                        <span className="text-xl font-serif text-white group-hover:text-ruah-950 uppercase">{option.label}</span>
                         <span className="text-[10px] font-bold text-white/40 group-hover:text-ruah-400 uppercase tracking-widest leading-relaxed">
-                          {opt.detail}
+                          {option.detail}
                         </span>
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
-            ) : recommendation && recommendedProduct ? (
+            ) : recommendedProduct ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -225,7 +143,7 @@ Retorne um JSON com {productId, productName, technicalReason, layoutTip}.`;
                 </div>
                 <div className="flex-1 flex flex-col gap-8">
                   <div className="flex flex-col gap-2">
-                    <span className="tech-label text-accent-gold">A Escolha com Propósito</span>
+                    <span className="tech-label text-accent-gold">A escolha com propósito</span>
                     <h3 className="text-5xl font-serif leading-none italic uppercase">{recommendedProduct.name}</h3>
                   </div>
 
@@ -237,7 +155,7 @@ Retorne um JSON com {productId, productName, technicalReason, layoutTip}.`;
                       </p>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-ruah-300">Dica de estilo:</span>
+                      <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-ruah-300">Dica de composição:</span>
                       <p className="text-xs text-ruah-500 font-medium uppercase tracking-widest leading-loose italic">
                         {recommendation.layoutTip || recommendedProduct.stylingTip}
                       </p>
@@ -260,26 +178,15 @@ Retorne um JSON com {productId, productName, technicalReason, layoutTip}.`;
                       }}
                       className="flex-1 border border-ruah-100 text-ruah-950 py-5 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-ruah-50 transition-all"
                     >
-                      Nova curadoria
+                      Nova leitura
                     </button>
                   </div>
                 </div>
               </motion.div>
-            ) : (
-              <div className="flex flex-col items-center justify-center p-20 gap-8">
-                <div className="relative">
-                  <div className="w-24 h-24 border-4 border-white/10 border-t-accent-gold rounded-full animate-spin" />
-                  <Sparkles className="absolute inset-0 m-auto text-accent-gold animate-pulse" size={32} />
-                </div>
-                <div className="flex flex-col items-center gap-4">
-                  <h3 className="text-3xl font-serif text-white italic uppercase tracking-tighter">Buscando o seu chamado...</h3>
-                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.4em] animate-pulse">UseRuah Art & Faith Curator Analysis</p>
-                </div>
-              </div>
-            )}
+            ) : null}
           </div>
         </motion.div>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 }

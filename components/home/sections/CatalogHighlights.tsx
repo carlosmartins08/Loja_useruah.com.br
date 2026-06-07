@@ -22,7 +22,7 @@ export function CatalogHighlights() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {HOME_CATEGORIES.map((cat) => (
               <Link key={cat.name} href={cat.link} className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden group cursor-pointer shadow-subtle" style={{ position: 'relative' }}>
-                <AppImage context="product-thumb" src={cat.image} alt={cat.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" referrerPolicy="no-referrer" />
+                <AppImage context="product-thumb" src={cat.image} alt={cat.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-ruah-950/80 via-ruah-950/20 to-transparent flex items-end p-10">
                   <div className="flex justify-between items-center w-full">
                     <div className="flex flex-col">

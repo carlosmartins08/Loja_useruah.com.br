@@ -4,16 +4,7 @@ import { canManageCatalog, getActorFromRequest } from '@/lib/access-control';
 import { createCatalogItem, markCatalogItemReady, publishCatalogItem } from '@/lib/catalog-item-store';
 import { upsertApprovedArtwork } from '@/lib/artwork-store';
 import { approveImpactReview, createImpactReview, getPendingImpactReviewByEntity } from '@/lib/impact-review-store';
-import { getBrandProductVisual } from '@/lib/brand-assets';
-
-const SEED_ITEMS = [
-  { id: '1', name: 'Camiseta Oração', price: 89.9, category: 'autoral', segment: 'customizada', image: getBrandProductVisual('1').image },
-  { id: '2', name: 'Moletom Presença', price: 159.9, category: 'campanhas', segment: 'customizada', image: getBrandProductVisual('2').image },
-  { id: '3', name: 'Ecobag Reino', price: 45, category: 'acessorios', segment: 'customizada', image: getBrandProductVisual('3').image },
-  { id: '4', name: 'Uniforme Base G1', price: 55, category: 'fardamento', segment: 'base', image: getBrandProductVisual('4').image },
-  { id: '5', name: 'Camiseta Base Cotton', price: 42.9, category: 'fardamento', segment: 'base', image: getBrandProductVisual('5').image },
-  { id: '6', name: 'Ecobag Presença', price: 12, category: 'acessorios', segment: 'customizada', image: getBrandProductVisual('6').image },
-] as const;
+import { BRAND_BOOTSTRAP_SEEDS } from '@/lib/brand-assets';
 
 export async function POST(request: Request) {
   const actor = getActorFromRequest(request);
@@ -23,7 +14,7 @@ export async function POST(request: Request) {
 
   const results: Array<{ catalogItemId: string; created: boolean; published: boolean }> = [];
 
-  for (const seed of SEED_ITEMS) {
+  for (const seed of BRAND_BOOTSTRAP_SEEDS) {
     const artworkId = `ART-SEED-${seed.id}`;
     upsertApprovedArtwork({
       artworkId,
@@ -31,40 +22,37 @@ export async function POST(request: Request) {
       sourceAsset: seed.image,
       metadata: {
         theme: 'seed',
-        category: seed.category,
-        tags: [seed.segment, 'seed'],
+        category: seed.catalogCategory,
+        tags: [...seed.tags, seed.segment, 'seed'],
       },
     });
 
     const { item, created } = await createCatalogItem({
       catalogItemId: seed.id,
+      overwriteExisting: true,
       artworkId,
-      productBaseId: `BASE-${seed.id}`,
+      productBaseId: seed.productBaseId,
       name: seed.name,
       price: seed.price,
       image: seed.image,
-      colorImages: {
-        'Off White': seed.image,
-      },
-      fit: 'regular',
-      fabric: '100% algodão fio 30.1 penteado premium',
-      printTypeDescription: 'Serigrafia premium e DTG com tinta à base d\'agua para alta durabilidade.',
-      washGuide: 'Lavar do avesso, água fria, não usar alvejante, secar à sombra.',
-      installmentCount: 3,
-      detailImages: [{ label: 'Detalhe', src: seed.image }],
-      modelMockups: [{ label: 'Mockup', src: seed.image }],
-      variants: [
-        {
-          variantId: `VAR-${seed.id}-OFFWHITE`,
-          label: 'Off White',
-          price: seed.price,
-          image: seed.image,
-          inStock: true,
-        },
-      ],
-      category: seed.category === 'autoral' ? 'Autoral' : seed.category === 'campanhas' ? 'Campanhas' : seed.category === 'fardamento' ? 'Fardamento' : 'Acessórios',
+      colorImages: seed.colorImages,
+      fit: seed.fit,
+      fabric: seed.fabric,
+      printTypeDescription: seed.printTypeDescription,
+      washGuide: seed.washGuide,
+      installmentCount: seed.installmentCount,
+      detailImages: seed.detailImages,
+      modelMockups: seed.modelMockups,
+      variants: Object.entries(seed.colorImages).map(([label, image]) => ({
+        variantId: `VAR-${seed.id}-${label.toUpperCase().replace(/[^A-Z0-9]+/g, '-')}`,
+        label,
+        price: seed.price,
+        image,
+        inStock: true,
+      })),
+      category: seed.catalogCategory,
       segment: seed.segment === 'base' ? 'Base' : 'Customizada',
-      tags: ['Seed', seed.segment === 'base' ? 'Volume' : 'Autoral'],
+      tags: [...seed.tags, 'Seed', seed.segment === 'base' ? 'Volume' : seed.catalogCategory],
       pricingPolicy: {
         minPrice: Number((seed.price * 0.9).toFixed(2)),
         suggestedPrice: Number(seed.price.toFixed(2)),

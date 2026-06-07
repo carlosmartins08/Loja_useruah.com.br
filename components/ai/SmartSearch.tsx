@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
-import { Search, Sparkles, X, ArrowRight, Loader2 } from 'lucide-react';
+import { Search, Compass, X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
 import { getBrandProductSeed, getBrandProductVisual } from '@/lib/brand-assets';
-
-const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-const ai = geminiApiKey ? new GoogleGenAI({ apiKey: geminiApiKey }) : null;
+import { searchBrandProducts } from '@/lib/brand-discovery';
 
 interface SearchResult {
   id: string;
@@ -27,7 +24,6 @@ const FALLBACK_RESULTS: SearchResult[] = [
 export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +39,7 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     onEscape: onClose,
   });
 
-  const handleSearch = async (value: string) => {
+  const handleSearch = (value: string) => {
     setQuery(value);
 
     if (value.length < 3) {
@@ -51,65 +47,22 @@ export function SmartSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () 
       return;
     }
 
-    setIsLoading(true);
     try {
-      if (!ai) {
-        const normalized = value.toLowerCase();
-        setResults(
-          FALLBACK_RESULTS.filter(
-            (item) =>
-              item.name.toLowerCase().includes(normalized) ||
-              item.relevance.toLowerCase().includes(normalized)
-          )
-        );
-        return;
-      }
-
-      const prompt = `Você é um curador de estilo da UseRuah.
-Analise o pedido do cliente: "${value}".
-
-Produtos disponíveis:
-1. Camiseta Oração (algodão, editorial, mensagem contemplativa)
-2. Moletom Presença (conforto, encontro, clima mais denso)
-3. Ecobag Reino (praticidade, presente, rotina)
-4. Boné Presença (identidade, impacto sutil, camada final)
-5. Camiseta Serena (base, suavidade, uso recorrente)
-6. Ecobag Presença (entrada de marca, contraste, utilidade)
-
-Retorne APENAS um array JSON de objetos com {id, name, relevance} onde id é o número do produto (1-6) e relevance é uma frase curta explicando por que esse produto atende ao pedido.`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                id: { type: Type.STRING },
-                name: { type: Type.STRING },
-                relevance: { type: Type.STRING },
-              },
-            },
-          },
-        },
-      });
-
-      const data = JSON.parse(response.text || '[]');
-      setResults(Array.isArray(data) ? data : []);
+      const matches = searchBrandProducts(value).map((item) => ({
+        id: item.id,
+        name: item.name,
+        relevance: item.reason,
+      }));
+      setResults(matches.length > 0 ? matches : FALLBACK_RESULTS);
     } catch (error) {
-      console.error('Gemini Search Error:', error);
+      console.error('Guided search error:', error);
       setResults(FALLBACK_RESULTS);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {isOpen ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -117,15 +70,15 @@ Retorne APENAS um array JSON de objetos com {id, name, relevance} onde id é o n
           className="fixed inset-0 z-modal bg-white/80 backdrop-blur-3xl flex flex-col pt-32"
           role="dialog"
           aria-modal="true"
-          aria-label="Busca semântica"
+          aria-label="Busca guiada"
           ref={modalRef}
           tabIndex={-1}
         >
           <div className="section-container max-w-4xl">
             <div className="flex justify-between items-center mb-12">
               <div className="flex items-center gap-3">
-                <Sparkles size={20} className="text-accent-gold" />
-                <span className="tech-label text-accent-gold">Busca Semântica Ruah</span>
+                <Compass size={20} className="text-accent-gold" />
+                <span className="tech-label text-accent-gold">Busca Guiada Ruah</span>
               </div>
               <button onClick={onClose} className="p-2 hover:bg-ruah-50 rounded-full transition-colors">
                 <X size={24} />
@@ -138,15 +91,10 @@ Retorne APENAS um array JSON de objetos com {id, name, relevance} onde id é o n
                 ref={inputRef}
                 type="text"
                 value={query}
-                onChange={(event) => void handleSearch(event.target.value)}
+                onChange={(event) => handleSearch(event.target.value)}
                 placeholder="Qual o seu chamado artístico hoje?"
                 className="w-full bg-transparent border-b-2 border-ruah-100 py-8 pl-16 text-4xl lg:text-5xl font-serif italic outline-none focus:border-accent-gold transition-all"
               />
-              {isLoading ? (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2">
-                  <Loader2 size={24} className="animate-spin text-accent-gold" />
-                </div>
-              ) : null}
             </div>
 
             <div className="mt-20">
@@ -168,18 +116,12 @@ Retorne APENAS um array JSON de objetos com {id, name, relevance} onde id é o n
                     >
                       <Link href={`/product/${product.id}`} onClick={onClose} className="flex items-center gap-8 group">
                         <div className="relative w-32 h-32 rounded-3xl overflow-hidden bg-ruah-50 shrink-0">
-                          <AppImage
-                            context="content-banner"
-                            src={visual.image}
-                            alt={product.name}
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-700"
-                          />
+                          <AppImage context="content-banner" src={visual.image} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
                         </div>
                         <div className="flex-1 flex flex-col gap-2">
                           <div className="flex items-center gap-4">
                             <h4 className="text-2xl font-serif uppercase">{product.name}</h4>
-                            <span className="tech-label text-accent-gold text-[8px]">Inspirado por Ruah</span>
+                            <span className="tech-label text-accent-gold text-[8px]">Leitura de coleção</span>
                           </div>
                           <p className="text-sm text-ruah-400 font-medium uppercase tracking-widest leading-relaxed">
                             {result.relevance}
@@ -196,7 +138,7 @@ Retorne APENAS um array JSON de objetos com {id, name, relevance} onde id é o n
             </div>
           </div>
         </motion.div>
-      )}
+      ) : null}
     </AnimatePresence>
   );
 }

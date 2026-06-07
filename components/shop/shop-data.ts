@@ -8,6 +8,8 @@ export interface ShopProduct {
   category: Exclude<ShopCategory, 'All'>;
   segment: Exclude<ShopSegment, 'All'>;
   image: string;
+  hoverImage?: string;
+  badge?: string;
   tags: string[];
 }
 

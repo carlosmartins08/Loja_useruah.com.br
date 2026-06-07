@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'motion/react';
-import { Home, ShoppingBag, ShoppingCart, User, Sparkles } from 'lucide-react';
+import { Home, ShoppingBag, ShoppingCart, User, Compass } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useUser } from '@/context/UserContext';
 import { resolveHomeByRole } from '@/lib/access-routing';
@@ -19,7 +19,7 @@ export function BottomNav() {
   const navItems = [
     { label: 'Início', icon: Home, href: '/' },
     { label: 'Shop', icon: ShoppingBag, href: '/shop' },
-    { label: 'IA', icon: Sparkles, href: '#', isAi: true },
+    { label: 'Guia', icon: Compass, href: '#', isGuide: true },
     { label: 'Carrinho', icon: ShoppingCart, onClick: () => setIsCartOpen(true), badge: cartItemCount },
     { label: 'Conta', icon: User, href: accountHref },
   ];
@@ -35,7 +35,7 @@ export function BottomNav() {
             <div className="flex flex-col items-center justify-center gap-1 relative w-full h-full">
               <div
                 className={`p-2 rounded-xl transition-all duration-300 ${
-                  isActive || (item.isAi && pathname === '/ai') ? 'bg-ruah-950 text-white scale-110' : 'text-ruah-300'
+                  isActive || (item.isGuide && pathname === '/guide') ? 'bg-ruah-950 text-white scale-110' : 'text-ruah-300'
                 }`}
               >
                 <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
@@ -68,12 +68,12 @@ export function BottomNav() {
             );
           }
 
-          if (item.isAi) {
+          if (item.isGuide) {
             return (
               <button
                 key={item.label}
                 onClick={() => {
-                  const btn = document.querySelector('[data-ai-trigger="true"]') as HTMLButtonElement;
+                  const btn = document.querySelector('[data-guide-trigger="true"]') as HTMLButtonElement;
                   if (btn) btn.click();
                 }}
                 className="flex-1 h-full flex items-center justify-center active:scale-90 transition-transform"

@@ -17,6 +17,8 @@ export function ShopPageView({ products }: ShopPageViewProps) {
   const [activeSegment, setActiveSegment] = useState<ShopSegment>('All');
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const availableCategoryCount = useMemo(() => new Set(products.map((product) => product.category)).size, [products]);
+  const availableSegmentCount = useMemo(() => new Set(products.map((product) => product.segment)).size, [products]);
 
   const filteredProducts = useMemo(() => {
     let list = products;
@@ -48,7 +50,7 @@ export function ShopPageView({ products }: ShopPageViewProps) {
                   O SOPRO <br /> DA ARTE.
                 </h1>
                 <p className="text-sm font-medium text-ruah-500 max-w-xl leading-relaxed">
-                  Produtos publicados para compra imediata, com foco em peças autorais, campanhas e básicos da coleção.
+                  Produtos publicados para compra imediata, organizados pelas linhas e categorias realmente ativas no catálogo.
                 </p>
                 <div className="mt-10 flex flex-wrap gap-4">
                   <span className="rounded-full border border-ruah-100 bg-white/80 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ruah-500 shadow-sm">Curadoria editorial</span>
@@ -72,12 +74,12 @@ export function ShopPageView({ products }: ShopPageViewProps) {
                       <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Itens visíveis</span>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-2xl font-serif italic font-black text-ruah-950">3</span>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Linhas ativas</span>
+                      <span className="text-2xl font-serif italic font-black text-ruah-950">{availableCategoryCount}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Categorias ativas</span>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-2xl font-serif italic font-black text-ruah-950">360º</span>
-                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Leitura da marca</span>
+                      <span className="text-2xl font-serif italic font-black text-ruah-950">{availableSegmentCount}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Linhas ativas</span>
                     </div>
                   </div>
                 </div>

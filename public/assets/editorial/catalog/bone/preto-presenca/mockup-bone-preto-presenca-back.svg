@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Boné estruturado</title>
+  <desc id="desc">Boné estruturado em Preto Ruah, vista Costas.</desc>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="34%" r="62%">
+      <stop offset="0%" stop-color="#c5a059" stop-opacity="0.26" />
+      <stop offset="100%" stop-color="#c5a059" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="wash" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#17191c" />
+      <stop offset="52%" stop-color="#2a2d30" />
+      <stop offset="100%" stop-color="#17191c" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" rx="96" fill="url(#wash)" />
+  <rect x="72" y="72" width="1056" height="1056" rx="80" fill="none" stroke="#c5a059" stroke-opacity="0.16" />
+  <circle cx="600" cy="430" r="320" fill="url(#glow)" />
+  <g transform="translate(0 18)">
+    <g transform="translate(420 280) scale(1.5)" style="color:#73777d">
+      <path d="M70 120c0-31 23-54 53-54 28 0 49 18 56 44l-109 10Z" fill="currentColor" /><path d="M70 120c20 5 58 7 104-3 6-1 11 4 10 10-2 9-10 16-19 18-50 13-90 8-108-4-7-5-6-16 1-19 3-1 7-2 12-2Z" fill="rgba(23,25,28,0.18)" />
+    </g>
+  </g>
+  <g fill="#f3efe8">
+    <text x="138" y="172" font-family="Segoe UI, Arial, sans-serif" font-size="36" font-weight="700" letter-spacing="9" text-transform="uppercase" opacity="0.54">BONÉ ESTRUTURADO</text>
+    <text x="962" y="172" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="5" text-anchor="end" opacity="0.42">Costas</text>
+    <text x="600" y="656" font-family="Georgia, 'Times New Roman', serif" font-size="84" font-style="italic" font-weight="700" text-anchor="middle">Boné estruturado</text>
+    <text x="600" y="720" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="7" text-anchor="middle" opacity="0.4">PRETO RUAH</text>
+    <text x="138" y="1084" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="6" opacity="0.36">Preto Ruah</text>
+    <text x="1060" y="1084" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="6" text-anchor="end" opacity="0.36">UseRuah</text>
+  </g>
+</svg>

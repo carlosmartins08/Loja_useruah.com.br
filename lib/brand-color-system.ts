@@ -86,7 +86,7 @@ export function canUsePrintForProductColor(colorSlug: string, printSlug: string)
 
 export function buildMockupPath(productSlug: string, colorSlug: string, view: string) {
   const template = (productColors as { mockupPathTemplate?: string }).mockupPathTemplate;
-  const safeTemplate = template ?? '/assets/products/mockups/{productSlug}/{colorSlug}/mockup-{productSlug}-{colorSlug}-{view}.png';
+  const safeTemplate = template ?? '/assets/editorial/catalog/{productSlug}/{colorSlug}/mockup-{productSlug}-{colorSlug}-{view}.svg';
   return safeTemplate
     .replaceAll('{productSlug}', productSlug)
     .replaceAll('{colorSlug}', colorSlug)

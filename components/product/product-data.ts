@@ -1,3 +1,8 @@
+import {
+  findBrandProductMerchandising,
+  findBrandProductSeed,
+  type BrandPackagingOption,
+} from '@/lib/brand-assets';
 import type { CatalogItemRecord } from '@/lib/catalog-item-store';
 
 export interface ProductPageModel {
@@ -5,30 +10,49 @@ export interface ProductPageModel {
   name: string;
   price: number;
   image: string;
+  category: string;
+  segment: string;
+  tags: string[];
   colorImages: Record<string, string>;
   fit: 'slim' | 'regular' | 'oversized';
   fabric: string;
   printTypeDescription: string;
   washGuide: string;
   installmentCount: number;
+  productionDays: number;
+  sizeOptions: string[];
+  printOptions: string[];
+  packagingOptions: BrandPackagingOption[];
   detailImages: Array<{ label: string; src: string }>;
   modelMockups: Array<{ label: string; src: string }>;
 }
 
 export function mapCatalogItemToProductPageModel(item: CatalogItemRecord): ProductPageModel {
+  const seed = findBrandProductSeed(item.catalogItemId);
+  const merchandising = findBrandProductMerchandising(item.catalogItemId);
+
   return {
     id: item.catalogItemId,
-    name: item.name,
-    price: item.price,
-    image: item.image,
-    colorImages: item.colorImages,
-    fit: item.fit,
-    fabric: item.fabric,
-    printTypeDescription: item.printTypeDescription,
-    washGuide: item.washGuide,
-    installmentCount: item.installmentCount,
-    detailImages: item.detailImages,
-    modelMockups: item.modelMockups,
+    name: seed?.name ?? item.name,
+    price: seed?.price ?? item.price,
+    image: merchandising?.image ?? item.image,
+    category: merchandising?.category ?? item.category ?? 'Autoral',
+    segment: merchandising?.segment ?? item.segment ?? 'Customizada',
+    tags: merchandising?.tags ?? item.tags ?? [],
+    colorImages: merchandising?.colorImages ?? item.colorImages,
+    fit: merchandising?.fit ?? item.fit,
+    fabric: merchandising?.fabric ?? item.fabric,
+    printTypeDescription: merchandising?.printTypeDescription ?? item.printTypeDescription,
+    washGuide: merchandising?.washGuide ?? item.washGuide,
+    installmentCount: merchandising?.installmentCount ?? item.installmentCount,
+    productionDays: merchandising?.productionDays ?? 7,
+    sizeOptions: merchandising?.sizeOptions ?? ['P', 'M', 'G', 'GG'],
+    printOptions: merchandising?.printOptions ?? ['Serigrafia premium'],
+    packagingOptions: merchandising?.packagingOptions ?? [
+      { name: 'Pack UseRuah', description: 'Proteção essencial com apresentação limpa.' },
+    ],
+    detailImages: merchandising?.detailImages ?? item.detailImages,
+    modelMockups: merchandising?.modelMockups ?? item.modelMockups,
   };
 }
 
@@ -39,7 +63,7 @@ export function buildProductJsonLd(product: ProductPageModel) {
       '@type': 'Product',
       name: product.name,
       image: product.image,
-      description: 'Moda cristã e produtos personalizados sob demanda.',
+      description: `${product.name} da UseRuah. Moda cristã com propósito, categoria ${product.category.toLowerCase()} e produção sob demanda.`,
       brand: {
         '@type': 'Brand',
         name: 'UseRuah',

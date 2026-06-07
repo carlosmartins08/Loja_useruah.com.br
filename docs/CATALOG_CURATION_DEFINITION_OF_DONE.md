@@ -2,6 +2,11 @@
 
 Data de revisao: 2026-05-19
 
+Atualizacao adicional: 2026-06-06
+- Seed publicado não pode apontar para `mockups` placeholder.
+- Asset oficial de catálogo seed deve existir em `public/assets/editorial/catalog/**`.
+- Enquanto não houver biblioteca visual real de produto, o editorial é a mídia oficial do catálogo.
+
 ## Objetivo
 Padronizar o fluxo de catálogo e curadoria para evitar publicação indevida, duplicidade de regra e retrabalho entre time criativo, curadoria e operação.
 
@@ -70,6 +75,8 @@ Referencia completa: `docs/ROLES_MATRIX.md`
 - [ ] Item publicado atende padrão visual e técnico mínimo.
 - [ ] SEO básico preenchido (título, descrição, dados estruturados quando aplicável).
 - [ ] Rejeição por qualidade gera feedback acionável para correção.
+- [ ] Seed publicado não referencia `/assets/products/mockups/`.
+- [ ] Toda mídia publicada existe fisicamente em `public/`.
 
 ## Contratos minimos de dados
 Artwork deve possuir, no mínimo:
@@ -103,6 +110,7 @@ CatalogItem deve possuir, no mínimo:
 - [ ] Unit: transições válidas/inválidas de arte e catálogo.
 - [ ] Integração: submissão -> curadoria -> publicação.
 - [ ] E2E: item aprovado aparece no shop e é acessível na PDP.
+- [ ] QA persistida falha se houver `picsum`, `mockups` placeholder ou asset ausente.
 
 ## Segurança e governança
 - [ ] Aprovação/reprovação somente por role autorizada.

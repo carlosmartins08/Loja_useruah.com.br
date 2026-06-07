@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Minus, ArrowRight, Zap, Star, Heart, Ruler, ShoppingBag, Wallet, QrCode, CreditCard } from 'lucide-react';
+import { Plus, Minus, ArrowRight, Zap, Heart, Ruler, ShoppingBag, Wallet, QrCode, CreditCard } from 'lucide-react';
+import type { BrandPackagingOption } from '@/lib/brand-assets';
 import { useCart } from '@/context/CartContext';
-import { AppImage } from '@/components/shared/AppImage';
 import { SmartShipping } from './SmartShipping';
 import { useRouter } from 'next/navigation';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
@@ -16,8 +16,22 @@ interface ProductInteractiveProps {
   image: string;
   productionDays?: number;
   installmentCount?: number;
+  sizeOptions?: string[];
+  printOptions?: string[];
+  packagingOptions?: BrandPackagingOption[];
+  selectedColor?: string;
+  colorOptions?: string[];
   onColorChange?: (color: string) => void;
 }
+
+const COLOR_SWATCHES: Record<string, string> = {
+  'Off White': 'bg-[#F5F5F0]',
+  'Preto Ruah': 'bg-[#1A1A1A]',
+  'Terra Cota': 'bg-[#A45C40]',
+  Areia: 'bg-[#D8C2A8]',
+  Branco: 'bg-[#FAFAFA]',
+  Preto: 'bg-[#1A1A1A]',
+};
 
 export function ProductInteractive({
   id,
@@ -26,19 +40,32 @@ export function ProductInteractive({
   image,
   productionDays = 7,
   installmentCount = 3,
+  sizeOptions = ['P', 'M', 'G', 'GG'],
+  printOptions = ['Serigrafia'],
+  packagingOptions = [{ name: 'Pack UseRuah', description: 'Proteção essencial com apresentação limpa.' }],
+  selectedColor,
+  colorOptions,
   onColorChange,
 }: ProductInteractiveProps) {
   const router = useRouter();
+  const resolvedColorOptions = React.useMemo(() => (colorOptions?.length ? colorOptions : ['Padrão']), [colorOptions]);
   const [quantity, setQuantity] = React.useState(1);
-  const [printType, setPrintType] = React.useState('Serigrafia');
-  const [color, setColor] = React.useState('Off White');
-  const [size, setSize] = React.useState('M');
-  const [packaging, setPackaging] = React.useState('Pack Respiro');
+  const [internalPrintType, setInternalPrintType] = React.useState<string | null>(null);
+  const [internalColor, setInternalColor] = React.useState<string | null>(null);
+  const [internalSize, setInternalSize] = React.useState<string | null>(null);
+  const [internalPackaging, setInternalPackaging] = React.useState<string | null>(null);
   const [showSizeGuide, setShowSizeGuide] = React.useState(false);
   const [isReviewing, setIsReviewing] = React.useState(false);
   const reviewRef = React.useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
   const installmentValue = price / installmentCount;
+  const color = selectedColor ?? internalColor ?? resolvedColorOptions[0];
+  const printType = internalPrintType && printOptions.includes(internalPrintType) ? internalPrintType : (printOptions[0] ?? 'Serigrafia');
+  const size = internalSize && sizeOptions.includes(internalSize) ? internalSize : (sizeOptions[0] ?? 'Único');
+  const packaging =
+    internalPackaging && packagingOptions.some((option) => option.name === internalPackaging)
+      ? internalPackaging
+      : (packagingOptions[0]?.name ?? 'Pack UseRuah');
 
   useFocusTrap({
     active: isReviewing,
@@ -187,24 +214,23 @@ export function ProductInteractive({
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Cores disponíveis</h3>
             <div className="flex gap-3">
-               {[
-                 { name: 'Off White', bg: 'bg-[#F5F5F0]' },
-                 { name: 'Preto Ruah', bg: 'bg-[#1A1A1A]' },
-                 { name: 'Terra Cota', bg: 'bg-[#A45C40]' }
-               ].map(c => (
-                 <button type="button" key={c.name}
+               {resolvedColorOptions.map((option) => (
+                 <button type="button" key={option}
                   onClick={() => {
-                    setColor(c.name);
-                    onColorChange?.(c.name);
+                    if (onColorChange) {
+                      onColorChange(option);
+                      return;
+                    }
+                    setInternalColor(option);
                   }}
                   className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all border ${
-                    color === c.name 
+                    color === option
                     ? 'bg-ruah-950 text-white border-ruah-950 shadow-lg' 
                     : 'bg-white text-ruah-950 border-ruah-100 hover:border-accent-gold'
                   }`}
                  >
-                   <div className={`w-3 h-3 rounded-full ${c.bg} border border-black/10`} />
-                   <span className="text-xs font-semibold tracking-[0.08em] uppercase">{c.name}</span>
+                   <div className={`w-3 h-3 rounded-full ${COLOR_SWATCHES[option] ?? 'bg-neutral-300'} border border-black/10`} />
+                   <span className="text-xs font-semibold tracking-[0.08em] uppercase">{option}</span>
                  </button>
                ))}
             </div>
@@ -221,9 +247,9 @@ export function ProductInteractive({
               </button>
             </div>
             <div className="flex gap-3">
-               {['P', 'M', 'G', 'GG', 'XG'].map(s => (
+               {sizeOptions.map((s) => (
                  <button type="button" key={s}
-                  onClick={() => setSize(s)}
+                   onClick={() => setInternalSize(s)}
                   className={`w-12 h-12 rounded-xl text-xs font-bold tracking-[0.1em] transition-all border flex items-center justify-center ${
                     size === s 
                     ? 'bg-ruah-950 text-white border-ruah-950' 
@@ -239,9 +265,9 @@ export function ProductInteractive({
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Técnica de Estamparia</h3>
              <div className="flex flex-wrap gap-3">
-                {['Serigrafia', 'Bordado', 'Digital DTG'].map(p => (
+                {printOptions.map((p) => (
                   <button type="button" key={p}
-                   onClick={() => setPrintType(p)}
+                   onClick={() => setInternalPrintType(p)}
                    className={`px-6 py-3 rounded-xl text-xs font-bold tracking-[0.1em] transition-all border ${
                      printType === p 
                      ? 'bg-ruah-950 text-white border-ruah-950 shadow-md' 
@@ -257,19 +283,17 @@ export function ProductInteractive({
           <div>
              <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400 mb-4">Embalagem</h3>
              <div className="flex gap-4">
-                {['Pack Respiro', 'Gift Experience'].map(pkg => (
-                  <button type="button" key={pkg}
-                   onClick={() => setPackaging(pkg)}
+                {packagingOptions.map((option) => (
+                  <button type="button" key={option.name}
+                   onClick={() => setInternalPackaging(option.name)}
                    className={`flex-1 p-5 rounded-2xl border-2 transition-all text-left flex flex-col gap-2 ${
-                     packaging === pkg 
+                     packaging === option.name
                      ? 'border-accent-gold bg-accent-gold/5' 
                      : 'border-ruah-50 bg-ruah-50/30 hover:border-ruah-100'
                    }`}
                   >
-                    <span className={`text-xs font-bold uppercase tracking-[0.1em] ${packaging === pkg ? 'text-accent-gold' : 'text-ruah-950'}`}>{pkg}</span>
-                    <span className="text-xs font-medium text-ruah-500">
-                      {pkg === 'Pack Respiro' ? 'Minimalismo e proteção essencial' : 'Unboxing premium com cartão autoral'}
-                    </span>
+                    <span className={`text-xs font-bold uppercase tracking-[0.1em] ${packaging === option.name ? 'text-accent-gold' : 'text-ruah-950'}`}>{option.name}</span>
+                    <span className="text-xs font-medium text-ruah-500">{option.description}</span>
                   </button>
                 ))}
              </div>

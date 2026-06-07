@@ -12,7 +12,7 @@ interface FAQItem {
 
 const DEFAULT_FAQS: FAQItem[] = [
   {
-    q: 'Qual tecido é usado na Camiseta Respiro?',
+    q: 'Qual tecido é usado nesta peça?',
     a: 'Usamos malha 100% algodão fio 30.1 penteado premium, com toque macio e bom caimento para uso diário.',
   },
   {

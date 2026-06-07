@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run utf8:check && next build",
+    "build": "npm run utf8:check && npm run qa:product:guardrails && next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -25,8 +25,11 @@
     "ops:impact:window": "node scripts/impact-daily-window-runner.mjs",
     "alert:critical": "node scripts/critical-alerts.mjs",
     "clean": "next clean",
+    "catalog:artwork": "node scripts/generate-editorial-catalog-assets.mjs",
+    "catalog:rehydrate": "npm run catalog:artwork && set QA_PORT=3216&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/catalog-rehydrate.mjs&& node scripts/qa-api-runner.mjs",
     "qa:functional": "set QA_PORT=3310&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa-functional.mjs&& node scripts/qa-api-runner.mjs",
     "qa:catalog": "set QA_PORT=3200&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-catalog-lifecycle.mjs&& node scripts/qa-api-runner.mjs",
+    "qa:catalog:persisted": "set QA_PORT=3217&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-catalog-persisted.mjs&& node scripts/qa-api-runner.mjs",
     "qa:providers:ready": "node scripts/qa-providers-ready.mjs",
     "qa:provider:requirements": "node scripts/qa-provider-requirements.mjs",
     "qa:provider:activate": "node scripts/qa-provider-activate.mjs",
@@ -34,6 +37,7 @@
     "qa:typography": "node scripts/qa-typography.mjs",
     "qa:content": "node scripts/qa-content.mjs",
     "qa:content:governance": "node scripts/qa-content-governance.mjs",
+    "qa:product:guardrails": "node scripts/qa-product-guardrails.mjs",
     "qa:ux:journeys": "node scripts/qa-ux-journeys.mjs",
     "qa:payments21": "set QA_PORT=3321&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa-payments-2-1.mjs&& node scripts/qa-api-runner.mjs",
     "qa:gateway-real:smoke": "set QA_PORT=3326&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa-gateway-real-smoke.mjs&& set RBAC_ACTIVE=true&& node scripts/qa-api-runner.mjs",
@@ -57,7 +61,6 @@
     "qa:full": "npm run alert:critical && npm run check && npm run qa:brand:colors && npm run qa:typography && npm run qa:content && npm run qa:ux:journeys && npm run qa:catalog && npm run qa:payments21 && npm run qa:exceptions && npm run qa:coreops && npm run qa:campaign:impact && npm run qa:finance:impact && npm run qa:payout:ledger"
   },
   "dependencies": {
-    "@google/genai": "^1.52.0",
     "@hookform/resolvers": "^5.2.1",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
