@@ -6,8 +6,8 @@ Data de revisao: 2026-06-08
 Criar uma visao unica de realidade entre fase, dominio, entidade, superficie e maturidade atual, para impedir que a documentacao presuma implementacao que o runtime ainda nao provou.
 
 ## Regra de uso
-- Este documento e `referencial`.
-- Ele reconcilia documentacao e runtime, mas nao substitui documento normativo de fase ou dominio.
+- Este documento e `normativo` para leitura de maturidade e reconciliacao entre documento e runtime.
+- Ele nao substitui o escopo normativo de fase ou dominio, mas e a fonte obrigatoria para decidir o que pode ou nao ser tratado como base real de continuidade.
 - Em caso de conflito de regra, prevalecem:
   1. `docs/EXECUTION_CONSOLIDATED_MASTER.md`
   2. documento oficial da fase

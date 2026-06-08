@@ -47,6 +47,19 @@ export async function getPublicCatalog(baseUrl) {
   return { status: response.status, data };
 }
 
+export async function resolveSeededCatalogVariant(baseUrl, catalogItemId = '1') {
+  const catalog = await getPublicCatalog(baseUrl);
+  assert(catalog.status === 200, `catalog expected 200, got ${catalog.status}`);
+  const seededItem = Array.isArray(catalog.data?.items)
+    ? catalog.data.items.find((item) => item?.catalogItemId === catalogItemId)
+    : null;
+  assert(seededItem, `seeded catalog item missing: ${catalogItemId}`);
+  const seededVariant = Array.isArray(seededItem?.variants) ? seededItem.variants[0] : null;
+  assert(seededVariant?.variantId, `seeded variant missing for catalog item ${catalogItemId}`);
+  assert(typeof seededVariant?.price === 'number', `seeded variant price missing for catalog item ${catalogItemId}`);
+  return { item: seededItem, variant: seededVariant };
+}
+
 export function readPersistedCatalog() {
   assert(existsSync(STORE_PATH), `persisted catalog not found at ${STORE_PATH}`);
   return JSON.parse(readFileSync(STORE_PATH, 'utf-8'));

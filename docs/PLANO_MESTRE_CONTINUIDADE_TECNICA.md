@@ -1,62 +1,121 @@
-# Plano Mestre de Continuidade Tecnica (Anti-Retrabalho)
+# Plano Mestre de Continuidade Tecnica
 
-Data de revisao: 2026-05-23
+Data de revisao: 2026-06-08
 Owner: Produto + Engenharia
 
 ## Objetivo
-Manter continuidade de execucao sem perda de contexto, sem duplicidade e sem avanço fora de gate.
+Definir um quadro unico de continuidade para o projeto evoluir sem reabrir fase, sem duplicar dominio e sem tratar documento aspiracional como realidade do runtime.
 
-## Estado atual consolidado
-- P0 Estrutural: `IMPLEMENTADO`
-- P1 Confiabilidade QA: `IMPLEMENTADO`
-- P2 Front integrado: `PARCIAL`
-- P3 Pagamento real Stripe e cutover: `BLOQUEADO`
-- P4 Hardening final: `PLANEJADO`
+## Regra de precedencia
+- Este documento nao redefine fase de produto.
+- Escopo oficial da fase atual continua em `docs/FASE_1_VENDA_DE_PRODUTO.md`.
+- Maturidade real continua em `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` e `docs/EXECUTION_TRACKING.md`.
+- Pagamento real continua na trilha transversal `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`.
 
-## Sequencia inteligente obrigatoria
-1. Fechar P2 com evidencias funcionais ponta a ponta.
-2. Iniciar P3 apenas em homologacao Stripe com rollback testado.
-3. Executar P4 apenas apos P3 aprovado.
+## Quadro unico de continuidade
 
-## Backlog executavel por prioridade
+### Agora
+- Fase 1 comercial: `IMPLEMENTADO` em ambiente controlado.
+- Fase 1 funcional: fechada.
+- `auth/session`: liberado com `qa:auth:cookie: PASS`.
+- Pagamento real Stripe: `GO CONDICIONADO`.
+- Condicionante atual da Stripe:
+  - nao e auth
+  - nao e credencial
+  - nao e provider no recorte homologado
+  - e aceite final de producao e readiness operacional real
+- Evidencias da trilha Stripe homologada:
+  - `npm run p3:precheck`: PASS
+  - `npm run qa:stripe:smoke`: PASS
+  - `npm run qa:provider:activate`: PASS
+  - `npm run check`: PASS
+  - `npm run build`: PASS
+  - `npm run qa:functional`: PASS
+- `gateway_real` generico: `PLANEJADO` como bridge futura.
+- `pix`: fora do recorte imediato.
+- Fase 2: fechada para execucao ate nova evidencia objetiva.
+- Fase 3: fechada para execucao como frente principal ate nova evidencia objetiva.
 
-### P2 (prioridade alta)
-- Validar `account/orders` com pedidos reais em diferentes estados (`placed`, `paid`, `in_production`, `shipped`).
-- Validar `admin/production` com fila real e estados divergentes (`queued`, `in_progress`, `issue_reported`).
-- Finalizar padrao de cliente HTTP unico nas telas operacionais criticas.
-- Evidenciar comparacao API x banco x UI para pedidos e producao.
+### Depois do aceite final de producao Stripe
+- Registrar evidencia operacional e manter a Fase 1 como baseline vendavel.
+- Abrir no maximo 1 recorte de evolucao por vez.
+- O primeiro recorte elegivel de produto continua sendo Fase 2 em cima do que a matriz marcar como `IMPLEMENTADO` ou `PARCIAL` conscientemente aceito.
+- No estado atual do runtime, o unico ponto com base minimamente utilizavel e `MovementCampaign` basico.
 
-### P3 (prioridade critica de negocio)
-- Formalizar `Stripe` como provider oficial inicial (`PAYMENT_PROVIDER=stripe`) para `card`/`wallet`.
-- Rodar `PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md` em homologacao.
-- Publicar evidencias de cutover e rollback em ate 30 minutos.
-- Fechar reconciliacao por `providerReference` em banco gerenciado.
-- Manter `gateway_real` generico como bridge futura `PLANEJADO`, sem reabrir escopo neste ciclo.
+### O que continua proibido
+- criar produto paralelo ao `CatalogItem`
+- criar checkout paralelo
+- criar `Order`, `Payment` ou `Cart` paralelos
+- abrir Fase 3 como frente principal antes de consolidar o que a Fase 2 realmente tem
+- tratar `Organization`, `CampaignProduct`, `Referral*` ou snapshot expandido como base pronta
+- mexer em codigo para compensar ambiente Stripe incompleto
+- reabrir documentacao sem evidencia nova
 
-### P4 (hardening final)
-- Corrigir encoding residual em metadata/UX.
-- Eliminar referencia quebrada/duplicidade documental restante.
-- Finalizar branding/SEO runtime (`favicon`, `apple-touch-icon`, `og-image`).
+## Sequencia oficial de continuidade
 
-## Gates formais de continuidade (COBIT/ITIL)
-- Gate de Mudanca (ITIL): nenhuma mudanca critica sem risco, owner e rollback definidos.
-- Gate de Validacao (COBIT BAI): nenhuma promocao sem evidencia `check` e QA aplicavel.
-- Gate de Operacao (COBIT DSS): incidente em fluxo critico exige RCA em ate 24h.
-- Gate de Conhecimento (ITIL): docs e tracking atualizados no mesmo ciclo da mudanca.
+### Etapa 1 - Stripe
+Executar somente quando as credenciais Stripe de homologacao existirem no ambiente seguro:
 
-## Criterios de bloqueio
-- Bloquear P3 se `CRIT-PAY-REAL-001/002` estiverem abertos.
-- Bloquear release critica se `npm run check` ou `npm run qa:full` falhar.
-- Bloquear merge critico sem atualizacao de `docs/EXECUTION_TRACKING.md`.
+```text
+npm run p3:precheck
+npm run qa:stripe:smoke
+npm run qa:provider:activate
+npm run check
+npm run build
+npm run qa:functional
+```
 
-## Evidencias minimas por onda
-- Comandos executados e status.
-- Endpoints/telas validados.
-- Contratos sem quebra (referencia `docs/API_CONTRACTS.md`).
-- Registro de decisao em `docs/CHANGELOG_GOVERNANCE.md` quando houver excecao.
+Saida permitida:
+- `GO`
+- `GO CONDICIONADO`
+- `NO-GO`
 
-## Referencias oficiais
-- `docs/EXECUTION_TRACKING.md`
-- `docs/EXECUTION_CONSOLIDATED_MASTER.md`
-- `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
-- `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+Regra:
+- sem credenciais validas, o codigo continua congelado
+
+### Etapa 2 - Baseline
+Se a Etapa 1 terminar em `GO` ou `GO CONDICIONADO` sem risco de regressao de fluxo:
+- atualizar `docs/EXECUTION_TRACKING.md`
+- atualizar `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` se a maturidade real subir
+- registrar decisao em `docs/CHANGELOG_GOVERNANCE.md`
+- distinguir explicitamente:
+  - Fase 1 funcional fechada
+  - Fase 1 producao ainda condicionada ate aceite final de producao
+
+### Etapa 3 - Proximo recorte de produto
+So pode abrir novo recorte quando todas as condicoes abaixo forem verdadeiras:
+- Fase 1 continua preservada
+- Stripe concluiu aceite final de producao e readiness operacional real
+- o recorte cabe em 1 unico dominio
+- nenhuma dependencia `NAO PRESUMIR` esta sendo tratada como pronta
+
+## Regra de escolha do proximo recorte
+Pergunta obrigatoria:
+
+```text
+o proximo passo depende de capacidade IMPLEMENTADA ou PARCIAL validada?
+```
+
+Se a resposta for `nao`, o recorte nao abre.
+
+## Melhor proximo recorte quando Stripe estiver resolvida
+Pelo estado atual das docs e do runtime:
+- Fase 2 continua sendo a frente correta
+- o recorte mais coerente e estreito e `MovementCampaign` basico
+- qualquer expansao para `Organization`, `Referral*`, snapshot contextualizado ou supplier completo deve esperar prova runtime
+
+## Checklist anti-retrabalho
+- usar `docs/FASE_1_VENDA_DE_PRODUTO.md` para escopo da base vendavel
+- usar `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md` para proibicoes estruturais da Fase 2
+- usar `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md` para proibicoes estruturais da Fase 3
+- usar `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` antes de promover qualquer capacidade como base pronta
+- usar `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` para tudo que for pagamento real
+
+## Regra final
+O projeto so continua de forma coerente se cada etapa provar a anterior.
+
+Sem prova Stripe:
+- nao existe Fase 2 honesta em execucao.
+
+Sem base Fase 2 realmente validada:
+- nao existe Fase 3 honesta em execucao.

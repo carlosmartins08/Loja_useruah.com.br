@@ -16,7 +16,9 @@ Traduzir `docs/FASE_1_VENDA_DE_PRODUTO.md` em uma sequencia de execucao sem retr
 - `PARCIAL`: existe, mas precisa auditoria, ajuste ou prova
 - `PLANEJADO`: previsto formalmente, mas ainda sem evidencia suficiente para ser tratado como base real
 - `AUSENTE`: nao ha evidencia suficiente para considerar ativo
-- `FORA`: explicitamente fora da Fase 1
+
+Regra de leitura:
+- item fora do escopo ativo da Fase 1 deve ser lido como `PLANEJADO` para fase futura ou `AUSENTE` quando ainda nao houver base suficiente no runtime
 
 ## Bloco 1 - Catalogo vendavel
 

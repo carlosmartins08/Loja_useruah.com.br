@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { postBootstrap, resolveSeededCatalogVariant } from './catalog-seed-helpers.mjs';
 
 const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3203';
 
@@ -33,22 +34,34 @@ async function get(pathname, headers = {}) {
   return { status: response.status, data };
 }
 
-async function createPaidOrder(customerId, amount = 89.9) {
-  const order = await post('/api/orders', {
-    supplierId: 'supplier-default',
-    shippingAddressMode: 'same_as_account',
-    shippingAddress: {
-      recipientName: 'QA Customer',
-      cep: '01000-000',
-      street: 'Rua QA',
-      number: '100',
-      city: 'Sao Paulo',
-      state: 'SP',
-      country: 'BR',
+async function createPaidOrder(customerId, seeded, amount = seeded.variant.price) {
+  const customerHeaders = { 'x-actor-id': customerId, 'x-actor-role': 'customer' };
+  const order = await post(
+    '/api/orders',
+    {
+      supplierId: 'supplier-default',
+      shippingAddressMode: 'same_as_account',
+      shippingAddress: {
+        recipientName: 'QA Customer',
+        cep: '01000-000',
+        street: 'Rua QA',
+        number: '100',
+        city: 'Sao Paulo',
+        state: 'SP',
+        country: 'BR',
+      },
+      items: [
+        {
+          catalogItemId: seeded.item.catalogItemId,
+          variantId: seeded.variant.variantId,
+          quantity: 1,
+          unitPrice: amount,
+        },
+      ],
+      customer: { id: customerId },
     },
-    items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: amount }],
-    customer: { id: customerId },
-  });
+    customerHeaders
+  );
   assert(order.status === 201, `order expected 201, got ${order.status}`);
   const orderId = order.data?.order?.orderId;
   assert(typeof orderId === 'string', 'orderId missing');
@@ -61,7 +74,7 @@ async function createPaidOrder(customerId, amount = 89.9) {
       provider: 'sandbox',
       amount,
       currency: 'BRL',
-      items: [{ id: '1', name: 'Camiseta Respiro', quantity: 1, unitPrice: amount }],
+      items: [{ id: seeded.item.catalogItemId, name: seeded.item.name, quantity: 1, unitPrice: amount }],
     },
     { 'x-idempotency-key': `qa-exc-checkout-${Date.now()}-${Math.random()}` }
   );
@@ -83,35 +96,42 @@ async function createPaidOrder(customerId, amount = 89.9) {
 async function run() {
   const report = [];
 
-  const bootstrap = await post(
-    '/api/catalog-items/bootstrap',
-    {},
-    {
-      'x-actor-id': 'qa-curator',
-      'x-actor-role': 'curator',
-    }
-  );
+  const bootstrap = await postBootstrap(baseUrl);
   if (bootstrap.status === 200) {
     report.push('P0-EXC-00 bootstrap catalog ready');
   } else {
     report.push(`P0-EXC-00 bootstrap skipped (status ${bootstrap.status})`);
   }
 
-  const placedOrder = await post('/api/orders', {
-    supplierId: 'supplier-default',
-    shippingAddressMode: 'same_as_account',
-    shippingAddress: {
-      recipientName: 'QA Customer',
-      cep: '01000-000',
-      street: 'Rua QA',
-      number: '100',
-      city: 'Sao Paulo',
-      state: 'SP',
-      country: 'BR',
+  const seeded = await resolveSeededCatalogVariant(baseUrl);
+  report.push(`P0-EXC-00B catalog item resolved (${seeded.variant.variantId})`);
+
+  const placedOrder = await post(
+    '/api/orders',
+    {
+      supplierId: 'supplier-default',
+      shippingAddressMode: 'same_as_account',
+      shippingAddress: {
+        recipientName: 'QA Customer',
+        cep: '01000-000',
+        street: 'Rua QA',
+        number: '100',
+        city: 'Sao Paulo',
+        state: 'SP',
+        country: 'BR',
+      },
+      items: [
+        {
+          catalogItemId: seeded.item.catalogItemId,
+          variantId: seeded.variant.variantId,
+          quantity: 1,
+          unitPrice: seeded.variant.price,
+        },
+      ],
+      customer: { id: 'qa-cancel-customer' },
     },
-    items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
-    customer: { id: 'qa-cancel-customer' },
-  });
+    { 'x-actor-id': 'qa-cancel-customer', 'x-actor-role': 'customer' }
+  );
   assert(placedOrder.status === 201, `placed order expected 201, got ${placedOrder.status}`);
   const placedOrderId = placedOrder.data?.order?.orderId;
   assert(typeof placedOrderId === 'string', 'placedOrderId missing');
@@ -133,7 +153,7 @@ async function run() {
   assert(cancelPlacedAgain.status === 409, `cancel placed duplicate expected 409, got ${cancelPlacedAgain.status}`);
   report.push('P0-EXC-02 bloqueio de cancelamento invalido por estado');
 
-  const paid = await createPaidOrder('qa-refund-customer');
+  const paid = await createPaidOrder('qa-refund-customer', seeded);
 
   const refundIdempotency = `qa-refund-${Date.now()}`;
   const refundRequest = await post(
@@ -197,7 +217,7 @@ async function run() {
   assert(refundRejectAfterApprove.status === 409, `refund reject after approve expected 409, got ${refundRejectAfterApprove.status}`);
   report.push('P0-EXC-07 refund reject bloqueado apos approve');
 
-  const paidChargeback = await createPaidOrder('qa-chargeback-customer', 89.9);
+  const paidChargeback = await createPaidOrder('qa-chargeback-customer', seeded);
   const chargebackEventId = `chb-${Date.now()}`;
   const chargeback = await post('/api/chargebacks/webhook', {
     eventId: chargebackEventId,

@@ -32,6 +32,65 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-08] Alinhamento residual do Plano Mestre
+- ID: GOV-0075
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+- Decisao:
+  - Deixar de narrar `Stripe` como `BLOQUEADO` por credencial no Plano Mestre.
+  - Refletir `Stripe` como `GO CONDICIONADO` por readiness e aceite final de producao ainda pendentes.
+- Contexto:
+  - A pre-condicao operacional ja registrava `GO CONDICIONADO`, mas o Plano Mestre ainda preservava a leitura antiga de bloqueio por credencial.
+- Impacto esperado:
+  - Remover contradicao residual entre readiness atual e quadro de continuidade.
+  - Evitar decisao errada por leitura de status desatualizado.
+- Riscos conhecidos:
+  - Se o time confundir `GO CONDICIONADO` com `GO` de producao, volta a encurtar indevidamente o caminho de cutover real.
+- Plano de rollback:
+  - Reverter apenas se a trilha oficial de readiness regredir com evidencia objetiva nova.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+### [2026-06-08] Registro final de evidencias de auth/session e homologacao Stripe da Fase 1
+- ID: GOV-0074
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `rbac`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Registrar `qa:auth:cookie` como `PASS` e aprovar o contrato do `ruah_session` como base tecnica de `auth/session` da Fase 1.
+  - Registrar a esteira de homologacao Stripe com `p3:precheck`, `qa:stripe:smoke`, `qa:provider:activate`, `check`, `build` e `qa:functional` em `PASS`.
+  - Manter `Stripe Fase 1` em `GO CONDICIONADO`, porque homologacao valida readiness atual, mas nao equivale a aceite final de producao.
+- Contexto:
+  - A fundacao de `auth/session` precisava deixar de aparecer como risco implícito depois da correcao do contrato unico de sessao.
+  - A trilha Stripe precisava registrar evidência final sem virar nova rodada de arquitetura ou abertura de fase.
+- Impacto esperado:
+  - Readiness da Fase 1 passa a refletir auth/session como aprovado.
+  - `GO CONDICIONADO` de Stripe passa a ser lido pelo motivo certo: ausencia de aceite final de producao, nao falha de auth ou integracao.
+- Riscos conhecidos:
+  - Se o time tratar homologacao como aceite de producao, volta a misturar readiness com go-live real.
+- Plano de rollback:
+  - Reverter apenas se alguma evidência objetiva deste ciclo for invalidada por regressao confirmada.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
 ### [2026-06-08] Consolidacao documental para separar fase de produto, handoff e readiness operacional
 - ID: GOV-0067
 - Status: `aprovada`
@@ -1732,4 +1791,73 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
   - `docs/EXECUTION_TRACKING.md`
   - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+
+### [2026-06-08] Saneamento minimo de documentos semi-oficiais
+- ID: GOV-0072
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `pagamentos`
+  - `operacao`
+- Documento fonte afetado:
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_OPERATING_TEMPLATE.md`
+  - `docs/FASE_2_READINESS_CHECKLIST.md`
+  - `docs/FASE_1_MATRIZ_EXECUCAO.md`
+- Decisao:
+  - Corrigir documentos que ainda podiam orientar execucao com provider antigo, status paralelo ou referencia operacional superada.
+  - Promover na classificacao oficial os documentos que realmente mandam em escopo, realidade, readiness e operacao ativa.
+  - Rebaixar explicitamente `PAYMENTS_MULTI_GATEWAY_SETUP.md` para papel referencial de evolucao futura.
+  - Remover taxonomias paralelas onde elas ainda tinham poder de gate.
+- Contexto:
+  - O maior risco residual deixou de ser arquitetura e passou a ser documento semi-oficial com cara de documento ativo.
+- Impacto esperado:
+  - Menos chance de o time obedecer `gateway_real`, `PAYMENT_WEBHOOK_SECRET` global ou `EXECUTION_STATUS_MATRIX.md` como se ainda fossem trilha oficial atual.
+  - Menos duplicidade de status e menos retrabalho de governanca.
+- Riscos conhecidos:
+  - Os nomes fisicos de alguns arquivos ainda preservam `gateway_real`, o que pode continuar gerando atrito cognitivo ate uma futura renomeacao controlada.
+- Plano de rollback:
+  - Reverter apenas se uma nova classificacao documental central redefinir formalmente o papel desses artefatos.
+- Documentos atualizados:
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
+  - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md`
+  - `docs/EXECUTION_OPERATING_TEMPLATE.md`
+  - `docs/FASE_2_READINESS_CHECKLIST.md`
+  - `docs/FASE_1_MATRIZ_EXECUCAO.md`
+
+### [2026-06-08] Quadro unico de continuidade alinhado a fase, maturidade e readiness
+- ID: GOV-0073
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `continuidade`
+  - `governanca`
+  - `pagamentos`
+  - `fases`
+- Documento fonte afetado:
+  - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- Decisao:
+  - Consolidar em um quadro unico a sequencia correta de continuidade do projeto: primeiro Stripe, depois baseline, depois no maximo um recorte de produto.
+  - Explicitar que a matriz unica e normativa para leitura de maturidade, mesmo sem substituir o escopo de fase.
+  - Fechar o caminho de evolucao enquanto nao houver prova objetiva do gate Stripe e impedir abertura prematura de Fase 2 ou Fase 3.
+- Contexto:
+  - O repositorio ja tinha boas fontes de verdade, mas ainda faltava uma sintese operacional curta o bastante para impedir interpretacao torta na continuidade.
+- Impacto esperado:
+  - Menos risco de abrir fase errada.
+  - Menos risco de tratar capacidade `NAO PRESUMIR` como base pronta.
+  - Menos retrabalho por abrir produto antes de fechar readiness transversal de pagamento real.
+- Riscos conhecidos:
+  - O quadro unico depende de disciplina para ser mantido junto com tracking, matriz e evidencias reais.
+- Plano de rollback:
+  - Reverter apenas se a continuidade passar a ser governada por um artefato superior que absorva integralmente fase, maturidade e readiness.
+- Documentos atualizados:
+  - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
 

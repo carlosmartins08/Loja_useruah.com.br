@@ -303,6 +303,25 @@ Atualizacao adicional: 2026-06-08 (Stripe formalizada como provider real inicial
   - `npm run p3:precheck`: falha por `missing_global_env` se faltarem `HML_BASE_URL` ou `PAYMENT_PROVIDER`.
   - `npm run p3:precheck`: falha por `missing_provider_env` se faltarem as variaveis obrigatorias da Stripe.
 
+Atualizacao adicional: 2026-06-08 (Auth/session aprovado e esteira Stripe homologada)
+- Contrato tecnico consolidado:
+  - `auth/session` deixou de ser impeditivo tecnico da Fase 1.
+  - o contrato do `ruah_session` foi centralizado e aprovado como fonte unica de leitura entre sessao autenticada e rotas protegidas.
+  - a fundacao de `auth/session` da Fase 1 esta liberada.
+- Evidencias objetivas:
+  - `npm run qa:auth:cookie`: PASS
+  - `npm run p3:precheck`: PASS
+  - `npm run qa:stripe:smoke`: PASS
+  - `npm run qa:provider:activate`: PASS
+  - `npm run check`: PASS
+  - `npm run build`: PASS
+  - `npm run qa:functional`: PASS
+- Leitura de readiness:
+  - `Stripe Fase 1`: `GO CONDICIONADO`
+  - a condicionante atual nao e auth, nem credencial, nem provider no recorte homologado
+  - a condicionante atual e ausencia de aceite final de producao e cutover real
+  - nenhuma frente nova foi aberta a partir desta evidência
+
 Atualizacao adicional: 2026-05-27 (Execucao de pontos nao bloqueados enquanto P3 fica por ultimo)
 - Ajustes aplicados de UX/RBAC sem dependencia de credenciais:
   - `app/admin/page.tsx`: correcoes de textos com encoding residual e habilitacao de modulos para `finance_admin`.

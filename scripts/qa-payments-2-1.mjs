@@ -3,6 +3,7 @@ import path from 'node:path';
 import { withWebhookSignature } from './_qa-webhook-signature.mjs';
 import { ensureQaEnvLoaded } from './_qa-env.mjs';
 import { providerConfigState } from './_provider-config.mjs';
+import { postBootstrap, resolveSeededCatalogVariant } from './catalog-seed-helpers.mjs';
 
 ensureQaEnvLoaded();
 
@@ -17,6 +18,11 @@ const gatewayRealRequired = [
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function resolveCheckoutMethod(currentProvider) {
+  if (currentProvider === 'stripe' || currentProvider === 'cielo') return 'card';
+  return 'pix';
 }
 
 async function post(pathname, body, headers = {}) {
@@ -53,25 +59,49 @@ async function run() {
 
   const report = [];
   const customerId = 'customer-pay-21';
-
-  const order = await post('/api/orders', {
-    supplierId: 'supplier-default',
-    shippingAddressMode: 'same_as_account',
-    shippingAddress: {
-      recipientName: 'QA Customer',
-      cep: '01000-000',
-      street: 'Rua QA',
-      number: '100',
-      city: 'Sao Paulo',
-      state: 'SP',
-      country: 'BR',
-    },
-    items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
-    customer: { id: customerId },
-  }, {
+  const customerHeaders = {
     'x-actor-id': customerId,
     'x-actor-role': 'customer',
-  });
+  };
+
+  const seed = await postBootstrap(baseUrl);
+  if (seed.status === 200) {
+    report.push('P0-PAY21-00 bootstrap catalog ready');
+  } else {
+    report.push(`P0-PAY21-00 bootstrap skipped (status ${seed.status})`);
+  }
+
+  const seeded = await resolveSeededCatalogVariant(baseUrl);
+  report.push(`P0-PAY21-00B catalog item resolved (${seeded.variant.variantId})`);
+  const checkoutMethod = resolveCheckoutMethod(provider);
+  report.push(`P0-PAY21-00C checkout method resolved (${checkoutMethod})`);
+
+  const order = await post(
+    '/api/orders',
+    {
+      supplierId: 'supplier-default',
+      shippingAddressMode: 'same_as_account',
+      shippingAddress: {
+        recipientName: 'QA Customer',
+        cep: '01000-000',
+        street: 'Rua QA',
+        number: '100',
+        city: 'Sao Paulo',
+        state: 'SP',
+        country: 'BR',
+      },
+      items: [
+        {
+          catalogItemId: seeded.item.catalogItemId,
+          variantId: seeded.variant.variantId,
+          quantity: 1,
+          unitPrice: seeded.variant.price,
+        },
+      ],
+      customer: { id: customerId },
+    },
+    customerHeaders
+  );
   assert(order.status === 201, `order expected 201, got ${order.status}`);
   const orderId = order.data?.order?.orderId;
   assert(typeof orderId === 'string', 'orderId missing');
@@ -82,11 +112,11 @@ async function run() {
     '/api/payments/checkout',
     {
       orderId,
-      method: 'pix',
+      method: checkoutMethod,
       provider,
-      amount: 89.9,
+      amount: seeded.variant.price,
       currency: 'BRL',
-      items: [{ id: '1', name: 'Camiseta Respiro', quantity: 1, unitPrice: 89.9 }],
+      items: [{ id: seeded.item.catalogItemId, name: seeded.item.name, quantity: 1, unitPrice: seeded.variant.price }],
     },
     { 'x-idempotency-key': key }
   );
@@ -107,7 +137,7 @@ async function run() {
     report.push('P0-PAY21-03 persistence check skipped');
   }
 
-  const status = await get(`/api/payments/status/${paymentId}`, { 'x-actor-id': customerId, 'x-actor-role': 'customer' });
+  const status = await get(`/api/payments/status/${paymentId}`, customerHeaders);
   assert(status.status === 200, `status expected 200, got ${status.status}`);
   report.push('P0-PAY21-04 payment status query ok');
 

@@ -1,6 +1,6 @@
 # Fase 2 - Readiness Checklist
 
-Data de revisao: 2026-06-04
+Data de revisao: 2026-06-08
 
 ## Objetivo
 Definir o criterio minimo para iniciar a Fase 2 sem destruir a coerencia da Fase 1, sem inflar escopo e sem mascarar backlog antigo como se fosse frente nova.
@@ -12,9 +12,9 @@ Definir o criterio minimo para iniciar a Fase 2 sem destruir a coerencia da Fase
 - Este documento so responde uma pergunta: **podemos abrir a Fase 2 sem reabrir a Fase 1?**
 
 ## Veredito possivel
-- `READY`: a Fase 2 pode abrir discovery, especificacao e execucao controlada
-- `READY CONDICIONADO`: pode iniciar apenas discovery e desenho, sem implementacao
-- `NOT READY`: qualquer tentativa de abrir Fase 2 reabre a Fase 1
+- `IMPLEMENTADO`: a abertura da Fase 2 esta formalmente sustentada por escopo, gate e documentacao
+- `PARCIAL`: pode iniciar discovery e desenho, mas ainda sem implementacao
+- `BLOQUEADO`: qualquer tentativa de abrir Fase 2 reabre a Fase 1
 
 ## 1. Pre-condicoes obrigatorias
 
@@ -29,7 +29,7 @@ Definir o criterio minimo para iniciar a Fase 2 sem destruir a coerencia da Fase
 | `npm run qa:coreops` | PASS | pedido ponta a ponta |
 | `npm run qa:matrix:audit` | PASS | coerencia documental minima |
 
-Se qualquer item acima falhar, o status e `NOT READY`.
+Se qualquer item acima falhar, o status e `BLOQUEADO`.
 
 ## 2. Perguntas obrigatorias antes de abrir a fase
 
@@ -145,19 +145,19 @@ Depois disso, responder formalmente:
 
 ## 9. Veredito pratico
 
-### `READY`
+### `IMPLEMENTADO`
 Use quando:
 - a Fase 1 esta congelada e validada
 - ha apenas 1 dominio novo escolhido
 - ha documento e aceite minimo da Fase 2
 
-### `READY CONDICIONADO`
+### `PARCIAL`
 Use quando:
 - a Fase 1 esta congelada
 - o dominio novo foi escolhido
 - mas ainda falta documento ou corte mais claro
 
-### `NOT READY`
+### `BLOQUEADO`
 Use quando:
 - a Fase 1 ainda pede ajuste estrutural
 - a nova fase mistura varios dominios

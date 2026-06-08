@@ -1,12 +1,14 @@
 ﻿# Payments Definition Of Done (Obrigatorio)
 
-Data de revisao: 2026-05-19
+Data de revisao: 2026-06-08
 
 ## Objetivo
 Garantir execução previsível do domínio de pagamentos sem retrabalho, com critérios objetivos para evoluir de sandbox para operação real.
 
 ## Politica ativa
-- Payment Deferred ativo: gateway real e persistência financeira ficam para fase posterior.
+- Payment Deferred segue ativo na Fase 1.
+- `Stripe` e o provider real inicial oficial para `card`/`wallet` no ciclo de readiness operacional atual.
+- `gateway_real` generico fica `PLANEJADO` como bridge futura e nao e o bloqueio oficial atual.
 - Contrato de API atual permanece congelado até migration formal.
 
 ## Máquina de estados
@@ -33,7 +35,7 @@ Não repetir estados ou transições neste DoD. Qualquer alteração de fluxo de
 
 ### Regras obrigatorias
 - [x] Checkout envia `x-idempotency-key`.
-- [x] Webhook valida `x-signature` quando `PAYMENT_WEBHOOK_SECRET` existe.
+- [x] Webhook valida `x-signature` conforme o provider ativo; no recorte Stripe, usar `PAYMENT_STRIPE_WEBHOOK_SECRET`.
 - [x] `providerReference` é chave de reconciliação lógica no fluxo.
 
 ## Fase A: Sandbox estavel (estado atual)
@@ -52,15 +54,16 @@ Não repetir estados ou transições neste DoD. Qualquer alteração de fluxo de
 ## Fase B: Gateway real
 ### Escopo
 - [x] Implementar adapter homologado de gateway sandbox (`PAYMENT_PROVIDER=gateway_sandbox`).
-- [x] Implementar adapter tecnico de gateway real (`PAYMENT_PROVIDER=gateway_real`) sem quebra de contrato.
+- [x] Implementar adapter direto de `Stripe` sem quebra de contrato público.
+- [x] Manter `gateway_real` generico como bridge técnica futura, sem papel de bloqueio oficial no ciclo ativo.
 - [ ] Tokenização de método de pagamento.
 - [ ] Tratamento explícito de falhas transitórias e fallback seguro.
 - [ ] Mapeamento de eventos reais do provedor para `payment.paid|failed|pending`.
 - [ ] Executar cutover controlado seguindo `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`.
 
 ### Critérios de aceite
-- [ ] Homologação ponta a ponta no ambiente de testes do provedor.
-- [ ] Fluxo de 1 clique (pix/carteira) confirmado com retorno real do provedor.
+- [ ] Homologação ponta a ponta da `Stripe` no ambiente de testes do provedor.
+- [ ] Fluxo de `card`/`wallet` confirmado com retorno real do provedor.
 - [ ] Falha do provedor retorna mensagem controlada sem perda de pedido.
 
 ## Fase C: Persistencia e reconciliacao
@@ -79,7 +82,11 @@ Não repetir estados ou transições neste DoD. Qualquer alteração de fluxo de
 ## Segurança minima
 - [ ] Segredos por ambiente configurados e validados:
   - `PAYMENT_PROVIDER`
-  - `PAYMENT_WEBHOOK_SECRET`
+  - `PAYMENT_ENABLE_STRIPE`
+  - `PAYMENT_STRIPE_BASE_URL`
+  - `PAYMENT_STRIPE_API_KEY`
+  - `PAYMENT_STRIPE_WEBHOOK_SECRET`
+- [ ] `PAYMENT_WEBHOOK_SECRET` global so pode permanecer como compatibilidade legada claramente documentada; nao e o segredo primario do recorte Stripe.
 - [ ] Sem logs com dados sensíveis de cartão/token.
 - [ ] Erros de pagamento com mensagem segura para cliente e detalhe técnico só em log interno.
 

@@ -83,7 +83,6 @@ rg -n "getMockProduct|readStoreFile|writeStoreFile|idempotency|webhook|AuditLog"
 ```
 
 Se houver conflito entre o que a matriz diz e o que o código mostra:
-- atualizar `docs/EXECUTION_STATUS_MATRIX.md` no mesmo ciclo
 - atualizar `docs/EXECUTION_TRACKING.md` no mesmo ciclo
 - registrar decisão em `docs/CHANGELOG_GOVERNANCE.md` se houver mudança de interpretação
 

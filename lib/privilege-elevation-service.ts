@@ -1,4 +1,4 @@
-import { decodeSessionToken } from '@/lib/session-token';
+import { decodeSessionToken, extractCookieValue } from '@/lib/session-token';
 import { normalizeAuthSession } from '@/lib/auth-session';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import {
@@ -20,11 +20,7 @@ export class ElevationError extends Error {
 
 function getSessionFromRequest(request: Request) {
   const cookieHeader = request.headers.get('cookie');
-  const token = cookieHeader
-    ?.split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith('ruah_session='))
-    ?.slice('ruah_session='.length);
+  const token = extractCookieValue(cookieHeader, 'ruah_session');
   return normalizeAuthSession(decodeSessionToken(token));
 }
 
@@ -125,4 +121,3 @@ function validateElevation(input: {
     throw new ElevationError(403, 'elevation_required', 'elevation_entity_mismatch');
   }
 }
-

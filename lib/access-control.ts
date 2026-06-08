@@ -1,5 +1,5 @@
 import type { OrderRecord } from '@/lib/order-store';
-import { decodeSessionToken } from '@/lib/session-token';
+import { decodeSessionToken, extractCookieValue } from '@/lib/session-token';
 import { normalizeAuthSession } from '@/lib/auth-session';
 
 export interface AccessActor {
@@ -13,11 +13,7 @@ export function isRbacActive() {
 
 export function getActorFromRequest(request: Request): AccessActor | null {
   const cookieHeader = request.headers.get('cookie');
-  const sessionToken = cookieHeader
-    ?.split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith('ruah_session='))
-    ?.slice('ruah_session='.length);
+  const sessionToken = extractCookieValue(cookieHeader, 'ruah_session');
 
   const session = normalizeAuthSession(decodeSessionToken(sessionToken));
   if (session) {

@@ -1,6 +1,18 @@
 # Payments Multi-Gateway Setup
 
-Data de revisao: 2026-05-23
+Data de revisao: 2026-06-08
+
+## Status de uso
+Este documento e `referencial`.
+
+Ele descreve a arquitetura e a evolucao futura multi-provider.
+Ele nao e a trilha operacional ativa da Fase 1.
+
+Trilha operacional ativa atual:
+- provider real inicial: `Stripe`
+- readiness oficial: `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+- folha operacional: `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+- runbook de cutover: `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
 
 ## Objetivo
 Permitir que o usuario escolha gateway no checkout sem quebrar contrato de API.
@@ -42,7 +54,7 @@ Fallback legado ainda aceito:
 
 ## Habilitacao no checkout (self-service)
 - A habilitacao de provider vem do painel `/admin/payments/connectors` (campo `enabled`).
-- Nao depende de `PAYMENT_ENABLE_*` por provider.
+- No recorte operacional atual da `Stripe`, `PAYMENT_ENABLE_STRIPE=true` continua sendo gate de readiness.
 - O painel aplica campos dinamicos por provider e bloqueia ativacao incompleta.
 
 ## Matriz de requisitos por provider (autonomia)
@@ -51,7 +63,7 @@ Fallback legado ainda aceito:
 - `mercadopago`: `baseUrl`, `apiKey`
 - `pagarme`: `baseUrl`, `apiKey`
 - `cielo`: `baseUrl`, `apiKey`, `merchantId`
-- `stripe`: `baseUrl`, `apiKey`
+- `stripe`: `enabled`, `baseUrl`, `apiKey`, `webhookSecret`
 
 ## Webhook multi-provider
 Resolucao do provider em ordem:
@@ -68,6 +80,7 @@ Resolucao do provider em ordem:
   - smoke real `checkout -> status -> webhook -> duplicate`.
 
 ## Smoke dedicado Gateway Real (generico)
+- Nao usar neste recorte oficial da Fase 1.
 - Comando: `npm run qa:gateway-real:smoke`
 - Env minima:
   - `PAYMENT_GATEWAY_BASE_URL`
@@ -106,8 +119,10 @@ Se faltar env obrigatoria (`PAYMENT_INTER_*`), o teste falha com `missing_env:*`
 ## Smoke dedicado Stripe
 - Comando: `npm run qa:stripe:smoke`
 - Env minima:
+  - `PAYMENT_ENABLE_STRIPE`
   - `PAYMENT_STRIPE_BASE_URL`
   - `PAYMENT_STRIPE_API_KEY`
+  - `PAYMENT_STRIPE_WEBHOOK_SECRET`
 
 ## Smoke dedicado Cielo
 - Comando: `npm run qa:cielo:smoke`
@@ -123,15 +138,18 @@ Se faltar env obrigatoria (`PAYMENT_INTER_*`), o teste falha com `missing_env:*`
   - se esta pronto para smoke
   - quais envs ainda faltam
   - qual comando executar em seguida
-- Inclui tambem o recorte generico `gateway_real`, que e a trilha transversal de readiness operacional para pagamento real.
+- Inclui tambem o recorte generico `gateway_real` como bridge futura, sem papel de bloqueio oficial no ciclo atual.
 
-## Sequencia minima para primeiro provider real
-1. Configurar credenciais no painel `/admin/payments/connectors` e habilitar o provider.
-2. Se a homologacao for pelo bridge generico, validar `gateway_real` com `npm run qa:gateway-real:smoke`.
-3. Se a homologacao for por provider direto, definir `PAYMENT_GATEWAY_TARGET=<provider>` no ambiente.
+## Sequencia minima para o recorte operacional atual
+1. Configurar `Stripe` no painel `/admin/payments/connectors` e preencher o ambiente de homologacao.
+2. Definir `PAYMENT_PROVIDER=stripe`.
+3. Manter `PAYMENT_GATEWAY_TARGET` vazio neste recorte direto.
 4. Rodar `npm run qa:provider:requirements` para ver faltas de env e campos do conector.
-5. Rodar `npm run qa:provider:activate` (orquestra `check -> alert:critical -> providers:ready -> smoke -> payments21 -> exceptions`).
+5. Rodar `npm run qa:provider:activate` apos `p3:precheck` e `qa:stripe:smoke`.
 6. Registrar evidencias e risco residual em `docs/EXECUTION_TRACKING.md` e `docs/CHANGELOG_GOVERNANCE.md`.
+
+## Sequencia futura para bridge multi-provider
+- Se o projeto reabrir `gateway_real` como recorte oficial, isso exige nova decisao registrada em governanca antes de reutilizar `qa:gateway-real:smoke` ou `PAYMENT_GATEWAY_TARGET`.
 
 Template pronto para Inter (homolog):
 - `infra/env/.env.hml.inter.example`

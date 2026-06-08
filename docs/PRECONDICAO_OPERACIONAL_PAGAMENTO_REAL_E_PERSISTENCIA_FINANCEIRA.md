@@ -1,6 +1,6 @@
 # Precondicao Operacional - Pagamento Real e Persistencia Financeira
 
-Data de revisao: 2026-06-05
+Data de revisao: 2026-06-08
 
 ## Objetivo
 Definir a trilha transversal de readiness que prepara pagamento real, persistencia financeira e cutover operacional sem redefinir a fase oficial de produto.
@@ -16,14 +16,16 @@ Definir a trilha transversal de readiness que prepara pagamento real, persistenc
 ## Classificacao
 - Tipo: `readiness transversal`
 - Dominio: `pagamento real e persistencia financeira`
-- Veredito atual: `BLOQUEADO`
+- Veredito atual: `GO CONDICIONADO`
 
-`BLOQUEADO` significa:
-- discovery, especificacao e preparacao tecnica podem seguir agora
-- implementacao e cutover so podem avancar apos rerodar os gates do freeze da Fase 1 no ciclo atual
+`GO CONDICIONADO` significa:
+- a homologacao da trilha Stripe passou nos gates definidos do ciclo atual
+- `auth/session` deixou de ser impeditivo tecnico da Fase 1
+- o provider real inicial deixou de estar bloqueado por credencial ou integracao no recorte homologado
+- o aceite final de producao e o cutover real continuam pendentes
 
 ## Problema que resolve
-A Fase 1 provou venda local/homologada controlada, mas ainda nao fecha o risco de operacao real porque pagamento, webhook e conciliacao dependem de homologacao final da `Stripe` e evidencias formais de cutover.
+A Fase 1 provou venda local e homologacao controlada com `Stripe`, mas ainda nao fecha o risco de operacao real porque aceite final de producao, cutover e evidencias formais de operacao ainda nao foram concluídos.
 
 ## Papel desta trilha
 Esta trilha:
@@ -147,40 +149,30 @@ Depois disso:
 - cutover sem evidencias formais vira opiniao, nao readiness
 
 ## Ultimo ciclo executado
-Data: `2026-06-05`
+Data: `2026-06-08`
 
 Veredito do bloco:
-- `BLOQUEADO`
+- `GO CONDICIONADO`
 
 Evidencias:
+- `npm run qa:auth:cookie`: PASS
+- contrato do `ruah_session`: APROVADO
+- fundacao de `auth/session` da Fase 1: LIBERADA
+- `npm run p3:precheck`: PASS
+- `npm run qa:stripe:smoke`: PASS
+- `npm run qa:provider:activate`: PASS
 - `npm run check`: PASS
 - `npm run build`: PASS
 - `npm run qa:functional`: PASS
-- `qa-core-operations`: PASS
-- `qa-matrix-audit`: PASS
-- `npm run qa:provider:requirements`: `MISSING_ENV` explicito para `stripe`
-- `npm run qa:providers:ready`: `PARTIAL_READY`
-- `npm run p3:precheck`: `FAIL/missing_provider_env` explicito para `stripe`
-- `qa-payments-2-1`: FAIL por falta explicita de:
-  - `PAYMENT_ENABLE_STRIPE`
-  - `PAYMENT_STRIPE_BASE_URL`
-  - `PAYMENT_STRIPE_API_KEY`
-  - `PAYMENT_STRIPE_WEBHOOK_SECRET`
-- `qa-stripe-smoke`: FAIL por falta de:
-  - `PAYMENT_ENABLE_STRIPE`
-  - `PAYMENT_STRIPE_BASE_URL`
-  - `PAYMENT_STRIPE_API_KEY`
-  - `PAYMENT_STRIPE_WEBHOOK_SECRET`
 
 Leitura objetiva:
+- `auth/session` deixou de ser impeditivo tecnico da Fase 1
+- a trilha Stripe passou nos gates de homologacao definidos para o recorte atual
+- o estado `GO CONDICIONADO` nao decorre de falha de auth, credencial ou integracao do provider no ciclo homologado
+- a condicionante atual e ausencia de aceite final de producao e cutover real
 - a Fase 1 permaneceu integra no ciclo
-- a trilha de pagamentos esta coerente em codigo, gates e superficie administrativa
-- o bloqueio atual e de ambiente/configuracao, nao de regressao funcional da Fase 1
-- o ambiente ativo deve ser alinhado para `stripe`
-- a trilha de homologacao agora falha de forma explicita e consistente em todos os gates de readiness
-- o checkout `stripe` ainda nao pode ser homologado sem as credenciais minimas e o webhook secret especifico
-- `gateway_real` generico sai do papel de bloqueio atual e fica como bridge futura `PLANEJADO`
-- `pix` fica fora do escopo imediato desta trilha, salvo decisao comercial explicita
+- `gateway_real` generico continua fora do bloqueio atual e fica como bridge futura `PLANEJADO`
+- `pix` continua fora do escopo imediato desta trilha, salvo decisao comercial explicita
 
 ## Referencias oficiais
 - `docs/FASE_2_READINESS_CHECKLIST.md`
