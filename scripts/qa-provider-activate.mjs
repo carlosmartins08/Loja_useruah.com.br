@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
+import { ensureQaEnvLoaded } from './_qa-env.mjs';
+
+ensureQaEnvLoaded();
 
 const providerSmokeCommands = {
   gateway_real: 'qa:gateway-real:smoke',

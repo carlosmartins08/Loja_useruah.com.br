@@ -1,13 +1,20 @@
 import { withWebhookSignature } from './_qa-webhook-signature.mjs';
 import { ensureQaEnvLoaded } from './_qa-env.mjs';
+import { postBootstrap, resolveSeededCatalogVariant } from './catalog-seed-helpers.mjs';
 
 ensureQaEnvLoaded();
 
 const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3202';
 const expectRbac = process.env.QA_EXPECT_RBAC !== 'false';
+const provider = process.env.QA_PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER ?? 'sandbox';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function resolveCheckoutMethod(currentProvider) {
+  if (currentProvider === 'stripe' || currentProvider === 'cielo') return 'card';
+  return 'pix';
 }
 
 async function post(pathname, body, headers = {}) {
@@ -56,7 +63,7 @@ async function postWithRetry(pathname, body, headers = {}, retries = 3, retrySta
   return last;
 }
 
-async function createPaidOrder(customerId) {
+async function createPaidOrder(customerId, seeded) {
   const order = await post('/api/orders', {
     supplierId: 'supplier-default',
     shippingAddressMode: 'same_as_account',
@@ -69,7 +76,14 @@ async function createPaidOrder(customerId) {
       state: 'SP',
       country: 'BR',
     },
-    items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
+    items: [
+      {
+        catalogItemId: seeded.item.catalogItemId,
+        variantId: seeded.variant.variantId,
+        quantity: 1,
+        unitPrice: seeded.variant.price,
+      },
+    ],
     customer: { id: customerId },
   }, {
     'x-actor-id': customerId,
@@ -80,15 +94,16 @@ async function createPaidOrder(customerId) {
   assert(typeof orderId === 'string', 'orderId missing');
 
   const idempotencyKey = `qa-core-checkout-${Date.now()}-${Math.random()}`;
+  const checkoutMethod = resolveCheckoutMethod(provider);
   const checkout = await post(
     '/api/payments/checkout',
     {
       orderId,
-      method: 'pix',
-      provider: 'sandbox',
-      amount: 89.9,
+      method: checkoutMethod,
+      provider,
+      amount: seeded.variant.price,
       currency: 'BRL',
-      items: [{ id: '1', name: 'Camiseta Respiro', quantity: 1, unitPrice: 89.9 }],
+      items: [{ id: seeded.item.catalogItemId, name: seeded.item.name, quantity: 1, unitPrice: seeded.variant.price }],
     },
     { 'x-idempotency-key': idempotencyKey }
   );
@@ -102,11 +117,11 @@ async function createPaidOrder(customerId) {
     '/api/payments/checkout',
     {
       orderId,
-      method: 'pix',
-      provider: 'sandbox',
-      amount: 89.9,
+      method: checkoutMethod,
+      provider,
+      amount: seeded.variant.price,
       currency: 'BRL',
-      items: [{ id: '1', name: 'Camiseta Respiro', quantity: 1, unitPrice: 89.9 }],
+      items: [{ id: seeded.item.catalogItemId, name: seeded.item.name, quantity: 1, unitPrice: seeded.variant.price }],
     },
     { 'x-idempotency-key': idempotencyKey }
   );
@@ -114,11 +129,19 @@ async function createPaidOrder(customerId) {
   assert(checkoutReplay.data?.reused === true, `checkout replay expected reused=true, got ${String(checkoutReplay.data?.reused)}`);
   assert(checkoutReplay.data?.payment?.paymentId === paymentId, 'checkout replay changed paymentId');
 
-  const webhookPayload = { eventId: `evt-core-${Date.now()}-${Math.random()}`, providerReference, event: 'payment.approved' };
+  const webhookPayload = {
+    eventId: `evt-core-${Date.now()}-${Math.random()}`,
+    providerReference,
+    event: 'payment.approved',
+    ...(provider ? { provider } : {}),
+  };
   const webhook = await post(
     '/api/payments/webhook',
     webhookPayload,
-    withWebhookSignature(webhookPayload, { 'x-idempotency-key': `qa-core-wh-${Date.now()}-${Math.random()}` })
+    withWebhookSignature(webhookPayload, {
+      'x-idempotency-key': `qa-core-wh-${Date.now()}-${Math.random()}`,
+      ...(provider ? { 'x-provider': provider } : {}),
+    })
   );
   assert(webhook.status === 200, `webhook expected 200, got ${webhook.status}`);
 
@@ -128,15 +151,16 @@ async function createPaidOrder(customerId) {
 async function run() {
   const report = [];
 
-  const seed = await post('/api/catalog-items/bootstrap', {}, {
-    'x-actor-id': 'qa-curator',
-    'x-actor-role': 'curator',
-  });
+  const seed = await postBootstrap(baseUrl);
   if (seed.status === 200) {
     report.push('P0-CORE-01 bootstrap catalog ready');
   } else {
     report.push(`P0-CORE-01 bootstrap skipped (status ${seed.status})`);
   }
+  const seeded = await resolveSeededCatalogVariant(baseUrl);
+  report.push(`P0-CORE-01B catalog item resolved (${seeded.variant.variantId})`);
+  const checkoutMethod = resolveCheckoutMethod(provider);
+  report.push(`P0-CORE-01C checkout method resolved (${checkoutMethod})`);
 
   const placedOrder = await post('/api/orders', {
     supplierId: 'supplier-default',
@@ -150,7 +174,14 @@ async function run() {
       state: 'SP',
       country: 'BR',
     },
-    items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
+    items: [
+      {
+        catalogItemId: seeded.item.catalogItemId,
+        variantId: seeded.variant.variantId,
+        quantity: 1,
+        unitPrice: seeded.variant.price,
+      },
+    ],
     customer: { id: 'customer-core-placed' },
   }, {
     'x-actor-id': 'customer-core-placed',
@@ -169,7 +200,7 @@ async function run() {
   assert(createProdInvalid.status === 409, `production from placed expected 409, got ${createProdInvalid.status}`);
   report.push('P0-CORE-02 production creation blocked for non-paid order');
 
-  const paidOrderId = await createPaidOrder('customer-core-paid');
+  const paidOrderId = await createPaidOrder('customer-core-paid', seeded);
   report.push('P0-CORE-03 paid order created via checkout+webhook');
   report.push('P0-CORE-03B checkout idempotency preserved same payment');
 

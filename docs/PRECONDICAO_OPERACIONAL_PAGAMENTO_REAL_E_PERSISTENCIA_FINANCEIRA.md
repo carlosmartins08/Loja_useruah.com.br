@@ -143,6 +143,162 @@ Depois disso:
 5. provar conciliacao e idempotencia
 6. publicar evidencias de cutover e rollback
 
+## Checklist operacional de aceite final
+
+Status atual:
+- Fase 1 funcional: fechada
+- `Stripe`: `GO CONDICIONADO`
+- Condicionante atual: aceite final de producao
+
+Objetivo:
+- provar operacao real segura antes de emitir `GO`
+
+Nao e objetivo:
+- criar feature nova
+- abrir Fase 2
+- replanejar pagamento
+- reabrir discussao de provider, metodo ou gateway
+
+Escopo deste checklist:
+- provider inicial: `Stripe`
+- metodos no recorte atual: `card` e `wallet`
+- `pix`: fora do escopo imediato salvo decisao comercial explicita
+- contratos canonicos de rastreio:
+  - `orderId`
+  - `paymentId`
+  - `providerReference`
+
+Blocos minimos:
+1. Infra e ambiente
+   - ambiente alvo confirmado
+   - segredos corretos no ambiente seguro
+   - banco alvo validado
+2. Pagamento e persistencia
+   - venda real concluida no recorte atual
+   - persistencia financeira coerente no banco alvo
+   - `providerReference` salvo e rastreavel
+3. Webhook e reconciliacao
+   - assinatura validada
+   - reenvio sem duplicidade
+   - reconciliacao coerente entre pedido interno e provider
+4. Observabilidade minima
+   - rastreio objetivo por `orderId`, `paymentId` e `providerReference`
+   - falha relevante deixa evidencia operacional suficiente
+5. Cutover e rollback
+   - caminho de ativacao conhecido
+   - caminho de rollback conhecido
+   - rollback nao perde pedido nem mascara pendencia financeira
+6. Veredito final
+   - `GO`
+   - `GO CONDICIONADO`
+   - `NO-GO`
+
+Regra de uso:
+- este checklist operacionaliza o aceite final e nao substitui esta pre-condicao como fonte normativa
+- item ja consolidado neste documento pode funcionar como gate
+- item util, mas nao consolidado aqui, vale como apoio operacional e nao como bloqueador novo
+
+Modelo preenchivel da janela real:
+
+```text
+Janela:
+- Data:
+- Ambiente alvo:
+- Base URL homolog final:
+- Dono do go-live:
+
+Responsaveis:
+- Engenharia:
+- Financeiro:
+- Produto:
+
+Status inicial:
+- Fase 1 funcional: FECHADA
+- Stripe: GO CONDICIONADO
+- Auth/session: APROVADO
+
+Pre-janela:
+- [ ] Segredos corretos no ambiente seguro
+- [ ] Webhook Stripe apontando para /api/payments/webhook
+- [ ] Banco alvo confirmado
+- [ ] Backup minimo confirmado
+- [ ] Caminho de rollback conhecido
+- [ ] Evidencia armazenada fora do repositorio
+
+Baseline obrigatoria:
+- [ ] npm run check
+- [ ] npm run build
+- [ ] npm run qa:functional
+- [ ] npm run qa:coreops
+- [ ] npm run qa:matrix:audit
+- [ ] npm run qa:auth:cookie
+- [ ] npm run p3:precheck
+- [ ] npm run qa:provider:requirements
+- [ ] npm run qa:providers:ready
+- [ ] npm run qa:stripe:smoke
+- [ ] npm run qa:payments21
+- [ ] npm run qa:provider:activate
+
+Validacao operacional final:
+- [ ] Pedido criado no ambiente alvo
+- [ ] PaymentIntent Stripe criado
+- [ ] orderId registrado:
+- [ ] paymentId registrado:
+- [ ] providerReference registrado:
+- [ ] Persistencia financeira correta no banco alvo
+- [ ] Webhook assinado recebido
+- [ ] Evento approved processado
+- [ ] Reenvio sem duplicidade
+- [ ] Reconciliacao coerente entre pedido interno e provider
+- [ ] Rastreio por orderId/paymentId/providerReference disponivel
+- [ ] Nenhum segredo exposto em log
+- [ ] Cutover conhecido
+- [ ] Rollback conhecido
+- [ ] Rollback nao perde pedido nem mascara pendencia financeira
+
+Serie final de homolog:
+- Quantidade de transacoes reais executadas:
+- Divergencias encontradas:
+- Amostras auditadas:
+
+Veredito:
+- [ ] GO
+- [ ] GO CONDICIONADO
+- [ ] NO-GO
+
+Pendencia residual, se houver:
+- Descricao:
+- Dono:
+- Prazo:
+
+Motivo objetivo do veredito:
+- 
+```
+
+Preenchimento parcial ja provado no repositorio:
+- [x] npm run check
+- [x] npm run build
+- [x] npm run qa:functional
+- [x] npm run qa:coreops
+- [x] npm run qa:matrix:audit
+- [x] npm run qa:auth:cookie
+- [x] npm run p3:precheck
+- [x] npm run qa:provider:requirements
+- [x] npm run qa:providers:ready
+- [x] npm run qa:stripe:smoke
+- [x] npm run qa:payments21
+- [x] npm run qa:provider:activate
+- [x] npm run go:preflight:run
+- [x] npm run go:e2e:proof:run
+- [ ] Janela real em homolog final fora de localhost
+- [ ] 10 transacoes reais consecutivas homologadas sem divergencia
+- [ ] Evidencia operacional final de reconciliacao, observabilidade e rollback com os responsaveis da operacao
+
+Criterio principal:
+- se venda, pagamento, persistencia, webhook, reconciliacao, rastreabilidade e rollback estiverem provados: `GO`
+- se o fluxo principal estiver seguro, mas houver pendencia operacional controlada sem risco financeiro: `GO CONDICIONADO`
+- se houver falha financeira, divergencia de `providerReference`, webhook inseguro, duplicidade, ausencia de rollback ou falta de rastreabilidade minima: `NO-GO`
+
 ## Riscos conhecidos
 - tratar esta trilha como fase oficial cria conflito de precedencia
 - mexer em UX publica para acomodar operacao financeira reabre a Fase 1
@@ -158,18 +314,26 @@ Evidencias:
 - `npm run qa:auth:cookie`: PASS
 - contrato do `ruah_session`: APROVADO
 - fundacao de `auth/session` da Fase 1: LIBERADA
+- `npm run qa:coreops`: PASS
+- `npm run qa:matrix:audit`: PASS
 - `npm run p3:precheck`: PASS
+- `npm run qa:provider:requirements`: READY_FOR_SMOKE
+- `npm run qa:providers:ready`: PARTIAL_READY global com `stripe` pronta no recorte ativo
 - `npm run qa:stripe:smoke`: PASS
+- `npm run qa:payments21`: PASS
 - `npm run qa:provider:activate`: PASS
 - `npm run check`: PASS
 - `npm run build`: PASS
 - `npm run qa:functional`: PASS
+- `npm run go:preflight:run`: PASS
+- `npm run go:e2e:proof:run`: PASS
 
 Leitura objetiva:
 - `auth/session` deixou de ser impeditivo tecnico da Fase 1
 - a trilha Stripe passou nos gates de homologacao definidos para o recorte atual
+- a baseline tecnica completa do aceite final passou no repositorio local
 - o estado `GO CONDICIONADO` nao decorre de falha de auth, credencial ou integracao do provider no ciclo homologado
-- a condicionante atual e ausencia de aceite final de producao e cutover real
+- a condicionante atual e ausencia de janela real em homolog final, aceite final de producao e cutover real
 - a Fase 1 permaneceu integra no ciclo
 - `gateway_real` generico continua fora do bloqueio atual e fica como bridge futura `PLANEJADO`
 - `pix` continua fora do escopo imediato desta trilha, salvo decisao comercial explicita

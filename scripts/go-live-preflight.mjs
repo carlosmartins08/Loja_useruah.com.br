@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
 import process from 'node:process';
+import { ensureQaEnvLoaded } from './_qa-env.mjs';
+
+ensureQaEnvLoaded();
 
 const COMMANDS_BY_PROVIDER = {
   gateway_real: 'npm run qa:gateway-real:smoke',

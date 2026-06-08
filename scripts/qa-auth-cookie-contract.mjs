@@ -171,8 +171,9 @@ async function run() {
     password: 'qaWrongRole123',
     termsAccepted: true,
     draft: {
-      institutionName: 'QA Wrong Role Org',
-      leaderName: 'QA Wrong Role Lead',
+      organizationName: 'QA Wrong Role Org',
+      responsibleName: 'QA Wrong Role Lead',
+      termsAccepted: true,
       whatsapp: '11999999999',
     },
   });

@@ -32,6 +32,34 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-08] Checklist enxuto de aceite final dentro da trilha oficial
+- ID: GOV-0076
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+- Decisao:
+  - Reduzir o plano largo de aceite final para um checklist operacional curto dentro da trilha oficial de readiness.
+  - Manter a fronteira explicita entre validacao operacional final e `GO` de producao.
+  - Preservar `Stripe` como `GO CONDICIONADO` ate o aceite final de producao.
+- Contexto:
+  - O raciocinio de aceite estava util, mas grande demais para virar artefato oficial sem risco de criar criterio novo paralelo.
+- Impacto esperado:
+  - Dar apoio objetivo ao aceite final de producao sem criar nova fonte normativa.
+  - Evitar que homologacao aprovada seja confundida com `GO` automatico de producao.
+- Riscos conhecidos:
+  - Se o checklist passar a receber gates nao previstos na pre-condicao oficial, ele volta a criar governanca paralela.
+- Plano de rollback:
+  - Reverter apenas se a trilha oficial de readiness absorver esse conteudo de forma mais clara em outro ponto sem contradicao.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
 ### [2026-06-08] Alinhamento residual do Plano Mestre
 - ID: GOV-0075
 - Status: `aprovada`
@@ -1860,4 +1888,60 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 - Documentos atualizados:
   - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
   - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+
+### [2026-06-08] Checklist preenchivel da janela real embutido na trilha oficial
+- ID: GOV-0077
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `readiness`
+  - `operacao`
+  - `pagamentos`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+- Decisao:
+  - Transformar o checklist enxuto de aceite final em modelo preenchivel de janela real sem criar documento novo.
+  - Manter a pre-condicao como fonte oficial e usar o runbook apenas como trilha de execucao.
+- Contexto:
+  - O projeto ja tinha criterio de aceite, mas ainda faltava um formato simples o bastante para ser usado na mesa sem reinterpretacao.
+- Impacto esperado:
+  - Menos improviso na janela real.
+  - Mais chance de sair com veredito objetivo e evidencia rastreavel.
+- Riscos conhecidos:
+  - Se o time preencher fora da trilha oficial, o modelo perde valor e volta a virar texto.
+- Plano de rollback:
+  - Remover o modelo apenas se um artefato operacional superior absorver a mesma funcao sem duplicidade.
+- Documentos atualizados:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+
+### [2026-06-08] Baseline tecnica do aceite final registrada sem confundir com cutover real
+- ID: GOV-0078
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `readiness`
+  - `evidencia`
+  - `pagamentos`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Registrar que a baseline tecnica completa do aceite final passou no repositorio.
+  - Manter `GO CONDICIONADO` porque isso ainda nao equivale a janela real em homolog final nem a cutover real.
+- Contexto:
+  - Sem esse registro, a equipe corria risco de repetir a baseline ja provada ou, no extremo oposto, vender prova local como aceite final de producao.
+- Impacto esperado:
+  - Menos retrabalho tecnico.
+  - Mais clareza entre prova de repositorio e operacao real.
+- Riscos conhecidos:
+  - Se a equipe pular a janela real e usar esta evidencia como aceite final, volta a confundir readiness com producao.
+- Plano de rollback:
+  - Reverter apenas se a trilha oficial passar a separar a baseline tecnica em artefato superior sem duplicidade.
+- Documentos atualizados:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
 

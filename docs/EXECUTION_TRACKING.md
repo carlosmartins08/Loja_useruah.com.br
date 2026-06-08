@@ -322,6 +322,28 @@ Atualizacao adicional: 2026-06-08 (Auth/session aprovado e esteira Stripe homolo
   - a condicionante atual e ausencia de aceite final de producao e cutover real
   - nenhuma frente nova foi aberta a partir desta evidência
 
+Atualizacao adicional: 2026-06-08 (Baseline tecnica do aceite final concluida no repositorio)
+- Baseline tecnica executada em serie e aprovada:
+  - `npm run check`: PASS
+  - `npm run build`: PASS
+  - `npm run qa:functional`: PASS
+  - `npm run qa:coreops`: PASS
+  - `npm run qa:matrix:audit`: PASS
+  - `npm run qa:auth:cookie`: PASS
+  - `npm run p3:precheck`: PASS
+  - `npm run qa:provider:requirements`: `READY_FOR_SMOKE`
+  - `npm run qa:providers:ready`: `PARTIAL_READY` global com `stripe` pronta no recorte ativo
+  - `npm run qa:stripe:smoke`: PASS
+  - `npm run qa:payments21`: PASS
+  - `npm run qa:provider:activate`: PASS
+  - `npm run go:preflight:run`: PASS
+  - `npm run go:e2e:proof:run`: PASS
+- Leitura objetiva:
+  - o repositorio provou a esteira tecnica completa de aceite e prova E2E local/homolog
+  - o estado atual continua `GO CONDICIONADO`
+  - a condicionante remanescente nao e bug tecnico do fluxo validado
+  - a condicionante remanescente e janela real de homolog final fora de `localhost`, com evidencias operacionais e decisao conjunta de Produto + Engenharia + Financeiro
+
 Atualizacao adicional: 2026-05-27 (Execucao de pontos nao bloqueados enquanto P3 fica por ultimo)
 - Ajustes aplicados de UX/RBAC sem dependencia de credenciais:
   - `app/admin/page.tsx`: correcoes de textos com encoding residual e habilitacao de modulos para `finance_admin`.

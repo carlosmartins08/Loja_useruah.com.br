@@ -26,6 +26,7 @@ Executar migracao controlada de `gateway_sandbox` para `stripe` como provider re
 Leitura obrigatoria para este ciclo:
 - `qa:providers:ready` pode continuar `PARTIAL_READY` globalmente se outros providers permanecerem fora do escopo ativo.
 - A interpretacao operacional correta deste gate esta consolidada em `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`.
+- O preenchimento da janela real deve usar o modelo executavel em `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`.
 
 ## Politica de risco
 - Nao alterar payload/shape dos endpoints publicos.

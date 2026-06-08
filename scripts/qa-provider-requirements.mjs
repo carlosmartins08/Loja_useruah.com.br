@@ -82,7 +82,9 @@ const provider =
     ? DIRECT_PROVIDERS.includes(rawTargetProvider)
       ? rawTargetProvider
       : 'gateway_real'
-    : rawTargetProvider;
+    : DIRECT_PROVIDERS.includes(providerMode)
+      ? providerMode
+      : rawTargetProvider;
 
 const selected = PROVIDERS[provider];
 

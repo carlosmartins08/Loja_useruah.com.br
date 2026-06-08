@@ -1,7 +1,19 @@
+import { withWebhookSignature } from './_qa-webhook-signature.mjs';
+import { ensureQaEnvLoaded } from './_qa-env.mjs';
+import { postBootstrap, resolveSeededCatalogVariant } from './catalog-seed-helpers.mjs';
+
+ensureQaEnvLoaded();
+
 const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3212';
+const provider = process.env.QA_PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER ?? 'sandbox';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function resolveCheckoutMethod(currentProvider) {
+  if (currentProvider === 'stripe' || currentProvider === 'cielo') return 'card';
+  return 'pix';
 }
 
 async function post(pathname, body, headers = {}) {
@@ -48,7 +60,7 @@ async function getWithRetry(pathname, headers = {}, retries = 3) {
   return last;
 }
 
-async function createPaidOrder(customerId) {
+async function createPaidOrder(customerId, seeded) {
   const order = await post('/api/orders', {
     supplierId: 'supplier-default',
     shippingAddressMode: 'same_as_account',
@@ -61,22 +73,33 @@ async function createPaidOrder(customerId) {
       state: 'SP',
       country: 'BR',
     },
-    items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
+    items: [
+      {
+        catalogItemId: seeded.item.catalogItemId,
+        variantId: seeded.variant.variantId,
+        quantity: 1,
+        unitPrice: seeded.variant.price,
+      },
+    ],
     customer: { id: customerId },
+  }, {
+    'x-actor-id': customerId,
+    'x-actor-role': 'customer',
   });
   assert(order.status === 201, `order expected 201, got ${order.status}`);
   const orderId = order.data?.order?.orderId;
   assert(typeof orderId === 'string', 'orderId missing');
 
+  const checkoutMethod = resolveCheckoutMethod(provider);
   const checkout = await postWithRetry(
     '/api/payments/checkout',
     {
       orderId,
-      method: 'pix',
-      provider: 'sandbox',
-      amount: 89.9,
+      method: checkoutMethod,
+      provider,
+      amount: seeded.variant.price,
       currency: 'BRL',
-      items: [{ id: '1', name: 'Camiseta QA payout', quantity: 1, unitPrice: 89.9 }],
+      items: [{ id: seeded.item.catalogItemId, name: seeded.item.name, quantity: 1, unitPrice: seeded.variant.price }],
     },
     { 'x-idempotency-key': `qa-payout-checkout-${Date.now()}-${Math.random()}` }
   );
@@ -84,10 +107,19 @@ async function createPaidOrder(customerId) {
   const providerReference = checkout.data?.payment?.providerReference;
   assert(typeof providerReference === 'string', 'providerReference missing');
 
+  const webhookPayload = {
+    eventId: `evt-payout-${Date.now()}-${Math.random()}`,
+    providerReference,
+    event: 'payment.approved',
+    ...(provider ? { provider } : {}),
+  };
   const webhook = await postWithRetry(
     '/api/payments/webhook',
-    { eventId: `evt-payout-${Date.now()}-${Math.random()}`, providerReference, event: 'payment.approved' },
-    { 'x-idempotency-key': `qa-payout-wh-${Date.now()}-${Math.random()}` }
+    webhookPayload,
+    withWebhookSignature(webhookPayload, {
+      'x-idempotency-key': `qa-payout-wh-${Date.now()}-${Math.random()}`,
+      ...(provider ? { 'x-provider': provider } : {}),
+    })
   );
   assert(webhook.status === 200, `webhook expected 200, got ${webhook.status}`);
   return orderId;
@@ -129,8 +161,18 @@ async function run() {
   const artistHeaders = { 'x-actor-id': 'artist-default', 'x-actor-role': 'artist' };
   const adminHeaders = { 'x-actor-id': 'qa-admin', 'x-actor-role': 'platform_admin' };
 
-  await post('/api/catalog-items/bootstrap', {}, { 'x-actor-id': 'qa-curator', 'x-actor-role': 'curator' });
-  const orderId = await createPaidOrder('customer-payout-ledger');
+  const seed = await postBootstrap(baseUrl);
+  if (seed.status === 200) {
+    report.push('QA-PAYOUT-LEDGER-00 bootstrap catalog ready');
+  } else {
+    report.push(`QA-PAYOUT-LEDGER-00 bootstrap skipped (status ${seed.status})`);
+  }
+  const seeded = await resolveSeededCatalogVariant(baseUrl);
+  report.push(`QA-PAYOUT-LEDGER-00B catalog item resolved (${seeded.variant.variantId})`);
+  const checkoutMethod = resolveCheckoutMethod(provider);
+  report.push(`QA-PAYOUT-LEDGER-00C checkout method resolved (${checkoutMethod})`);
+
+  const orderId = await createPaidOrder('customer-payout-ledger', seeded);
   await shipOrder(orderId);
   report.push('QA-PAYOUT-LEDGER-01 paid+shipped order generated commission availability');
 

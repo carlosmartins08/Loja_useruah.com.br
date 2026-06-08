@@ -53,7 +53,7 @@
     "qa:campaign:impact": "set QA_PORT=3210&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-campaign-impact.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& node scripts/qa-api-runner.mjs",
     "qa:finance:impact": "set QA_PORT=3211&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-finance-impact.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& node scripts/qa-api-runner.mjs",
     "qa:payout:ledger": "set QA_PORT=3212&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-payout-ledger-paid.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& set PAYOUT_SECURITY_WINDOW_DAYS=0&& node scripts/qa-api-runner.mjs",
-    "qa:matrix:audit": "set QA_PORT=3324&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa-matrix-audit.mjs&& node scripts/qa-api-runner.mjs",
+    "qa:matrix:audit": "set QA_PORT=3324&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa-matrix-audit.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& node scripts/qa-api-runner.mjs",
     "qa:crossrole:impact": "set QA_PORT=3215&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa-cross-role-impact.mjs&& set RBAC_ACTIVE=true&& set QA_EXPECT_RBAC=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& node scripts/qa-api-runner.mjs",
     "qa:blindspots": "node scripts/qa-blindspots.mjs",
     "backend:gate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/backend-readiness-gate.ps1",
