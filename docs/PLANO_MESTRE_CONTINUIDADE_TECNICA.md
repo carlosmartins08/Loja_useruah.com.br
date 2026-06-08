@@ -7,15 +7,15 @@ Owner: Produto + Engenharia
 Manter continuidade de execucao sem perda de contexto, sem duplicidade e sem avanço fora de gate.
 
 ## Estado atual consolidado
-- P0 Estrutural: `CONCLUIDO`
-- P1 Confiabilidade QA: `CONCLUIDO`
-- P2 Front integrado: `EM ANDAMENTO`
-- P3 Gateway real e cutover: `PENDENTE`
-- P4 Hardening final: `PENDENTE`
+- P0 Estrutural: `IMPLEMENTADO`
+- P1 Confiabilidade QA: `IMPLEMENTADO`
+- P2 Front integrado: `PARCIAL`
+- P3 Pagamento real Stripe e cutover: `BLOQUEADO`
+- P4 Hardening final: `PLANEJADO`
 
 ## Sequencia inteligente obrigatoria
 1. Fechar P2 com evidencias funcionais ponta a ponta.
-2. Iniciar P3 apenas em homologacao com rollback testado.
+2. Iniciar P3 apenas em homologacao Stripe com rollback testado.
 3. Executar P4 apenas apos P3 aprovado.
 
 ## Backlog executavel por prioridade
@@ -27,10 +27,11 @@ Manter continuidade de execucao sem perda de contexto, sem duplicidade e sem ava
 - Evidenciar comparacao API x banco x UI para pedidos e producao.
 
 ### P3 (prioridade critica de negocio)
-- Definir provedor oficial para `PAYMENT_PROVIDER=gateway_real`.
+- Formalizar `Stripe` como provider oficial inicial (`PAYMENT_PROVIDER=stripe`) para `card`/`wallet`.
 - Rodar `PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md` em homologacao.
 - Publicar evidencias de cutover e rollback em ate 30 minutos.
 - Fechar reconciliacao por `providerReference` em banco gerenciado.
+- Manter `gateway_real` generico como bridge futura `PLANEJADO`, sem reabrir escopo neste ciclo.
 
 ### P4 (hardening final)
 - Corrigir encoding residual em metadata/UX.

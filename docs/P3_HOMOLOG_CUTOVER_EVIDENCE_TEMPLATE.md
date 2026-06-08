@@ -1,10 +1,16 @@
 # P3 Homologacao - Evidencia de Cutover e Rollback
 
+Regra de nomenclatura:
+- `P3` neste arquivo significa readiness operacional de pagamento real.
+- `P3` aqui nao significa Fase 3 de produto.
+- A Fase 3 oficial de produto esta definida separadamente em:
+  - `docs/FASE_3_CATALOGO_ESCALAVEL_ARTE_CURADORIA_E_COMPOSICAO_CONTROLADA.md`
+
 Data: YYYY-MM-DD  
 Owner:  
 Ambiente: homologacao  
 Base URL homolog:  
-Provider/Modo: `gateway_real | inter | infinitepay | mercadopago | pagarme | cielo | stripe`
+Provider/Modo: `stripe`
 
 ## Pre-check
 - [ ] `npm run check` PASS
@@ -16,10 +22,10 @@ Provider/Modo: `gateway_real | inter | infinitepay | mercadopago | pagarme | cie
 
 ## Configuracao validada
 - `PAYMENT_PROVIDER`:
-- `PAYMENT_GATEWAY_TARGET`:
+- `PAYMENT_GATEWAY_TARGET` (deve ficar vazio no recorte Stripe):
 - `PAYMENT_PERSISTENCE`:
 - `DATABASE_URL` inicia com `mysql://`: `SIM | NAO`
-- `PAYMENT_WEBHOOK_SECRET` configurado: `SIM | NAO`
+- `PAYMENT_STRIPE_WEBHOOK_SECRET` configurado: `SIM | NAO`
 - Credenciais do modo ativo presentes: `SIM | NAO`
 
 ## Smoke real (obrigatorio)

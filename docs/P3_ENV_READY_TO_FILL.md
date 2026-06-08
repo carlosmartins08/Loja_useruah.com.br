@@ -1,5 +1,11 @@
 # P3 Env Ready-To-Fill (Copiar e Colar)
 
+Regra de nomenclatura:
+- `P3` neste arquivo significa readiness operacional de pagamento real.
+- `P3` aqui nao significa Fase 3 de produto.
+- A Fase 3 oficial de produto esta definida separadamente em:
+  - `docs/FASE_3_CATALOGO_ESCALAVEL_ARTE_CURADORIA_E_COMPOSICAO_CONTROLADA.md`
+
 Objetivo: deixar o ambiente pronto para ativar cutover real assim que as credenciais existirem.
 
 Atalho pronto:
@@ -10,7 +16,7 @@ Atalho pronto:
 ## 0) Checklist Rapido (Admin Tecnico)
 
 1. Copiar `infra/env/.env.p3.template` para `.env`.
-2. Escolher 1 modo: `gateway_real` generico ou provider direto.
+2. Usar `stripe` como provider real inicial da Fase 1.
 3. Preencher bloco global e somente 1 bloco de credencial.
 4. Confirmar que `PAYMENT_PERSISTENCE=mysql` e `DATABASE_URL` comecam com `mysql://`.
 5. Rodar `npm run p3:plug:run`.
@@ -25,13 +31,13 @@ Copie este bloco para `.env`:
 HML_BASE_URL=https://SEU_HOST_HML
 
 # Modo escolhido:
-# - gateway_real
-# - ou provider direto (inter|infinitepay|mercadopago|pagarme|cielo|stripe)
-PAYMENT_PROVIDER=gateway_real
+# - stripe como provider oficial inicial da Fase 1
+# - outros providers diretos ou `gateway_real` generico ficam para recortes futuros
+PAYMENT_PROVIDER=stripe
 PAYMENT_GATEWAY_TARGET=
 
 # Seguranca webhook
-PAYMENT_WEBHOOK_SECRET=SEU_SEGREDO_WEBHOOK
+PAYMENT_STRIPE_WEBHOOK_SECRET=SEU_SEGREDO_WEBHOOK_STRIPE
 
 # Persistencia final
 PAYMENT_PERSISTENCE=mysql
@@ -42,6 +48,7 @@ DATABASE_URL=mysql://USUARIO:SENHA@HOST:3306/BANCO
 
 ### Gateway real (generico)
 ```env
+# Planejado para bridge futura. Nao usar neste recorte inicial da Fase 1.
 PAYMENT_GATEWAY_BASE_URL=
 PAYMENT_GATEWAY_API_KEY=
 PAYMENT_GATEWAY_MERCHANT_ID=
@@ -82,6 +89,7 @@ PAYMENT_CIELO_MERCHANT_ID=
 
 ### Stripe
 ```env
+PAYMENT_ENABLE_STRIPE=true
 PAYMENT_STRIPE_BASE_URL=
 PAYMENT_STRIPE_API_KEY=
 ```
@@ -94,7 +102,7 @@ Apos preencher `.env`, rodar:
 npm run p3:precheck
 npm run qa:provider:requirements
 npm run qa:providers:ready
-npm run qa:gateway-real:smoke
+npm run qa:stripe:smoke
 npm run qa:payments21
 npm run qa:coreops
 ```
@@ -117,21 +125,23 @@ Onde o smoke pode ser:
 Exemplo:
 
 ```bash
-npm run qa:gateway-real:smoke
+npm run qa:stripe:smoke
 ```
 
 ## 4) Criterio de pronto
 
 - `p3:precheck`: PASS
 - `qa:provider:requirements`: provider resolvido corretamente e sem `missing_env`
-- `qa:providers:ready`: `gateway_real` pronto para o modo escolhido
+- `qa:providers:ready`: `stripe` pronto para o recorte ativo
 - smoke do modo/provider: PASS
 - `qa:payments21`: PASS
 - `qa:coreops`: PASS
 
-Leitura obrigatoria para `gateway_real` generico:
+Leitura obrigatoria para este ciclo:
 - o relatorio global pode continuar `PARTIAL_READY` se outros providers permanecerem fora do recorte ativo
 - a validacao operacional deste ciclo deve seguir `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+- `gateway_real` generico fica `PLANEJADO`, nao como bloqueio oficial atual
+- `pix` fica fora do escopo imediato, salvo decisao comercial explicita
 
 Com isso, o cutover fica pronto para execucao operacional conforme:
 - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`

@@ -11,18 +11,19 @@ Definir a trilha transversal de readiness que prepara pagamento real, persistenc
 - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` continua mandando no escopo funcional da Fase 2.
 - `docs/PAYMENTS_DEFINITION_OF_DONE.md` continua sendo a fonte normativa do dominio de pagamentos.
 - Este documento nao abre uma fase paralela. Ele define apenas a pre-condicao operacional de pagamentos para sustentar a evolucao oficial.
+- Arquivos `P3_*` associados a esta trilha significam readiness operacional do provider real inicial da Fase 1, nao Fase 3 de produto.
 
 ## Classificacao
 - Tipo: `readiness transversal`
 - Dominio: `pagamento real e persistencia financeira`
-- Veredito atual: `READY CONDICIONADO`
+- Veredito atual: `BLOQUEADO`
 
-`READY CONDICIONADO` significa:
+`BLOQUEADO` significa:
 - discovery, especificacao e preparacao tecnica podem seguir agora
 - implementacao e cutover so podem avancar apos rerodar os gates do freeze da Fase 1 no ciclo atual
 
 ## Problema que resolve
-A Fase 1 provou venda local/homologada controlada, mas ainda nao fecha o risco de operacao real porque pagamento, webhook e conciliacao dependem de homologacao final do provider e evidencias formais de cutover.
+A Fase 1 provou venda local/homologada controlada, mas ainda nao fecha o risco de operacao real porque pagamento, webhook e conciliacao dependem de homologacao final da `Stripe` e evidencias formais de cutover.
 
 ## Papel desta trilha
 Esta trilha:
@@ -50,7 +51,7 @@ O que ainda nao pode fazer:
 - contaminar a navegacao principal da Fase 1
 
 ## O que entra
-- homologacao de `PAYMENT_PROVIDER=gateway_real`
+- homologacao de `PAYMENT_PROVIDER=stripe`
 - validacao de segredos e requisitos por ambiente
 - persistencia financeira reproduzivel em banco alvo
 - reconciliacao por `providerReference`
@@ -134,7 +135,7 @@ Depois disso:
 
 ## Plano executavel
 1. revalidar freeze da Fase 1
-2. confirmar provider real oficial
+2. confirmar `Stripe` como provider real oficial inicial
 3. validar requisitos e segredos por ambiente
 4. homologar checkout real + status + webhook
 5. provar conciliacao e idempotencia
@@ -149,7 +150,7 @@ Depois disso:
 Data: `2026-06-05`
 
 Veredito do bloco:
-- `BLOCKED-ENV`
+- `BLOQUEADO`
 
 Evidencias:
 - `npm run check`: PASS
@@ -157,25 +158,29 @@ Evidencias:
 - `npm run qa:functional`: PASS
 - `qa-core-operations`: PASS
 - `qa-matrix-audit`: PASS
-- `npm run qa:provider:requirements`: `MISSING_ENV` explicito para `gateway_real`
+- `npm run qa:provider:requirements`: `MISSING_ENV` explicito para `stripe`
 - `npm run qa:providers:ready`: `PARTIAL_READY`
-- `npm run p3:precheck`: `FAIL/missing_provider_env` explicito para `gateway_real`
+- `npm run p3:precheck`: `FAIL/missing_provider_env` explicito para `stripe`
 - `qa-payments-2-1`: FAIL por falta explicita de:
-  - `PAYMENT_GATEWAY_BASE_URL`
-  - `PAYMENT_GATEWAY_API_KEY`
-  - `PAYMENT_GATEWAY_MERCHANT_ID`
-- `qa-gateway-real-smoke`: FAIL por falta de:
-  - `PAYMENT_GATEWAY_BASE_URL`
-  - `PAYMENT_GATEWAY_API_KEY`
-  - `PAYMENT_GATEWAY_MERCHANT_ID`
+  - `PAYMENT_ENABLE_STRIPE`
+  - `PAYMENT_STRIPE_BASE_URL`
+  - `PAYMENT_STRIPE_API_KEY`
+  - `PAYMENT_STRIPE_WEBHOOK_SECRET`
+- `qa-stripe-smoke`: FAIL por falta de:
+  - `PAYMENT_ENABLE_STRIPE`
+  - `PAYMENT_STRIPE_BASE_URL`
+  - `PAYMENT_STRIPE_API_KEY`
+  - `PAYMENT_STRIPE_WEBHOOK_SECRET`
 
 Leitura objetiva:
 - a Fase 1 permaneceu integra no ciclo
 - a trilha de pagamentos esta coerente em codigo, gates e superficie administrativa
 - o bloqueio atual e de ambiente/configuracao, nao de regressao funcional da Fase 1
-- o ambiente ativo foi alinhado para `gateway_real` generico
+- o ambiente ativo deve ser alinhado para `stripe`
 - a trilha de homologacao agora falha de forma explicita e consistente em todos os gates de readiness
-- o checkout `gateway_real` generico ainda nao pode ser homologado sem as tres credenciais minimas
+- o checkout `stripe` ainda nao pode ser homologado sem as credenciais minimas e o webhook secret especifico
+- `gateway_real` generico sai do papel de bloqueio atual e fica como bridge futura `PLANEJADO`
+- `pix` fica fora do escopo imediato desta trilha, salvo decisao comercial explicita
 
 ## Referencias oficiais
 - `docs/FASE_2_READINESS_CHECKLIST.md`

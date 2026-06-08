@@ -10,16 +10,26 @@ const providerSmokeCommands = {
   cielo: 'qa:cielo:smoke',
   stripe: 'qa:stripe:smoke',
 };
-const targetProvider = String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
+const directProviders = ['inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe'];
+const providerMode = String(process.env.PAYMENT_PROVIDER ?? '').trim().toLowerCase();
+const rawTargetProvider = String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
+const targetProvider =
+  providerMode === 'gateway_real'
+    ? directProviders.includes(rawTargetProvider)
+      ? rawTargetProvider
+      : 'gateway_real'
+    : providerMode;
 
 if (!(targetProvider in providerSmokeCommands)) {
   console.error(
     JSON.stringify(
       {
         status: 'FAIL',
-        reason: 'invalid_or_missing_PAYMENT_GATEWAY_TARGET',
+        reason: 'invalid_provider_selection',
         expected: Object.keys(providerSmokeCommands),
-        got: targetProvider || null,
+        paymentProvider: providerMode || null,
+        paymentGatewayTarget: rawTargetProvider || null,
+        resolvedProvider: targetProvider || null,
       },
       null,
       2
@@ -66,12 +76,13 @@ for (const step of steps) {
   if (result.status !== 0) {
     console.error(
       JSON.stringify(
-        {
-          status: 'FAIL',
-          targetProvider,
-          failedStep: step.id,
-          command: `npm ${step.cmd.join(' ')}`,
-          runnerError: result.error ? String(result.error) : null,
+      {
+        status: 'FAIL',
+        targetProvider,
+        paymentProvider: providerMode || null,
+        failedStep: step.id,
+        command: `npm ${step.cmd.join(' ')}`,
+        runnerError: result.error ? String(result.error) : null,
           report,
           stdoutTail: (result.stdout ?? '').slice(-3000),
           stderrTail: (result.stderr ?? '').slice(-3000),
@@ -86,12 +97,13 @@ for (const step of steps) {
 
 console.log(
   JSON.stringify(
-    {
-      status: 'PASS',
-      targetProvider,
-      report,
-      next: ['Registrar evidencia em docs/EXECUTION_TRACKING.md', 'Registrar decisao/governanca em docs/CHANGELOG_GOVERNANCE.md'],
-    },
+      {
+        status: 'PASS',
+        targetProvider,
+        paymentProvider: providerMode || null,
+        report,
+        next: ['Registrar evidencia em docs/EXECUTION_TRACKING.md', 'Registrar decisao/governanca em docs/CHANGELOG_GOVERNANCE.md'],
+      },
     null,
     2
   )

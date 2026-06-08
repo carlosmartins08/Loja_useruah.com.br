@@ -32,6 +32,174 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-08] Consolidacao documental para separar fase de produto, handoff e readiness operacional
+- ID: GOV-0067
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `catalogo-curadoria`
+  - `ui-rotas`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+- Decisao:
+  - Instituir uma matriz unica de realidade para reconciliar fase, dominio, entidade e maturidade runtime.
+  - Oficializar a Fase 3 em escopo compativel com o codigo atual, sem supplier completo aspiracional nem snapshot expandido nao implementado.
+  - Criar a passagem oficial Fase 2 -> Fase 3 com regra explicita de nao presumir capacidades nao provadas.
+  - Explicitar que arquivos `P3_*` pertencem a readiness operacional de pagamentos reais e nao a Fase 3 de produto.
+- Contexto:
+  - O repositorio acumulou risco de ambiguidade entre numeracao de fase, readiness operacional e docs aspiracionais externos.
+  - A Fase 3 desenhada fora do repo adiantava maturidade maior do que o runtime atual de catalogo, curadoria, supplier e Fase 2 sustentava.
+- Impacto esperado:
+  - Menos duplicidade documental.
+  - Menos risco de handoff presumir dominio nao implementado.
+  - Menos confusao entre `P3` de pagamentos e Fase 3 de produto.
+- Riscos conhecidos:
+  - Se a matriz unica nao for atualizada junto com o runtime, a ambiguidade pode voltar em outro formato.
+  - Se surgir pressao para reintroduzir supplier completo sem antes amadurecer o dominio, a Fase 3 volta a inflar escopo.
+- Plano de rollback:
+  - Reverter apenas se um documento normativo mais central absorver integralmente a matriz e a passagem sem perda de clareza.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+  - `docs/FASE_3_CATALOGO_ESCALAVEL_ARTE_CURADORIA_E_COMPOSICAO_CONTROLADA.md`
+  - `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/P3_ENV_READY_TO_FILL.md`
+  - `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md`
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+### [2026-06-08] Segunda limpeza documental da Fase 2 e do tracking
+- ID: GOV-0068
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `catalogo-curadoria`
+  - `ui-rotas`
+  - `qa`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- Decisao:
+  - Rebaixar linguagem declarativa da Fase 2 quando o runtime atual ainda nao comprova a capacidade como fechada.
+  - Tratar `MovementCampaign` como parcial e `Organization`, `CampaignProduct`, `Referral*` e snapshot expandido como planejados ou `NAO PRESUMIR`.
+  - Neutralizar no tracking o uso historico de `Fase 2/3/4` como etapas internas, para nao colidir com as fases oficiais de produto.
+- Contexto:
+  - A documentacao da Fase 2 ainda carregava frases que pareciam declarar implementacao pronta onde o codigo atual so sustenta parte da fase.
+  - O `EXECUTION_TRACKING.md` ainda tinha rotulos historicos que podiam ser confundidos com as fases oficiais atuais do produto.
+- Impacto esperado:
+  - Menos risco de handoff usar premissas falsas.
+  - Menos inflacao de maturidade documental.
+  - Leitura mais honesta da ponte entre Fase 1, Fase 2 e Fase 3.
+- Riscos conhecidos:
+  - Se o tracking evoluir sem a matriz, a ambiguidade volta por outro caminho.
+  - Se o runtime amadurecer e os docs nao forem promovidos juntos, a documentacao fica conservadora demais.
+- Plano de rollback:
+  - Reverter apenas se um documento central absorver integralmente a distincao entre escopo, tracking e maturidade runtime sem perda de clareza.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+### [2026-06-08] Normalizacao final da linguagem de maturidade
+- ID: GOV-0069
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `qa`
+  - `catalogo-curadoria`
+- Documento fonte afetado:
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+  - `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md`
+- Decisao:
+  - Consolidar a linguagem canonica de maturidade em `IMPLEMENTADO`, `PARCIAL`, `PLANEJADO`, `AUSENTE`, `NAO PRESUMIR` e `BLOQUEADO`.
+  - Remover concorrencia semantica de rotulos antigos como `EXISTE`, `ASPIRACIONAL` e `BLOCKED-ENV` dentro da trilha oficial revisada.
+- Contexto:
+  - A segunda limpeza documental corrigiu o conteudo, mas ainda restavam rótulos diferentes descrevendo a mesma ideia em documentos centrais.
+- Impacto esperado:
+  - Menos ambiguidade de leitura entre fase, matriz e tracking.
+  - Menos risco de promover capacidade so porque o nome do status parecia mais forte ou mais solto.
+- Riscos conhecidos:
+  - Se documentos legados fora da trilha oficial mantiverem vocabulario antigo, eles podem continuar gerando ruído periférico.
+- Plano de rollback:
+  - Reverter apenas se a taxonomia oficial do repositorio mudar de forma centralizada em documento superior.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+  - `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+### [2026-06-08] Varredura final de vocabulário legado fora da trilha principal
+- ID: GOV-0070
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `operacao`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/EXECUTION_OPERATING_TEMPLATE.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+  - `docs/FASE_1_MATRIZ_EXECUCAO.md`
+- Decisao:
+  - Corrigir vocabulário legado apenas onde o documento ainda orienta execução, readiness ou decisão normativa.
+  - Preservar linguagem antiga em changelog e registros históricos quando ela funcionar apenas como evidência de contexto, não como regra atual.
+- Contexto:
+  - A trilha principal ja estava alinhada, mas alguns documentos operacionais periféricos ainda ensinavam taxonomia antiga ou usavam rótulos paralelos.
+- Impacto esperado:
+  - Taxonomia oficial consolidada em toda a superfície que ainda dirige execução.
+  - Menos chance de o time voltar para `EXISTE`, `PENDENTE`, `EM ANDAMENTO` ou `BLOCKED-ENV` em documentos ativos.
+- Riscos conhecidos:
+  - Documentos puramente históricos podem continuar exibindo vocabulário antigo, mas isso passa a ser aceitável apenas como arquivo de contexto.
+- Plano de rollback:
+  - Reverter apenas se uma taxonomia superior for redefinida formalmente em documento normativo central.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/EXECUTION_OPERATING_TEMPLATE.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+  - `docs/FASE_1_MATRIZ_EXECUCAO.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
 ### [2026-06-06] Gate unico de coerencia para alteracoes visuais no frontend
 - ID: GOV-0066
 - Status: `aprovada`
@@ -1516,4 +1684,52 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 - Documentos atualizados:
   - `docs/EXECUTION_STATUS_MATRIX.md`
   - `docs/P0_EVIDENCE_LOG.md`
+
+### [2026-06-08] Stripe formalizada como provider real inicial da Fase 1
+- ID: GOV-0071
+- Status: `aprovada`
+- Dono da decisao: Produto + Engenharia + Operacoes
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `runbooks`
+  - `readiness`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+  - `docs/P3_ENV_READY_TO_FILL.md`
+  - `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+- Decisao:
+  - Formalizar `Stripe` como provider oficial inicial da Fase 1 para `card`/`wallet`.
+  - Rebaixar `gateway_real` generico para bridge futura `PLANEJADO`, sem papel de bloqueio oficial no ciclo atual.
+  - Alinhar prechecks, runbooks e templates para usar `PAYMENT_ENABLE_STRIPE`, `PAYMENT_STRIPE_BASE_URL`, `PAYMENT_STRIPE_API_KEY` e `PAYMENT_STRIPE_WEBHOOK_SECRET`.
+  - Manter `pix` fora do escopo imediato, salvo decisao comercial explicita.
+- Contexto:
+  - O runtime ja tratava `Stripe` como provider direto de primeira classe, mas a trilha documental ainda prendia o readiness ao idioma de `gateway_real` generico.
+- Impacto esperado:
+  - Menor ambiguidade operacional no cutover real da Fase 1.
+  - Bloqueio atual passa a refletir a dependencia real: credenciais Stripe e persistencia final.
+- Riscos conhecidos:
+  - Repositorio ainda preserva historico legado com linguagem antiga em changelog e artefatos contextuais.
+  - Se `pix` virar requisito imediato de negocio, esta decisao precisara de novo recorte tecnico.
+- Plano de rollback:
+  - Reverter apenas se a decisao oficial abandonar `Stripe` como provider inicial e reabrir a trilha de bridge generico como recorte principal.
+- Documentos atualizados:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+  - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
+  - `docs/P3_ENV_READY_TO_FILL.md`
+  - `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
 

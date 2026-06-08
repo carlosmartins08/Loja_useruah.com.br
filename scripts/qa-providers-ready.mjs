@@ -65,8 +65,10 @@ const PROVIDERS = [
     label: 'Stripe',
     smoke: 'npm run qa:stripe:smoke',
     required: [
+      { env: 'PAYMENT_ENABLE_STRIPE', setting: 'enabled' },
       { env: 'PAYMENT_STRIPE_BASE_URL', setting: 'baseUrl' },
       { env: 'PAYMENT_STRIPE_API_KEY', setting: 'apiKey' },
+      { env: 'PAYMENT_STRIPE_WEBHOOK_SECRET', setting: 'webhookSecret' },
     ],
   },
 ];

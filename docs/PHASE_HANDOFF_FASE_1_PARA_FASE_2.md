@@ -1,6 +1,6 @@
 # Passagem de Bastao - Fase 1 para Fase 2
 
-Data de revisao: 2026-06-05
+Data de revisao: 2026-06-08
 
 ## Objetivo
 Impedir que a evolucao da Fase 2 crie duplicidade, retrabalho ou arquitetura paralela sobre a venda ja definida na Fase 1.
@@ -11,7 +11,11 @@ A Fase 2 complementa a Fase 1.
 
 Regra principal:
 - Fase 2 nao cria novo produto, novo checkout, novo pedido ou novo pagamento.
-- Fase 2 adiciona contexto ao `CatalogItem` e ao `OrderItemSnapshot`.
+- Fase 2 so pode adicionar contexto ao `CatalogItem` e ao `OrderItemSnapshot` quando essa extensao estiver comprovada no runtime.
+
+Regra de leitura obrigatoria:
+- `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` prevalece para decidir se uma capacidade da Fase 2 esta `IMPLEMENTADO`, `PARCIAL`, `PLANEJADO`, `AUSENTE`, `NAO PRESUMIR` ou `BLOQUEADO`;
+- este handoff descreve a passagem de escopo, nao uma declaracao automatica de implementacao pronta.
 
 ## O que a Fase 1 entrega
 - `CatalogItem` publicado
@@ -29,18 +33,17 @@ Regra principal:
 
 Essa base nao deve ser reimplementada pela Fase 2.
 
-## O que a Fase 2 adiciona
-- `Organization / Movement`
-- username publico unico
-- `/@username`
-- `Campaign`
-- `MovementCategory`
-- `MovementMarkup`
-- `ReferralLink`
-- `ReferralEvent`
-- `ReferralConversion`
-- compradores com dados limitados
-- arrecadacao do movimento
+## O que a Fase 2 pretende adicionar
+- `MovementCampaign` basico: capacidade parcial comprovada
+- `Organization / Movement`: ainda nao presumir como dominio maduro
+- username publico unico e `/@username`: ainda nao presumir como fluxo fechado ponta a ponta
+- `MovementCategory`: planejado
+- `MovementMarkup`: planejado
+- `ReferralLink`: planejado
+- `ReferralEvent`: planejado
+- `ReferralConversion`: planejado
+- compradores com dados limitados: planejado
+- arrecadacao do movimento: planejado
 
 Esse contexto deve ser acoplado ao fluxo de venda existente, nao duplicado.
 
@@ -55,7 +58,7 @@ E proibido implementar na Fase 2:
 - `CampaignProduct` sem relacao com `CatalogItem`
 
 ## Regras obrigatorias
-- Produto de movimento = `CatalogItem + Organization + Campaign`, quando houver
+- Produto de movimento = `CatalogItem + Organization + MovementCampaign`, quando houver
 - Checkout continua em `/cart` e `/checkout`
 - Pedido continua em `Order`
 - Item continua em `OrderItem`

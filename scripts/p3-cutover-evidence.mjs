@@ -39,6 +39,9 @@ function providerRequirements(provider) {
   if (provider === 'gateway_real') {
     return ['PAYMENT_GATEWAY_BASE_URL', 'PAYMENT_GATEWAY_API_KEY', 'PAYMENT_GATEWAY_MERCHANT_ID'];
   }
+  if (provider === 'stripe') {
+    return ['PAYMENT_ENABLE_STRIPE', 'PAYMENT_STRIPE_BASE_URL', 'PAYMENT_STRIPE_API_KEY', 'PAYMENT_STRIPE_WEBHOOK_SECRET'];
+  }
   const upper = provider.toUpperCase();
   if (provider === 'inter') {
     return [`PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_TOKEN_URL`, `PAYMENT_${upper}_CLIENT_ID`, `PAYMENT_${upper}_CLIENT_SECRET`];
@@ -49,7 +52,7 @@ function providerRequirements(provider) {
   return [`PAYMENT_${upper}_BASE_URL`, `PAYMENT_${upper}_API_KEY`];
 }
 
-const missingGlobal = req(['HML_BASE_URL', 'PAYMENT_PROVIDER', 'PAYMENT_WEBHOOK_SECRET']);
+const missingGlobal = req(['HML_BASE_URL', 'PAYMENT_PROVIDER']);
 if (missingGlobal.length > 0) {
   console.error(JSON.stringify({ status: 'FAIL', reason: 'missing_global_env', missing: missingGlobal }, null, 2));
   process.exit(1);
@@ -69,6 +72,24 @@ if (providerMode !== 'gateway_real' && !DIRECT_PROVIDERS.includes(providerMode))
 
 const rawTargetProvider = String(process.env.PAYMENT_GATEWAY_TARGET ?? '').trim().toLowerCase();
 const targetProvider = providerMode === 'gateway_real' ? (DIRECT_PROVIDERS.includes(rawTargetProvider) ? rawTargetProvider : 'gateway_real') : providerMode;
+
+const requiredWebhookSecret = targetProvider === 'stripe' ? 'PAYMENT_STRIPE_WEBHOOK_SECRET' : 'PAYMENT_WEBHOOK_SECRET';
+const missingWebhookSecret = req([requiredWebhookSecret]);
+if (missingWebhookSecret.length > 0) {
+  console.error(
+    JSON.stringify(
+      {
+        status: 'FAIL',
+        reason: 'missing_webhook_secret',
+        targetProvider,
+        missing: missingWebhookSecret,
+      },
+      null,
+      2
+    )
+  );
+  process.exit(1);
+}
 
 const providerMissing = req(providerRequirements(targetProvider));
 if (providerMissing.length > 0) {

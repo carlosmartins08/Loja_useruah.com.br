@@ -8,12 +8,13 @@ Traduzir `docs/FASE_1_VENDA_DE_PRODUTO.md` em uma sequencia de execucao sem retr
 ## Regra de uso
 - Executar um bloco por vez.
 - Nao iniciar bloco seguinte sem evidenciar o anterior.
-- Item marcado como `PARCIAL` tem prioridade sobre item `AUSENTE`.
+- Item marcado como `PARCIAL` tem prioridade sobre item `PLANEJADO` e `AUSENTE`.
 - Item fora do fluxo mestre nao entra no sprint da Fase 1.
 
 ## Legenda
-- `EXISTE`: implementado com evidencia razoavel
+- `IMPLEMENTADO`: implementado com evidencia razoavel
 - `PARCIAL`: existe, mas precisa auditoria, ajuste ou prova
+- `PLANEJADO`: previsto formalmente, mas ainda sem evidencia suficiente para ser tratado como base real
 - `AUSENTE`: nao ha evidencia suficiente para considerar ativo
 - `FORA`: explicitamente fora da Fase 1
 
@@ -24,10 +25,10 @@ Garantir que o admin consegue publicar um produto e que esse produto aparece cor
 
 | Item | Status inicial | Evidencia atual | Proxima acao |
 | --- | --- | --- | --- |
-| Acesso do admin a `/admin` | EXISTE | `/admin` existe, e `platform_admin` passa a ser o `admin_master` operacional explicito da Fase 1 na interface admin | validar jornada real completa |
-| Publicacao de `CatalogItem` | EXISTE | APIs de criar, marcar `ready`, publicar, despublicar e bootstrap existem e agora ha superficie operacional em `/admin/catalog` | validar prova funcional ponta a ponta com item real |
-| Produto publicado aparece no ecommerce | EXISTE | `/shop` lista apenas `published` e `/product/[id]` bloqueia item nao publicado | validar prova funcional ponta a ponta com item real |
-| Cliente nao ve custo, margem e fornecedor interno | EXISTE | shop e PDP mapeiam campos publicos e `GET /api/catalog-items` para nao gestores agora devolve apenas payload publico de itens publicados | validar prova funcional ponta a ponta com inspecao de resposta |
+| Acesso do admin a `/admin` | IMPLEMENTADO | `/admin` existe, e `platform_admin` passa a ser o `admin_master` operacional explicito da Fase 1 na interface admin | validar jornada real completa |
+| Publicacao de `CatalogItem` | IMPLEMENTADO | APIs de criar, marcar `ready`, publicar, despublicar e bootstrap existem e agora ha superficie operacional em `/admin/catalog` | validar prova funcional ponta a ponta com item real |
+| Produto publicado aparece no ecommerce | IMPLEMENTADO | `/shop` lista apenas `published` e `/product/[id]` bloqueia item nao publicado | validar prova funcional ponta a ponta com item real |
+| Cliente nao ve custo, margem e fornecedor interno | IMPLEMENTADO | shop e PDP mapeiam campos publicos e `GET /api/catalog-items` para nao gestores agora devolve apenas payload publico de itens publicados | validar prova funcional ponta a ponta com inspecao de resposta |
 
 ### Gate de saida
 - admin publica um item vendavel
@@ -41,9 +42,9 @@ Garantir que o cliente consegue selecionar produto e concluir checkout sandbox s
 
 | Item | Status inicial | Evidencia atual | Proxima acao |
 | --- | --- | --- | --- |
-| Carrinho funcional | EXISTE | `qa:functional` em `start` validou navegacao real `shop -> cart -> checkout` com CTA ativo e selecao de item | manter como regressao no fechamento |
-| Checkout sandbox | EXISTE | `qa:coreops` validou `order -> checkout -> webhook approved` com pedido pago e fluxo operacional subsequente | manter como regressao no fechamento |
-| Idempotencia de checkout | EXISTE | `qa:coreops` repetiu `POST /api/payments/checkout` com a mesma `x-idempotency-key` e preservou o mesmo `paymentId` com `reused=true` | manter como regressao no fechamento |
+| Carrinho funcional | IMPLEMENTADO | `qa:functional` em `start` validou navegacao real `shop -> cart -> checkout` com CTA ativo e selecao de item | manter como regressao no fechamento |
+| Checkout sandbox | IMPLEMENTADO | `qa:coreops` validou `order -> checkout -> webhook approved` com pedido pago e fluxo operacional subsequente | manter como regressao no fechamento |
+| Idempotencia de checkout | IMPLEMENTADO | `qa:coreops` repetiu `POST /api/payments/checkout` com a mesma `x-idempotency-key` e preservou o mesmo `paymentId` com `reused=true` | manter como regressao no fechamento |
 
 ### Gate de saida
 - cliente adiciona produto ao carrinho
@@ -57,9 +58,9 @@ Garantir que a venda gera pedido consistente e congelado.
 
 | Item | Status inicial | Evidencia atual | Proxima acao |
 | --- | --- | --- | --- |
-| `Order` criado no checkout | EXISTE | `qa:coreops` validou criacao de pedido em `placed`, aprovacao de pagamento e continuidade do fluxo com o mesmo `orderId` | manter como regressao no fechamento |
-| `OrderItemSnapshot` gerado | EXISTE | `Order.items` agora assume explicitamente o contrato oficial de snapshot, com `snapshotVersion`, nome, imagem e variante congelados no momento da compra, e as superficies do cliente leem esse dado fixado | manter inspeção de payload como regressao |
-| Cliente nao acessa pedido de outro usuario | EXISTE | `qa:coreops` validou `GET /api/orders/:id/status` com outro `customer` retornando `403` | manter como regressao no fechamento |
+| `Order` criado no checkout | IMPLEMENTADO | `qa:coreops` validou criacao de pedido em `placed`, aprovacao de pagamento e continuidade do fluxo com o mesmo `orderId` | manter como regressao no fechamento |
+| `OrderItemSnapshot` gerado | IMPLEMENTADO | `Order.items` agora assume explicitamente o contrato oficial de snapshot, com `snapshotVersion`, nome, imagem e variante congelados no momento da compra, e as superficies do cliente leem esse dado fixado | manter inspeção de payload como regressao |
+| Cliente nao acessa pedido de outro usuario | IMPLEMENTADO | `qa:coreops` validou `GET /api/orders/:id/status` com outro `customer` retornando `403` | manter como regressao no fechamento |
 
 ### Gate de saida
 - pedido e criado
@@ -73,10 +74,10 @@ Garantir que a operacao fecha o ciclo minimo de acompanhamento do pedido.
 
 | Item | Status inicial | Evidencia atual | Proxima acao |
 | --- | --- | --- | --- |
-| Admin acompanha pedidos | EXISTE | a fila de producao agora esta protegida por RBAC e opera como superficie minima de acao para o fluxo ativo | validar jornada real de ponta a ponta |
-| Admin registra envio/rastreio | EXISTE | backend de `start` e `ship` existe com auditoria e a tela de producao agora permite iniciar producao e registrar envio com transportadora e rastreio | validar jornada real de ponta a ponta |
-| Cliente ve status em `/account` | EXISTE | a conta agora possui detalhe canonico por pedido consumindo `/api/orders/:id/status` | validar jornada real de ponta a ponta |
-| Cliente ve rastreio | EXISTE | a conta exibe rastreio real quando existir e a pagina de sucesso deixou de usar numero e link ficticios | validar jornada real de ponta a ponta |
+| Admin acompanha pedidos | IMPLEMENTADO | a fila de producao agora esta protegida por RBAC e opera como superficie minima de acao para o fluxo ativo | validar jornada real de ponta a ponta |
+| Admin registra envio/rastreio | IMPLEMENTADO | backend de `start` e `ship` existe com auditoria e a tela de producao agora permite iniciar producao e registrar envio com transportadora e rastreio | validar jornada real de ponta a ponta |
+| Cliente ve status em `/account` | IMPLEMENTADO | a conta agora possui detalhe canonico por pedido consumindo `/api/orders/:id/status` | validar jornada real de ponta a ponta |
+| Cliente ve rastreio | IMPLEMENTADO | a conta exibe rastreio real quando existir e a pagina de sucesso deixou de usar numero e link ficticios | validar jornada real de ponta a ponta |
 
 ### Gate de saida
 - envio registrado pelo admin
@@ -89,9 +90,9 @@ Garantir o minimo de atendimento ao pedido sem abrir novos dominios.
 
 | Item | Status inicial | Evidencia atual | Proxima acao |
 | --- | --- | --- | --- |
-| Cliente abre ticket do proprio pedido | EXISTE | `qa:coreops` validou `POST /api/tickets` para pedido enviado | manter como regressao no fechamento |
-| Suporte responde ticket | EXISTE | `qa:coreops` validou `POST /api/tickets/:id/reply` com papel de suporte | manter como regressao no fechamento |
-| Ticket nao altera estado operacional por acidente | EXISTE | `qa:coreops` respondeu o ticket e o contexto consolidado preservou `order.status = shipped` | manter como regressao no fechamento |
+| Cliente abre ticket do proprio pedido | IMPLEMENTADO | `qa:coreops` validou `POST /api/tickets` para pedido enviado | manter como regressao no fechamento |
+| Suporte responde ticket | IMPLEMENTADO | `qa:coreops` validou `POST /api/tickets/:id/reply` com papel de suporte | manter como regressao no fechamento |
+| Ticket nao altera estado operacional por acidente | IMPLEMENTADO | `qa:coreops` respondeu o ticket e o contexto consolidado preservou `order.status = shipped` | manter como regressao no fechamento |
 
 ### Gate de saida
 - ticket abre

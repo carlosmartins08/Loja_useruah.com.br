@@ -31,12 +31,28 @@ Evitar retrabalho, duplicidade e conflito de interpretação sobre qual document
 ### Sequenciamento por fase (produto/execução)
 - Usar: `docs/MVP_ROADMAP.md`
 - Quando: decidir o que entra agora vs depois.
+- Usar em conjunto: `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- Quando: validar se a maturidade descrita na fase ja existe no runtime ou se ainda e apenas parcial.
+
+### Passagem entre fases
+- Usar: `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+- Quando: a decisao envolver passagem da Fase 1 para a Fase 2.
+- Usar: `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md`
+- Quando: a decisao envolver passagem da Fase 2 para a Fase 3.
+
+### Fase 3
+- Usar: `docs/FASE_3_CATALOGO_ESCALAVEL_ARTE_CURADORIA_E_COMPOSICAO_CONTROLADA.md`
+- Quando: definir escopo, restricoes e criterio de corte da Fase 3 realista ao runtime atual.
 
 ### Pagamentos
 - Usar: `docs/PAYMENTS_DEFINITION_OF_DONE.md`
 - Quando: alterar checkout, webhook, status de pagamento, idempotência ou segurança de pagamento.
 - Usar em conjunto: `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
-- Quando: preencher ambiente, validar homologacao do `gateway_real` generico e registrar evidencia sem reabrir escopo.
+- Quando: preencher ambiente, validar homologacao da `Stripe` como provider real inicial da Fase 1 e registrar evidencia sem reabrir escopo.
+- Regra de nomenclatura:
+  - arquivos `docs/P3_*` pertencem a esta trilha operacional de pagamentos reais
+  - `P3` aqui nao significa Fase 3 de produto
+  - `gateway_real` generico fica como bridge futura `PLANEJADO`, nao como bloqueio oficial atual
 
 ### Pedidos e logística
 - Usar: `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`

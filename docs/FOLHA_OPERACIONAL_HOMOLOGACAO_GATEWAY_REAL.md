@@ -1,19 +1,19 @@
-# Folha Operacional - Homologacao gateway_real
+# Folha Operacional - Homologacao Stripe Fase 1
 
 Data de revisao: 2026-06-05
 
 ## Objetivo
-Executar a homologacao do `gateway_real` generico sem ambiguidade de ambiente, sem alterar fluxo da aplicacao e sem abrir escopo novo de produto.
+Executar a homologacao da `Stripe` como provider real inicial da Fase 1 sem ambiguidade de ambiente, sem alterar fluxo da aplicacao e sem abrir escopo novo de produto.
 
 ## Status atual
 
 ```text
-Status: BLOCKED-ENV
-Causa: credenciais reais ausentes do gateway_real
+Status: BLOQUEADO
+Causa: credenciais reais da Stripe ausentes ou nao validadas
 Arquitetura: preservada
 Fase 1: sem regressao
 Fase 2: nao aberta
-Proxima acao: preencher credenciais reais e validar homologacao
+Proxima acao: preencher credenciais Stripe e validar homologacao
 ```
 
 ## Variaveis obrigatorias
@@ -21,12 +21,11 @@ Proxima acao: preencher credenciais reais e validar homologacao
 Preencher no ambiente seguro de homologacao:
 
 ```env
-PAYMENT_PROVIDER=gateway_real
-PAYMENT_GATEWAY_TARGET=
-PAYMENT_GATEWAY_BASE_URL=
-PAYMENT_GATEWAY_API_KEY=
-PAYMENT_GATEWAY_MERCHANT_ID=
-PAYMENT_WEBHOOK_SECRET=
+PAYMENT_PROVIDER=stripe
+PAYMENT_ENABLE_STRIPE=true
+PAYMENT_STRIPE_BASE_URL=
+PAYMENT_STRIPE_API_KEY=
+PAYMENT_STRIPE_WEBHOOK_SECRET=
 PAYMENT_PERSISTENCE=mysql
 DATABASE_URL=mysql://USUARIO:SENHA@HOST:3306/BANCO
 ```
@@ -35,13 +34,13 @@ DATABASE_URL=mysql://USUARIO:SENHA@HOST:3306/BANCO
 
 ```text
 nao inventar credencial
-nao usar chave de Stripe
 nao usar chave de producao em homologacao
 nao commitar .env com segredo real
 nao alterar checkout
 nao alterar webhook
 nao alterar state machine
 nao abrir escopo da Fase 2
+nao tratar Pix como incluso sem decisao comercial explicita
 ```
 
 ## Ordem obrigatoria de validacao
@@ -52,7 +51,7 @@ Depois de preencher as credenciais reais:
 npm run qa:provider:requirements
 npm run qa:providers:ready
 npm run p3:precheck
-npm run qa:gateway-real:smoke
+npm run qa:stripe:smoke
 npm run qa:payments21
 ```
 
@@ -68,15 +67,17 @@ npm run qa:functional
 
 ```text
 qa:provider:requirements = READY_FOR_SMOKE
-qa:providers:ready = gateway_real pronto
+qa:providers:ready = stripe pronto para smoke
 p3:precheck = PASS
-qa:gateway-real:smoke = PASS
+qa:stripe:smoke = PASS
 qa:payments21 = PASS
 ```
 
 Leitura pratica:
-- `qa:providers:ready` pode continuar `PARTIAL_READY` globalmente, desde que `gateway_real` esteja pronto
-- o foco desta folha e o recorte ativo, nao todos os providers do projeto
+- `qa:providers:ready` pode continuar `PARTIAL_READY` globalmente, desde que `stripe` esteja pronto
+- o foco desta folha e o recorte ativo da Fase 1: `stripe` para `card/wallet`
+- `gateway_real` generico fica planejado para bridge futura e nao e o bloqueio oficial deste ciclo
+- `pix` fica fora do escopo imediato, salvo decisao comercial explicita
 
 ## Evidencia obrigatoria
 

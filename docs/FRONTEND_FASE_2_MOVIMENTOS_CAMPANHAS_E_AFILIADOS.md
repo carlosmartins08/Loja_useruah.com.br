@@ -1,24 +1,29 @@
 # Frontend da Fase 2 - Movimentos, Campanhas e Afiliados
 
-Data de revisao: 2026-06-05
+Data de revisao: 2026-06-08
 
 ## Objetivo
-Definir como o escopo funcional da Fase 2 aparece na interface sem quebrar a Fase 1.
+Definir como o escopo funcional da Fase 2 pode aparecer na interface sem quebrar a Fase 1 e sem prometer superficies que o runtime ainda nao fechou.
 
 ## Regra de precedencia
 - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` define o escopo funcional.
 - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md` define as proibicoes estruturais.
+- `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` define o que esta `IMPLEMENTADO`, `PARCIAL`, `PLANEJADO`, `AUSENTE`, `NAO PRESUMIR` ou `BLOQUEADO`.
 - Este documento define apenas UI, blocos, mensagens, estados visuais e comportamento de tela.
 
 ## Principio geral
-A Fase 2 adiciona contexto comunitario a venda:
+A Fase 2 deve adicionar contexto comunitario a venda quando houver implementacao comprovada:
 - Fase 1: loja publica vende produto
 - Fase 2: movimento cria vitrine, campanha, divulgacao e arrecadacao sobre produtos vendaveis
 
-## Camadas visuais adicionadas
+## Camadas visuais previstas
 - vitrine publica do movimento `/@username`
 - area privada do movimento `/community`
 - area privada de afiliado `/affiliate`, quando ativada
+
+Regra de leitura:
+- a presenca de uma rota neste documento nao prova que o dominio correspondente esteja maduro no runtime;
+- quando a matriz marcar `NAO PRESUMIR`, a rota deve ser lida como intencao de fase, nao como capacidade fechada.
 
 A Fase 1 continua existindo:
 - `/shop`
@@ -28,14 +33,14 @@ A Fase 1 continua existindo:
 - `/account`
 - `/admin`
 
-## Rotas canonicas da Fase 2
-Publicas:
+## Rotas canonicas de intencao da Fase 2
+Publicas planejadas:
 - `/@username`
 - `/@username/campaigns/[campaignSlug]`
 - `/@username/products/[productId]`
 - `/@username/categories/[categorySlug]`
 
-Privadas do movimento:
+Privadas do movimento, quando implementadas:
 - `/community`
 - `/community/public-page`
 - `/community/categories`
@@ -49,7 +54,7 @@ Privadas do movimento:
 - `/community/revenue`
 - `/community/settings`
 
-Privadas do afiliado:
+Privadas do afiliado, quando implementadas:
 - `/affiliate`
 - `/affiliate/links`
 - `/affiliate/conversions`

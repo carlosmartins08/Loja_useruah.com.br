@@ -27,8 +27,10 @@ Os demais documentos devem apenas referenciar a máquina de estados aplicável, 
 - Escopo funcional oficial da Fase 2: `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
 - Frontend oficial da Fase 2: `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
 - Backend oficial da Fase 2: `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Passagem oficial Fase 2 -> Fase 3: `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md`
+- Escopo funcional oficial da Fase 3: `docs/FASE_3_CATALOGO_ESCALAVEL_ARTE_CURADORIA_E_COMPOSICAO_CONTROLADA.md`
 - Pre-condicao operacional de pagamentos: `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
-- Folha operacional de homologacao `gateway_real`: `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
+- Folha operacional de homologacao Stripe Fase 1: `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
 - Pagamentos: `docs/PAYMENTS_DEFINITION_OF_DONE.md`
 - Pedidos e logística: `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
 - Catálogo e curadoria: `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
@@ -54,7 +56,7 @@ Pagamento (Payment Deferred ativo):
   - `paymentId`, `orderId`, `providerReference`, `status`, `method`, `amount`, `currency`
 - Segurança mínima:
   - `x-idempotency-key` em checkout
-  - `x-signature` em webhook (quando `PAYMENT_WEBHOOK_SECRET` existir)
+  - assinatura de webhook conforme provider ativo; no recorte atual, usar `PAYMENT_STRIPE_WEBHOOK_SECRET`
 
 ## Anticonflito (obrigatorio)
 - Não replicar backlog de domínio dentro de `ROUTE_DEFINITION_OF_DONE.md`.
@@ -83,6 +85,9 @@ Se um requisito novo não se encaixar claramente em um domínio, ele não deve s
 - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` nao redefine a Fase 2.
 - Pagamentos reais, cutover e persistencia financeira sao trilha transversal de readiness.
 - A Fase 2 oficial continua sendo `movimentos, campanhas e afiliados`.
+- Arquivos com prefixo `P3_` no repositorio atual referem-se ao readiness operacional de pagamentos reais, com `Stripe` como provider inicial da Fase 1, nao a Fase 3 de produto.
+- `gateway_real` generico fica rebaixado para bridge futura `PLANEJADO`, sem papel de bloqueio oficial no ciclo atual.
+- A reconciliacao entre fase, dominio e runtime deve usar `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` antes de abrir fase nova ou handoff novo.
 
 Template oficial de PR para governança de execução: docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md
 Baseline oficial de governança operacional (COBIT + ITIL): docs/GOVERNANCE_COBIT_ITIL_BASELINE.md
@@ -94,7 +99,7 @@ Indice de navegacao documental: docs/README_DOCS_HIERARCHY.md
 
 Classificacao oficial de documentos: docs/DOCS_CLASSIFICATION.md
 
-Matriz de status atual (existe/parcial/ausente): docs/EXECUTION_TRACKING.md
+Matriz de status atual (`IMPLEMENTADO/PARCIAL/PLANEJADO/AUSENTE/NAO PRESUMIR/BLOQUEADO`): docs/EXECUTION_TRACKING.md
 Registro de evidências P0: docs/EXECUTION_TRACKING.md
 Plano mestre de continuidade tecnica: docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md
 Checklist oficial de revisao de telas frontend: docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md
@@ -119,8 +124,8 @@ Motivo: fechar o fluxo mestre vendavel primeiro, depois endurecer os dominios qu
 Segunda (planejamento):
 - Escolher domínio da semana.
 - Selecionar no máximo 10 itens do domínio.
-- Classificar cada item em `EXISTE`, `PARCIAL`, `AUSENTE`.
-- Priorizar execução em `PARCIAL` antes de `AUSENTE`.
+- Classificar cada item em `IMPLEMENTADO`, `PARCIAL`, `PLANEJADO`, `AUSENTE`, `NAO PRESUMIR` ou `BLOQUEADO`.
+- Priorizar execução em `PARCIAL` antes de `PLANEJADO` e `AUSENTE`.
 
 Terça a quinta (execução):
 - Entregar em blocos pequenos (1 PR por bloco funcional).

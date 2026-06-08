@@ -18,6 +18,9 @@ Eliminar ambiguidade de uso documental, classificando cada arquivo como fonte de
 - `docs/EXECUTION_OPERATING_TEMPLATE.md`
 - `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
 - `docs/MVP_ROADMAP.md`
+- `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+- `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md`
+- `docs/FASE_3_CATALOGO_ESCALAVEL_ARTE_CURADORIA_E_COMPOSICAO_CONTROLADA.md`
 - `docs/ROLES_MATRIX.md`
 - `docs/ROUTE_DEFINITION_OF_DONE.md`
 - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
@@ -29,6 +32,7 @@ Eliminar ambiguidade de uso documental, classificando cada arquivo como fonte de
 ### Referenciais
 - `docs/CHANGELOG_GOVERNANCE.md` (histórico de decisão; não define regra primária)
 - `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md` (folha operacional de preenchimento e validacao; nao redefine regra de dominio)
+- `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` (reconciliacao entre fase, dominio, documento e runtime; nao redefine regra normativa)
 
 ## Documentos citados e não localizados no repositório atual
 - `docs/USERUAH_360_ARCHITECTURE.md`

@@ -1,11 +1,16 @@
 ﻿# Execution Tracking (Status + Ciclo + Evidencias)
 
-Data de revisao: 2026-05-23
+Data de revisao: 2026-06-08
 
 ## Nota de precedencia ativa
 Em 2026-06-03 a definicao oficial da fase comercial ativa passou a ser `docs/FASE_1_VENDA_DE_PRODUTO.md`.
 
 Leituras historicas deste documento que usem "Fase 1" com outro significado devem ser tratadas como contexto legado e nao como autoridade de escopo.
+
+Leitura obrigatoria adicional:
+- `Fase 2` e `Fase 3` de produto devem ser lidas pelos documentos oficiais de fase e pela `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`;
+- mencoes antigas a `Fase 2`, `Fase 3` e `Fase 4` neste tracking podem representar apenas etapas internas de execucao historica, nao fases oficiais de produto;
+- `P3_*` neste repositorio significa trilha operacional de pagamento real, nao Fase 3 de produto.
 
 Atualizacao adicional: 2026-06-03 (fechamento operacional da Fase 1 comercial)
 - `npm run build`: PASS (2026-06-03)
@@ -163,7 +168,7 @@ Atualizacao adicional: 2026-05-25
   - documento historico posteriormente descontinuado e substituido pela combinacao de `docs/FASE_1_VENDA_DE_PRODUTO.md` + `docs/FASE_1_MATRIZ_EXECUCAO.md`
 - Pendencias abertas de 2026-05-25 foram consolidadas no roadmap com gatilho `GO/NO-GO` e fases bloqueantes.
 
-Atualizacao adicional: 2026-05-26 (Fase 2 - compatibilidade de sessao)
+Atualizacao adicional: 2026-05-26 (Etapa interna 2 - compatibilidade de sessao, nao fase oficial de produto)
 - Modelo de sessao estendido com compatibilidade para:
   - `roles[]`
   - `activeRole`
@@ -173,13 +178,13 @@ Atualizacao adicional: 2026-05-26 (Fase 2 - compatibilidade de sessao)
   - `app/api/auth/session/route.ts` passa a normalizar payload legado/novo.
   - `lib/auth-local-users.ts` passa a emitir `roles[]` e `activeRole`.
   - `lib/access-control.ts` passa a usar `activeRole` como fonte de autorizacao.
-- Evidencias de gate apos fase 2:
+- Evidencias de gate apos a etapa interna 2:
   - `npm run check:strict`: PASS (2026-05-26)
   - `npm run qa:ux:journeys`: PASS (2026-05-26)
   - `qa:coreops` em porta limpa (`3320`): PASS (2026-05-26)
   - `qa:functional` em porta limpa (`3316`): PASS (2026-05-26)
 
-Atualizacao adicional: 2026-05-26 (Fase 3 - hardening de guardas)
+Atualizacao adicional: 2026-05-26 (Etapa interna 3 - hardening de guardas, nao fase oficial de produto)
 - Guardas de acesso reforcados nas rotas criticas:
   - `/login`: sessao ativa agora exibe decisao explicita (continuar com conta atual, trocar conta, ou cadastrar), sem redirecionamento forcado.
   - `/account/*`: layout de conta agora bloqueia roles administrativos e redireciona para home correta por role.
@@ -187,13 +192,13 @@ Atualizacao adicional: 2026-05-26 (Fase 3 - hardening de guardas)
   - `/admin/payments/connectors`: tratamento explicito de `401/403` em load/teste para evitar estado silencioso sem permissao.
 - QA operacional ajustado para previsibilidade:
   - `qa:coreops` agora explicita `ALLOW_HEADER_ACTOR_FALLBACK=true` no comando local para evitar falso negativo quando RBAC esta ativo em ambiente de teste.
-- Evidencias de gate apos fase 3:
+- Evidencias de gate apos a etapa interna 3:
   - `npm run check:strict`: PASS (2026-05-26)
   - `npm run qa:ux:journeys`: PASS (2026-05-26)
   - `qa:coreops` em porta limpa (`3324`): PASS (2026-05-26)
   - `qa:functional` em modo `start` e porta limpa (`3319`): PASS (2026-05-26)
 
-Atualizacao adicional: 2026-05-26 (Fase 4 - gate final de liberacao)
+Atualizacao adicional: 2026-05-26 (Etapa interna 4 - gate final de liberacao, nao fase oficial de produto)
 - Gate final executado com evidencias:
   - `npm run check:strict`: PASS (2026-05-26)
   - `npm run qa:ux:journeys`: PASS (2026-05-26)
@@ -260,7 +265,7 @@ Atualizacao adicional: 2026-05-26 (Expansao de papeis no runtime - fase inicial 
   - `qa:functional` em `start` (`QA_PORT=3346`): PASS
   - `qa:coreops` em `start` (`QA_PORT=3347`): PASS
 
-Atualizacao adicional: 2026-05-27 (P3 cutover real - status de bloqueio objetivo)
+Atualizacao adicional: 2026-05-27 (P3 cutover real - status de bloqueio objetivo, historico anterior a formalizacao da Stripe)
 - Diagnostico de bloqueio executado:
   - `npm run alert:critical`: FAIL (`CRIT-PAY-REAL-001` e `CRIT-PAY-REAL-002`)
   - `npm run qa:providers:ready`: `NOT_READY` (0 providers configurados)
@@ -268,17 +273,35 @@ Atualizacao adicional: 2026-05-27 (P3 cutover real - status de bloqueio objetivo
   - nenhum provider real com credenciais completas no ambiente atual;
   - persistencia final MySQL gerenciada nao configurada (`PAYMENT_PERSISTENCE=mysql` + `DATABASE_URL` mysql).
 - Pendencias minimas para destravar P3:
+  - historico superado em 2026-06-08 pela decisao que oficializou `Stripe` como provider inicial da Fase 1;
   - escolher provider oficial (Inter / InfinitePay / Mercado Pago / Pagar.me / Cielo / Stripe);
   - configurar variaveis obrigatorias do provider escolhido;
   - configurar persistencia MySQL gerenciada;
   - executar smoke do provider + `qa:payments21` + `qa:coreops` em ambiente de homolog.
-  - `npm run p3:precheck`: FAIL (`missing_global_env`) com faltas em `HML_BASE_URL`, `PAYMENT_PROVIDER`, `PAYMENT_WEBHOOK_SECRET`.
+  - `npm run p3:precheck`: FAIL (`missing_global_env`) com faltas em `HML_BASE_URL`, `PAYMENT_PROVIDER`, `PAYMENT_WEBHOOK_SECRET` no desenho historico anterior ao alinhamento Stripe.
 - Pacote de ativacao imediata preparado:
   - `docs/P3_ENV_READY_TO_FILL.md` com bloco pronto de `.env` (copiar/colar), matriz por provider e sequencia de validacao.
   - `infra/env/.env.p3.template` criado para setup rapido.
   - `p3:plug`/`p3:plug:run` criados para dry-run e execucao sequencial de P3.
   - `go:preflight`/`go:preflight:run` criados para preflight de go-live em comando unico.
   - Execucao real `npm run p3:plug:run` validada: bloqueio ocorreu corretamente em `p3:precheck` por falta de env global.
+
+Atualizacao adicional: 2026-06-08 (Stripe formalizada como provider real inicial da Fase 1)
+- Decisao operacional consolidada:
+  - `Stripe` passa a ser o provider oficial inicial da Fase 1 para `card`/`wallet`.
+  - `gateway_real` generico deixa de ser o bloqueio oficial atual e volta para trilha futura `PLANEJADO`.
+  - `pix` fica fora do escopo imediato, salvo decisao comercial explicita.
+- Bloqueios atuais para concluir o recorte real:
+  - credenciais Stripe ausentes ou nao validadas no ambiente ativo;
+  - persistencia final MySQL gerenciada nao configurada (`PAYMENT_PERSISTENCE=mysql` + `DATABASE_URL` mysql).
+- Pendencias minimas para destravar P3:
+  - configurar `PAYMENT_PROVIDER=stripe`;
+  - preencher `PAYMENT_ENABLE_STRIPE`, `PAYMENT_STRIPE_BASE_URL`, `PAYMENT_STRIPE_API_KEY` e `PAYMENT_STRIPE_WEBHOOK_SECRET`;
+  - configurar persistencia MySQL gerenciada;
+  - executar `npm run qa:stripe:smoke` + `npm run qa:payments21` + `npm run qa:coreops` em homologacao.
+- Estado dos prechecks:
+  - `npm run p3:precheck`: falha por `missing_global_env` se faltarem `HML_BASE_URL` ou `PAYMENT_PROVIDER`.
+  - `npm run p3:precheck`: falha por `missing_provider_env` se faltarem as variaveis obrigatorias da Stripe.
 
 Atualizacao adicional: 2026-05-27 (Execucao de pontos nao bloqueados enquanto P3 fica por ultimo)
 - Ajustes aplicados de UX/RBAC sem dependencia de credenciais:
@@ -306,7 +329,7 @@ Atualizacao adicional: 2026-05-27 (Auditoria tecnica 99% - frontend/backend/segu
 - Revisao de seguranca estatica (scan de codigo) sem segredo hardcoded detectado; uso de fallback por header permanece restrito a dev/flag explicita.
 - Bloqueio residual unico para 100%:
   - `npm run alert:critical`: FAIL por `CRIT-PAY-REAL-001/002` (credenciais/provider real + MySQL gerenciado ausentes).
-  - `npm run p3:precheck`: FAIL por env global ausente (`HML_BASE_URL`, `PAYMENT_PROVIDER`, `PAYMENT_WEBHOOK_SECRET`).
+  - `npm run p3:precheck`: FAIL por env global ausente (`HML_BASE_URL`, `PAYMENT_PROVIDER`, `PAYMENT_WEBHOOK_SECRET`) no desenho historico anterior ao alinhamento Stripe.
 
 ## Status atual por onda (plano anti-retrabalho)
 
@@ -315,16 +338,16 @@ Atualizacao adicional: 2026-05-27 (Auditoria tecnica 99% - frontend/backend/segu
 - Regra self-service unificada para todos os providers aplicada: habilitacao via painel de conectores, sem dependencia de `PAYMENT_ENABLE_*`.
 - Painel de conectores com requisitos dinamicos por provider e bloqueio de ativacao incompleta (`lib/payment-provider-requirements.ts` + `app/api/admin/payment-connectors/route.ts` + `app/admin/payments/connectors/page.tsx`).
 
-- P0 Estrutural: `CONCLUIDO`
+- P0 Estrutural: `IMPLEMENTADO`
   - Fonte unica de schema consolidada em `infra/mysql/init/001_payments.sql`.
   - `lib/mysql-runtime.ts` reduzido para aplicar schema oficial + validacao minima.
   - Catalogo migrado para persistencia transacional no mesmo padrao dos demais dominios (`lib/catalog-item-store.ts` + tabela `catalog_items`).
-- P1 Confiabilidade QA: `CONCLUIDO`
+- P1 Confiabilidade QA: `IMPLEMENTADO`
   - Runner QA corrigido para Windows (`scripts/qa-api-runner.mjs` e `scripts/qa-functional-runner.mjs`).
   - Evidencias de gate:
     - `npm run check`: PASS (2026-05-23)
     - `npm run qa:full`: PASS (2026-05-23)
-- P2 Front integrado: `EM ANDAMENTO`
+- P2 Front integrado: `PARCIAL`
   - `account/orders` removido de dataset local e conectado a API real (`GET /api/orders`).
   - `admin/production` removido de `PRODUCTION_LENS` hardcoded e conectado a `GET /api/production-jobs`.
   - Camada HTTP unica criada em `lib/http-client.ts`.
@@ -332,8 +355,8 @@ Atualizacao adicional: 2026-05-27 (Auditoria tecnica 99% - frontend/backend/segu
   - Gate tecnico validado apos mudancas: `npm run qa:full` PASS (2026-05-23).
   - Read-model operacional unificado para `order -> payment -> production -> shipment -> support` em `lib/order-operational-view.ts`.
   - Endpoints `orders/:orderId/status` e `support/orders/:orderId/context` passaram a consumir a mesma fonte agregada.
-- P3 Gateway real e cutover: `PENDENTE` (bloqueado pelos alertas `CRIT-PAY-REAL-001/002`).
-- P4 Hardening final: `PENDENTE`.
+- P3 Pagamento real Stripe e cutover: `BLOQUEADO` (pelos alertas `CRIT-PAY-REAL-001/002`).
+- P4 Hardening final: `PLANEJADO`.
 - Regra de arquitetura formalizada: guardas de acesso devem ficar concentrados nos `layout.tsx` de dominio (ex.: `app/account/layout.tsx`, `app/admin/layout.tsx`), evitando duplicacao de regra em `page.tsx`.
 - Plano mestre de continuidade tecnica publicado: `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`.
 - Gate automatico de mudanca critica criado: `npm run pr:gate` (`scripts/critical-pr-gate.mjs`).
@@ -346,14 +369,14 @@ Atualizacao adicional: 2026-05-27 (Auditoria tecnica 99% - frontend/backend/segu
 - Achados medios resolvidos:
   - encoding corrigido em dados de categoria (`components/category/category-data.ts`);
   - suporte interno separado de pagina institucional via rota operacional `app/admin/support/page.tsx`.
-- Onda 1 (Workflow/RBAC): `CONCLUIDA`
+- Onda 1 (Workflow/RBAC): `IMPLEMENTADO`
   - Matriz operacional de acesso publicada: `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`.
   - Fluxos de sessao/negacao consolidados em layout de conta/admin e rotas protegidas.
-- Onda 2 (Checkout/Payment): `CONCLUIDA` (escopo local desta fase)
+- Onda 2 (Checkout/Payment): `IMPLEMENTADO` (escopo local desta fase)
   - Relatorio de edge cases publicado: `docs/CHECKOUT_PAYMENT_EDGE_CASES_REPORT.md`.
   - Checkout endurecido para erros de autenticacao/permissao e indisponibilidade transitoria.
 - Gate de onda executado: `npm run pr:premerge` PASS (2026-05-23).
-- Onda 3 (Support/Ops): `CONCLUIDA`
+- Onda 3 (Support/Ops): `IMPLEMENTADO`
   - Separacao cliente x operacao aplicada com hub de suporte interno (`/admin/support`).
   - Fluxo operacional consolidado com rota dedicada `app/admin/support/[orderId]/page.tsx` (ticket -> pedido -> contexto -> resposta).
   - Hardening em pedidos para evitar `500` por percentual invalido em ambiente (`lib/order-store.ts`, `safePct`).
@@ -361,9 +384,9 @@ Atualizacao adicional: 2026-05-27 (Auditoria tecnica 99% - frontend/backend/segu
     - `npm run qa:coreops`: PASS (2026-05-23, porta 3202, RBAC ativo).
     - `npm run qa:exceptions`: PASS (2026-05-23, porta 3203, RBAC ativo).
   - Gate tecnico de onda: `npm run pr:premerge` PASS (2026-05-23).
-- P3 Gateway real e cutover: `LIBERADO PARA EXECUCAO` (dependente de credenciais/ambiente de homolog).
-- P4 Hardening final: `LIBERADO APOS P3`.
-- Multi-gateway (fase 1): `CONCLUIDO`
+- Bridge generico multi-provider (`gateway_real`): `PLANEJADO` para evolucao futura, sem papel de bloqueio oficial no ciclo atual.
+- P4 Hardening final: `PLANEJADO` apos P3.
+- Multi-gateway (fase 1): `IMPLEMENTADO`
   - Registry de providers publicado (`lib/payment-gateway-registry.ts`).
   - Checkout com escolha de gateway pelo usuario (`components/checkout/sections/CheckoutStepTwoSection.tsx`).
   - Persistencia do provider em `PaymentRecord` + store/schema.
@@ -387,7 +410,7 @@ Concentrar acompanhamento de execucao em uma fonte unica, reduzindo duplicidade 
 ---
 
 ## Bloco 1 - Matriz de Status
-# Execution Status Matrix (Existe / Parcial / Ausente)
+# Execution Status Matrix (Implementado / Parcial / Planejado / Ausente / Nao Presumir / Bloqueado)
 
 Data de revisao: 2026-05-21
 
@@ -395,48 +418,56 @@ Data de revisao: 2026-05-21
 Mostrar, de forma operacional, o que já existe no projeto, onde está implementado e o que ainda não existe por domínio.
 
 ## Legenda
-- `EXISTE`: implementado e integrado no fluxo atual.
-- `PARCIAL`: existe base/UX/sandbox, mas falta fechamento de produção.
+- `IMPLEMENTADO`: implementado e integrado no fluxo atual.
+- `PARCIAL`: existe base/UX/sandbox, mas falta fechamento de producao ou de dominio.
+- `PLANEJADO`: existe como escopo oficial, mas ainda sem prova suficiente de runtime para ser tratado como base pronta.
 - `AUSENTE`: não implementado no código atual.
+- `NAO PRESUMIR`: citado documentalmente, mas ainda sem sustentacao suficiente de runtime para virar premissa.
+- `BLOQUEADO`: capacidade ou readiness com trilha registrada, mas ainda impedida por ambiente ou dependencia externa.
+
+Complemento obrigatorio para leitura de maturidade:
+- quando houver duvida entre fase, documento e runtime, usar `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`;
+- capacidades marcadas ali como `NAO PRESUMIR` ou `BLOQUEADO` nao podem ser lidas aqui como prontas.
 
 ## Alertas Criticos (nao perder de vista)
-- `CRIT-PAY-REAL-001`: gateway real de pagamento ainda nao homologado em producao.
+- `CRIT-PAY-REAL-001`: `Stripe` ainda nao homologada em producao como provider real inicial da Fase 1.
 - `CRIT-PAY-REAL-002`: persistencia final de pagamentos em ambiente gerenciado ainda pendente.
 - Comando de revisao rapida: `npm run alert:critical`.
 
 ## 1) Produto e Checkout (UI/UX)
-- PDP com seções estratégicas: `EXISTE`
+- PDP com seções estratégicas: `IMPLEMENTADO`
   - `components/product/ProductPageView.tsx`
-- Prova social (tags + notas): `EXISTE`
+- Prova social (tags + notas): `IMPLEMENTADO`
   - `components/commerce/ProductSocialProof.tsx`
-- Q&A público na PDP: `EXISTE`
+- Q&A público na PDP: `IMPLEMENTADO`
   - `components/commerce/ProductQA.tsx`
 - Zoom/mídia de detalhes: `PARCIAL` (estrutura pronta, acervo real pendente)
   - `components/commerce/ProductMediaGallery.tsx`
   - `components/product/product-data.ts`
-- Provador virtual (altura/peso/caimento): `EXISTE`
+- Provador virtual (altura/peso/caimento): `IMPLEMENTADO`
   - `components/commerce/ProductSizeAdvisor.tsx`
-- Checkout 1 clique (pix/carteira): `EXISTE` (fluxo sandbox)
+- Checkout 1 clique (pix/carteira): `IMPLEMENTADO` (fluxo sandbox; nao define o provider real homologado)
   - `components/commerce/ProductInteractive.tsx`
   - `components/checkout/sections/CheckoutStepTwoSection.tsx`
 
 ## 2) Pagamentos
-- Contrato de API checkout/status/webhook: `EXISTE`
+- Contrato de API checkout/status/webhook: `IMPLEMENTADO`
   - `app/api/payments/checkout/route.ts`
   - `app/api/payments/status/[paymentId]/route.ts`
   - `app/api/payments/webhook/route.ts`
-- Idempotência e assinatura de webhook: `EXISTE`
+- Idempotência e assinatura de webhook: `IMPLEMENTADO`
   - `lib/payment-service.ts`
   - `components/checkout/CheckoutPageView.tsx`
-- Provider real (gateway externo): `PARCIAL` (adapter homologado `gateway_sandbox` implementado; integracao com provedor externo real pendente)
+- Stripe como provider real inicial (`card`/`wallet`): `BLOQUEADO` (adapter direto existe; credenciais, webhook e homologacao real pendentes)
+- `gateway_real` generico como bridge multi-provider: `PLANEJADO` (nao usar como bloqueio oficial atual)
 - Persistência em banco (pagamentos): `PARCIAL` (sqlite relacional local com fallback, banco gerenciado de producao pendente)
   - `lib/payment-store.ts`
   - `lib/dev-store.ts`
-- Trilha de eventos de pagamento no status API: `EXISTE`
+- Trilha de eventos de pagamento no status API: `IMPLEMENTADO`
   - `lib/payment-store.ts`
   - `lib/payment-service.ts`
   - `app/api/payments/status/[paymentId]/route.ts`
-- Excecoes operacionais (`cancel`, `refund`, `chargeback`) com idempotencia: `EXISTE`
+- Excecoes operacionais (`cancel`, `refund`, `chargeback`) com idempotencia: `IMPLEMENTADO`
   - `app/api/orders/[orderId]/cancel/route.ts`
   - `app/api/refunds/route.ts`
   - `app/api/refunds/[refundId]/approve/route.ts`
@@ -444,9 +475,9 @@ Mostrar, de forma operacional, o que já existe no projeto, onde está implement
   - `app/api/chargebacks/webhook/route.ts`
 
 ## 3) Pedidos e Logística
-- Fluxo UX checkout -> success: `EXISTE`
+- Fluxo UX checkout -> success: `IMPLEMENTADO`
   - `components/checkout/CheckoutPageView.tsx`
-- Modelo operacional de produção/envio (backend local): `EXISTE` (transições críticas com RBAC + QA core operacional validado)
+- Modelo operacional de produção/envio (backend local): `IMPLEMENTADO` (transições críticas com RBAC + QA core operacional validado)
   - `app/api/orders/route.ts`
   - `app/api/production-jobs/route.ts`
   - `app/api/production-jobs/[id]/start/route.ts`
@@ -457,8 +488,32 @@ Mostrar, de forma operacional, o que já existe no projeto, onde está implement
   - `lib/shipment-store.ts`
   - `lib/dev-store.ts`
 
-## 4) Catálogo e Curadoria
-- DoD completo definido: `EXISTE` (documentação)
+## 4) Movimentos, Campanhas e Afiliados (Fase 2)
+- Escopo oficial da fase documentado: `IMPLEMENTADO`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+- `MovementCampaign` basico: `PARCIAL`
+  - `app/api/campaigns/route.ts`
+  - `lib/campaign-store.ts`
+- `Organization` / membership como dominio runtime confirmado: `AUSENTE`
+  - ler como `NAO PRESUMIR` na matriz
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- `CampaignProduct` vinculado a `CatalogItem` como base operacional confirmada: `AUSENTE`
+  - ler como `NAO PRESUMIR` na matriz
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- `ReferralLink`, `ReferralEvent`, `ReferralConversion` e superficie `/affiliate/*` como dominio runtime confirmado: `AUSENTE`
+  - ler como `NAO PRESUMIR` na matriz
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- Extensao de `OrderItemSnapshot` com `organizationId/campaignId/referralLinkId`: `AUSENTE`
+  - snapshot oficial atual permanece `phase1-v1`
+  - `lib/order-store.ts`
+- Regra anti-duplicidade sobre produto, checkout, pedido e pagamento: `IMPLEMENTADO`
+  - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`
+
+## 5) Catálogo e Curadoria
+- DoD completo definido: `IMPLEMENTADO` (documentação)
   - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
 - Estrutura de PDP e apresentação de item vendável: `PARCIAL` (leitura real de item publicado; acervo e curadoria ainda evoluindo)
   - `app/product/[id]/page.tsx`
@@ -491,51 +546,51 @@ Mostrar, de forma operacional, o que já existe no projeto, onde está implement
 8. Vinculação arte aprovada -> produto base -> variantes: `PARCIAL`
   - `app/api/catalog-items/route.ts`
   - `lib/catalog-item-store.ts`
-9. Publicação/despublicação com trilha (`publishedAt`, motivo e ator): `EXISTE`
+9. Publicação/despublicação com trilha (`publishedAt`, motivo e ator): `IMPLEMENTADO`
   - `app/api/catalog-items/[id]/ready/route.ts`
   - `app/api/catalog-items/[id]/publish/route.ts`
   - `app/api/catalog-items/[id]/unpublish/route.ts`
   - `app/api/catalog-items/[id]/reopen/route.ts`
-10. Substituir `getMockProduct` por leitura de `CatalogItem` publicado: `EXISTE`
+10. Substituir `getMockProduct` por leitura de `CatalogItem` publicado: `IMPLEMENTADO`
   - estado atual:
     - `components/product/product-data.ts`
     - `app/product/[id]/page.tsx`
 
-## 5) Suporte e Tickets
-- DoD completo definido: `EXISTE` (documentação)
+## 6) Suporte e Tickets
+- DoD completo definido: `IMPLEMENTADO` (documentação)
   - `docs/SUPPORT_TICKETS_DEFINITION_OF_DONE.md`
-- Implementação backend de tickets/triagem/escalonamento: `EXISTE` (MVP operacional validado com criação, resposta e contexto 360; SLA avançado permanece evolução)
+- Implementação backend de tickets/triagem/escalonamento: `IMPLEMENTADO` (MVP operacional validado com criação, resposta e contexto 360; SLA avançado permanece evolução)
   - `app/api/tickets/route.ts`
   - `app/api/tickets/[id]/route.ts`
   - `app/api/tickets/[id]/reply/route.ts`
   - `app/api/support/orders/[orderId]/context/route.ts`
 
-## 6) Governança documental
-- Precedência, fonte única, anti-conflito: `EXISTE`
+## 7) Governança documental
+- Precedência, fonte única, anti-conflito: `IMPLEMENTADO`
   - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
-- Hierarquia de navegação: `EXISTE`
+- Hierarquia de navegação: `IMPLEMENTADO`
   - `docs/README_DOCS_HIERARCHY.md`
-- Classificação normativo/referencial: `EXISTE`
+- Classificação normativo/referencial: `IMPLEMENTADO`
   - `docs/DOCS_CLASSIFICATION.md`
-- Template obrigatório de PR crítico: `EXISTE`
+- Template obrigatório de PR crítico: `IMPLEMENTADO`
   - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
-- Histórico oficial de decisões: `EXISTE`
+- Histórico oficial de decisões: `IMPLEMENTADO`
   - `docs/CHANGELOG_GOVERNANCE.md`
 
 ## 8) Base Enxuta Operacional (Fase 1)
-- Modelo operacional/fiscal/financeiro unificado: `EXISTE`
+- Modelo operacional/fiscal/financeiro unificado: `IMPLEMENTADO`
   - `docs/MODELO_OPERACIONAL_FISCAL_FINANCEIRO.md`
-- Termos base versionados (indústria/artista/consumidor): `EXISTE`
+- Termos base versionados (indústria/artista/consumidor): `IMPLEMENTADO`
   - `docs/TERMO_INDUSTRIA_BASE.md`
   - `docs/TERMO_ARTISTA_BASE.md`
   - `docs/TERMO_CONSUMIDOR_BASE.md`
-- Checklist de release de pagamentos reais: `EXISTE`
+- Checklist de release de pagamentos reais: `IMPLEMENTADO`
   - `docs/CHECKLIST_RELEASE_PAGAMENTOS.md`
-- Entidades internas de suporte ao modelo (`payment_splits`, `license_events`, `terms_acceptances`): `EXISTE`
+- Entidades internas de suporte ao modelo (`payment_splits`, `license_events`, `terms_acceptances`): `IMPLEMENTADO`
   - `lib/payment-split-store.ts`
   - `lib/license-event-store.ts`
   - `lib/terms-acceptance-store.ts`
-- Entidades de integracao de provider (`provider_recipients`, `provider_webhook_events`, `integration_logs`): `EXISTE`
+- Entidades de integracao de provider (`provider_recipients`, `provider_webhook_events`, `integration_logs`): `IMPLEMENTADO`
   - `lib/provider-recipient-store.ts`
   - `lib/provider-webhook-event-store.ts`
   - `lib/integration-log-store.ts`
@@ -619,13 +674,13 @@ Sair de catálogo mockado para base operacional mínima com estado, submissão, 
 
 9. Publicação e despublicação com trilha
 - Status inicial: `AUSENTE`
-- Status atual: `EXISTE` (`ready/publish/unpublish/reopen` com trilha temporal e motivo)
+- Status atual: `IMPLEMENTADO` (`ready/publish/unpublish/reopen` com trilha temporal e motivo)
 - Entrega: ações de `publish/unpublish` com `publishedAt`, `reason`, `actor`
 - Critério de pronto: histórico auditável por `catalogItemId`
 
 10. Substituir `getMockProduct` por leitura de catálogo publicado
 - Status inicial: `PARCIAL`
-- Status atual: `EXISTE` (PDP lê apenas `CatalogItem published` e faz fallback `404`)
+- Status atual: `IMPLEMENTADO` (PDP lê apenas `CatalogItem published` e faz fallback `404`)
 - Entrega: `/product/[id]` consumindo item publicado de fonte persistida
 - Critério de pronto: PDP renderiza item publicado sem fallback em mock para item existente
 
@@ -646,7 +701,7 @@ Avanco adicional no ciclo:
 - Registro de logs de auditoria para ações críticas
 
 ## Fechamento de sexta (2026-05-29)
-- Atualizar status de cada item para `EXISTE|PARCIAL|AUSENTE`.
+- Atualizar status de cada item para `IMPLEMENTADO|PARCIAL|PLANEJADO|AUSENTE|NAO PRESUMIR|BLOQUEADO`.
 - Registrar decisões em `docs/CHANGELOG_GOVERNANCE.md` quando houver alteração de regra.
 - Rodar reconciliação docs x código.
 

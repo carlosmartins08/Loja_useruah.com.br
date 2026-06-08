@@ -1,9 +1,9 @@
-# Payments Gateway Real Cutover Runbook
+# Payments Stripe Cutover Runbook
 
 Data de revisao: 2026-05-21
 
 ## Objetivo
-Executar migracao controlada de `gateway_sandbox` para provedor real sem quebrar contrato atual de API:
+Executar migracao controlada de `gateway_sandbox` para `stripe` como provider real inicial da Fase 1 sem quebrar contrato atual de API:
 - `POST /api/payments/checkout`
 - `GET /api/payments/status/[paymentId]`
 - `POST /api/payments/webhook`
@@ -11,16 +11,15 @@ Executar migracao controlada de `gateway_sandbox` para provedor real sem quebrar
 ## Pre-condicoes obrigatorias
 - `npm run check` em PASS.
 - `npm run qa:provider:requirements` em `READY_FOR_SMOKE`.
-- `npm run qa:providers:ready` com `gateway_real` pronto para o recorte ativo.
+- `npm run qa:providers:ready` com `stripe` pronto para o recorte ativo.
 - `npm run qa:payments21` em PASS.
 - `npm run qa:coreops` em PASS.
 - Chaves e segredos configurados por ambiente:
   - `PAYMENT_PROVIDER`
-  - `PAYMENT_WEBHOOK_SECRET`
-  - `PAYMENT_GATEWAY_BASE_URL`
-  - `PAYMENT_GATEWAY_API_KEY`
-  - `PAYMENT_GATEWAY_MERCHANT_ID`
-  - credenciais do provedor real
+  - `PAYMENT_ENABLE_STRIPE`
+  - `PAYMENT_STRIPE_WEBHOOK_SECRET`
+  - `PAYMENT_STRIPE_BASE_URL`
+  - `PAYMENT_STRIPE_API_KEY`
 - Endpoint de webhook do provedor apontando para ambiente correto.
 - Time de suporte avisado da janela de cutover.
 
@@ -39,10 +38,11 @@ Leitura obrigatoria para este ciclo:
    - `npm run check`
    - `npm run qa:payments21`
 2. Configurar variaveis de ambiente:
-   - `PAYMENT_PROVIDER=gateway_real`
-   - `PAYMENT_WEBHOOK_SECRET` ativo
-   - `PAYMENT_GATEWAY_BASE_URL` com endpoint HTTPS do provedor
-   - `PAYMENT_GATEWAY_API_KEY` e `PAYMENT_GATEWAY_MERCHANT_ID`
+   - `PAYMENT_PROVIDER=stripe`
+   - `PAYMENT_ENABLE_STRIPE=true`
+   - `PAYMENT_STRIPE_WEBHOOK_SECRET` ativo
+   - `PAYMENT_STRIPE_BASE_URL` com endpoint HTTPS da Stripe
+   - `PAYMENT_STRIPE_API_KEY`
 3. Publicar versao com feature ativa para baixo volume inicial.
 4. Executar smoke funcional:
    - checkout real

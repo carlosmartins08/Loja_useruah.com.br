@@ -5,16 +5,17 @@ Objetivo: provar, com evidência executável, que não há bloqueio crítico con
 
 ## 1) Pré-condições
 - `.env` sem duplicidade de chave crítica.
-- `PAYMENT_PROVIDER=gateway_real`
-- `PAYMENT_GATEWAY_TARGET` so e obrigatorio quando o cutover estiver roteando para provider direto.
+- `PAYMENT_PROVIDER=stripe`
+- `PAYMENT_GATEWAY_TARGET` deve permanecer vazio neste recorte oficial da Fase 1.
 - `PAYMENT_PERSISTENCE=mysql`
 - `DATABASE_URL=mysql://...`
 - Validacao operacional do ambiente seguindo `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`.
-- Credenciais do `gateway_real` preenchidas:
-  - `PAYMENT_GATEWAY_BASE_URL`
-  - `PAYMENT_GATEWAY_API_KEY`
-  - `PAYMENT_GATEWAY_MERCHANT_ID`
-- Se houver provider direto por tras do bridge, webhook e segredo desse provider devem estar configurados no endpoint final do ambiente avaliado.
+- Credenciais da `stripe` preenchidas:
+  - `PAYMENT_ENABLE_STRIPE`
+  - `PAYMENT_STRIPE_BASE_URL`
+  - `PAYMENT_STRIPE_API_KEY`
+  - `PAYMENT_STRIPE_WEBHOOK_SECRET`
+- `gateway_real` generico nao e o bloqueio oficial deste recorte.
 
 ## 2) Prova única (comando)
 - Dry-run:

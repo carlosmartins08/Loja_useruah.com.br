@@ -52,14 +52,14 @@ Executar com foco, sem tarefa incompleta e sem conflito entre documentação e c
 - Plano de rollback:
 
 ### 6) Fechamento
-- Status final: `EXISTE | PARCIAL | AUSENTE`
+- Status final: `IMPLEMENTADO | PARCIAL | PLANEJADO | AUSENTE | NAO PRESUMIR | BLOQUEADO`
 - Atualizações obrigatórias feitas:
   - [ ] `docs/EXECUTION_TRACKING.md`
   - [ ] documento de domínio
   - [ ] `docs/CHANGELOG_GOVERNANCE.md` (se decisão)
 
 ## Ritual semanal fixo
-- Segunda: escolher domínio + top 10 itens + classificar `EXISTE/PARCIAL/AUSENTE`.
+- Segunda: escolher domínio + top 10 itens + classificar `IMPLEMENTADO/PARCIAL/PLANEJADO/AUSENTE/NAO PRESUMIR/BLOQUEADO`.
 - Terça a quinta: executar blocos pequenos, 1 PR por bloco, sem PR misto.
 - Sexta: reconciliar docs x código + atualizar matriz + registrar decisões.
 
@@ -78,7 +78,7 @@ Rodar antes de fechar semana:
 
 ```powershell
 rg --files app/api
-rg -n "AUSENTE|PARCIAL|EXISTE" docs/EXECUTION_TRACKING.md
+rg -n "IMPLEMENTADO|PARCIAL|PLANEJADO|AUSENTE|NAO PRESUMIR|BLOQUEADO" docs/EXECUTION_TRACKING.md
 rg -n "getMockProduct|readStoreFile|writeStoreFile|idempotency|webhook|AuditLog" app lib components
 ```
 
