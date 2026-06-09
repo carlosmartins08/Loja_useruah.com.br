@@ -275,6 +275,94 @@ Motivo objetivo do veredito:
 - 
 ```
 
+## Janela real de homolog final - preenchimento atual
+Data de abertura: `2026-06-09`
+
+Leitura operacional:
+- este preenchimento continua o `GOV-0078`
+- a baseline tecnica ja aprovada no repositorio e herdada aqui e nao deve ser reaberta sem regressao objetiva
+- a Fase 1 continua fechada e segue em `GO CONDICIONADO` ate a execucao real fora de `localhost`
+
+```text
+Janela:
+- Data: 2026-06-09 (preenchimento inicial; execucao real pendente)
+- Ambiente alvo: homolog final
+- Base URL homolog final: BLOQUEADA (`HML_BASE_URL` atual aponta para `http://localhost:3000`)
+- Dono do go-live: PENDENTE
+
+Responsaveis:
+- Engenharia: PENDENTE
+- Financeiro: PENDENTE
+- Produto: PENDENTE
+
+Status inicial:
+- Fase 1 funcional: FECHADA
+- Stripe: GO CONDICIONADO
+- Auth/session: APROVADO
+
+Pre-janela:
+- [ ] Segredos corretos no ambiente seguro
+- [ ] Webhook Stripe apontando para /api/payments/webhook
+- [ ] Banco alvo confirmado
+- [ ] Backup minimo confirmado
+- [ ] Caminho de rollback conhecido
+- [ ] Evidencia armazenada fora do repositorio
+
+Baseline obrigatoria:
+- [x] npm run check
+- [x] npm run build
+- [x] npm run qa:functional
+- [x] npm run qa:coreops
+- [x] npm run qa:matrix:audit
+- [x] npm run qa:auth:cookie
+- [x] npm run p3:precheck
+- [x] npm run qa:provider:requirements
+- [x] npm run qa:providers:ready
+- [x] npm run qa:stripe:smoke
+- [x] npm run qa:payments21
+- [x] npm run qa:provider:activate
+- [x] npm run go:preflight:run
+- [x] npm run go:e2e:proof:run
+
+Execucao da janela real:
+- [ ] Checkout real criado em homolog final fora de localhost
+- [ ] Pagamento aprovado pela Stripe
+- [ ] Pedido persistido com status coerente
+- [ ] Webhook recebido e assinado
+- [ ] Evento approved processado
+- [ ] Reenvio sem duplicidade
+- [ ] Reconciliacao coerente entre pedido interno e provider
+- [ ] Rastreio por orderId/paymentId/providerReference disponivel
+- [ ] Nenhum segredo exposto em log
+- [ ] Cutover conhecido
+- [ ] Rollback conhecido
+- [ ] Rollback nao perde pedido nem mascara pendencia financeira
+
+Serie final de homolog:
+- Quantidade de transacoes reais executadas: 0/10
+- Divergencias encontradas: janela ainda nao executada
+- Amostras auditadas: baseline tecnica do repositorio concluida; amostra real pendente
+
+Veredito:
+- [ ] GO
+- [x] GO CONDICIONADO
+- [ ] NO-GO
+
+Pendencia residual, se houver:
+- Descricao: falta abrir e concluir a janela real em homolog final fora de localhost com 10 transacoes reais consecutivas e evidencia operacional assinada por Produto, Engenharia e Financeiro
+- Dono: Produto + Engenharia + Financeiro
+- Prazo: definir na abertura formal da janela
+
+Motivo objetivo do veredito:
+- A baseline tecnica completa foi aprovada no repositorio, mas a janela real de homolog final ainda nao foi executada.
+```
+
+Tentativa objetiva de execucao:
+- `2026-06-09`
+- `npm run p3:precheck`: `READY`
+- leitura do gate: provider `stripe` pronto no recorte local, mas `HML_BASE_URL=http://localhost:3000`
+- conclusao: a janela real fora de `localhost` nao foi iniciada; o bloqueio atual e ambiente final de homolog ainda nao apontado
+
 Preenchimento parcial ja provado no repositorio:
 - [x] npm run check
 - [x] npm run build

@@ -1945,3 +1945,92 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
   - `docs/EXECUTION_TRACKING.md`
 
+### [2026-06-09] Janela real de homolog final aberta sem reabrir a baseline tecnica
+- ID: GOV-0079
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `readiness`
+  - `operacao`
+  - `evidencia`
+  - `pagamentos`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Continuar o trabalho apos o `GOV-0078` dentro do checklist preenchivel da pre-condicao operacional, sem criar trilha paralela.
+  - Herdar a baseline tecnica ja aprovada no repositorio e proibir sua reabertura por inercia.
+  - Manter a Fase 1 em `GO CONDICIONADO` ate a janela real de homolog final fora de `localhost` registrar dono, evidencia e veredito conjunto.
+  - Explicitar que esta continuidade nao abre Fase 2 nem redefine o baseline tecnico da Fase 1.
+- Contexto:
+  - O ciclo anterior terminou com `npm run go:e2e:proof:run` em `PASS`, mas ainda faltava transformar a janela real em objeto operacional preenchido e rastreavel.
+- Impacto esperado:
+  - Menos risco de repetir baseline tecnica ja resolvida.
+  - Menos espaco para tratar homologacao parcial como aceite final.
+  - Mais clareza sobre o que falta na mesa operacional real.
+- Riscos conhecidos:
+  - Se a equipe deixar campos criticos como dono, base URL e evidencias fora do checklist oficial, o gate volta a virar interpretacao.
+- Plano de rollback:
+  - Reverter apenas se um artefato superior absorver o checklist preenchivel da janela real sem duplicidade nem perda de rastreabilidade.
+- Documentos atualizados:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-06-09] Tentativa de execucao travada no gate de `HML_BASE_URL` final
+- ID: GOV-0080
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `readiness`
+  - `operacao`
+  - `ambiente`
+  - `pagamentos`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Executar o gate minimo oficial da janela real com `npm run p3:precheck`.
+  - Interromper a execucao real ao constatar que `HML_BASE_URL` ainda aponta para `http://localhost:3000`.
+  - Preservar `GO CONDICIONADO` e impedir que readiness local seja vendida como homolog final.
+- Contexto:
+  - O ambiente local ja tinha provider `stripe` configurado e segredos obrigatorios presentes, mas ainda faltava confirmar se o alvo operacional era de fato a homolog final.
+- Impacto esperado:
+  - Menos risco de abrir uma janela falsa em ambiente local.
+  - Mais clareza sobre o unico bloqueio imediato de execucao: URL final de homolog.
+- Riscos conhecidos:
+  - Se a equipe ignorar esse gate e continuar executando em `localhost`, a evidencia passa a parecer completa sem ser valida para aceite final.
+- Plano de rollback:
+  - Reverter apenas se a trilha oficial deixar de exigir ambiente final fora de `localhost` para a janela real, o que hoje contrariaria a pre-condicao vigente.
+- Documentos atualizados:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-06-09] Trava pre-patch incorporada ao template central de execucao
+- ID: GOV-0081
+- Status: `aprovada`
+- Dono da decisao: Produto + Governanca + Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `execucao`
+- Documento fonte afetado:
+  - `docs/EXECUTION_OPERATING_TEMPLATE.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+- Decisao:
+  - Incorporar a regra de classificacao pre-patch ao template central de execucao.
+  - Bloquear patch sem tipo, fonte autorizadora, escopo proibido e criterio de aceite.
+  - Registrar que `EXECUTION_TRACKING.md` nao autoriza mudanca sozinho.
+- Contexto:
+  - Evitar mudanca iniciada sem fonte autorizadora clara.
+- Impacto esperado:
+  - Menos retrabalho e duplicidade.
+- Riscos conhecidos:
+  - Se o template virar opcional, a trava perde efeito.
+- Plano de rollback:
+  - Reverter apenas se um artefato superior absorver a mesma funcao sem duplicidade.
+- Documentos atualizados:
+  - `docs/EXECUTION_OPERATING_TEMPLATE.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+

@@ -344,6 +344,34 @@ Atualizacao adicional: 2026-06-08 (Baseline tecnica do aceite final concluida no
   - a condicionante remanescente nao e bug tecnico do fluxo validado
   - a condicionante remanescente e janela real de homolog final fora de `localhost`, com evidencias operacionais e decisao conjunta de Produto + Engenharia + Financeiro
 
+Atualizacao adicional: 2026-06-09 (Janela real de homolog final aberta no checklist oficial)
+- Continuidade apos `GOV-0078`:
+  - a baseline tecnica aprovada em 2026-06-08 foi herdada e nao deve ser reexecutada por inercia
+  - a trilha oficial da mesa operacional passa a ser o checklist preenchivel em `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - a Fase 1 continua fechada e permanece em `GO CONDICIONADO`
+- Estado atual da janela:
+  - ambiente alvo: homolog final
+  - base URL homolog final: pendente
+  - dono do go-live: pendente
+  - responsaveis por Engenharia, Financeiro e Produto: pendentes
+  - transacoes reais homologadas sem divergencia: `0/10`
+- Proxima decisao valida:
+  - abrir a janela real fora de `localhost`
+  - registrar evidencia operacional fora do repositorio
+  - colher veredito conjunto de Produto + Engenharia + Financeiro sem reabrir baseline tecnica e sem puxar Fase 2 para dentro desta trilha
+
+Atualizacao adicional: 2026-06-09 (Tentativa de execucao parou no gate de ambiente final)
+- Execucao realizada:
+  - `npm run p3:precheck`: `READY`
+- Leitura objetiva:
+  - `PAYMENT_PROVIDER=stripe` esta configurado
+  - variaveis Stripe obrigatorias estao presentes no ambiente local
+  - `HML_BASE_URL` atual aponta para `http://localhost:3000`
+  - isso permite readiness local, mas nao autoriza abrir a janela real de homolog final
+- Veredito operacional:
+  - a execucao real ficou interrompida antes da janela porque o ambiente ainda e local
+  - o proximo passo correto nao e rerodar baseline; e apontar `HML_BASE_URL` para a homolog final real e reexecutar o gate
+
 Atualizacao adicional: 2026-05-27 (Execucao de pontos nao bloqueados enquanto P3 fica por ultimo)
 - Ajustes aplicados de UX/RBAC sem dependencia de credenciais:
   - `app/admin/page.tsx`: correcoes de textos com encoding residual e habilitacao de modulos para `finance_admin`.
