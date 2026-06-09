@@ -2034,3 +2034,267 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `docs/EXECUTION_OPERATING_TEMPLATE.md`
   - `docs/CHANGELOG_GOVERNANCE.md`
 
+### [2026-06-09] Onboarding tecnico consolidado sem reorg fisica prematura
+- ID: GOV-0082
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `arquitetura`
+  - `documentacao`
+  - `onboarding`
+- Documento fonte afetado:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+- Decisao:
+  - Organizar a compreensao do repositorio primeiro por navegacao tecnica, e nao por mudanca fisica apressada de pastas.
+  - Consolidar no README a entrada para onboarding, comandos e estrutura de camadas.
+  - Atualizar arquitetura e mapa de codigo para refletir o runtime real e remover referencias tecnicas defasadas.
+- Contexto:
+  - O repositorio cresceu com varias capacidades, mas a navegacao dependia demais de leitura exploratoria e memoria de contexto.
+- Impacto esperado:
+  - Menos tempo para um desenvolvedor descobrir onde entra, onde uma regra vive e qual documento consultar.
+  - Menos risco de criar duplicidade por desconhecimento da estrutura atual.
+- Riscos conhecidos:
+  - Se os mapas nao forem mantidos a cada mudanca estrutural, a clareza volta a degradar rapidamente.
+- Plano de rollback:
+  - Reverter apenas se um artefato unico superior absorver onboarding, arquitetura e mapa de codigo sem perda de precisao.
+- Documentos atualizados:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+
+### [2026-06-09] Consolidacao de handlers admin para cockpit, matrix audit e impact reviews
+- ID: GOV-0088
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `api`
+  - `arquitetura`
+  - `onboarding`
+- Documento fonte afetado:
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Extrair `cockpit/summary`, `matrix-audit` e `impact-reviews/**` para handlers dedicados em `lib/admin-api/**`.
+  - Manter `app/api/admin/**/route.ts` como superficie HTTP fina e previsivel.
+  - Preservar contrato, permissao e comportamento existente.
+- Contexto:
+  - Depois de padronizar parte da arvore admin, ainda restavam rotas com regra operacional embutida no arquivo HTTP.
+- Impacto esperado:
+  - Menos custo para localizar a logica administrativa real.
+  - Mais consistencia entre telas admin finas e APIs admin finas.
+- Riscos conhecidos:
+  - Desvio de contrato ou permissao se algum wrapper nao delegar exatamente para o handler correto.
+- Plano de rollback:
+  - Recolocar a logica nas rotas originais e remover os handlers adicionados nesta rodada.
+- Documentos atualizados:
+  - `docs/CODEBASE_MAP.md`
+
+### [2026-06-09] Fechamento quase completo da arvore `app/api/admin` como superficie fina
+- ID: GOV-0089
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `api`
+  - `arquitetura`
+  - `onboarding`
+- Documento fonte afetado:
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Extrair tambem `elevations`, `payouts`, `ops-alerts/[id]`, `payment-connectors/test`, `suppliers/intelligence` e `suppliers/integrations/dimona/test` para `lib/admin-api/**`.
+  - Reaproveitar namespaces existentes quando o dominio ja tinha handler (`ops-alerts`, `payment-connectors`) e criar namespaces dedicados apenas onde ainda nao existiam.
+  - Preservar resposta HTTP e regra de permissao.
+- Contexto:
+  - Depois de `GOV-0088`, sobravam poucas rotas admin soltas fora do padrao. Mantelas assim deixaria a regra estrutural ambigua para quem entra no projeto.
+- Impacto esperado:
+  - Navegacao previsivel em praticamente toda a arvore administrativa.
+  - Menos risco de novas regras admin nascerem direto em `route.ts`.
+- Riscos conhecidos:
+  - Desvio de import ou permissao em endpoints sensiveis se a delegacao nao ficasse 1:1 com a implementacao anterior.
+- Plano de rollback:
+  - Recolocar a logica em cada `route.ts` afetado e remover os handlers adicionados nesta rodada.
+- Documentos atualizados:
+  - `docs/CODEBASE_MAP.md`
+
+### [2026-06-09] `scripts/**` reorganizado por responsabilidade sem mudar comandos publicos
+- ID: GOV-0090
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `qa`
+  - `operacao`
+  - `release`
+  - `onboarding`
+- Documento fonte afetado:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `scripts/README.md`
+- Decisao:
+  - Separar `scripts/**` em namespaces fisicos previsiveis: `qa`, `release`, `ops`, `catalog`, `gates` e `lib`.
+  - Manter os comandos publicos de `npm` com os mesmos nomes, alterando apenas o destino fisico dos arquivos.
+  - Preservar comportamento e reduzir custo de descoberta para quem precisa operar ou evoluir automacao.
+- Contexto:
+  - A raiz de `scripts/` concentrava suites QA, helpers, gates, utilitarios de catalogo e runbooks executaveis no mesmo nivel.
+- Impacto esperado:
+  - Menos tempo para encontrar o script certo.
+  - Menos risco de novos arquivos nascerem na raiz por falta de criterio.
+- Riscos conhecidos:
+  - Quebra de caminho em `package.json`, imports internos ou documentacao de referencia se a migracao nao fosse fechada ponta a ponta.
+- Plano de rollback:
+  - Restaurar os arquivos ao nivel raiz anterior e reverter os caminhos publicos no `package.json`.
+- Documentos atualizados:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `scripts/README.md`
+
+### [2026-06-09] Primeira extracao de handlers de `app/api/admin`
+- ID: GOV-0086
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `api`
+  - `arquitetura`
+  - `onboarding`
+- Documento fonte afetado:
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Extrair os endpoints administrativos mais densos para `lib/admin-api/**`.
+  - Manter `app/api/admin/**/route.ts` como superficie HTTP fina.
+  - Aplicar o padrao primeiro em `payment-connectors`, `ops-alerts` e `registrations`.
+- Contexto:
+  - A organizacao de telas administrativas ja estava coerente, mas parte do custo de navegacao continuava nos handlers pesados embutidos nas rotas.
+- Impacto esperado:
+  - Menos tempo para localizar a logica administrativa real.
+  - Menos chance de novas rotas admin crescerem de forma monolitica.
+- Riscos conhecidos:
+  - Mudanca de import ou resposta se a extracao nao preservar exatamente o comportamento atual.
+- Plano de rollback:
+  - Recolocar a logica nos arquivos `route.ts` e remover o namespace `lib/admin-api/**`.
+- Documentos atualizados:
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+
+### [2026-06-09] Fechamento do padrao `lib/admin-api/**` em cadastros e payout batch
+- ID: GOV-0087
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `api`
+  - `arquitetura`
+  - `onboarding`
+- Documento fonte afetado:
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Completar o padrao de extracao administrativa para `registrations/export`, `registrations/[userId]/actions` e `payouts/batch-settlement/*`.
+  - Manter rotas como casca HTTP e centralizar a logica em handlers previsiveis dentro de `lib/admin-api/**`.
+- Contexto:
+  - Depois da primeira extracao, parte do dominio admin ainda permanecia com handlers pesados dentro da arvore `app/api/admin`.
+- Impacto esperado:
+  - Menos custo de navegacao para evoluir operacao administrativa.
+  - Mais consistencia entre superficies HTTP e implementacao real.
+- Riscos conhecidos:
+  - Desvio de resposta ou permissao se algum handler extraido nao preservasse o contrato original.
+- Plano de rollback:
+  - Recolocar a logica nas rotas originais e remover os handlers adicionados nesta rodada.
+- Documentos atualizados:
+  - `docs/CODEBASE_MAP.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+
+### [2026-06-09] Refactor estrutural minimo em `components/operations`
+- ID: GOV-0083
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `frontend`
+  - `arquitetura`
+  - `onboarding`
+- Documento fonte afetado:
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Organizar `components/operations` por dominio, movendo `ImpactReviewsPage` para `impact/` e `ProductionJobsPage` para `production/`.
+  - Remover o antipadrao de pagina importando outra pagina em `app/supplier/production/page.tsx`, passando a importar o componente de dominio diretamente.
+  - Preservar comportamento, rotas e regra de negocio.
+- Contexto:
+  - A pasta `components/operations` estava parcialmente organizada por dominio (`support/`, `finance/`) e parcialmente solta na raiz, o que enfraquecia previsibilidade.
+- Impacto esperado:
+  - Menos tempo para localizar componente operacional.
+  - Menos acoplamento acidental entre rotas.
+- Riscos conhecidos:
+  - Imports quebrados se algum caminho antigo permanecer referenciado.
+- Plano de rollback:
+  - Reverter apenas os moves e restaurar imports anteriores.
+- Documentos atualizados:
+  - `docs/CODEBASE_MAP.md`
+
+### [2026-06-09] Consolidacao de role routing em namespace unico
+- ID: GOV-0084
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `frontend`
+  - `arquitetura`
+  - `routing`
+- Documento fonte afetado:
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Mover `lib/access-routing.ts` para `lib/role-routing/access-routing.ts`.
+  - Consolidar helpers de home e restricao administrativa no mesmo namespace tecnico dos demais artefatos de role routing.
+  - Preservar comportamento e apenas reduzir espalhamento estrutural.
+- Contexto:
+  - A logica de role routing estava dividida entre `components/routing`, `lib/access-routing.ts` e `lib/role-routing/*`.
+- Impacto esperado:
+  - Menos tempo para localizar a logica de navegacao por papel.
+  - Menos risco de novos helpers de role routing nascerem fora do namespace correto.
+- Riscos conhecidos:
+  - Import quebrado se algum arquivo continuar apontando para o caminho antigo.
+- Plano de rollback:
+  - Restaurar o arquivo no caminho antigo e reverter imports.
+- Documentos atualizados:
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+
+### [2026-06-09] `app/admin` reduzido a superficie de rota e `components/admin` promovido a fonte de tela
+- ID: GOV-0085
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `frontend`
+  - `arquitetura`
+  - `onboarding`
+- Documento fonte afetado:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Manter `app/admin/**` fino como superficie de rota.
+  - Mover shells e telas administrativas densas para `components/admin/**` por dominio.
+  - Preservar comportamento e tornar a localizacao de tela previsivel para novos desenvolvedores.
+- Contexto:
+  - `app/admin` misturava wrapper de rota com implementacao extensa de tela, o que aumentava custo de descoberta e manutencao.
+- Impacto esperado:
+  - Menos tempo para localizar a implementacao real de uma tela administrativa.
+  - Menos risco de continuar escrevendo UI densa direto em `app/admin`.
+- Riscos conhecidos:
+  - Imports quebrados se algum wrapper continuar apontando para caminho antigo.
+- Plano de rollback:
+  - Restaurar as telas para `app/admin/**` e reverter os wrappers.
+- Documentos atualizados:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+

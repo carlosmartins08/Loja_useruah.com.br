@@ -103,5 +103,5 @@ Data de revisao: 2026-06-06
 - `docs/DECISIONS.md`
 - `docs/ARCHITECTURE.md`
 - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
-- `scripts/qa-product-guardrails.mjs`
-- `scripts/catalog-seed-helpers.mjs`
+- `scripts/qa/qa-product-guardrails.mjs`
+- `scripts/lib/catalog-seed-helpers.mjs`

@@ -1,34 +1,47 @@
-﻿# Docs Hierarchy (Fonte Unica de Navegacao)
+# Docs Hierarchy (Fonte Unica de Navegacao)
 
-Data de revisao: 2026-05-21
+Data de revisao: 2026-06-09
 
 ## Objetivo
-Evitar retrabalho, duplicidade e conflito de interpretação sobre qual documento usar em cada decisão de produto, engenharia e operação.
+Evitar retrabalho, duplicidade e conflito de interpretacao sobre qual documento usar em cada decisao de produto, engenharia e operacao.
 
-## Ordem de consulta (obrigatoria)
-1. `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+## Ordem de consulta obrigatoria para mudanca critica
+1. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
 2. `docs/EXECUTION_OPERATING_TEMPLATE.md`
-3. Documento de domínio específico
-4. `docs/CODEBASE_MAP.md` (localizacao tecnica no codigo)
-5. `docs/MVP_ROADMAP.md`
-6. `docs/ROUTE_DEFINITION_OF_DONE.md`
-7. `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
-8. `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
-9. `docs/CHANGELOG_GOVERNANCE.md`
-10. `docs/DOCS_UNIFICATION_PLAN.md` (quando houver decisão de consolidar documentos)
-11. `docs/EXECUTION_TRACKING.md` (planejamento e execucao semanal por dominio)
+3. documento de fase, readiness ou dominio que autoriza a mudanca
+4. `docs/ARCHITECTURE.md`
+5. `docs/CODEBASE_MAP.md`
+6. `docs/CHANGELOG_GOVERNANCE.md`
+7. `docs/EXECUTION_TRACKING.md` como evidencia, nunca como autorizacao isolada
 
-## Qual documento usar por tipo de decisão
+## Ordem de consulta para onboarding tecnico
+1. `README.md`
+2. `docs/ARCHITECTURE.md`
+3. `docs/CODEBASE_MAP.md`
+4. `docs/README_DOCS_HIERARCHY.md`
+5. documento do dominio em que vai atuar
 
-### Governança e conflito documental
-- Usar: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
-- Quando: houver dúvida de precedência, conflito entre docs ou criação de novo documento.
+## Qual documento usar por tipo de decisao
+
+### Onboarding tecnico e entendimento da estrutura
+- Usar: `README.md`
+- Quando: precisar entender rapidamente pastas, comandos e fluxos principais.
+- Usar em conjunto: `docs/ARCHITECTURE.md`
+- Quando: precisar entender camadas, responsabilidades e limites entre UI, API, dominio e persistencia.
+- Usar em conjunto: `docs/CODEBASE_MAP.md`
+- Quando: precisar localizar arquivos reais por dominio.
+
+### Governanca e conflito documental
+- Usar: `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- Quando: houver duvida sobre o estado real implementado, parcial, planejado, ausente ou proibido de presumir.
+- Usar em conjunto: `docs/EXECUTION_OPERATING_TEMPLATE.md`
+- Quando: for classificar a mudanca antes de abrir patch.
 
 ### Localizacao tecnica no codigo
 - Usar: `docs/CODEBASE_MAP.md`
 - Quando: precisar localizar rapidamente endpoint, servico, store, componente ou script de QA por dominio.
 
-### Sequenciamento por fase (produto/execução)
+### Sequenciamento por fase
 - Usar: `docs/MVP_ROADMAP.md`
 - Quando: decidir o que entra agora vs depois.
 - Usar em conjunto: `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
@@ -46,83 +59,81 @@ Evitar retrabalho, duplicidade e conflito de interpretação sobre qual document
 
 ### Pagamentos
 - Usar: `docs/PAYMENTS_DEFINITION_OF_DONE.md`
-- Quando: alterar checkout, webhook, status de pagamento, idempotência ou segurança de pagamento.
-- Usar em conjunto: `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
-- Quando: preencher ambiente, validar homologacao da `Stripe` como provider real inicial da Fase 1 e registrar evidencia sem reabrir escopo.
-- Regra de nomenclatura:
-  - arquivos `docs/P3_*` pertencem a esta trilha operacional de pagamentos reais
-  - `P3` aqui nao significa Fase 3 de produto
-  - `gateway_real` generico fica como bridge futura `PLANEJADO`, nao como bloqueio oficial atual
+- Quando: alterar checkout, webhook, status de pagamento, idempotencia ou seguranca de pagamento.
+- Usar em conjunto: `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+- Quando: preparar ou executar a homologacao final real de pagamento sem reabrir escopo.
 
-### Pedidos e logística
+### Pedidos e logistica
 - Usar: `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
-- Quando: alterar estados de pedido, produção, envio, tracking e exceções.
+- Quando: alterar estados de pedido, producao, envio, tracking e excecoes.
 
-### Catálogo e curadoria
+### Catalogo e curadoria
 - Usar: `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
-- Quando: alterar submissão de arte, revisão, publicação e qualidade de catálogo.
+- Quando: alterar submissao de arte, revisao, publicacao e qualidade de catalogo.
 
 ### Suporte e tickets
 - Usar: `docs/SUPPORT_TICKETS_DEFINITION_OF_DONE.md`
-- Quando: alterar intake, triagem, escalonamento, resolução e SLA.
+- Quando: alterar intake, triagem, escalonamento, resolucao e SLA.
 
-### Permissões e escopo de acesso
+### Permissoes e escopo de acesso
 - Usar: `docs/ROLES_MATRIX.md`
-- Quando: alterar RBAC, escopos de leitura/escrita, aprovações e auditoria de ações críticas.
+- Quando: alterar RBAC, escopos de leitura/escrita, aprovacoes e auditoria de acoes criticas.
 - Usar em conjunto: `docs/REGISTRATION_MATRIX_BY_ROLE.md`
 - Quando: alterar campos de cadastro por papel, responsabilidade operacional e fluxo `editar != publicar`.
 - Usar em conjunto: `docs/USER_360_ROLE_ALIGNMENT.md`
-- Quando: reconciliar diferenças entre papel de dominio, sessao/runtime, rotas e contratos antes de evolucao.
+- Quando: reconciliar diferencas entre papel de dominio, sessao/runtime, rotas e contratos antes de evolucao.
 - Usar em conjunto: `docs/SENSITIVE_FIELDS_MATRIX.md`
 - Quando: alterar campo sensivel em catalogo, payout, campanha, frete, comissao ou regra financeira.
 
 ### Qualidade por rota e UX
 - Usar: `docs/ROUTE_DEFINITION_OF_DONE.md`
-- Quando: validar completude de rota e qualidade de experiência por página.
+- Quando: validar completude de rota e qualidade de experiencia por pagina.
 - Usar em conjunto: `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`
-- Quando: a mudança tocar layout, componente visual, copy institucional, navegação, grid, tokens, overlay ou responsividade.
+- Quando: a mudanca tocar layout, componente visual, copy institucional, navegacao, grid, tokens, overlay ou responsividade.
 
-### Template obrigatório de PR crítico
+### Template obrigatorio de PR critico
 - Usar: `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
-- Quando: PR tocar estado, contrato, permissão, fluxo operacional ou regra de domínio.
-- Usar em conjunto: `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`
-- Quando: o PR também alterar frontend visível ao usuário.
+- Quando: PR tocar estado, contrato, permissao, fluxo operacional ou regra de dominio.
 
-### Baseline de controle (COBIT/ITIL)
+### Baseline de controle
 - Usar: `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
-- Quando: classificar mudança, incidente, risco, problema, rollback e melhoria contínua.
+- Quando: classificar mudanca, incidente, risco, problema, rollback e melhoria continua.
 
-### Histórico de decisão
+### Historico de decisao
 - Usar: `docs/CHANGELOG_GOVERNANCE.md`
-- Quando: registrar decisão aprovada, impacto, risco e rollback.
+- Quando: registrar decisao aprovada, impacto, risco e rollback.
 
-## Regra para criação de novo documento
+## Regra para criacao de novo documento
 Criar novo documento apenas se:
-- [ ] O conteúdo não couber em nenhum documento de domínio já existente.
-- [ ] Houver owner explícito do novo documento.
-- [ ] Houver impacto recorrente (não pontual) no projeto.
-- [ ] O novo documento for referenciado no `EXECUTION_CONSOLIDATED_MASTER.md`.
+- [ ] o conteudo nao couber em nenhum documento de dominio ja existente
+- [ ] houver owner explicito do novo documento
+- [ ] houver impacto recorrente e nao pontual
+- [ ] o novo documento entrar no fluxo de consulta real
 
-Se não atender os 4 critérios, atualizar documento existente.
+Se nao atender os 4 criterios, atualizar documento existente.
 
-## Regra de atualização (anti-retrabalho)
-- Toda mudança de estado canônico deve atualizar primeiro o documento de domínio.
-- Toda mudança de contrato deve registrar compatibilidade/migration.
-- Toda decisão relevante deve entrar no `CHANGELOG_GOVERNANCE.md`.
-- Todo PR crítico deve citar o documento fonte e usar template de governança.
-- Toda mudanca estrutural no codigo (API/servico/store/componente critico) deve atualizar `docs/CODEBASE_MAP.md`.
+## Regra de atualizacao anti-retrabalho
+- toda mudanca que melhore a navegacao tecnica do repositorio deve priorizar:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+- toda mudanca de estado canonico deve atualizar primeiro o documento de dominio
+- toda mudanca de contrato deve registrar compatibilidade ou migration
+- toda decisao relevante deve entrar no `docs/CHANGELOG_GOVERNANCE.md`
+- toda mudanca estrutural no codigo deve atualizar `docs/CODEBASE_MAP.md`
 
-## Sinais de alerta (erro de processo)
-Se qualquer item abaixo acontecer, pausar implementação e corrigir documentação:
-- Dois documentos definindo o mesmo estado com nomes diferentes.
-- PR sem documento fonte declarado.
-- Mudança de API sem plano de compatibilidade.
-- Regra de permissão definida só no frontend.
+## Sinais de alerta
+Se qualquer item abaixo acontecer, pausar implementacao e corrigir documentacao:
+- dois documentos definindo o mesmo estado com nomes diferentes
+- PR sem documento fonte declarado
+- mudanca de API sem plano de compatibilidade
+- regra de permissao definida so no frontend
+- mapa de codigo apontando para arquivo removido ou inexistente
 
 ## Resultado esperado
-- Menos retrabalho por interpretação.
-- Menos bug de fluxo por estado divergente.
-- Menos regressão por mudança não auditada.
-- Maior velocidade de evolução com disciplina de execução.
+- menos retrabalho por interpretacao
+- menos bug de fluxo por estado divergente
+- menos regressao por mudanca nao auditada
+- mais velocidade para onboarding e manutencao
 
-Classificacao normativo/referencial: docs/DOCS_CLASSIFICATION.md
+Classificacao normativo/referencial: `docs/DOCS_CLASSIFICATION.md`

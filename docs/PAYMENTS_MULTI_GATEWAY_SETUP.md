@@ -177,10 +177,10 @@ Sempre que alterar fluxo de gateway/provider, validar estes pontos antes de merg
 - Risco: quebra de contrato em `provider` / credencial nao resolvida.
 
 4. QA e gates
-- `scripts/qa-provider-requirements.mjs`
-- `scripts/qa-provider-activate.mjs`
-- `scripts/qa-providers-ready.mjs`
-- `scripts/critical-alerts.mjs`
+- `scripts/qa/qa-provider-requirements.mjs`
+- `scripts/qa/qa-provider-activate.mjs`
+- `scripts/qa/qa-providers-ready.mjs`
+- `scripts/ops/critical-alerts.mjs`
 - Risco: falso PASS/FALHA por regra divergente entre scripts.
 
 5. Governanca e evidencias

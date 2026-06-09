@@ -20,9 +20,9 @@
 ### Arquivos que sustentam essa decisao
 - `lib/brand-discovery.ts`
 - `lib/product-artwork.ts`
-- `scripts/generate-editorial-catalog-assets.mjs`
-- `scripts/catalog-seed-helpers.mjs`
-- `scripts/qa-product-guardrails.mjs`
+- `scripts/catalog/generate-editorial-catalog-assets.mjs`
+- `scripts/lib/catalog-seed-helpers.mjs`
+- `scripts/qa/qa-product-guardrails.mjs`
 
 ### Criterio para revisao futura
 - So revisar essa decisao quando houver pipeline real para IA server-side ou biblioteca visual real de produto substituindo o editorial.

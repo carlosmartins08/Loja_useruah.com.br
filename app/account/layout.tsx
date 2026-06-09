@@ -7,7 +7,7 @@ import { User, Package, MapPin, MessageSquare, LogOut, ChevronRight } from 'luci
 import { motion } from 'motion/react';
 import { Header } from '@/components/navigation/Header';
 import { useUser } from '@/context/UserContext';
-import { isAdminRole, resolveHomeByRole } from '@/lib/access-routing';
+import { isAdminRole, resolveHomeByRole } from '@/lib/role-routing/access-routing';
 
 const CUSTOMER_NAV_ITEMS = [
   { href: '/account', label: 'Painel Geral', icon: User },

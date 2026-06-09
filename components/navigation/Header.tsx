@@ -10,7 +10,7 @@ import { useUser } from '@/context/UserContext';
 import { SearchOverlay } from './SearchOverlay';
 import { VirtualAssistant } from '@/components/ai/VirtualAssistant';
 import { ProfilePhotoModal } from './ProfilePhotoModal';
-import { resolveHomeByRole } from '@/lib/access-routing';
+import { resolveHomeByRole } from '@/lib/role-routing/access-routing';
 import { ROLE_LABEL, sortRolesForUi } from '@/lib/role-scope';
 import { MobileMenu } from '@/components/navigation/header/MobileMenu';
 import { BRAND_EDITORIAL_ASSETS } from '@/lib/brand-assets';

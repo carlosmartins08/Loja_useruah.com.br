@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 import type { UserRole } from '@/lib/auth-session';
-import { resolveHomeByRole } from '@/lib/access-routing';
+import { resolveHomeByRole } from '@/lib/role-routing/access-routing';
 
 interface RoleNamespaceGuardProps {
   allowedRoles: UserRole[];
@@ -30,4 +30,3 @@ export function RoleNamespaceGuard({ allowedRoles, children }: RoleNamespaceGuar
   if (!allowedRoles.includes(userRole)) return null;
   return <>{children}</>;
 }
-

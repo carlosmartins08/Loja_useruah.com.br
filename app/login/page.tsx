@@ -8,7 +8,7 @@ import { Mail, Lock, ArrowRight, Github, Chrome as Google } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { HttpRequestError, postJson } from '@/lib/http-client';
 import type { UserRole } from '@/lib/auth-session';
-import { resolveHomeByRole } from '@/lib/access-routing';
+import { resolveHomeByRole } from '@/lib/role-routing/access-routing';
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState('');

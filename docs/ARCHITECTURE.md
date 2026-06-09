@@ -1,75 +1,185 @@
-# Arquitetura Tecnica (Atual + Proximo Passo)
+# Arquitetura Tecnica
 
-Data de revisao: 2026-05-21
+Data de revisao: 2026-06-09
 
-Atualizacao adicional: 2026-05-29
-- Superficie de API classificada por nivel de exposicao em `docs/API_ROUTE_CLASSIFICATION.md`.
-- Endpoints criticos agora exigem ator autenticado e escopo por role/ownership:
-  - `GET /api/orders`
-  - `GET /api/audit-logs`
-  - `GET /api/payments/status/[paymentId]`
-  - `GET /api/production-jobs/by-order/[orderId]`
-  - `POST /api/terms/accept`
-- Webhook de pagamento endurecido:
-  - assinatura obrigatoria fora de QA controlado;
-  - erro explicito quando segredo de webhook nao estiver configurado fora de QA.
-- Gate de backend migrado para runner PowerShell sequencial para reduzir fragilidade de subprocesso em ambiente Windows/sandbox.
+## Objetivo
+Explicar como o sistema esta montado hoje, onde cada camada comeca e termina, e como um desenvolvedor deve seguir um fluxo sem adivinhar.
 
-Atualizacao adicional: 2026-06-06
-- IA removida do produto publico por decisao de coerencia e governanca.
-- Busca e guia de estilo agora sao locais/deterministicos, sem provider externo no client.
-- Catalogo oficial deixou de depender de `public/assets/products/mockups/**`.
-- Midia oficial dos seeds publicados agora vive em `public/assets/editorial/catalog/**`.
-- QA de catalogo passou a bloquear:
-  - `picsum`
-  - paths de `mockups` placeholder
-  - asset inexistente
-  - reintroducao de IA client-side no produto
+## Estado atual
+- App Next.js usando App Router.
+- Rotas visiveis e APIs convivem em `app/`.
+- UI e composicao visual vivem em `components/`.
+- Regra de negocio, stores, auth, RBAC e integracoes vivem em `lib/`.
+- Automacao de QA, gates e readiness vivem em `scripts/`.
+  - `scripts/qa/` concentra suites e runners
+  - `scripts/release/` concentra cutover, preflight e go-live
+  - `scripts/ops/` concentra alertas e rotinas operacionais
+  - `scripts/gates/` concentra gates de PR
+  - `scripts/catalog/` concentra reidratacao e geracao editorial
+  - `scripts/lib/` concentra helpers compartilhados
+- O sistema usa persistencia hibrida:
+  - store local/fallback em `lib/dev-store.ts`
+  - adaptadores relacionais via `lib/mysql-runtime.ts`
+  - pagamentos ainda suportam `sqlite` quando `PAYMENT_PERSISTENCE=sqlite`
 
-## Estado atual (rodando hoje)
-- App Next.js com APIs em `app/api/*`.
-- Persistencia principal de dominio em store local (`lib/dev-store.ts`).
-- Pagamentos fase 2.1 em `sqlite` local (`.tmp-store/payments.sqlite`) por padrao.
-- Catalogo seed com fonte canonica em `lib/brand-assets.ts`.
-- Descoberta de produto local em `lib/brand-discovery.ts`.
-- Midia editorial gerada em `public/assets/editorial/catalog/**`.
-- Adaptadores MySQL implementados para:
-  - `orders`
-  - `production_jobs`
-  - `shipments`
-  - `payments` (incluindo `payment_events` e `webhook_events`)
-- Contrato publico de pagamento ativo:
-  - `POST /api/payments/checkout`
-  - `POST /api/payments/webhook`
-  - `GET /api/payments/status/[paymentId]`
+## Camadas canonicas
 
-## Direcao de arquitetura (preparar agora o depois)
-- Manter contrato de API estavel.
-- Isolar evolucao de persistencia por `PAYMENT_PERSISTENCE`.
-- Primeiro homologar infraestrutura local com MySQL em Docker Desktop.
-- Depois trocar apenas o alvo de hospedagem (sem reescrever fluxo de negocio).
+### 1. Interface
+- `app/**/page.tsx`
+- `components/**`
+- `components/admin/**`
 
-## Blocos de responsabilidade
-- `lib/payment-service.ts`: regras de fluxo, idempotencia e transicoes.
-- `lib/payment-provider.ts`: adapter de provedor (`sandbox|gateway_sandbox`).
-- `lib/payment-store.ts`: persistencia (`sqlite` hoje) e trilha de eventos.
-- `lib/webhook-event-store.ts`: idempotencia de webhook com retencao.
-- `lib/brand-assets.ts`: catalogo canonico e merchandising seed.
-- `lib/product-artwork.ts`: normalizacao entre legado de mockup e asset editorial oficial.
-- `lib/brand-discovery.ts`: busca e recomendacao local sem IA.
+Responsabilidade:
+- renderizar pagina
+- coletar input
+- chamar API ou utilitario de aplicacao
 
-## Regras operacionais ja aplicadas
-- Retry controlado no webhook por `PAYMENT_WEBHOOK_MAX_RETRIES`.
-- Retencao de timeline de pagamento por `PAYMENT_EVENTS_RETENTION_DAYS`.
-- Retencao de idempotencia webhook por `WEBHOOK_IDEMPOTENCY_RETENTION_DAYS`.
+Regra de leitura:
+- `app/**` deve preferencialmente ficar fino como superficie de rota
+- telas densas e shells administrativos devem viver em `components/admin/**`
 
-## Cutover planejado (sem quebra)
-1. Subir MySQL local via Docker Desktop.
-2. Validar schema base de pagamentos (`infra/mysql/init/001_payments.sql`).
-3. Adicionar adapter MySQL no `payment-store` mantendo interface atual.
-4. Rodar QA de pagamentos.
-5. Promover para ambiente hospedado mantendo mesmo contrato.
+Nao deve:
+- duplicar regra de negocio
+- decidir permissao critica so no client
 
-## Escopo explicitamente adiado
-- Biblioteca visual real de produto e eventual IA server-side nao fazem parte do escopo fechado atual.
-- Quando essas frentes forem retomadas, seguir `docs/PLANO_REENTRADA_IA_E_MIDIA_REAL.md`.
+### 2. Aplicacao e dominio
+- `app/api/**/route.ts`
+- `lib/**/*`
+
+Responsabilidade:
+- validar entrada
+- aplicar regra de negocio
+- verificar ownership, role e transicao de estado
+- persistir e montar resposta
+
+Regra de leitura:
+- rotas densas de administracao devem preferencialmente delegar para `lib/admin-api/**`
+- `app/api/**/route.ts` deve tender a casca tecnica, nao a concentrador de fluxo inteiro
+
+### 3. Persistencia e integracoes
+- `lib/*-store.ts`
+- `lib/mysql-runtime.ts`
+- `lib/payment-provider.ts`
+- `lib/dimona-client.ts`
+
+Responsabilidade:
+- leitura e escrita
+- adaptacao por provedor
+- idempotencia, reconciliacao e rastreabilidade
+
+## Fluxos principais
+
+### Catalogo e descoberta
+1. UI em `app/shop/page.tsx` e `components/shop/ShopPageView.tsx`
+2. dados de vitrine e leitura em `lib/shop-products.ts`
+3. base de catalogo e moderacao em:
+   - `lib/catalog-item-store.ts`
+   - `lib/artwork-store.ts`
+   - `lib/impact-review-store.ts`
+
+### Pedido e checkout
+1. `app/checkout/page.tsx`
+2. `components/checkout/CheckoutPageView.tsx`
+3. `app/api/orders/route.ts`
+4. `lib/order-store.ts`
+5. `lib/order-operational-view.ts`
+
+### Pagamento
+1. `app/api/payments/checkout/route.ts`
+2. `lib/payment-service.ts`
+3. `lib/payment-provider.ts`
+4. `lib/payment-store.ts`
+5. `app/api/payments/webhook/route.ts`
+6. `lib/provider-webhook-event-store.ts`
+7. `lib/payment-exception-service.ts`
+
+Pontos que importam de verdade:
+- `providerReference` e chave de reconciliacao
+- webhook precisa suportar assinatura e idempotencia
+- readiness final ainda depende da janela real de homologacao
+
+### Producao, envio e suporte
+1. pedido aprovado impacta:
+   - `lib/production-store.ts`
+   - `lib/shipment-store.ts`
+2. leitura operacional:
+   - `app/api/orders/[orderId]/status/route.ts`
+   - `app/api/support/orders/[orderId]/context/route.ts`
+3. suporte:
+   - `app/api/tickets/route.ts`
+   - `app/api/tickets/[id]/reply/route.ts`
+   - `lib/ticket-store.ts`
+
+### Campanhas e impactos de Fase 2
+1. `app/community/campaigns/page.tsx`
+2. `app/api/campaigns/**`
+3. `lib/campaign-store.ts`
+
+Regra de leitura:
+- tratar `MovementCampaign` como capacidade parcial real
+- nao presumir `Organization`, `CampaignProduct`, `Referral*` e `/@username` como dominio fechado
+
+## Persistencia
+
+### Modo local/fallback
+- varios stores usam `lib/dev-store.ts`
+- util para desenvolvimento, prototipagem e trilhas ainda nao migradas
+
+### Modo relacional
+- varios stores ja suportam MySQL por `lib/mysql-runtime.ts`
+- `PAYMENT_PERSISTENCE` controla parte relevante da comutacao
+
+### Pagamentos
+- `lib/payment-store.ts` suporta `sqlite` e `mysql`
+- `infra/mysql/init/001_payments.sql` prepara a base relacional inicial
+- QA de cutover e readiness operacional vivem em `scripts/release/p3-cutover-evidence.mjs` e correlatos
+
+## Autenticacao, sessao e RBAC
+- auth local e cadastro:
+  - `lib/auth-local-users.ts`
+  - `lib/auth-session.ts`
+  - `lib/session-token.ts`
+- escopo e acesso:
+  - `lib/access-control.ts`
+  - `lib/role-routing/access-routing.ts`
+  - `lib/role-scope.ts`
+- matrizes:
+  - `lib/role-matrix/permission-matrix.ts`
+  - `lib/role-matrix/registration-matrix.ts`
+
+Regra de projeto:
+- permissao real deve ser validada no servidor
+- guard de tela ajuda UX, mas nao substitui verificacao em API
+
+## Assets e conteudo
+- assets publicos de marca em `public/brand/`
+- assets editoriais e canonicos do catalogo em `public/assets/editorial/catalog/`
+- tokens e mensagens em `data/`
+
+## QA e gates
+- gates estaticos:
+  - `npm run check`
+  - `npm run check:strict`
+- QA por dominio:
+  - `qa:catalog`
+  - `qa:payments21`
+  - `qa:coreops`
+  - `qa:campaign:impact`
+- readiness e producao controlada:
+  - `go:e2e:proof`
+  - `p3:precheck`
+  - `go:preflight`
+
+## Regras estruturais
+- nova rota entra em `app/` e precisa ser refletida em `docs/CODEBASE_MAP.md`
+- regra de negocio nova entra em `lib/`, nao em `components/`
+- store novo precisa explicitar se usa `dev-store`, `sqlite`, `mysql` ou estrategia hibrida
+- mudanca de contrato ou fluxo critico exige atualizar:
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` se alterar estado real por fase
+  - `docs/CODEBASE_MAP.md` se alterar localizacao
+  - `docs/CHANGELOG_GOVERNANCE.md` se houver decisao relevante
+
+## O que nao presumir
+- readiness local como equivalente de homologacao final
+- Fase 2 como base madura completa
+- documentacao de fase como prova de runtime sem confirmar na matriz e no codigo

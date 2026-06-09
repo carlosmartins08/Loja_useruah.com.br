@@ -7,7 +7,7 @@ import { motion } from 'motion/react';
 import { Home, ShoppingBag, ShoppingCart, User, Compass } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useUser } from '@/context/UserContext';
-import { resolveHomeByRole } from '@/lib/access-routing';
+import { resolveHomeByRole } from '@/lib/role-routing/access-routing';
 
 export function BottomNav() {
   const pathname = usePathname();
