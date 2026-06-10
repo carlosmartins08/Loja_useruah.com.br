@@ -19,9 +19,19 @@ Ser a fonte unica de localizacao tecnica do repositorio. Este arquivo nao explic
 
 ### UI e composicao
 - `components/**`
+  - `components/admin/**` para shells e telas exclusivas do namespace administrativo
+  - `components/operations/**` para telas operacionais compartilhadas entre namespaces
+
+### Estado cliente e hooks de superficie
+- `context/**`
+- `hooks/**`
 
 ### Dominio, auth, RBAC, persistencia e integracoes
 - `lib/**`
+  - `lib/admin-api/**`
+  - `lib/role-matrix/**`
+  - `lib/role-routing/**`
+  - `lib/ui/**`
 
 ### QA, gates e automacao
 - `scripts/qa/**`
@@ -32,9 +42,36 @@ Ser a fonte unica de localizacao tecnica do repositorio. Este arquivo nao explic
 - `scripts/lib/**`
 - `scripts/check-utf8.mjs`
 
+### Testes canonicos de framework
+- `tests/**`
+  - `tests/README.md`
+  - `tests/smoke/README.md`
+
 ### Configuracao e dados versionados
 - `config/**`
 - `data/**`
+  - `config/README.md`
+  - `data/README.md`
+
+### Artefatos locais gerados
+- `artifacts/**`
+
+### Documentacao
+- `docs/**`
+- `docs/archive/**`
+  - historico inativo, fora da camada ativa de decisao
+
+## Taxonomia curta para nao errar o local
+- `components/**`
+  - renderiza e compoe interface
+- `hooks/**`
+  - resolve comportamento local de UI, DOM e browser
+- `context/**`
+  - compartilha estado cliente entre telas e shells
+- `lib/**`
+  - decide regra, persiste, integra e valida no nivel de sistema
+
+Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/**` nem em `context/**`.
 
 ## Mapa por dominio
 
@@ -57,6 +94,10 @@ Ser a fonte unica de localizacao tecnica do repositorio. Este arquivo nao explic
   - `app/admin/layout.tsx`
   - `components/admin/layout/AdminLayoutShell.tsx`
   - `components/admin/navigation-config.tsx`
+- Estado cliente de shell:
+  - `context/UserContext.tsx`
+  - `hooks/use-mobile.ts`
+  - `hooks/use-focus-trap.ts`
 
 ### Admin hub
 - Frontend:
@@ -314,6 +355,44 @@ Ser a fonte unica de localizacao tecnica do repositorio. Este arquivo nao explic
   - `public/assets/editorial/catalog/**`
   - `public/brand/**`
 
+## Raiz canonica
+- configs e manifests:
+  - `package.json`
+  - `package-lock.json`
+  - `tsconfig.json`
+  - `next.config.ts`
+  - `postcss.config.mjs`
+  - `eslint.config.mjs`
+  - `next-env.d.ts`
+  - `docker-compose.yml`
+  - `metadata.json`
+    - manifesto externo de tooling; nao usar como fonte de config interna do produto
+- repositorio:
+  - `.gitignore`
+  - `.gitattributes`
+  - `.env.example`
+  - `README.md`
+- nao canonicos:
+  - logs locais devem ficar ignorados
+  - screenshots e evidencias locais devem ir para `artifacts/**`
+  - persistencia local efemera continua em `.tmp-store/**`
+
+## Regra de fronteira entre `docs/**` e `docs/archive/**`
+- `docs/**`
+  - camada ativa de consulta, incluindo normativos, referenciais atuais e redirecionadores legados
+- `docs/archive/**`
+  - material historico retirado da camada ativa
+- documento legado que apenas aponta para a fonte certa
+  - pode continuar em `docs/**` como redirecionador, sem ser tratado como arquivo morto
+
+## Regra de fronteira entre `config/**` e `data/**`
+- `config/**`
+  - parametros operacionais ajustaveis, janelas, SLA e thresholds
+- `data/**`
+  - tokens, mensagens, briefs e dados versionados consumidos pelo runtime do produto
+- `metadata.json`
+  - manifesto externo que fica na raiz por contrato de ferramenta, sem competir com `config/**` ou `data/**`
+
 ## Scripts de entrada rapida
 - mapa fisico:
   - `scripts/README.md`
@@ -336,6 +415,13 @@ Ser a fonte unica de localizacao tecnica do repositorio. Este arquivo nao explic
   - `npm run check`
   - `npm run build`
   - `npm run go:e2e:proof`
+- artefatos:
+  - `artifacts/README.md`
+- testes:
+  - `tests/README.md`
+- config e data:
+  - `config/README.md`
+  - `data/README.md`
 
 ## Regra de manutencao
 - endpoint novo: atualizar a secao de API do dominio

@@ -5,6 +5,14 @@ Data de revisao: 2026-06-09
 ## Objetivo
 Evitar retrabalho, duplicidade e conflito de interpretacao sobre qual documento usar em cada decisao de produto, engenharia e operacao.
 
+## Regra de camada documental
+- `docs/`
+  - camada ativa de consulta
+- `docs/archive/`
+  - camada inativa, historica e sem autoridade atual
+- documento em `docs/` com aviso de redirecionamento
+  - continua ativo apenas para apontar a fonte certa
+
 ## Ordem de consulta obrigatoria para mudanca critica
 1. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
 2. `docs/EXECUTION_OPERATING_TEMPLATE.md`

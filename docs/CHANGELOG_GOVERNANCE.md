@@ -2154,6 +2154,40 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `docs/CODEBASE_MAP.md`
   - `scripts/README.md`
 
+### [2026-06-09] Politica de raiz canonica e artefatos locais explicitada
+- ID: GOV-0091
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `onboarding`
+  - `governanca`
+  - `tooling`
+- Documento fonte afetado:
+  - `README.md`
+  - `docs/CODEBASE_MAP.md`
+  - `artifacts/README.md`
+  - `.gitignore`
+- Decisao:
+  - Manter na raiz apenas arquivos canonicos de projeto, repositorio e tooling externo.
+  - Tratar logs, screenshots e evidencias geradas como artefatos locais fora da raiz, preferencialmente em `artifacts/**`.
+  - Remover `.eslintrc.json` para evitar duplicidade com `eslint.config.mjs` como fonte atual de ESLint.
+- Contexto:
+  - A arquitetura interna ja estava mais organizada, mas a raiz ainda transmitia ambiguidade entre fonte canonica e ruído operacional local.
+- Impacto esperado:
+  - Melhor primeira leitura do repositorio.
+  - Menos chance de novos arquivos soltos nascerem na raiz.
+  - Menos duvida sobre qual configuracao de ESLint deve ser mantida.
+- Riscos conhecidos:
+  - Quebra de ferramenta legada se ainda dependesse implicitamente de `.eslintrc.json`.
+- Plano de rollback:
+  - Restaurar `.eslintrc.json` e reverter a politica de raiz se algum tooling externo realmente exigir esse arquivo.
+- Documentos atualizados:
+  - `README.md`
+  - `docs/CODEBASE_MAP.md`
+  - `artifacts/README.md`
+  - `.gitignore`
+
 ### [2026-06-09] Primeira extracao de handlers de `app/api/admin`
 - ID: GOV-0086
 - Status: `aprovada`
@@ -2297,4 +2331,177 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
   - `README.md`
   - `docs/ARCHITECTURE.md`
   - `docs/CODEBASE_MAP.md`
+
+### [2026-06-09] Fronteira entre `components/admin` e `components/operations` explicitada
+- ID: GOV-0092
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `frontend`
+  - `arquitetura`
+  - `onboarding`
+- Documento fonte afetado:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Tratar `components/admin/**` como casa de shells e telas exclusivas do namespace administrativo.
+  - Tratar `components/operations/**` como casa de telas operacionais compartilhadas entre mais de um namespace, mesmo quando uma delas tambem aparece sob `/admin/**`.
+  - Evitar mover para `components/admin/**` telas que tambem sustentam `support`, `production`, `supplier`, `finance` ou `curation`.
+- Contexto:
+  - A arvore de componentes ja estava mais coerente, mas a documentacao ainda sugeria de forma ampla que qualquer tela ligada a `/admin/**` deveria viver em `components/admin/**`.
+- Impacto esperado:
+  - Menos ambiguidade para decidir onde colocar novas telas.
+  - Menos retrabalho estrutural ao evoluir fluxos operacionais compartilhados.
+- Riscos conhecidos:
+  - Alguem ainda pode mover tela compartilhada para `components/admin/**` por associacao superficial com a rota.
+- Plano de rollback:
+  - Reverter apenas esta regra documental se a separacao mostrar problema real no uso futuro.
+- Documentos atualizados:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+
+### [2026-06-09] Fronteira entre `tests/**` e `scripts/qa/**` explicitada antes de duplicidade
+- ID: GOV-0093
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `qa`
+  - `arquitetura`
+  - `onboarding`
+- Documento fonte afetado:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `tests/README.md`
+- Decisao:
+  - Manter `scripts/qa/**` como trilha oficial para QA operacional, smoke, readiness e suites dependentes de ambiente.
+  - Reservar `tests/**` para testes canonicos de framework, unitarios, integracoes locais e specs desacopladas de runtime operacional.
+  - Bloquear duplicidade de smoke operacional dentro de `tests/**` enquanto a esteira oficial continuar centralizada em `scripts/qa/**`.
+- Contexto:
+  - A pasta `tests/` ja existia, mas sem regra explicita, enquanto o projeto ja tinha uma malha densa de validacao rodando em `scripts/qa/**`.
+- Impacto esperado:
+  - Menos chance de cobertura duplicada em dois lugares.
+  - Melhor decisao de local antes de criar testes novos.
+- Riscos conhecidos:
+  - Um dev pode continuar criando teste de smoke em `tests/**` por costume de ecossistema, ignorando a trilha operacional ja existente.
+- Plano de rollback:
+  - Reabrir a fronteira apenas se o projeto migrar oficialmente a esteira principal para framework de teste em `tests/**`.
+- Documentos atualizados:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `tests/README.md`
+
+### [2026-06-09] Fronteira entre `config/**`, `data/**` e `metadata.json` explicitada
+- ID: GOV-0094
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `arquitetura`
+  - `onboarding`
+  - `governanca`
+- Documento fonte afetado:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `config/README.md`
+  - `data/README.md`
+- Decisao:
+  - Tratar `config/**` como casa de parametros operacionais versionados e ajustaveis, como SLA, janelas e thresholds.
+  - Tratar `data/**` como casa de tokens, mensagens, briefs e dados versionados consumidos pelo runtime do produto.
+  - Manter `metadata.json` na raiz apenas como manifesto de tooling externo, sem competir com `config/**` ou `data/**`.
+- Contexto:
+  - A estrutura ja possuia `config/**`, `data/**` e `metadata.json`, mas sem uma regra curta e objetiva para impedir mistura futura de responsabilidades.
+- Impacto esperado:
+  - Menos chance de novas fontes de verdade nascerem no lugar errado.
+  - Melhor decisao de local antes de criar JSON novo.
+- Riscos conhecidos:
+  - Um dev ainda pode usar `config/**` para conteudo de produto ou `data/**` para politica operacional por associacao superficial com formato JSON.
+- Plano de rollback:
+  - Reverter apenas a regra documental se uma ferramenta real exigir outra fronteira.
+- Documentos atualizados:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `config/README.md`
+  - `data/README.md`
+
+### [2026-06-09] Fronteira entre `docs/**` ativo e `docs/archive/**` explicitada
+- ID: GOV-0095
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `documentacao`
+  - `onboarding`
+  - `governanca`
+- Documento fonte afetado:
+  - `README.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/CODEBASE_MAP.md`
+  - `docs/archive/README.md`
+- Decisao:
+  - Tratar `docs/**` como camada ativa de consulta.
+  - Tratar `docs/archive/**` como camada inativa e historica, sem autoridade atual.
+  - Manter documentos de redirecionamento legado em `docs/**` quando eles ainda servirem para apontar a fonte correta e evitar consulta no lugar errado.
+- Contexto:
+  - A pasta `docs/archive/` ja existia, mas ainda faltava uma regra curta distinguindo arquivo morto de documento legado ativo com redirecionamento.
+- Impacto esperado:
+  - Menos chance de consultar documento arquivado como se fosse fonte viva.
+  - Melhor decisao antes de arquivar ou manter documento legado na camada ativa.
+- Riscos conhecidos:
+  - Um dev ainda pode mover cedo demais um redirecionador util para `docs/archive/` e quebrar navegacao documental.
+- Plano de rollback:
+  - Reverter apenas a classificacao documental se a camada ativa precisar reincorporar algum documento arquivado.
+- Documentos atualizados:
+  - `README.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/CODEBASE_MAP.md`
+  - `docs/archive/README.md`
+
+### [2026-06-09] Fronteira entre `hooks/**`, `context/**` e `lib/**` explicitada
+- ID: GOV-0096
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `arquitetura`
+  - `onboarding`
+  - `frontend`
+- Documento fonte afetado:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `lib/README.md`
+  - `context/README.md`
+  - `hooks/README.md`
+- Decisao:
+  - Tratar `hooks/**` como casa de comportamento client-side reutilizavel de UI, DOM e acessibilidade.
+  - Tratar `context/**` como casa de estado cliente compartilhado, sessao de superficie e persistencia local de navegador.
+  - Manter `lib/**` como casa da regra de negocio, persistencia, auth, RBAC, integracoes e verdade tecnica do sistema.
+  - Bloquear a tendencia de empurrar regra autoritativa de negocio para `hooks/**` ou `context/**`.
+- Contexto:
+  - O repositorio ja estava mais legivel nas fronteiras de `app/`, `components/`, `scripts/`, `config/`, `data/` e `docs/`, mas ainda exigia memoria para decidir onde colocar estado cliente, sessao de superficie e regra compartilhada.
+- Impacto esperado:
+  - Menos ambiguidade antes de criar hook, contexto ou helper em `lib/`.
+  - Menos risco de misturar UX client-side com decisao de dominio.
+  - Melhor onboarding para desenvolvedor novo.
+- Riscos conhecidos:
+  - `lib/**` continua largo e ainda pode concentrar responsabilidades demais se a equipe nao respeitar taxonomia interna.
+- Plano de rollback:
+  - Reverter apenas esta regra documental se o projeto adotar outra fronteira tecnica comprovadamente melhor.
+- Documentos atualizados:
+  - `README.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `lib/README.md`
+  - `context/README.md`
+  - `hooks/README.md`
 

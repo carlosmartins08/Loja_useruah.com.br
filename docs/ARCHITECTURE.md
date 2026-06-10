@@ -9,6 +9,8 @@ Explicar como o sistema esta montado hoje, onde cada camada comeca e termina, e 
 - App Next.js usando App Router.
 - Rotas visiveis e APIs convivem em `app/`.
 - UI e composicao visual vivem em `components/`.
+- Estado cliente compartilhado vive em `context/`.
+- Hooks client-side reutilizaveis vivem em `hooks/`.
 - Regra de negocio, stores, auth, RBAC e integracoes vivem em `lib/`.
 - Automacao de QA, gates e readiness vivem em `scripts/`.
   - `scripts/qa/` concentra suites e runners
@@ -17,6 +19,7 @@ Explicar como o sistema esta montado hoje, onde cada camada comeca e termina, e 
   - `scripts/gates/` concentra gates de PR
   - `scripts/catalog/` concentra reidratacao e geracao editorial
   - `scripts/lib/` concentra helpers compartilhados
+- `tests/` fica reservado para testes canonicos de framework e nao substitui a trilha operacional em `scripts/qa/`
 - O sistema usa persistencia hibrida:
   - store local/fallback em `lib/dev-store.ts`
   - adaptadores relacionais via `lib/mysql-runtime.ts`
@@ -28,6 +31,7 @@ Explicar como o sistema esta montado hoje, onde cada camada comeca e termina, e 
 - `app/**/page.tsx`
 - `components/**`
 - `components/admin/**`
+- `components/operations/**`
 
 Responsabilidade:
 - renderizar pagina
@@ -36,13 +40,36 @@ Responsabilidade:
 
 Regra de leitura:
 - `app/**` deve preferencialmente ficar fino como superficie de rota
-- telas densas e shells administrativos devem viver em `components/admin/**`
+- shells e telas administrativas exclusivas devem viver em `components/admin/**`
+- telas operacionais compartilhadas entre namespaces devem viver em `components/operations/**`
 
 Nao deve:
 - duplicar regra de negocio
 - decidir permissao critica so no client
 
-### 2. Aplicacao e dominio
+### 2. Estado cliente e sessao de superficie
+- `context/**`
+- `hooks/**`
+
+Responsabilidade:
+- manter estado cliente compartilhado
+- encapsular comportamento de DOM e browser
+- orquestrar sessao de superficie consumida pela UI
+- persistir apenas o que fizer sentido no navegador
+
+Regra de leitura:
+- `hooks/**` deve ficar focado em comportamento local e reutilizavel de UI
+- `context/**` pode coordenar sessao, `localStorage` e chamadas para APIs ja existentes
+- `context/**` nao deve virar fonte autoritativa de regra de negocio
+- validacao real de permissao, transicao de estado e decisao critica continua no servidor e em `lib/**`
+
+Exemplos atuais:
+- `context/CartContext.tsx`
+- `context/UserContext.tsx`
+- `hooks/use-mobile.ts`
+- `hooks/use-focus-trap.ts`
+
+### 3. Aplicacao e dominio
 - `app/api/**/route.ts`
 - `lib/**/*`
 
@@ -55,8 +82,15 @@ Responsabilidade:
 Regra de leitura:
 - rotas densas de administracao devem preferencialmente delegar para `lib/admin-api/**`
 - `app/api/**/route.ts` deve tender a casca tecnica, nao a concentrador de fluxo inteiro
+- `lib/**` ainda e a area mais larga do repositorio, entao a leitura correta deve seguir a taxonomia interna:
+  - `*-store.ts` para persistencia e rastreabilidade
+  - `*-service.ts` para orquestracao e regra
+  - `*-provider.ts` para adaptacao externa
+  - `admin-api/**` para handlers administrativos reutilizaveis
+  - `role-matrix/**` e `role-routing/**` para matriz, escopo e navegacao por papel
+  - `ui/**` para apoio visual sem concentrar JSX
 
-### 3. Persistencia e integracoes
+### 4. Persistencia e integracoes
 - `lib/*-store.ts`
 - `lib/mysql-runtime.ts`
 - `lib/payment-provider.ts`
@@ -66,6 +100,10 @@ Responsabilidade:
 - leitura e escrita
 - adaptacao por provedor
 - idempotencia, reconciliacao e rastreabilidade
+
+Risco estrutural atual:
+- `lib/**` ja esta funcional e navegavel, mas ainda depende de disciplina para nao virar deposito generico.
+- a proxima organizacao tecnica deve priorizar subdominios internos de `lib/**`, nao criar novas raizes paralelas.
 
 ## Fluxos principais
 
@@ -155,6 +193,8 @@ Regra de projeto:
 - assets publicos de marca em `public/brand/`
 - assets editoriais e canonicos do catalogo em `public/assets/editorial/catalog/`
 - tokens e mensagens em `data/`
+- parametros operacionais versionados em `config/`
+- `metadata.json` na raiz deve ser tratado como manifesto de tooling externo, nao como config interna do produto
 
 ## QA e gates
 - gates estaticos:
@@ -170,9 +210,16 @@ Regra de projeto:
   - `p3:precheck`
   - `go:preflight`
 
+Regra de fronteira:
+- `scripts/qa/**` para suites que dependem de servidor rodando, `QA_PORT`, `QA_BASE_URL`, bootstrap ou evidencias operacionais
+- `tests/**` para testes locais de framework, unitarios ou integracoes desacopladas de operacao
+
 ## Regras estruturais
 - nova rota entra em `app/` e precisa ser refletida em `docs/CODEBASE_MAP.md`
 - regra de negocio nova entra em `lib/`, nao em `components/`
+- estado cliente compartilhado entra em `context/` apenas se atravessar telas ou shells
+- hook novo entra em `hooks/` apenas se resolver comportamento client-side reutilizavel
+- se `context/**` ou `hooks/**` comecarem a decidir regra critica, a mudanca esta na camada errada
 - store novo precisa explicitar se usa `dev-store`, `sqlite`, `mysql` ou estrategia hibrida
 - mudanca de contrato ou fluxo critico exige atualizar:
   - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` se alterar estado real por fase
