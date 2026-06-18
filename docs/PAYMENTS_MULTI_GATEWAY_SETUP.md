@@ -146,7 +146,7 @@ Se faltar env obrigatoria (`PAYMENT_INTER_*`), o teste falha com `missing_env:*`
 3. Manter `PAYMENT_GATEWAY_TARGET` vazio neste recorte direto.
 4. Rodar `npm run qa:provider:requirements` para ver faltas de env e campos do conector.
 5. Rodar `npm run qa:provider:activate` apos `p3:precheck` e `qa:stripe:smoke`.
-6. Registrar evidencias e risco residual em `docs/EXECUTION_TRACKING.md` e `docs/CHANGELOG_GOVERNANCE.md`.
+6. Registrar evidencias recentes em `docs/EXECUTION_TRACKING.md` e risco/decisao em `docs/CHANGELOG_GOVERNANCE.md`.
 
 ## Sequencia futura para bridge multi-provider
 - Se o projeto reabrir `gateway_real` como recorte oficial, isso exige nova decisao registrada em governanca antes de reutilizar `qa:gateway-real:smoke` ou `PAYMENT_GATEWAY_TARGET`.
@@ -184,7 +184,7 @@ Sempre que alterar fluxo de gateway/provider, validar estes pontos antes de merg
 - Risco: falso PASS/FALHA por regra divergente entre scripts.
 
 5. Governanca e evidencias
-- `docs/EXECUTION_TRACKING.md`
+- `docs/EXECUTION_TRACKING.md` (snapshot/evidencia recente)
 - `docs/CHANGELOG_GOVERNANCE.md`
 - Risco: mudanca critica sem trilha de risco/rollback.
 

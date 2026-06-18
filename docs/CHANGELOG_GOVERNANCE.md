@@ -6,6 +6,8 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 - Criar uma entrada por decisÃ£o aprovada.
 - Sempre referenciar PR/commit e documento fonte do dominio.
 - Nao registrar tarefas; registrar decisoes e efeitos.
+- Entradas historicas podem citar rotas legadas que ja nao existem montadas no app tree.
+- Quando a decisao tocar navegacao ou namespace, a leitura normativa atual continua em `docs/ROUTES.md` e `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`.
 
 ## Template de entrada
 
@@ -31,6 +33,383 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 ---
 
 ## Entradas
+
+### [2026-06-18] Campanha passa a ter vitrine real por `CampaignProduct`
+- ID: GOV-0107
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `campanhas`
+  - `catalogo-curadoria`
+  - `pedidos-logistica`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Decisao:
+  - Instituir `CampaignProduct` como vinculo real entre `MovementCampaign` e `CatalogItem` publicado.
+  - Fazer `/c/[campaignId]` redirecionar para `/shop?campaignId=...` e filtrar a vitrine pelo recorte da campanha ativa.
+  - Fazer o checkout com contexto de campanha rejeitar item publicado fora da vitrine vinculada.
+  - Congelar mutacao dessa vitrine quando a campanha sair do estado editavel.
+- Contexto:
+  - A campanha ja existia como workflow, mas ainda sem recorte real de oferta. Isso deixava `/c/[campaignId]` com atribuicao, mas sem contrato claro entre campanha e vitrine.
+  - Sem esse vinculo, a Fase 2 continuava prometendo distribuicao comunitaria sem sustentar qual item realmente pertencia a qual campanha.
+- Impacto esperado:
+  - `community_manager` passa a montar vitrine real sem criar produto paralelo.
+  - `shop` passa a respeitar o contexto publico da campanha.
+  - Pedido com campanha deixa de aceitar item publicado solto fora do recorte aprovado.
+- Riscos conhecidos:
+  - `CampaignProduct` ainda nao resolve `Organization`, membership ou markup comunitario formal.
+  - Campanha continua parcial como dominio; a vitrine filtrada nao deve ser confundida com ecossistema completo de movimento.
+- Plano de rollback:
+  - Reverter o filtro de vitrine e a validacao de checkout apenas se surgir um contrato superior de distribuicao comunitaria incompatível, substituindo a regra no mesmo patch.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CODEBASE_MAP.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+
+### [2026-06-18] Snapshot da Fase 2 passa a congelar metadados reais da campanha ativa
+- ID: GOV-0106
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `campanhas`
+  - `pedidos-logistica`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- Decisao:
+  - Fazer o `OrderItemSnapshot` persistir tambem `campaignName` e `campaignProgressivePriceRule` quando a atribuicao vier de campanha ativa.
+  - Tratar esses campos como metadados reais da campanha no momento da compra, e nao como substituto de um dominio formal de `movementMarkup`.
+  - Subir a prova disso dentro de `qa:role:closure`.
+- Contexto:
+  - O runtime ja congelava ids de campanha e referral, mas ainda perdia metadados que o proprio dominio de campanha ja conhecia.
+  - Isso deixava a leitura da Fase 2 pessimista demais de um lado e abria espaco para gente apressada confundir `progressivePriceRule` com `movementMarkup` do outro.
+- Impacto esperado:
+  - Pedido passa a registrar nao so o vinculo da campanha, mas tambem o nome e a regra ativa que existiam no momento da compra.
+  - Auditoria e QA ganham prova mais forte sem inventar `organizationUsername`, `movementMarkup` formal ou `priceCompositionVersion`.
+- Riscos conhecidos:
+  - Ainda nao existe um dominio maduro de `Organization`.
+  - `campaignProgressivePriceRule` continua sendo um snapshot literal da campanha atual, nao uma politica de precificacao versionada.
+- Plano de rollback:
+  - Remover apenas esses metadados do snapshot se o dominio de campanha for remodelado com contrato superior incompatível.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+
+### [2026-06-18] Atribuicao de pedido passa a fechar `artist`, `community_manager` e `affiliate`
+- ID: GOV-0105
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `catalogo-curadoria`
+  - `campanhas`
+  - `referral`
+  - `financeiro`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/JOURNEY_MATRIX_BY_ROLE.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Decisao:
+  - Fazer o `OrderItemSnapshot` capturar contexto real de `artworkAuthorId`, `campaignId`, `organizationId`, `referralLinkId` e `affiliateUserId` quando a compra nasce de campanha/referral.
+  - Trocar a comissao default por atribuicao real no pagamento: artista por autoria da obra, comunidade por campanha ativa e affiliate por conversao automatica no `ReferralLink`.
+  - Fechar prova integrada dos papeis antes parciais com `qa:role:closure`.
+- Contexto:
+  - `artist`, `community_manager` e `affiliate` ja tinham namespace proprio, mas ainda dependiam de owner default, tela estatica ou atribuicao manual para parecer operacionais.
+  - Isso era exatamente o tipo de coerencia falsa que faz um papel "abrir" sem realmente fechar no dominio.
+- Impacto esperado:
+  - `artist` passa a receber ledger a partir da propria autoria.
+  - `community_manager` passa a receber ledger a partir de campanha ativa realmente atribuida ao pedido.
+  - `affiliate` passa a converter automaticamente a partir do fluxo publico `/af/[slug] -> order -> payment`.
+  - A resposta honesta sobre os tres papeis deixa de ser `parcial`.
+- Riscos conhecidos:
+  - O snapshot contextualizado da Fase 2 ainda nao esta completo.
+  - `affiliate` continua sem ledger/reward financeiro proprio.
+- Plano de rollback:
+  - Reverter a atribuicao contextual apenas se surgir contrato superior de comissionamento conflitante, substituindo a regra no mesmo patch.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/ROUTES.md`
+  - `docs/USER_360_ROLE_ALIGNMENT.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/CODEBASE_MAP.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+### [2026-06-18] Afiliacao deixa de ser mock e ganha prova minima de runtime
+- ID: GOV-0104
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `referral`
+  - `rbac`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- Decisao:
+  - Instituir um runtime minimo de afiliacao com `ReferralLink` e `ReferralEvent` persistidos em store local, leitura por owner e redirect publico em `/af/[slug]`.
+  - Restringir registro de conversao a `platform_admin` e manter reward financeiro e ledger fora do escopo ate existir dominio proprio.
+  - Fechar prova ponta a ponta com `qa:affiliate:referral`.
+- Contexto:
+  - O repositorio ja expunha superficie `/affiliate/*`, mas ela era essencialmente estatica e sem fonte de verdade para link, clique e conversao.
+  - Isso criava a falsa impressao de dominio pronto, quando ainda nao havia sequer prova minima de atribuicao.
+- Impacto esperado:
+  - O namespace de afiliado passa a refletir dados reais de links, cliques, conversoes e receita atribuida.
+  - A trilha de auditoria distingue operacao do afiliado de registro administrativo de conversao.
+  - A documentacao deixa de tratar referral como completamente ausente, sem por isso fingir que payout ou snapshot expandido estao resolvidos.
+- Riscos conhecidos:
+  - A persistencia ainda e local e efemera em `.tmp-store/**`.
+  - Receita atribuida nao equivale a recompensa liquidavel.
+  - `OrderItemSnapshot` ainda nao carrega `referralLinkId` nem contexto completo da Fase 2.
+- Plano de rollback:
+  - Reverter o dominio apenas se a modelagem minima de referral conflitar com um contrato superior de comissionamento ainda nao formalizado.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CODEBASE_MAP.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/ROLE_SCOPE_POLICY.md`
+
+### [2026-06-18] Catalogo passa a provar a cadeia completa de curadoria ate publicacao
+- ID: GOV-0103
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `catalogo-curadoria`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+- Decisao:
+  - Validar regras de negocio de `CatalogItem` no dominio antes da criacao e da publicacao final, incluindo variantes vendaveis, ids unicos, imagens coerentes e parcelas validas.
+  - Adicionar uma suite integrada que prova `artwork -> review -> approved -> catalog pending_review -> impact review -> ready -> published -> catalog publico`.
+- Contexto:
+  - O repositorio ja tinha estados de catalogo e rotas de publicacao, mas a prova ativa ainda estava concentrada no seed bootstrap e nao exercitava a cadeia real com `Artwork` aprovado e `ImpactReview`.
+  - Sem essa prova, o dominio parecia mais maduro do que a evidencia realmente mostrava.
+- Impacto esperado:
+  - Menos risco de item tecnicamente invalido entrar no catalogo por payload frouxo.
+  - Mais confianca de que o fluxo normativo de curadoria realmente fecha no runtime e na superficie publica.
+  - QA capaz de apontar exatamente se a quebra esta na curadoria, no governanca de impacto ou na publicacao.
+- Riscos conhecidos:
+  - Payloads antigos de catalogo que dependiam de variantes inconsistentes passam a falhar mais cedo com `422`.
+- Plano de rollback:
+  - Reverter as validacoes novas apenas se houver caso legitimo de negocio bloqueado por regra excessiva, registrando a excecao no DoD do dominio.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CODEBASE_MAP.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+
+### [2026-06-18] Curadoria de artwork passa a respeitar a etapa `under_review`
+- ID: GOV-0102
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `catalogo-curadoria`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/STATE_MACHINES.md`
+  - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+- Decisao:
+  - Introduzir `POST /api/artworks/[id]/start-review` como transicao explicita de `submitted` para `under_review`.
+  - Bloquear aprovacao ou rejeicao final enquanto a obra ainda estiver em `submitted`.
+  - Ajustar a tela `/curation/artworks` para refletir a etapa de revisao antes da decisao.
+- Contexto:
+  - A maquina normativa de `artwork` ja exigia a passagem por `under_review`, mas o runtime ainda pulava direto de `submitted` para `approved` ou `rejected`.
+  - Isso fazia o produto parecer aderente a regra, quando na pratica ainda quebrava o contrato mais importante da curadoria.
+- Impacto esperado:
+  - Coerencia real entre `docs/STATE_MACHINES.md`, API e interface de curadoria.
+  - Melhor trilha de auditoria para inicio de revisao.
+  - QA capaz de provar a janela correta de decisao editorial.
+- Riscos conhecidos:
+  - Integracoes ou testes antigos que esperavam decisao imediata a partir de `submitted` precisaram acompanhar a nova etapa.
+- Plano de rollback:
+  - Reverter o endpoint e o bloqueio apenas se a operacao editorial provar que a etapa separada de revisao e inviavel, com revisao simultanea da maquina normativa.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CODEBASE_MAP.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+
+### [2026-06-18] Dominio de artwork passa a distinguir autenticacao de permissao
+- ID: GOV-0101
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `catalogo-curadoria`
+  - `rbac`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+- Decisao:
+  - Normalizar `app/api/artworks` para responder `401` quando nao houver sessao e `403` apenas quando o ator autenticado nao tiver permissao.
+  - Expandir `qa:community-curation` para provar escopo autoral do artista, bloqueio de consulta cross-author e bloqueio de aprovacao fora da curadoria.
+- Contexto:
+  - O dominio de campanhas e producao ja estava distinguindo autenticacao ausente de papel proibido.
+  - `artworks` ainda tratava ausencia de sessao como `403`, o que embaralhava contrato de API e leitura de regressao.
+- Impacto esperado:
+  - Contrato de erro consistente entre dominios operacionais sensiveis.
+  - Melhor leitura de falha real em QA de curadoria.
+  - Menos ambiguidade entre "nao autenticado" e "autenticado sem permissao".
+- Riscos conhecidos:
+  - Clientes que dependessem informalmente de `403` sem sessao em `artworks` precisariam ajustar leitura, mas isso alinha o dominio ao contrato ja adotado no restante do runtime saneado.
+- Plano de rollback:
+  - Reverter o contrato apenas se houver consumidor real quebrando por dependencia explicita de `403` anonimo, registrando excecao no documento de dominio.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+
+### [2026-06-17] Prova serial da base atual passa a incluir jornada autenticada por papel
+- ID: GOV-0100
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `rbac`
+  - `ui-rotas`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/JOURNEY_MATRIX_BY_ROLE.md`
+  - `docs/CODEBASE_MAP.md`
+- Decisao:
+  - Consolidar `lib/access-control.ts` como autoridade tipada de papel para wrappers semanticos reutilizados por `permission-matrix` e `campaign-access`.
+  - Adotar uma suite autenticada por papel com login via `POST /api/auth/login` e cookie real.
+  - Fechar a base com um gate serial `qa:base:roles`, evitando concorrencia de rebuild no mesmo `.next`.
+- Contexto:
+  - A base tinha boa cobertura de endpoint, mas pouca prova de jornada real por papel na interface.
+  - Rodar smokes que recompilam em paralelo estava fabricando falhas de ambiente e escondendo a leitura correta do runtime.
+- Impacto esperado:
+  - Menos divergencia entre RBAC de endpoint, dashboard e namespace renderizado.
+  - Menos falso negativo de QA por concorrencia de build.
+  - Prova objetiva de que cada papel abre sua home, uma rota secundaria, um CTA real e uma rota indevida bloqueada.
+- Riscos conhecidos:
+  - O gate serial aumenta tempo de execucao, mas troca velocidade aparente por confiabilidade real.
+- Plano de rollback:
+  - Voltar para gates isolados apenas se uma infraestrutura de cache/build dedicado eliminar a disputa no `.next` sem perder cobertura por papel.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/JOURNEY_MATRIX_BY_ROLE.md`
+  - `docs/CODEBASE_MAP.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+### [2026-06-17] Guard administrativo deixa de autorizar shells legados removidos
+- ID: GOV-0099
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `rbac`
+  - `ui-rotas`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/ROUTES.md`
+- Decisao:
+  - Remover do guard administrativo qualquer autorizacao explicita para `/admin/support`, `/admin/production` e `/admin/finance*` que ja nao existem como shell montado.
+  - Preservar apenas as superficies `admin` ainda reais para `finance_admin` e a governanca cross-role de `/admin/impact-reviews`.
+- Contexto:
+  - O app tree ja tinha sido saneado, mas o guard ainda aceitava namespaces mortos como se fossem superficies vivas.
+- Impacto esperado:
+  - Menos chance de reintroduzir rota legada por leitura equivocada do guard.
+  - Menos ambiguidade entre compatibilidade externa transitória e autorizacao interna real.
+- Riscos conhecidos:
+  - Se alguma rota `admin` nova para operacao voltar a nascer sem documento normativo e sem ajuste do guard, o acesso vai falhar cedo.
+- Plano de rollback:
+  - Reabrir permissao apenas se uma superficie `admin` voltar a ser canonica e for registrada em `docs/ROUTES.md`.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `scripts/qa/qa-route-canonicalization.mjs`
+  - `lib/role-routing/access-routing.ts`
+
+### [2026-06-17] Execution tracking reduzido a snapshot ativo e historico movido para archive
+- ID: GOV-0098
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `onboarding`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+- Decisao:
+  - Rebaixar `docs/EXECUTION_TRACKING.md` para um snapshot ativo curto de status e evidencias recentes.
+  - Mover a narrativa historica longa para `docs/archive/EXECUTION_TRACKING_HISTORY_2026-06-17.md`.
+  - Preservar o caminho `docs/EXECUTION_TRACKING.md` como ponte ativa para evitar quebra de gates, links e rotina operacional.
+- Contexto:
+  - O tracking acumulou historico demais e passou a exigir memoria institucional para separar regra viva de contexto antigo.
+- Impacto esperado:
+  - Menos tempo para encontrar o estado atual real.
+  - Menos risco de usar narrativa antiga como se fosse instrucao operacional vigente.
+- Riscos conhecidos:
+  - Se o time voltar a despejar historico longo no snapshot ativo, o problema reaparece com outro nome.
+- Plano de rollback:
+  - Restaurar o tracking longo na camada ativa apenas se um documento superior absorver o snapshot curto sem quebrar a rotina de gate e evidencias.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/archive/EXECUTION_TRACKING_HISTORY_2026-06-17.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/EXECUTION_STATUS_MATRIX.md`
+  - `docs/P0_EVIDENCE_LOG.md`
+  - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+### [2026-06-17] Leitura historica de rotas legadas rebaixada a contexto
+- ID: GOV-0097
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `governanca`
+  - `ui-rotas`
+- Documento fonte afetado:
+  - `docs/ROUTES.md`
+  - `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`
+- Decisao:
+  - Tratar referencias a `/admin/support`, `/admin/production`, `/admin/finance/payouts` e `/finance/dashboard` em changelog e tracking apenas como contexto historico.
+  - Reforcar que a autoridade atual de rotas fica nos documentos normativos de routing e jornada.
+- Contexto:
+  - O saneamento estrutural removeu shells legados do app tree e consolidou namespaces canonicos por papel, mas documentos historicos continuavam carregando nomes antigos.
+- Impacto esperado:
+  - Menos leitura errada de historico como se fosse superficie viva.
+  - Menos chance de reintroduzir alias legado em produto ou navegacao interna.
+- Riscos conhecidos:
+  - Se documentos ativos de fase ou jornada continuarem citando alias morto, o problema volta por fora do changelog.
+- Plano de rollback:
+  - Reverter apenas se a politica de rotas canonicas for abandonada e o produto voltar a montar esses namespaces legados.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/ROUTES.md`
+  - `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`
 
 ### [2026-06-08] Checklist enxuto de aceite final dentro da trilha oficial
 - ID: GOV-0076

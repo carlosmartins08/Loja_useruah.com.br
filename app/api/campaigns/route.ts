@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
+import { canCreateCampaign, canReadCampaign, canReadCampaignWorkspace } from '@/lib/campaign-access';
+import { countCampaignProducts } from '@/lib/campaign-product-store';
 import { createCampaign, listCampaigns, type CampaignStatus } from '@/lib/campaign-store';
 import { createImpactReview } from '@/lib/impact-review-store';
 import { notifyImpactReviewEvent } from '@/lib/impact-notification-service';
@@ -13,10 +15,6 @@ interface CreateCampaignPayload {
   progressivePriceRule: string;
   startsAt?: string;
   endsAt?: string;
-}
-
-function canCreateCampaign(actorRole: string | null | undefined) {
-  return actorRole === 'community_manager' || actorRole === 'platform_admin';
 }
 
 function parseStatus(input: string | null): CampaignStatus | undefined {
@@ -41,16 +39,34 @@ function isValidPayload(payload: unknown): payload is CreateCampaignPayload {
 }
 
 export async function GET(request: Request) {
+  const actor = getActorFromRequest(request);
+  if (isRbacActive() && !actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  if (isRbacActive() && !canReadCampaignWorkspace(actor)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
   const { searchParams } = new URL(request.url);
   const status = parseStatus(searchParams.get('status'));
   const organizationId = searchParams.get('organizationId') ?? undefined;
-  const campaigns = await listCampaigns({ status, organizationId });
-  return NextResponse.json({ ok: true, campaigns });
+  const createdBy = isRbacActive() && actor?.actorRole === 'community_manager' ? actor.actorId : undefined;
+  const campaigns = (await listCampaigns({ status, organizationId, createdBy })).filter((campaign) => canReadCampaign(campaign, actor));
+  return NextResponse.json({
+    ok: true,
+    campaigns: campaigns.map((campaign) => ({
+      ...campaign,
+      productCount: countCampaignProducts(campaign.campaignId),
+    })),
+  });
 }
 
 export async function POST(request: Request) {
   const actor = getActorFromRequest(request);
-  if (isRbacActive() && !canCreateCampaign(actor?.actorRole)) {
+  if (isRbacActive() && !actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  if (isRbacActive() && !canCreateCampaign(actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
@@ -101,7 +117,14 @@ export async function POST(request: Request) {
   });
 
   return NextResponse.json(
-    { ok: true, campaign, governance: { reviewId: impactReview.review.reviewId, reviewDueAt: impactReview.review.dueAt } },
+    {
+      ok: true,
+      campaign: {
+        ...campaign,
+        productCount: 0,
+      },
+      governance: { reviewId: impactReview.review.reviewId, reviewDueAt: impactReview.review.dueAt },
+    },
     { status: 201 }
   );
 }

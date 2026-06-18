@@ -8,7 +8,7 @@ import { AppImage } from '@/components/shared/AppImage';
 import { useCart } from '@/context/CartContext';
 import { useUser } from '@/context/UserContext';
 import { SearchOverlay } from './SearchOverlay';
-import { VirtualAssistant } from '@/components/ai/VirtualAssistant';
+import { StyleGuideAssistant } from '@/components/guided-discovery/StyleGuideAssistant';
 import { ProfilePhotoModal } from './ProfilePhotoModal';
 import { resolveHomeByRole } from '@/lib/role-routing/access-routing';
 import { ROLE_LABEL, sortRolesForUi } from '@/lib/role-scope';
@@ -62,7 +62,7 @@ export function Header() {
         isScrolled ? 'bg-white/95 backdrop-blur-xl border-b border-ruah-100 py-2 md:py-3 shadow-glass' : 'bg-white/85 backdrop-blur-lg py-4 md:py-8'
       }`}>
         <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-        <VirtualAssistant isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
+        <StyleGuideAssistant isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
         <ProfilePhotoModal 
           isOpen={isProfilePhotoModalOpen} 
           onClose={() => setIsProfilePhotoModalOpen(false)} 

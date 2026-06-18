@@ -1,22 +1,25 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
-import { updateCampaignStatus } from '@/lib/campaign-store';
-
-function canSubmit(actorRole: string | null | undefined) {
-  return actorRole === 'community_manager' || actorRole === 'platform_admin';
-}
+import { canMutateOwnedCampaign } from '@/lib/campaign-access';
+import { getCampaign, updateCampaignStatus } from '@/lib/campaign-store';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const actor = getActorFromRequest(request);
-  if (isRbacActive() && !canSubmit(actor?.actorRole)) {
-    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  if (isRbacActive() && !actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
   const { id } = await context.params;
+  const campaign = getCampaign(id);
+  if (!campaign) return NextResponse.json({ error: 'not_found' }, { status: 404 });
+  if (isRbacActive() && !canMutateOwnedCampaign(campaign, actor)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
   const result = await updateCampaignStatus({ campaignId: id, from: ['draft', 'rejected'], to: 'pending_review' });
-  if (result.kind === 'not_found') return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (result.kind === 'invalid_transition') return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });
+  if (result.kind !== 'updated') return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
   appendAuditLog({
     actor_id: actor?.actorId ?? 'unknown',

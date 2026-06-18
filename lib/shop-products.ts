@@ -1,8 +1,17 @@
 ﻿import 'server-only';
 
 import { findBrandProductMerchandising, findBrandProductSeed } from '@/lib/brand-assets';
+import { listCampaignCatalogItemIds } from '@/lib/campaign-product-store';
+import { getCampaign } from '@/lib/campaign-store';
 import { listCatalogItems, type CatalogItemRecord } from '@/lib/catalog-item-store';
 import type { ShopProduct } from '@/components/shop/shop-data';
+
+export interface ShopCampaignContext {
+  campaignId: string;
+  campaignName: string;
+  organizationId: string;
+  progressivePriceRule: string;
+}
 
 function pickHoverImage(item: CatalogItemRecord) {
   const candidates = [
@@ -37,7 +46,37 @@ function mapCatalogItemToShopProduct(item: CatalogItemRecord): ShopProduct {
   };
 }
 
-export async function getPublishedShopProducts(): Promise<ShopProduct[]> {
+export async function getPublishedShopProducts(input?: {
+  campaignId?: string;
+}): Promise<{ products: ShopProduct[]; campaignContext: ShopCampaignContext | null }> {
   const items = await listCatalogItems({ publicationStatus: 'published' });
-  return items.map(mapCatalogItemToShopProduct);
+  const campaignId = input?.campaignId?.trim();
+
+  if (!campaignId) {
+    return {
+      products: items.map(mapCatalogItemToShopProduct),
+      campaignContext: null,
+    };
+  }
+
+  const campaign = getCampaign(campaignId);
+  if (!campaign || campaign.status !== 'active') {
+    return {
+      products: items.map(mapCatalogItemToShopProduct),
+      campaignContext: null,
+    };
+  }
+
+  const linkedCatalogItemIds = new Set(listCampaignCatalogItemIds(campaignId));
+  const filteredItems = items.filter((item) => linkedCatalogItemIds.has(item.catalogItemId));
+
+  return {
+    products: filteredItems.map(mapCatalogItemToShopProduct),
+    campaignContext: {
+      campaignId: campaign.campaignId,
+      campaignName: campaign.name,
+      organizationId: campaign.organizationId,
+      progressivePriceRule: campaign.progressivePriceRule,
+    },
+  };
 }

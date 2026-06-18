@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AlertTriangle, CheckCircle2, Clock3, ShieldAlert, XCircle } from 'lucide-react';
+import { useUser } from '@/context/UserContext';
 
 type ImpactReviewStatus = 'pending_review' | 'approved' | 'rejected';
 type ImpactReviewPriority = 'high' | 'normal';
@@ -53,9 +54,11 @@ function riskTag(fields: string[]) {
 
 export default function ImpactReviewsPage() {
   const pathname = usePathname();
+  const { isSessionReady, userRole } = useUser();
   const isAdminContext = pathname.startsWith('/admin');
   const isSupportContext = pathname.startsWith('/support');
   const isCurationContext = pathname.startsWith('/curation');
+  const canDecide = userRole === 'platform_admin';
   const contextLabel = isAdminContext
     ? 'Admin / Governance'
     : isSupportContext
@@ -85,7 +88,7 @@ export default function ImpactReviewsPage() {
 
     const response = await fetch(query, { cache: 'no-store' });
     if (!response.ok) {
-      setMessage(response.status === 403 ? 'Acesso negado: apenas platform_admin aprova revisoes.' : 'Falha ao carregar fila.');
+      setMessage(response.status === 403 ? 'Acesso negado: este papel nao participa desta superficie.' : 'Falha ao carregar fila.');
       setLoading(false);
       return;
     }
@@ -205,6 +208,13 @@ export default function ImpactReviewsPage() {
             </div>
           )}
 
+          {isSessionReady && !canDecide ? (
+            <div className='rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold uppercase tracking-[0.1em] text-amber-700 inline-flex items-center gap-2'>
+              <ShieldAlert size={14} />
+              Leitura cross-role ativa. Decisao continua restrita a platform_admin.
+            </div>
+          ) : null}
+
           {loading ? (
             <p className='text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400'>Carregando fila...</p>
           ) : reviews.length === 0 ? (
@@ -239,7 +249,7 @@ export default function ImpactReviewsPage() {
                       </div>
                     </div>
 
-                    {row.status === 'pending_review' ? (
+                    {row.status === 'pending_review' && canDecide ? (
                       <div className='mt-4 flex flex-col gap-3'>
                         <textarea
                           value={decisionReason[row.reviewId] ?? ''}
@@ -267,6 +277,10 @@ export default function ImpactReviewsPage() {
                             Rejeitar
                           </button>
                         </div>
+                      </div>
+                    ) : row.status === 'pending_review' ? (
+                      <div className='mt-4 text-xs font-semibold uppercase tracking-[0.1em] text-amber-700'>
+                        Leitura liberada para este papel. Aprovacao e rejeicao seguem com platform_admin.
                       </div>
                     ) : (
                       <div className='mt-4 text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500'>

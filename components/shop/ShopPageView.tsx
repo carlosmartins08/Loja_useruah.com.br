@@ -10,9 +10,15 @@ import { SHOP_CATEGORIES, SHOP_SEGMENTS, ShopCategory, ShopProduct, ShopSegment 
 
 interface ShopPageViewProps {
   products: ShopProduct[];
+  campaignContext?: {
+    campaignId: string;
+    campaignName: string;
+    organizationId: string;
+    progressivePriceRule: string;
+  } | null;
 }
 
-export function ShopPageView({ products }: ShopPageViewProps) {
+export function ShopPageView({ products, campaignContext }: ShopPageViewProps) {
   const [activeCategory, setActiveCategory] = useState<ShopCategory>('All');
   const [activeSegment, setActiveSegment] = useState<ShopSegment>('All');
   const [showFilters, setShowFilters] = useState(false);
@@ -40,21 +46,38 @@ export function ShopPageView({ products }: ShopPageViewProps) {
       <section className="pt-12 pb-20 bg-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(197,160,89,0.12),transparent_32%),radial-gradient(circle_at_82%_12%,rgba(23,44,54,0.08),transparent_28%)]" />
         <div className="section-container relative z-10">
-          <Breadcrumbs items={[{ label: 'Coleção' }]} className="mb-12 text-accent-gold" />
+          <Breadcrumbs
+            items={campaignContext ? [{ label: 'Coleção' }, { label: campaignContext.campaignName }] : [{ label: 'Coleção' }]}
+            className="mb-12 text-accent-gold"
+          />
 
           <div className="flex flex-col gap-16">
             <div className="layout-grid-media gap-12 lg:gap-16 items-end">
               <div className="lg:col-span-7">
-                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-gold mb-6 block">Coleção UseRuah 2026</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-accent-gold mb-6 block">
+                  {campaignContext ? `Campanha ativa ${campaignContext.campaignId}` : 'Coleção UseRuah 2026'}
+                </span>
                 <h1 className="ur-type-display-xl leading-[0.88] uppercase mb-6 italic font-black text-ruah-950 opacity-95">
-                  O SOPRO <br /> DA ARTE.
+                  {campaignContext ? (
+                    <>
+                      {campaignContext.campaignName} <br /> EM DESTAQUE.
+                    </>
+                  ) : (
+                    <>
+                      O SOPRO <br /> DA ARTE.
+                    </>
+                  )}
                 </h1>
                 <p className="text-sm font-medium text-ruah-500 max-w-xl leading-relaxed">
-                  Produtos publicados para compra imediata, organizados pelas linhas e categorias realmente ativas no catálogo.
+                  {campaignContext
+                    ? `Esta vitrine mostra apenas os itens realmente vinculados a ${campaignContext.campaignName}. A regra ativa da campanha no momento e ${campaignContext.progressivePriceRule}.`
+                    : 'Produtos publicados para compra imediata, organizados pelas linhas e categorias realmente ativas no catálogo.'}
                 </p>
                 <div className="mt-10 flex flex-wrap gap-4">
                   <span className="rounded-full border border-ruah-100 bg-white/80 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ruah-500 shadow-sm">Curadoria editorial</span>
-                  <span className="rounded-full border border-ruah-100 bg-white/80 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ruah-500 shadow-sm">Compra imediata</span>
+                  <span className="rounded-full border border-ruah-100 bg-white/80 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ruah-500 shadow-sm">
+                    {campaignContext ? `Organização ${campaignContext.organizationId}` : 'Compra imediata'}
+                  </span>
                   <span className="rounded-full border border-ruah-100 bg-white/80 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ruah-500 shadow-sm">Produção sob demanda</span>
                 </div>
               </div>
@@ -63,9 +86,13 @@ export function ShopPageView({ products }: ShopPageViewProps) {
                 <div className="rounded-[3rem] border border-ruah-100 bg-white/90 p-8 lg:p-10 shadow-fancy backdrop-blur-sm">
                   <div className="flex flex-col gap-5">
                     <span className="tech-label text-accent-gold">Manifesto da coleção</span>
-                    <h2 className="text-3xl font-serif italic uppercase leading-none text-ruah-950">Peças para vestir fé com forma.</h2>
+                    <h2 className="text-3xl font-serif italic uppercase leading-none text-ruah-950">
+                      {campaignContext ? 'Campanha com vitrine vinculada.' : 'Peças para vestir fé com forma.'}
+                    </h2>
                     <p className="text-sm font-medium leading-relaxed text-ruah-500">
-                      A loja precisa parecer coleção, não planilha. Esta vitrine equilibra volume, narrativa e descoberta para deixar o catálogo mais desejável.
+                      {campaignContext
+                        ? 'Quando a campanha existe de verdade, a vitrine precisa respeitar o vínculo com o catálogo. Aqui não entra item solto fora do recorte aprovado.'
+                        : 'A loja precisa parecer coleção, não planilha. Esta vitrine equilibra volume, narrativa e descoberta para deixar o catálogo mais desejável.'}
                     </p>
                   </div>
                   <div className="mt-8 grid grid-cols-3 gap-4 border-t border-ruah-100 pt-6">
@@ -192,7 +219,9 @@ export function ShopPageView({ products }: ShopPageViewProps) {
             <div className="rounded-[2rem] border border-ruah-100 bg-ruah-50/60 p-10 text-center flex flex-col items-center gap-5">
               <h2 className="text-2xl font-serif italic uppercase text-ruah-950">Nenhum produto encontrado.</h2>
               <p className="text-sm font-medium text-ruah-500 max-w-xl">
-                Tente outra combinação de filtros ou volte para o catálogo completo.
+                {campaignContext
+                  ? 'Esta campanha ainda nao tem itens publicados vinculados ou os filtros atuais esvaziaram o recorte.'
+                  : 'Tente outra combinação de filtros ou volte para o catálogo completo.'}
               </p>
               <div className="flex gap-3">
                 <button

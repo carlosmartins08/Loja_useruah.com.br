@@ -1,35 +1,53 @@
-export function canManageFinancialOperations(actorRole: string | null | undefined) {
-  return actorRole === 'finance_admin' || actorRole === 'platform_admin';
+import type { UserRole } from '@/lib/auth-session';
+import {
+  canApproveImpactReviewsRole,
+  canManageFinancialOperationsRole,
+  canManagePaymentConnectorsRole,
+  canManageRegistrationStatusRole,
+  canModerateArtworksRole,
+  canModerateCampaignsRole,
+  canOperateSupportRole,
+  canReadImpactReviewsRole,
+  canReadRegistrationQueueRole,
+  canSendRegistrationReminderRole,
+} from '@/lib/access-control';
+
+export function canManageFinancialOperations(actorRole: UserRole | null | undefined) {
+  return canManageFinancialOperationsRole(actorRole);
 }
 
-export function canManagePaymentConnectors(actorRole: string | null | undefined) {
-  return actorRole === 'platform_admin' || actorRole === 'finance_admin';
+export function canManagePaymentConnectors(actorRole: UserRole | null | undefined) {
+  return canManagePaymentConnectorsRole(actorRole);
 }
 
-export function canApproveImpactReviews(actorRole: string | null | undefined) {
-  return actorRole === 'platform_admin';
+export function canApproveImpactReviews(actorRole: UserRole | null | undefined) {
+  return canApproveImpactReviewsRole(actorRole);
 }
 
-export function canModerateCampaigns(actorRole: string | null | undefined) {
-  return actorRole === 'platform_admin' || actorRole === 'curator';
+export function canReadImpactReviews(actorRole: UserRole | null | undefined) {
+  return canReadImpactReviewsRole(actorRole);
 }
 
-export function canModerateArtworks(actorRole: string | null | undefined) {
-  return actorRole === 'platform_admin' || actorRole === 'curator';
+export function canModerateCampaigns(actorRole: UserRole | null | undefined) {
+  return canModerateCampaignsRole(actorRole);
 }
 
-export function canOperateSupport(actorRole: string | null | undefined) {
-  return actorRole === 'support_agent' || actorRole === 'platform_admin';
+export function canModerateArtworks(actorRole: UserRole | null | undefined) {
+  return canModerateArtworksRole(actorRole);
 }
 
-export function canReadRegistrationQueue(actorRole: string | null | undefined) {
-  return actorRole === 'support_agent' || actorRole === 'platform_admin';
+export function canOperateSupport(actorRole: UserRole | null | undefined) {
+  return canOperateSupportRole(actorRole);
 }
 
-export function canSendRegistrationReminder(actorRole: string | null | undefined) {
-  return actorRole === 'support_agent' || actorRole === 'platform_admin';
+export function canReadRegistrationQueue(actorRole: UserRole | null | undefined) {
+  return canReadRegistrationQueueRole(actorRole);
 }
 
-export function canManageRegistrationStatus(actorRole: string | null | undefined) {
-  return actorRole === 'platform_admin';
+export function canSendRegistrationReminder(actorRole: UserRole | null | undefined) {
+  return canSendRegistrationReminderRole(actorRole);
+}
+
+export function canManageRegistrationStatus(actorRole: UserRole | null | undefined) {
+  return canManageRegistrationStatusRole(actorRole);
 }

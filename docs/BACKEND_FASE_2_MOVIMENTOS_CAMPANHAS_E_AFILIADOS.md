@@ -1,6 +1,6 @@
 # Backend da Fase 2 - Movimentos, Campanhas e Afiliados
 
-Data de revisao: 2026-06-08
+Data de revisao: 2026-06-18
 
 ## Objetivo
 Definir a camada minima de backend da Fase 2 sem criar arquitetura paralela a Fase 1 e sem descrever como pronto o que ainda esta em implementacao ou apenas planejado.
@@ -52,8 +52,10 @@ Leitura obrigatoria:
 - permissao de movimento e afiliado deve ser explicita, sem heranca frouxa
 
 Estado atual reconhecido:
-- o snapshot atual continua em `phase1-v1`;
-- `Organization`, `CampaignProduct` e `Referral*` seguem como capacidade documental e nao como base comprovada do runtime.
+- o snapshot atual continua preservando a base da Fase 1, com extensao parcial em `phase2-context-v1` quando a compra nasce de campanha/referral;
+- `CampaignProduct` deixou de ser so capacidade documental: hoje ja aponta para `CatalogItem` publicado, sustenta `/api/campaigns/[id]/products`, a vitrine filtrada em `/shop?campaignId=...` e o bloqueio de checkout para item fora do recorte da campanha;
+- `Organization` segue sem dominio runtime equivalente maduro;
+- `Referral*` ja existe como runtime parcial de atribuicao, mas ainda sem reward financeiro proprio.
 
 ## Regra de compatibilidade
 Se uma venda acontece, ela deve continuar passando por `Order`, `OrderItem`, `Payment` e `OrderItemSnapshot`.

@@ -99,8 +99,9 @@ Indice de navegacao documental: docs/README_DOCS_HIERARCHY.md
 
 Classificacao oficial de documentos: docs/DOCS_CLASSIFICATION.md
 
-Matriz de status atual (`IMPLEMENTADO/PARCIAL/PLANEJADO/AUSENTE/NAO PRESUMIR/BLOQUEADO`): docs/EXECUTION_TRACKING.md
-Registro de evidências P0: docs/EXECUTION_TRACKING.md
+Matriz de status atual (`IMPLEMENTADO/PARCIAL/PLANEJADO/AUSENTE/NAO PRESUMIR/BLOQUEADO`): `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+Snapshot ativo e evidencias recentes: `docs/EXECUTION_TRACKING.md`
+Historico detalhado de execucao: `docs/archive/EXECUTION_TRACKING_HISTORY_2026-06-17.md`
 Plano mestre de continuidade tecnica: docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md
 Checklist oficial de revisao de telas frontend: docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md
 
@@ -133,8 +134,8 @@ Terça a quinta (execução):
 - Toda mudança sensível deve referenciar documento-fonte de domínio.
 
 Sexta (fechamento):
-- Atualizar `docs/EXECUTION_TRACKING.md`.
-- Atualizar domínio executado com progresso real.
+- Atualizar `docs/EXECUTION_TRACKING.md` com snapshot e evidencias recentes.
+- Atualizar dominio executado com progresso real na fonte normativa correspondente.
 - Registrar decisões e exceções em `docs/CHANGELOG_GOVERNANCE.md`.
 
 ### Regra 4: definição de pronto por bloco
@@ -170,5 +171,5 @@ Mudanças nos seguintes domínios exigem validação dos testes P0 aplicáveis e
 3. Alterações em checkout, pagamento, webhook, produção ou financeiro exigem evidência mínima anexada.
 4. Falha em teste P0 bloqueia merge/release.
 5. Correções emergenciais podem seguir com exceção apenas se houver registro explícito do risco, responsável e plano de correção.
-6. Release sem `docs/EXECUTION_TRACKING.md` atualizado no ciclo é bloqueado.
+6. Release sem `docs/EXECUTION_TRACKING.md` atualizado no ciclo e sem documento de dominio coerente é bloqueado.
 7. Mudanca `emergency` exige RCA registrada em ate 24h.

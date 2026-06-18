@@ -1,6 +1,6 @@
 # Fase 2 - Movimentos, Campanhas e Afiliados
 
-Data de revisao: 2026-06-08
+Data de revisao: 2026-06-18
 
 ## Objetivo
 Definir o escopo funcional oficial da Fase 2 sobre a venda ja provada na Fase 1, sem fazer o texto parecer mais maduro do que o runtime atual.
@@ -9,7 +9,7 @@ Definir o escopo funcional oficial da Fase 2 sobre a venda ja provada na Fase 1,
 - `docs/FASE_1_VENDA_DE_PRODUTO.md` continua mandando na Fase 1.
 - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md` define a regra estrutural da passagem.
 - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` define o que pode ser tratado como `IMPLEMENTADO`, `PARCIAL`, `PLANEJADO`, `AUSENTE`, `NAO PRESUMIR` ou `BLOQUEADO`.
-- `docs/EXECUTION_TRACKING.md` registra a maturidade operacional mais recente.
+- `docs/EXECUTION_TRACKING.md` registra apenas snapshot ativo e evidencias recentes do ciclo.
 - Este documento define o escopo funcional oficial da Fase 2.
 
 ## Regra central
@@ -20,7 +20,7 @@ Tudo preserva o fluxo base de compra.
 
 Leitura obrigatoria:
 - escopo de fase nao equivale a implementacao comprovada;
-- quando runtime e documento divergirem, prevalece a matriz e o tracking.
+- quando runtime e documento divergirem, prevalece a matriz; o tracking entra apenas como evidencia recente.
 
 ## Proibicoes estruturais
 A Fase 2 nao deve criar:
@@ -52,15 +52,18 @@ Quando a extensao da Fase 2 for implementada de forma real, `OrderItemSnapshot` 
 - `priceCompositionVersion`
 
 Estado atual reconhecido:
-- o snapshot oficial ainda e o da Fase 1, com `snapshotVersion=phase1-v1`;
-- esta extensao nao pode ser tratada como capacidade pronta antes de existir no runtime.
+- o snapshot oficial continua preservando a base da Fase 1, mas ja captura contexto parcial em `phase2-context-v1` quando a compra nasce de campanha/referral;
+- hoje o runtime ja consegue persistir `organizationId`, `campaignId`, `campaignName`, `campaignProgressivePriceRule`, `referralLinkId` e `affiliateUserId`;
+- `campaignProgressivePriceRule` e apenas o snapshot da regra atual da campanha e nao substitui um dominio formal de `movementMarkup`;
+- `organizationUsername`, `movementMarkup` e `priceCompositionVersion` continuam fora e nao podem ser presumidos.
 
 ## O que entra como escopo oficial da fase
 - `MovementCampaign` basico: capacidade parcial no runtime atual
+- `CampaignProduct` parcial no runtime atual: a campanha ja consegue vincular `CatalogItem` publicado, abrir `/c/[campaignId]` com vitrine filtrada em `/shop?campaignId=...` e fazer o checkout rejeitar item publicado fora desse recorte
 - `Organization / Movement`: escopo previsto, ainda nao comprovado como dominio maduro
 - username publico unico e vitrine `/@username`: escopo previsto, ainda nao comprovado ponta a ponta
 - categorias internas de movimento: escopo previsto
-- links rastreaveis e afiliacao: escopo previsto, ainda nao comprovado como dominio runtime
+- links rastreaveis e afiliacao: capacidade parcial no runtime atual para `ReferralLink`, clique publico em `/af/[slug]`, snapshot de pedido com `referralLinkId` e conversao registrada automaticamente; reward financeiro proprio segue fora
 - arrecadacao e contexto comercial do movimento: escopo previsto, dependente de implementacao adicional
 
 ## O que fica fora

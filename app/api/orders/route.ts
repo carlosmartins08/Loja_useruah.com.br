@@ -8,11 +8,17 @@ import { getShipmentByOrderId } from '@/lib/shipment-store';
 import { getCatalogItem } from '@/lib/catalog-item-store';
 import { canReadOrder, getActorFromRequest } from '@/lib/access-control';
 import { canManageFinancialOperations, canOperateSupport } from '@/lib/role-matrix/permission-matrix';
+import { extractCookieValue } from '@/lib/session-token';
+import { getCampaign } from '@/lib/campaign-store';
+import { isCatalogItemLinkedToCampaign } from '@/lib/campaign-product-store';
+import { getReferralLinkById } from '@/lib/referral-store';
 
 interface OrderCreatePayload {
   supplierId: string;
   shippingAddress: ShippingAddress;
   shippingAddressMode: 'same_as_account' | 'custom';
+  campaignId?: string;
+  referralLinkId?: string;
   items: Array<{
     catalogItemId: string;
     variantId: string;
@@ -92,6 +98,72 @@ async function validateCatalogAndInventory(payload: OrderCreatePayload) {
   return { ok: true as const };
 }
 
+function validateCampaignProductAttribution(
+  payload: OrderCreatePayload,
+  attribution: {
+    campaignId?: string;
+  }
+) {
+  if (!attribution.campaignId) return { ok: true as const };
+
+  for (const item of payload.items) {
+    if (!isCatalogItemLinkedToCampaign(attribution.campaignId, item.catalogItemId)) {
+      return {
+        ok: false as const,
+        error: 'catalog_item_not_in_campaign',
+        detail: item.catalogItemId,
+      };
+    }
+  }
+
+  return { ok: true as const };
+}
+
+async function resolveAttributionContext(request: Request, body: OrderCreatePayload) {
+  const cookieHeader = request.headers.get('cookie');
+  const explicitCampaignId = typeof body.campaignId === 'string' && body.campaignId.trim().length > 0 ? body.campaignId.trim() : undefined;
+  const explicitReferralLinkId =
+    typeof body.referralLinkId === 'string' && body.referralLinkId.trim().length > 0 ? body.referralLinkId.trim() : undefined;
+  const cookieCampaignId = extractCookieValue(cookieHeader, 'ruah_campaign_id') ?? undefined;
+  const cookieReferralLinkId = extractCookieValue(cookieHeader, 'ruah_referral_link_id') ?? undefined;
+  const campaignId = explicitCampaignId ?? cookieCampaignId;
+  const referralLinkId = explicitReferralLinkId ?? cookieReferralLinkId;
+  const context: {
+    campaignId?: string;
+    campaignName?: string;
+    campaignProgressivePriceRule?: string;
+    organizationId?: string;
+    communityOwnerId?: string;
+    referralLinkId?: string;
+    affiliateUserId?: string;
+  } = {};
+
+  if (campaignId) {
+    const campaign = getCampaign(campaignId);
+    if (campaign && campaign.status === 'active') {
+      context.campaignId = campaign.campaignId;
+      context.campaignName = campaign.name;
+      context.campaignProgressivePriceRule = campaign.progressivePriceRule;
+      context.organizationId = campaign.organizationId;
+      context.communityOwnerId = campaign.createdBy;
+    } else if (explicitCampaignId) {
+      return { ok: false as const, error: 'campaign_not_active', detail: campaignId };
+    }
+  }
+
+  if (referralLinkId) {
+    const referralLink = getReferralLinkById(referralLinkId);
+    if (referralLink && referralLink.status === 'active') {
+      context.referralLinkId = referralLink.referralLinkId;
+      context.affiliateUserId = referralLink.ownerId;
+    } else if (explicitReferralLinkId) {
+      return { ok: false as const, error: 'referral_link_not_active', detail: referralLinkId };
+    }
+  }
+
+  return { ok: true as const, context };
+}
+
 export async function POST(request: Request) {
   const actor = getActorFromRequest(request);
   if (!actor) {
@@ -122,10 +194,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: catalogValidation.error, detail: catalogValidation.detail }, { status: 409 });
   }
 
+  const attribution = await resolveAttributionContext(request, body);
+  if (!attribution.ok) {
+    return NextResponse.json({ error: attribution.error, detail: attribution.detail }, { status: 409 });
+  }
+
+  const campaignProductValidation = validateCampaignProductAttribution(body, attribution.context);
+  if (!campaignProductValidation.ok) {
+    return NextResponse.json({ error: campaignProductValidation.error, detail: campaignProductValidation.detail }, { status: 409 });
+  }
+
   const order = await createPlacedOrder({
     customerId,
     supplierId: body.supplierId,
     shippingAddress: body.shippingAddress,
+    attribution: attribution.context,
     items: body.items,
   });
 

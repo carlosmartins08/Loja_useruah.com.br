@@ -9,7 +9,8 @@ Definir um quadro unico de continuidade para o projeto evoluir sem reabrir fase,
 ## Regra de precedencia
 - Este documento nao redefine fase de produto.
 - Escopo oficial da fase atual continua em `docs/FASE_1_VENDA_DE_PRODUTO.md`.
-- Maturidade real continua em `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` e `docs/EXECUTION_TRACKING.md`.
+- Maturidade real continua em `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`.
+- `docs/EXECUTION_TRACKING.md` entra apenas como snapshot ativo e evidencia recente do ciclo.
 - Pagamento real continua na trilha transversal `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`.
 
 ## Quadro unico de continuidade
@@ -75,7 +76,7 @@ Regra:
 
 ### Etapa 2 - Baseline
 Se a Etapa 1 terminar em `GO` ou `GO CONDICIONADO` sem risco de regressao de fluxo:
-- atualizar `docs/EXECUTION_TRACKING.md`
+- atualizar `docs/EXECUTION_TRACKING.md` com evidencia recente do ciclo
 - atualizar `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` se a maturidade real subir
 - registrar decisao em `docs/CHANGELOG_GOVERNANCE.md`
 - distinguir explicitamente:

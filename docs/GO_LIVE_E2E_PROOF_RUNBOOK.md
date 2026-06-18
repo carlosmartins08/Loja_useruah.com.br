@@ -48,7 +48,7 @@ Sequência executada:
 ## 4) Evidência obrigatória no release
 - Saída final do `go:e2e:proof:run`.
 - Registro em:
-  - `docs/EXECUTION_TRACKING.md`
+  - `docs/EXECUTION_TRACKING.md` (snapshot/evidencia recente)
   - `docs/CHANGELOG_GOVERNANCE.md`
   - `docs/BLIND_SPOT_CLOSURE_CHECKLIST.md` (Gate Final preenchido)
 

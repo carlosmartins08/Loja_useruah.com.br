@@ -44,6 +44,14 @@ export interface CatalogItemRecord {
   publicationReason?: string;
 }
 
+export interface CatalogItemBusinessRuleInput {
+  image: string;
+  colorImages: Record<string, string>;
+  installmentCount: number;
+  price: number;
+  variants: CatalogItemVariant[];
+}
+
 type CatalogState = Record<string, CatalogItemRecord>;
 
 function readCatalog(): CatalogState {
@@ -100,6 +108,51 @@ function listCatalogItemsFromStore(filters?: { publicationStatus?: CatalogItemSt
     if (filters?.artworkId && item.artworkId !== filters.artworkId) return false;
     return true;
   });
+}
+
+export function validateCatalogItemBusinessRules(input: CatalogItemBusinessRuleInput) {
+  const issues: string[] = [];
+
+  if (!Number.isFinite(input.price) || input.price <= 0) {
+    issues.push('catalog_price_invalid');
+  }
+
+  if (!Number.isInteger(input.installmentCount) || input.installmentCount <= 0) {
+    issues.push('installment_count_invalid');
+  }
+
+  const colorImageValues = new Set(Object.values(input.colorImages).map((value) => value.trim()).filter(Boolean));
+  if (!colorImageValues.has(input.image.trim())) {
+    issues.push('primary_image_not_present_in_color_images');
+  }
+
+  const variantIds = new Set<string>();
+  let inStockCount = 0;
+
+  for (const variant of input.variants) {
+    const variantId = variant.variantId.trim();
+    const label = variant.label.trim();
+    const image = variant.image.trim();
+
+    if (!variantId) issues.push('variant_id_required');
+    if (!label) issues.push('variant_label_required');
+    if (!image) issues.push('variant_image_required');
+    if (!Number.isFinite(variant.price) || variant.price <= 0) issues.push('variant_price_invalid');
+    if (variantId) {
+      if (variantIds.has(variantId)) issues.push('duplicate_variant_id');
+      variantIds.add(variantId);
+    }
+    if (image && !colorImageValues.has(image) && image !== input.image.trim()) {
+      issues.push('variant_image_not_mapped');
+    }
+    if (variant.inStock) inStockCount += 1;
+  }
+
+  if (inStockCount === 0) {
+    issues.push('no_sellable_variant');
+  }
+
+  return Array.from(new Set(issues));
 }
 
 export async function createCatalogItem(

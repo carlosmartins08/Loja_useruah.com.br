@@ -1,7 +1,19 @@
+import { withWebhookSignature } from '../lib/qa-webhook-signature.mjs';
+import { ensureQaEnvLoaded } from '../lib/qa-env.mjs';
+import { postBootstrap, resolveSeededCatalogVariant } from '../lib/catalog-seed-helpers.mjs';
+
+ensureQaEnvLoaded();
+
 const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3215';
+const provider = process.env.QA_PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER ?? 'sandbox';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function resolveCheckoutMethod(currentProvider) {
+  if (currentProvider === 'stripe' || currentProvider === 'cielo') return 'card';
+  return 'pix';
 }
 
 async function req(method, pathname, body, headers = {}) {
@@ -28,7 +40,7 @@ async function reqWithRetry(method, pathname, body, headers = {}, retries = 3) {
   return last;
 }
 
-async function createPaidOrder(customerId) {
+async function createPaidOrder(customerId, seeded) {
   const order = await req(
     'POST',
     '/api/orders',
@@ -44,7 +56,14 @@ async function createPaidOrder(customerId) {
         state: 'SP',
         country: 'BR',
       },
-      items: [{ catalogItemId: '1', variantId: 'VAR-1-OFFWHITE', quantity: 1, unitPrice: 89.9 }],
+      items: [
+        {
+          catalogItemId: seeded.item.catalogItemId,
+          variantId: seeded.variant.variantId,
+          quantity: 1,
+          unitPrice: seeded.variant.price,
+        },
+      ],
       customer: { id: customerId },
     },
     { 'x-actor-id': customerId, 'x-actor-role': 'customer' }
@@ -53,16 +72,17 @@ async function createPaidOrder(customerId) {
   const orderId = order.data?.order?.orderId;
   assert(typeof orderId === 'string', 'orderId missing');
 
+  const checkoutMethod = resolveCheckoutMethod(provider);
   const checkout = await req(
     'POST',
     '/api/payments/checkout',
     {
       orderId,
-      method: 'pix',
-      provider: 'sandbox',
-      amount: 89.9,
+      method: checkoutMethod,
+      provider,
+      amount: seeded.variant.price,
       currency: 'BRL',
-      items: [{ id: '1', name: 'Camiseta Ruah', quantity: 1, unitPrice: 89.9 }],
+      items: [{ id: seeded.item.catalogItemId, name: seeded.item.name, quantity: 1, unitPrice: seeded.variant.price }],
     },
     { 'x-idempotency-key': `qa-cr-checkout-${Date.now()}-${Math.random()}` }
   );
@@ -70,11 +90,20 @@ async function createPaidOrder(customerId) {
   const providerReference = checkout.data?.payment?.providerReference;
   assert(typeof providerReference === 'string', 'providerReference missing');
 
+  const webhookPayload = {
+    eventId: `evt-cr-${Date.now()}-${Math.random()}`,
+    providerReference,
+    event: 'payment.approved',
+    ...(provider ? { provider } : {}),
+  };
   const webhook = await req(
     'POST',
     '/api/payments/webhook',
-    { eventId: `evt-cr-${Date.now()}-${Math.random()}`, providerReference, event: 'payment.approved' },
-    { 'x-idempotency-key': `qa-cr-wh-${Date.now()}-${Math.random()}` }
+    webhookPayload,
+    withWebhookSignature(webhookPayload, {
+      'x-idempotency-key': `qa-cr-wh-${Date.now()}-${Math.random()}`,
+      ...(provider ? { 'x-provider': provider } : {}),
+    })
   );
   assert(webhook.status === 200, `webhook expected 200, got ${webhook.status}`);
 
@@ -84,13 +113,17 @@ async function createPaidOrder(customerId) {
 async function run() {
   const report = [];
 
-  const seed = await req('POST', '/api/catalog-items/bootstrap', {}, { 'x-actor-id': 'qa-curator', 'x-actor-role': 'curator' });
+  const seed = await postBootstrap(baseUrl);
   assert(seed.status === 200 || seed.status === 201, `catalog bootstrap expected 200|201, got ${seed.status}`);
+  const seeded = await resolveSeededCatalogVariant(baseUrl);
+  const checkoutMethod = resolveCheckoutMethod(provider);
   report.push('CR-01 catalog bootstrap available');
+  report.push(`CR-01B catalog item resolved (${seeded.variant.variantId})`);
+  report.push(`CR-01C checkout method resolved (${checkoutMethod})`);
 
   const customerA = 'customer-cross-a';
   const customerB = 'customer-cross-b';
-  const orderId = await createPaidOrder(customerA);
+  const orderId = await createPaidOrder(customerA, seeded);
   report.push('CR-02 customer A created paid order');
 
   const forbiddenCustomerRead = await reqWithRetry(

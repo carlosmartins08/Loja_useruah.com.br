@@ -3,6 +3,10 @@
 Owner: Produto + Design + Frontend
 Status: Aprovado para incorporacao parcial com curadoria tecnica
 
+Nota de leitura atual:
+- mencoes a "Ruah Lab AI" abaixo sao historicas e nao descrevem componente ativo no runtime atual;
+- a politica vigente continua em `docs/AI_RULES.md`.
+
 ## 1) Objetivo
 Consolidar contribuicoes dos arquivos externos:
 - `useruah_design_system.html`
@@ -70,7 +74,7 @@ Sem degradar os contratos atuais em `docs/`.
 - Tabelas complexas (sort, filtro, paginação, estados vazios por tipo).
 - Formularios avancados (autocomplete, upload com progresso, mascara de cartao, date picker).
 - Padrão completo de filtros/catalogo (chips ativos, clear-all, no-results).
-- Componentes do Ruah Lab AI (geracao, progresso, erro, galeria de resultados).
+- Experiencias futuras de descoberta guiada e midia controlada, hoje fora do runtime ativo.
 - Decisao final de dark mode global (ou veto explicito de escopo).
 
 ## 6) Mudancas propostas no conjunto de docs
@@ -91,4 +95,3 @@ Um bloco novo so entra no sistema se cumprir:
 3. Tem regra mobile e desktop.
 4. Nao conflita com acessibilidade AA e focus-visible.
 5. Nao cria duplicidade de padrao com o que ja existe.
-

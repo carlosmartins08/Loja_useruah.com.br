@@ -1,79 +1,47 @@
-# Registration Matrix by Role (MVP -> Evolucao)
+# Registration Matrix by Role
 
-Data de revisao: 2026-05-27  
+Data de revisao: 2026-06-17  
 Owner: Produto + Engenharia + Operacoes
 
 ## Regra estrutural
-`Pessoa/Conta != Papel != Organizacao != Ambiente operacional`
+`Conta != papel != ambiente operacional`
 
-## Objetivo
-Definir quem cadastra o que, quem pode alterar, o que exige revisao e qual impacto operacional cada mudanca pode causar.
+## Estado atual de funcionamento
+- Runtime de sessao suporta `customer`, `artist`, `community_manager`, `affiliate`, `supplier`, `curator`, `support_agent`, `production_operator`, `finance_admin` e `platform_admin`.
+- Cada papel acima ja possui home canonica documentada em [ROUTES.md](/c:/Users/leobe/Documents/Aplicacao_vibe%20code_CarlosHenrique/Loja_%20UseRuah.com.br/docs/ROUTES.md).
+- O ponto sensivel nao e mais “falta de rota”, e sim manter contrato coerente entre rota, guard e backend.
 
-## Estado atual de funcionamento (resumo objetivo)
-- Runtime de sessao suporta: `customer`, `platform_admin`, `support_agent`, `production_operator`, `finance_admin`, `artist`, `community_manager`.
-- Rotas operacionais com matriz documentada ativa: `customer`, `platform_admin`, `support_agent`, `production_operator`.
-- `finance_admin` ja possui comportamento de acesso administrativo por helper de roteamento.
-- `supplier` e `curator` estao documentados em RBAC de dominio, mas sem ambiente de rota dedicado no frontend atual.
-
-## Cadastro base comum (todos os papeis)
-| Bloco | Campos principais | MVP | Status runtime |
+## Matriz por papel
+| Papel | Cadastros principais | Pode publicar direto? | Estado |
 | --- | --- | --- | --- |
-| Identidade da conta | nome, email, senha/login social, telefone | Sim | Parcial |
-| Papel inicial | customer, artist, community_manager etc. | Sim | Ativo |
-| Termos aceitos | tipo de termo, versao, data/hora/IP | Sim | Ativo |
-| Preferencias | canal, notificacoes, idioma | Parcial | Planejado |
-| Seguranca | verify email, bloqueio, status conta | Sim | Parcial |
-| Auditabilidade | createdAt, updatedAt, lastLogin | Sim | Parcial |
+| `customer` | perfil, endereco, pedidos, tickets | Nao | Ativo |
+| `artist` | perfil autoral, obras, dados de recebimento | Nao | Ativo |
+| `community_manager` | campanhas, metas, ativos da comunidade | Nao | Ativo |
+| `affiliate` | links, parametros de atribuicao, ativos de divulgacao | Nao | Ativo |
+| `supplier` | carteira operacional, capacidade, execucao de producao dentro do proprio escopo | Nao | Ativo sob escopo estrito |
+| `curator` | triagem editorial, aprovacao de obra e catalogo | Sim, dentro do dominio editorial | Ativo |
+| `support_agent` | tickets, respostas, contexto de pedido | Nao | Ativo |
+| `production_operator` | fila de producao, envio, ocorrencias operacionais | Nao | Ativo |
+| `finance_admin` | payouts, refunds, decisoes financeiras | Sim, com trilha de auditoria | Ativo |
+| `platform_admin` | politicas, cadastros, governanca ampla | Sim, com trilha de auditoria | Ativo |
 
-## Matriz por papel (o que gerencia)
-| Papel | Cadastros principais | Pode publicar direto? | Status |
-| --- | --- | --- | --- |
-| `customer` | perfil, endereco, favoritos, tickets | Nao | Ativo |
-| `artist` | perfil artistico, artes, portfolio, dados de recebimento | Nao (curadoria) | Parcial |
-| `community_manager` | perfil institucional, campanhas, metas | Nao (revisao/admin) | Parcial |
-| `supplier` | produto base, materia-prima, preco, frete, capacidade | Nao (impact review) | Planejado |
-| `curator` | aprovar/rejeitar artes e catalogo | Sim, dentro do escopo | Planejado |
-| `production_operator` | status de producao, ocorrencias, envio | Nao (somente operacao) | Ativo |
-| `support_agent` | tickets, respostas, encaminhamentos | Nao (sem mutacao financeira) | Ativo |
-| `finance_admin` | commission ledger, payout, refund, chargeback | Sim, com log | Parcial |
-| `platform_admin` | usuarios, papeis, politicas, regras globais | Sim, com log | Ativo |
-
-## Campos sensiveis (exigem revisao de impacto)
+## Campos sensiveis que continuam exigindo revisao
 1. Tabela de preco de fornecedor
 2. Regras de frete
-3. Prazo/capacidade de producao
-4. Materia-prima/ficha tecnica
+3. Capacidade e prazo de producao
+4. Ficha tecnica e materia-prima
 5. Regras de comissao
-6. Politica de troca/devolucao
-7. Regras de gateway/taxas
-8. Owner de comissao
+6. Politica de troca e devolucao
+7. Regras de gateway e taxas
+8. Ownership financeiro
 
-## Regra obrigatoria de fluxo (editar != publicar)
-- Toda alteracao de campo sensivel deve nascer como `pending_review`.
-- Publicacao de mudanca critica so apos aprovacao (`finance_admin` ou `platform_admin` conforme dominio).
-- Toda aprovacao/rejeicao critica deve gerar `AuditLog` com `actor_role`.
+## Regras de execucao
+1. Alteracao de campo sensivel continua nascendo como `pending_review`.
+2. UI de supplier nao autoriza mutacao fora de ownership inequivoco.
+3. Curadoria editorial nao deve ser confundida com impact review cross-role.
+4. Dashboard de role nao pode usar rota de outro papel para “quebrar um galho”.
 
-## Estados de cadastro recomendados
-`empty -> draft -> incomplete -> pending_review -> approved -> active -> paused -> blocked`
-
-## Comportamento por ambiente
-- Mobile prioritario: `customer`, `artist`, `community_manager` (fluxo e CTA).
-- Desktop prioritario: `supplier`, `support_agent`, `finance_admin`, `platform_admin` (tabelas, filtros, comparacao).
-
-## Revisao de coerencia com docs existentes
-- Fonte de permissoes globais: `docs/ROLES_MATRIX.md`
-- Fonte de fluxo de acesso por rota: `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`
-- Fonte de contratos: `docs/API_CONTRACTS.md`
-- Fonte de estados: `docs/STATE_MACHINES.md`
-
-## Gaps de funcionamento para execucao imediata
-1. Atualizar `WORKFLOW_RBAC_ACCESS_MATRIX.md` para refletir explicitamente `finance_admin`.
-2. Formalizar ambiente de rota para `artist` e `community_manager` (mesmo que inicial/parcial).
-3. Definir endpoints de revisao de impacto para campos sensiveis de fornecedor antes de abrir UI completa de supplier.
-4. Garantir que toda acao critica envie `actor_role` e passe por auditoria.
-
-## Criterio de aceite desta matriz
-- Existe owner por bloco de cadastro.
-- Existe regra de permissao no backend por acao critica.
-- Existe status operacional (ativo/parcial/planejado) por papel.
-- Existe checklist de PR exigindo evidencia de impacto quando campo sensivel for alterado.
+## Gaps ainda assumidos
+1. `affiliate` ja tem namespace proprio, mas ainda nao possui ledger financeiro dedicado como `artist`.
+2. Caso multi-supplier em producao segue sem job parcial por fornecedor.
+3. A governanca cross-role segue centralizada em `/admin/impact-reviews`.

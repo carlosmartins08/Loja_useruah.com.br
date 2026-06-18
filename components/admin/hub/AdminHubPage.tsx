@@ -90,14 +90,14 @@ function ActionQueue({
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
-        <Link href="/admin/support" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
+        <Link href="/support" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
           <div>
             <p className="text-xs font-bold text-[#1d2033]">Priorizar tickets criticos</p>
             <p className="text-[11px] text-[#6d7289]">{summary?.criticalTickets ?? 0} tickets sem resolucao</p>
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
-        <Link href="/admin/shipments" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
+        <Link href="/production/jobs" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
           <div>
             <p className="text-xs font-bold text-[#1d2033]">Fechar ciclo de envio</p>
             <p className="text-[11px] text-[#6d7289]">{summary?.shippedOrders ?? 0} pedidos enviados no ciclo atual</p>

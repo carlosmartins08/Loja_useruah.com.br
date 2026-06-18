@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { canManageCatalog, getActorFromRequest } from '@/lib/access-control';
 import { getArtwork } from '@/lib/artwork-store';
-import { getCatalogItem, publishCatalogItem } from '@/lib/catalog-item-store';
+import { getCatalogItem, publishCatalogItem, validateCatalogItemBusinessRules } from '@/lib/catalog-item-store';
 import { getLatestImpactReviewByEntity, getPendingImpactReviewByEntity } from '@/lib/impact-review-store';
 
 interface PublishPayload {
@@ -77,6 +77,16 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const variantBelowMin = current.variants.some((row) => row.price < policy.minPrice);
   if (variantBelowMin) {
     return NextResponse.json({ error: 'invalid_transition', detail: 'variant_price_below_min_price' }, { status: 409 });
+  }
+  const businessRuleIssues = validateCatalogItemBusinessRules({
+    image: current.image,
+    colorImages: current.colorImages,
+    installmentCount: current.installmentCount,
+    price: current.price,
+    variants: current.variants,
+  });
+  if (businessRuleIssues.length > 0) {
+    return NextResponse.json({ error: 'invalid_transition', detail: 'catalog_business_rules_failed', issues: businessRuleIssues }, { status: 409 });
   }
 
   const result = await publishCatalogItem({ catalogItemId: id, reason: payload.reason });

@@ -47,12 +47,17 @@ Padronizar acesso por papel com namespaces canonicos por ambiente, evitando mist
 ## Rotas legadas (migracao)
 - `/admin/support/*` -> `/support/*`
 - `/admin/production/*` -> `/production/*`
-- `/admin/finance/*` -> `/finance/*`
-- `/admin/curation/*` -> `/curation/*`
+- `/admin/finance/payouts` -> `/finance/payouts`
+- `/finance/dashboard` -> `/finance`
 - `/account/artist/*` -> `/artist/*`
 - `/account/community/*` -> `/community/*`
 - `/account/affiliate/*` -> `/affiliate/*`
 - `/account/supplier/*` -> `/supplier/*`
+
+## Superficies publicas de atribuicao
+- `/c/[campaignId]` e `/af/[slug]` sao superficies publicas de captura de contexto.
+- Elas nao concedem acesso operacional a nenhum papel.
+- O efeito esperado delas e apenas carregar contexto valido para checkout e atribuicao posterior.
 
 ## Regras de sessao
 - Sem sessao autenticada: rotas protegidas redirecionam para `/login`.
@@ -63,4 +68,5 @@ Padronizar acesso por papel com namespaces canonicos por ambiente, evitando mist
 - Guardas em `layout.tsx` por namespace e backend como fonte real de autorizacao.
 - Nenhuma rota operacional acessivel por papel indevido.
 - Rotas legadas redirecionando para destino canonico.
-- Evidencia de validacao registrada em `docs/EXECUTION_TRACKING.md`.
+- Evidencia recente de validacao registrada em `docs/EXECUTION_TRACKING.md`.
+- Regra normativa de rotas e acesso continua em `docs/ROUTES.md` e `docs/ROLES_MATRIX.md`.

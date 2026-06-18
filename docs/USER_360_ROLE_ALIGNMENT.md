@@ -1,51 +1,41 @@
-# User 360 Role Alignment (Fonte de Reconciliacao)
+# User 360 Role Alignment
 
-Data de revisao: 2026-05-27  
+Data de revisao: 2026-06-18  
 Owner: Produto + Engenharia + Operacoes
 
-## Problema que evita retrabalho
-Sem reconciliar papeis e jornadas entre docs de dominio, RBAC de rota e runtime de sessao, qualquer mudanca de UI/fluxo gera regressao em cadeia.
+## Ponto que importava corrigir
+O documento anterior dizia que `supplier` e `curator` ainda nao existiam em sessao ou rota, e isso ja nao era verdade. Essa defasagem virava decisao errada de produto e retrabalho em RBAC.
 
-## Fontes consultadas
-- `docs/ROLES_MATRIX.md`
-- `docs/JOURNEY_MATRIX_BY_ROLE.md`
-- `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`
-- `docs/API_CONTRACTS.md`
-- `docs/STATE_MACHINES.md`
-- `docs/REGISTRATION_MATRIX_BY_ROLE.md`
-
-## Mapa unico por papel (verdade operacional atual)
-| Papel | Oficial em dominio | Em sessao/runtime | Em rota frontend | Em contratos/API | Estado consolidado |
+## Estado operacional consolidado
+| Papel | Dominio | Sessao/runtime | Rota frontend | Contratos/API | Estado |
 | --- | --- | --- | --- | --- | --- |
 | `customer` | Sim | Sim | Sim | Sim | Ativo |
-| `artist` | Sim | Sim | Parcial | Sim | Parcial |
-| `community_manager` | Sim | Sim | Parcial | Sim | Parcial |
-| `supplier` | Sim | Nao | Nao | Sim | Planejado |
-| `curator` | Sim | Nao | Nao | Sim | Planejado |
-| `production_operator` | Sim | Sim | Sim | Sim | Ativo |
+| `artist` | Sim | Sim | Sim | Sim | Ativo |
+| `community_manager` | Sim | Sim | Sim | Sim | Ativo |
+| `affiliate` | Sim | Sim | Sim | Sim | Ativo |
+| `supplier` | Sim | Sim | Sim | Sim | Ativo sob escopo estrito de producao |
+| `curator` | Sim | Sim | Sim | Sim | Ativo |
 | `support_agent` | Sim | Sim | Sim | Sim | Ativo |
+| `production_operator` | Sim | Sim | Sim | Sim | Ativo |
 | `finance_admin` | Sim | Sim | Sim | Sim | Ativo |
 | `platform_admin` | Sim | Sim | Sim | Sim | Ativo |
 
-## Conclusoes objetivas
-1. O dominio ja e multipapel, mas a experiencia de rotas ainda e parcialmente multipapel.
-2. `supplier` e `curator` ja existem como contrato de negocio, porem sem sessao/rotas dedicadas no runtime atual.
-3. `artist` e `community_manager` existem na sessao, mas ainda sem ambiente operacional completo de rota.
+## Leitura honesta por papel
+1. `supplier` existe como papel operacional, mas nao pode herdar visao global de producao.
+2. `curator` existe em rota e sessao, mas seu trabalho editorial fica em `/curation/*`.
+3. A governanca cross-role de risco continua em `/admin/impact-reviews`.
+4. `platform_admin` continua com acesso transversal, mas deve preferir namespaces canonicos quando operar suporte, producao ou financeiro.
+5. `artist`, `community_manager` e `affiliate` passaram a ter prova integrada de atribuicao real em `qa:role:closure`, mesmo com a Fase 2 ampla ainda parcial no nivel de dominio.
 
-## Regras de execucao para nao quebrar
-1. Nao abrir rota nova para papel sem permissao de backend por acao critica.
-2. Nao promover status `Ativo` para papel sem trilha de auditoria e jornada minima.
-3. Nao alterar matriz de imagem/conteudo em paralelo com mudanca de RBAC (um risco por PR).
+## Regras para nao voltar a quebrar
+1. Mudanca de role exige alinhamento entre `layout`, dashboard, helper de roteamento e contrato backend.
+2. Se um dashboard apontar para rota bloqueada pelo guard, a role nao esta pronta.
+3. `supplier` em producao so opera pedidos com ownership inequivoco de um unico `supplierId`.
+4. Caso multi-supplier em producao continua reservado a `production_operator` e `platform_admin` ate existir job parcial por fornecedor.
 
-## Ordem obrigatoria de implementacao (anti-cascata)
-1. Consolidar sessao multipapel (`roles[]`, `activeRole`) com troca auditada.
-2. Consolidar autorizacao de backend por matriz central de permissao.
-3. Liberar rota por papel somente apos smoke + contrato + estado valido.
-4. Entao refinar UI por papel (menu, dashboard, formularios, impacto).
-
-## Gate de PR (obrigatorio quando alterar papel/permissao)
+## Gate de PR
 - Papel afetado:
-- Fonte de verdade atualizada (`ROLES_MATRIX`, `WORKFLOW_RBAC_ACCESS_MATRIX`, `REGISTRATION_MATRIX_BY_ROLE`):
-- Contrato/API afetado:
-- Evidencia de `actor_role` em auditoria:
-- Resultado de smoke por papel:
+- Home canonica validada em `docs/ROUTES.md`:
+- Guard/layout validado:
+- Contrato backend validado:
+- Smoke por papel executado:

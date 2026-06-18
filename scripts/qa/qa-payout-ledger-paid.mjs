@@ -6,6 +6,10 @@ ensureQaEnvLoaded();
 
 const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3212';
 const provider = process.env.QA_PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER ?? 'sandbox';
+const QA_USERS = {
+  finance: { email: 'finance@useruah.com.br', password: 'finance123', expectedRole: 'finance_admin' },
+  admin: { email: 'admin@useruah.com.br', password: 'admin123', expectedRole: 'platform_admin' },
+};
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -60,6 +64,30 @@ async function getWithRetry(pathname, headers = {}, retries = 3) {
   return last;
 }
 
+async function loginLocalUser(user) {
+  const response = await fetch(`${baseUrl}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: user.email, password: user.password }),
+  });
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    // ignore
+  }
+  assert(response.status === 200, `${user.expectedRole} login expected 200, got ${response.status}`);
+  const setCookie = response.headers.get('set-cookie') ?? '';
+  const match = setCookie.match(/ruah_session=([^;]+)/);
+  assert(match?.[1], `${user.expectedRole} ruah_session cookie missing after login`);
+  assert(data?.session?.activeRole === user.expectedRole, `${user.expectedRole} activeRole mismatch`);
+  return {
+    cookieValue: match[1],
+    cookieHeader: `ruah_session=${match[1]}`,
+    session: data.session,
+  };
+}
+
 async function createPaidOrder(customerId, seeded) {
   const order = await post('/api/orders', {
     supplierId: 'supplier-default',
@@ -88,7 +116,9 @@ async function createPaidOrder(customerId, seeded) {
   });
   assert(order.status === 201, `order expected 201, got ${order.status}`);
   const orderId = order.data?.order?.orderId;
+  const artistOwnerId = order.data?.order?.items?.[0]?.artworkAuthorId;
   assert(typeof orderId === 'string', 'orderId missing');
+  assert(typeof artistOwnerId === 'string' && artistOwnerId.length > 0, 'artistOwnerId missing from order snapshot');
 
   const checkoutMethod = resolveCheckoutMethod(provider);
   const checkout = await postWithRetry(
@@ -122,7 +152,7 @@ async function createPaidOrder(customerId, seeded) {
     })
   );
   assert(webhook.status === 200, `webhook expected 200, got ${webhook.status}`);
-  return orderId;
+  return { orderId, artistOwnerId };
 }
 
 async function shipOrder(orderId) {
@@ -158,8 +188,11 @@ async function shipOrder(orderId) {
 
 async function run() {
   const report = [];
-  const artistHeaders = { 'x-actor-id': 'artist-default', 'x-actor-role': 'artist' };
-  const adminHeaders = { 'x-actor-id': 'qa-admin', 'x-actor-role': 'platform_admin' };
+  const financeSession = await loginLocalUser(QA_USERS.finance);
+  const adminSession = await loginLocalUser(QA_USERS.admin);
+  const adminHeaders = { cookie: adminSession.cookieHeader };
+  const financeHeaders = { cookie: financeSession.cookieHeader };
+  report.push('QA-PAYOUT-LEDGER-00A authenticated finance/admin sessions ready');
 
   const seed = await postBootstrap(baseUrl);
   if (seed.status === 200) {
@@ -172,7 +205,8 @@ async function run() {
   const checkoutMethod = resolveCheckoutMethod(provider);
   report.push(`QA-PAYOUT-LEDGER-00C checkout method resolved (${checkoutMethod})`);
 
-  const orderId = await createPaidOrder('customer-payout-ledger', seeded);
+  const { orderId, artistOwnerId } = await createPaidOrder('customer-payout-ledger', seeded);
+  const artistHeaders = { 'x-actor-id': artistOwnerId, 'x-actor-role': 'artist' };
   await shipOrder(orderId);
   report.push('QA-PAYOUT-LEDGER-01 paid+shipped order generated commission availability');
 
@@ -201,13 +235,13 @@ async function run() {
   const approveReview = await post(`/api/admin/impact-reviews/${payoutReview.reviewId}/approve`, { reason: 'qa payout review approval' }, adminHeaders);
   assert(approveReview.status === 200, `impact review approve expected 200, got ${approveReview.status}`);
 
-  const startReview = await post(`/api/payouts/${payoutId}/start-review`, {}, adminHeaders);
+  const startReview = await post(`/api/payouts/${payoutId}/start-review`, {}, financeHeaders);
   assert(startReview.status === 200, `start-review expected 200, got ${startReview.status}`);
 
-  const approvePayout = await post(`/api/payouts/${payoutId}/approve`, {}, adminHeaders);
+  const approvePayout = await post(`/api/payouts/${payoutId}/approve`, {}, financeHeaders);
   assert(approvePayout.status === 200, `payout approve expected 200, got ${approvePayout.status}`);
 
-  const markPaid = await post(`/api/payouts/${payoutId}/mark-paid`, {}, adminHeaders);
+  const markPaid = await post(`/api/payouts/${payoutId}/mark-paid`, {}, financeHeaders);
   assert(markPaid.status === 200, `mark-paid expected 200, got ${markPaid.status}`);
   assert(markPaid.data?.reconciliation?.commissionStatusApplied === 'paid', 'commissionStatusApplied should be paid');
   report.push('QA-PAYOUT-LEDGER-04 payout approved->paid with ledger reconciliation');

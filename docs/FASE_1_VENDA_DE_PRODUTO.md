@@ -1,19 +1,25 @@
 # Fase 1 - Venda de Produto
 
-Data de revisao: 2026-06-03
+Data de revisao: 2026-06-17
 
 ## Objetivo
-Fechar a primeira fase da plataforma com uma operacao vendavel, simples e coerente: o cliente compra no ecommerce e o admin master opera a loja de ponta a ponta.
+Fechar a primeira fase da plataforma com uma operacao vendavel, simples e coerente: o cliente compra no ecommerce e a operacao interna atende a loja de ponta a ponta.
 
 ## Regra de precedencia
 Este documento e a fonte oficial da Fase 1.
 
 Se houver conflito entre este documento e qualquer roadmap, tracking historico, checklist ou nota operacional mais antiga, prevalece este documento.
 
+Leitura complementar obrigatoria:
+- `docs/ROUTES.md` continua como fonte normativa de namespace e redirect.
+- Este documento define o recorte comercial da fase e nao recria aliases legados como superficie oficial.
+
 ## Definicao executiva da fase
-Na Fase 1 existem apenas dois atores operacionais ativos:
+Na Fase 1 comercial existem dois blocos de ator relevantes:
 - `customer`
-- `admin_master`
+- operacao interna
+
+No runtime atual, a operacao interna se distribui entre `platform_admin`, `support_agent`, `production_operator` e `finance_admin`, sempre pelos namespaces canonicos documentados em `docs/ROUTES.md`.
 
 Tudo que nao for necessario para vender, receber pedido, acompanhar pagamento, registrar envio e responder suporte fica fora do escopo ativo da fase.
 
@@ -50,9 +56,13 @@ Metricas de confirmacao:
 - rastreio
 - suporte basico
 
-### Area administrativa
+### Area operacional
 - `/admin`
-- operacao centralizada pelo `admin_master`
+- `/support`
+- `/production`
+- `/finance`
+- `platform_admin` usa o cockpit administrativo
+- roles operacionais entram pelos namespaces canonicos do proprio papel
 - cadastro e publicacao de produto
 - acompanhamento de pedido
 - acompanhamento de pagamento
@@ -114,8 +124,8 @@ O cliente nao pode ver:
 - trilha administrativa completa
 - entidades tecnicas como `ProductionJob`, `CommissionLedger` e `Payout`
 
-### Regra 4 - visibilidade do admin
-O `admin_master` deve conseguir operar:
+### Regra 4 - visibilidade da operacao interna
+A operacao interna deve conseguir operar:
 - cadastro de insumos minimos de produto
 - publicacao do catalogo
 - pedidos
@@ -127,22 +137,22 @@ O `admin_master` deve conseguir operar:
 O cliente nao deve enxergar enum tecnico bruto quando houver traducao de status mais adequada na interface.
 
 ## Fluxo mestre da fase
-1. `admin_master` prepara e publica um `CatalogItem`
+1. `platform_admin` prepara e publica um `CatalogItem`
 2. `customer` visualiza o produto no ecommerce
 3. `customer` adiciona ao carrinho
 4. `customer` conclui checkout sandbox
 5. sistema cria `Order` e `OrderItemSnapshot`
 6. pagamento confirma o pedido
-7. `admin_master` acompanha e registra envio
+7. operacao interna acompanha e registra envio
 8. `customer` acompanha status e rastreio em `/account`
 9. suporte basico atende ocorrencias do pedido
 
 Esse e o fluxo que define o sucesso da Fase 1. Tudo que nao fortalece esse fluxo deve ser tratado como backlog.
 
 ## Gate de aceite P0
-- `P0-F1-01` admin acessa `/admin`
+- `P0-F1-01` `platform_admin` acessa `/admin`
 - `P0-F1-02` cliente acessa `/account`
-- `P0-F1-03` admin publica produto vendavel
+- `P0-F1-03` operacao interna publica produto vendavel
 - `P0-F1-04` produto publicado aparece no ecommerce
 - `P0-F1-05` cliente ve produto sem custo, margem ou fornecedor interno
 - `P0-F1-06` cliente adiciona produto ao carrinho
@@ -150,8 +160,8 @@ Esse e o fluxo que define o sucesso da Fase 1. Tudo que nao fortalece esse fluxo
 - `P0-F1-08` `OrderItemSnapshot` e gerado
 - `P0-F1-09` cliente acompanha pedido em `/account`
 - `P0-F1-10` cliente nao acessa pedido de outro usuario
-- `P0-F1-11` admin acompanha pedidos
-- `P0-F1-12` admin registra rastreio/envio
+- `P0-F1-11` operacao interna acompanha pedidos
+- `P0-F1-12` operacao interna registra rastreio/envio
 - `P0-F1-13` cliente ve rastreio quando disponivel
 - `P0-F1-14` suporte basico funciona
 - `P0-F1-15` acoes criticas deixam rastro em `AuditLog`

@@ -20,7 +20,7 @@ Evitar retrabalho, duplicidade e conflito de interpretacao sobre qual documento 
 4. `docs/ARCHITECTURE.md`
 5. `docs/CODEBASE_MAP.md`
 6. `docs/CHANGELOG_GOVERNANCE.md`
-7. `docs/EXECUTION_TRACKING.md` como evidencia, nunca como autorizacao isolada
+7. `docs/EXECUTION_TRACKING.md` como snapshot ativo e evidencia recente, nunca como autorizacao isolada
 
 ## Ordem de consulta para onboarding tecnico
 1. `README.md`

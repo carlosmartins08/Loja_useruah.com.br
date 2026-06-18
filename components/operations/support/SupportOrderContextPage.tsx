@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { AlertCircle, ArrowLeft, CheckCircle2, LifeBuoy, Send } from 'lucide-react';
 import { getJson, HttpRequestError, postJson } from '@/lib/http-client';
 import { renderContentMessageByLayer } from '@/lib/content-messages';
@@ -57,9 +57,7 @@ interface SupportContextResponse {
 }
 
 export default function SupportOrderContextPage() {
-  const pathname = usePathname();
-  const isAdminContext = pathname.startsWith('/admin');
-  const supportHomeHref = isAdminContext ? '/admin/support' : '/support';
+  const supportHomeHref = '/support';
   const params = useParams<{ orderId: string }>();
   const orderId = String(params?.orderId ?? '');
   const [loading, setLoading] = React.useState(true);

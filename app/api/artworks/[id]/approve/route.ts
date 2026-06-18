@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
-import { canReviewArtwork, getActorFromRequest } from '@/lib/access-control';
+import { canReviewArtwork, getActorFromRequest, isRbacActive } from '@/lib/access-control';
 import { updateArtworkReview } from '@/lib/artwork-store';
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const actor = getActorFromRequest(request);
+  if (isRbacActive() && !actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
   if (!canReviewArtwork(actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }

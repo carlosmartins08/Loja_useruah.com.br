@@ -20,15 +20,11 @@ export function resolveHomeByRole(role: UserRole): string {
 export function isAllowedAdminPath(role: UserRole, pathname: string): boolean {
   if (pathname === '/admin') return role === 'platform_admin';
   if (role === 'platform_admin') return true;
-  if (role === 'finance_admin') {
-    return (
-      pathname.startsWith('/admin/finance') ||
-      pathname.startsWith('/admin/payments/connectors') ||
-      pathname.startsWith('/admin/ops-alerts')
-    );
+  if (pathname.startsWith('/admin/impact-reviews')) {
+    return role === 'curator' || role === 'support_agent' || role === 'finance_admin';
   }
-  if (role === 'production_operator') return pathname.startsWith('/admin/production');
-  if (role === 'support_agent') return pathname.startsWith('/admin/support');
-  if (role === 'curator') return pathname.startsWith('/admin/impact-reviews');
+  if (role === 'finance_admin') {
+    return pathname.startsWith('/admin/payments/connectors') || pathname.startsWith('/admin/ops-alerts');
+  }
   return false;
 }

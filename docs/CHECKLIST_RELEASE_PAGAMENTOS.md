@@ -19,7 +19,8 @@
 - [ ] Reprocessamento de webhook validado
 - [ ] Excecoes de cancel/refund/chargeback validadas sem duplicidade
 - [ ] Rollback de provider testado
-- [ ] Evidencia registrada em `docs/EXECUTION_TRACKING.md`
+- [ ] Evidencia recente registrada em `docs/EXECUTION_TRACKING.md`
+- [ ] Evidencia normativa coerente com `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
 - [ ] Decisao registrada em `docs/CHANGELOG_GOVERNANCE.md`
 
 ## Rollout controlado de termos (feature flags)

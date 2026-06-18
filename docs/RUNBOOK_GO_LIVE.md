@@ -8,7 +8,7 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
 - `CRIT-PAY-REAL-001` deve estar resolvido antes de venda real.
 - `CRIT-PAY-REAL-002` deve estar resolvido antes de venda real.
 - Sem esses dois itens, pode haver vitrine/pre-lancamento, mas sem captura financeira real.
-- Sem `docs/EXECUTION_TRACKING.md` atualizado com status + evidencias P0, release bloqueado.
+- Sem `docs/EXECUTION_TRACKING.md` atualizado com snapshot + evidencias P0, release bloqueado.
 - Sem plano de rollback testado (<30 min), release bloqueado.
 
 ## Quadro de Status (preencher diariamente)
@@ -141,7 +141,7 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
   - escalar trafego ou manter rampa com base em dados dos 2 primeiros dias
 
 ## Evidencias obrigatorias
-- `docs/EXECUTION_TRACKING.md` atualizado
+- `docs/EXECUTION_TRACKING.md` atualizado como snapshot ativo do ciclo
 - `docs/CHANGELOG_GOVERNANCE.md` atualizado
 - Referencia operacional: `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
 
@@ -149,5 +149,6 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
 - [ ] Tipo de mudanca declarado (`standard|normal|emergency`) no PR principal.
 - [ ] Risco e rollback documentados no PR principal.
 - [ ] `docs/EXECUTION_TRACKING.md` atualizado no mesmo ciclo.
+- [ ] Documento normativo do dominio atualizado quando a release alterar maturidade real ou contrato.
 - [ ] Evidencia P0 vinculada ao escopo da release.
 - [ ] Se houve `emergency`, RCA aberta em ate 24h.

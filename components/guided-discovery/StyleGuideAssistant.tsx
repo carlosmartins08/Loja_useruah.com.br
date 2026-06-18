@@ -22,7 +22,7 @@ interface Step {
   options: Option[];
 }
 
-interface AssistantRecommendation {
+interface StyleGuideRecommendation {
   productId: string;
   productName: string;
   technicalReason: string;
@@ -32,30 +32,30 @@ interface AssistantRecommendation {
 const STEPS: Step[] = [
   {
     id: 'space',
-    question: 'Qual o seu chamado artístico hoje?',
+    question: 'Qual o seu chamado artÃ­stico hoje?',
     options: [
-      { id: 'residential', label: 'Cotidiano', icon: Home, detail: 'Para o dia a dia com propósito.' },
-      { id: 'office', label: 'Manifesto', icon: Briefcase, detail: 'Expressando sua fé no trabalho.' },
-      { id: 'gallery', label: 'Criação', icon: Camera, detail: 'Momentos de inspiração e presença visual.' },
-      { id: 'hospitality', label: 'Comunhão', icon: Coffee, detail: 'Encontros que pedem calor e acolhimento.' },
+      { id: 'residential', label: 'Cotidiano', icon: Home, detail: 'Para o dia a dia com propÃ³sito.' },
+      { id: 'office', label: 'Manifesto', icon: Briefcase, detail: 'Expressando sua fÃ© no trabalho.' },
+      { id: 'gallery', label: 'CriaÃ§Ã£o', icon: Camera, detail: 'Momentos de inspiraÃ§Ã£o e presenÃ§a visual.' },
+      { id: 'hospitality', label: 'ComunhÃ£o', icon: Coffee, detail: 'Encontros que pedem calor e acolhimento.' },
     ],
   },
   {
     id: 'mood',
-    question: 'Qual a leitura que essa peça precisa carregar?',
+    question: 'Qual a leitura que essa peÃ§a precisa carregar?',
     options: [
-      { id: 'cozy', label: 'Respiro', detail: 'Paz, suavidade e pouca interferência visual.' },
-      { id: 'neutral', label: 'Firmeza', detail: 'Base sólida, uso recorrente e clareza.' },
-      { id: 'technical', label: 'Presença', detail: 'Impacto mais direto, com mais peso.' },
-      { id: 'dynamic', label: 'Movimento', detail: 'Energia, contraste e circulação.' },
+      { id: 'cozy', label: 'Respiro', detail: 'Paz, suavidade e pouca interferÃªncia visual.' },
+      { id: 'neutral', label: 'Firmeza', detail: 'Base sÃ³lida, uso recorrente e clareza.' },
+      { id: 'technical', label: 'PresenÃ§a', detail: 'Impacto mais direto, com mais peso.' },
+      { id: 'dynamic', label: 'Movimento', detail: 'Energia, contraste e circulaÃ§Ã£o.' },
     ],
   },
 ];
 
-export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export function StyleGuideAssistant({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [selections, setSelections] = useState<Record<string, string>>({});
-  const [recommendation, setRecommendation] = useState<AssistantRecommendation | null>(null);
+  const [recommendation, setRecommendation] = useState<StyleGuideRecommendation | null>(null);
   const modalRef = React.useRef<HTMLDivElement>(null);
 
   const handleSelect = (stepId: string, optionId: string) => {
@@ -143,7 +143,7 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
                 </div>
                 <div className="flex-1 flex flex-col gap-8">
                   <div className="flex flex-col gap-2">
-                    <span className="tech-label text-accent-gold">A escolha com propósito</span>
+                    <span className="tech-label text-accent-gold">A escolha com propÃ³sito</span>
                     <h3 className="text-5xl font-serif leading-none italic uppercase">{recommendedProduct.name}</h3>
                   </div>
 
@@ -155,7 +155,7 @@ export function VirtualAssistant({ isOpen, onClose }: { isOpen: boolean; onClose
                       </p>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-ruah-300">Dica de composição:</span>
+                      <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-ruah-300">Dica de composiÃ§Ã£o:</span>
                       <p className="text-xs text-ruah-500 font-medium uppercase tracking-widest leading-loose italic">
                         {recommendation.layoutTip || recommendedProduct.stylingTip}
                       </p>

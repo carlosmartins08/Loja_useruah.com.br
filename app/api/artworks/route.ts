@@ -63,7 +63,7 @@ function parseStatus(input: string | null): ArtworkStatus | undefined {
 export async function GET(request: Request) {
   const actor = getActorFromRequest(request);
   if (isRbacActive() && !actor) {
-    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -84,6 +84,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const actor = getActorFromRequest(request);
+  if (isRbacActive() && !actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
   if (!canCreateArtwork(actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }

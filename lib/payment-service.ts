@@ -23,6 +23,7 @@ import { getCatalogItem } from '@/lib/catalog-item-store';
 import { getArtwork } from '@/lib/artwork-store';
 import { appendIntegrationLog } from '@/lib/integration-log-store';
 import { getProviderRecipient } from '@/lib/provider-recipient-store';
+import { recordReferralConversion } from '@/lib/referral-store';
 
 export class PaymentFlowError extends Error {
   status: number;
@@ -212,11 +213,6 @@ export async function applyWebhookEvent(input: {
     const supplierDefault = process.env.SUPPLIER_OWNER_DEFAULT_ID?.trim() || 'supplier-default';
     const platformDefault = process.env.PLATFORM_OWNER_DEFAULT_ID?.trim() || 'platform-default';
     const artistDefault = process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default';
-    const artistRecipient = await getProviderRecipient({
-      provider: providerName,
-      entityType: 'artist',
-      entityId: artistDefault,
-    });
     const platformRecipient = await getProviderRecipient({
       provider: providerName,
       entityType: 'platform',
@@ -232,10 +228,16 @@ export async function applyWebhookEvent(input: {
       await Promise.all(
         paidOrder.items.map(async (item) => {
           const supplierId = item.supplierId || supplierDefault;
+          const artistId = item.artworkAuthorId?.trim() || artistDefault;
           const supplierRecipient = await getProviderRecipient({
             provider: providerName,
             entityType: 'supplier',
             entityId: supplierId,
+          });
+          const artistRecipient = await getProviderRecipient({
+            provider: providerName,
+            entityType: 'artist',
+            entityId: artistId,
           });
       const gross = item.grossItemAmount || Number((item.unitPrice * item.quantity).toFixed(2));
       const supplierAmount = item.supplierAmount ?? round2(gross * supplierPct);
@@ -268,7 +270,7 @@ export async function applyWebhookEvent(input: {
           orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
           paymentId: updatedPayment.paymentId,
           recipientType: 'artist' as const,
-          recipientId: artistDefault,
+          recipientId: artistId,
           providerRecipientId: artistRecipient?.providerRecipientId,
           grossAmount: gross,
           splitAmount: artistLicenseAmount,
@@ -312,7 +314,11 @@ export async function applyWebhookEvent(input: {
       return {
         orderId: paidOrder.orderId,
         orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
-        artistId: artwork?.authorId ?? (process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default'),
+        artistId:
+          item.artworkAuthorId?.trim() ||
+          artwork?.authorId ||
+          process.env.ARTIST_OWNER_DEFAULT_ID?.trim() ||
+          'artist-default',
         artworkId: catalog?.artworkId ?? 'artwork-unknown',
         supplierId,
         productId: catalog?.productBaseId ?? item.catalogItemId,
@@ -330,29 +336,82 @@ export async function applyWebhookEvent(input: {
     }));
     await createLicenseEvents(licenseRows);
 
-    const commissionRate = Number(process.env.COMMISSION_RATE ?? '0.15');
-    const ownerId = process.env.COMMISSION_OWNER_DEFAULT_ID ?? 'artist-default';
-    const ownerRole = (process.env.COMMISSION_OWNER_DEFAULT_ROLE ?? 'artist') as 'artist' | 'community_manager';
-    const commissionAmount = Number((updatedPayment.amount * commissionRate).toFixed(2));
-    const commissionResult = await createCommissionPending({
-      orderId: order.orderId,
-      ownerId,
-      ownerRole,
-      amount: commissionAmount,
-      sourceKey: `order.paid:${order.orderId}`,
-    });
+    for (const item of paidOrder.items) {
+      const artistOwnerId = item.artworkAuthorId?.trim() || process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default';
+      const artistCommissionAmount = Number((item.artistNetAmount || item.artistLicenseAmount || 0).toFixed(2));
+      if (artistCommissionAmount > 0) {
+        const artistCommissionResult = await createCommissionPending({
+          orderId: order.orderId,
+          ownerId: artistOwnerId,
+          ownerRole: 'artist',
+          amount: artistCommissionAmount,
+          sourceKey: `order.paid:${order.orderId}:item:${item.orderItemId}:artist:${artistOwnerId}`,
+        });
 
-    if (commissionResult.created) {
-      appendAuditLog({
-        actor_id: 'system',
-        actor_role: 'backend',
-        action: 'commission.created',
-        entity_type: 'Commission',
-        entity_id: commissionResult.commission.commissionId,
-        previous_status: 'none',
-        new_status: commissionResult.commission.status,
-        reason: `order:${order.orderId}`,
+        if (artistCommissionResult.created) {
+          appendAuditLog({
+            actor_id: 'system',
+            actor_role: 'backend',
+            action: 'commission.created',
+            entity_type: 'Commission',
+            entity_id: artistCommissionResult.commission.commissionId,
+            previous_status: 'none',
+            new_status: artistCommissionResult.commission.status,
+            reason: `order:${order.orderId}|owner_role:artist|item:${item.orderItemId}`,
+          });
+        }
+      }
+
+      const communityOwnerId = item.communityOwnerId?.trim();
+      const communityCommissionAmount = Number((item.communityCommissionAmount || 0).toFixed(2));
+      if (communityOwnerId && communityCommissionAmount > 0) {
+        const communityCommissionResult = await createCommissionPending({
+          orderId: order.orderId,
+          ownerId: communityOwnerId,
+          ownerRole: 'community_manager',
+          amount: communityCommissionAmount,
+          sourceKey: `order.paid:${order.orderId}:item:${item.orderItemId}:community:${communityOwnerId}`,
+        });
+
+        if (communityCommissionResult.created) {
+          appendAuditLog({
+            actor_id: 'system',
+            actor_role: 'backend',
+            action: 'commission.created',
+            entity_type: 'Commission',
+            entity_id: communityCommissionResult.commission.commissionId,
+            previous_status: 'none',
+            new_status: communityCommissionResult.commission.status,
+            reason: `order:${order.orderId}|owner_role:community_manager|item:${item.orderItemId}|campaign:${item.campaignId ?? 'none'}`,
+          });
+        }
+      }
+    }
+
+    const uniqueReferralLinkIds = Array.from(
+      new Set(
+        paidOrder.items
+          .map((item) => item.referralLinkId?.trim())
+          .filter((value): value is string => Boolean(value))
+      )
+    );
+    if (uniqueReferralLinkIds.length === 1) {
+      const referralResult = recordReferralConversion({
+        referralLinkId: uniqueReferralLinkIds[0],
+        orderId: order.orderId,
+        revenueAmount: Number(updatedPayment.amount.toFixed(2)),
       });
+
+      if (referralResult.kind === 'created') {
+        appendAuditLog({
+          actor_id: 'system',
+          actor_role: 'backend',
+          action: 'referral_conversion_recorded',
+          entity_type: 'ReferralLink',
+          entity_id: uniqueReferralLinkIds[0],
+          reason: `order:${order.orderId}|revenue:${updatedPayment.amount.toFixed(2)}`,
+        });
+      }
     }
   }
 

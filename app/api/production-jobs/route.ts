@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
-import { canOperateProduction, getActorFromRequest } from '@/lib/access-control';
+import {
+  canAccessProductionWorkspace,
+  canMutateProductionOrder,
+  canReadProductionOrder,
+  getActorFromRequest,
+} from '@/lib/access-control';
 import { getOrder } from '@/lib/order-store';
 import { createQueuedProductionJob, listProductionJobs } from '@/lib/production-store';
 
@@ -16,16 +21,33 @@ function isValidPayload(payload: unknown): payload is CreateProductionJobPayload
 
 export async function GET(request: Request) {
   const actor = getActorFromRequest(request);
-  if (!canOperateProduction(actor)) {
+  if (!actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  if (!canAccessProductionWorkspace(actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
-  return NextResponse.json({ ok: true, jobs: await listProductionJobs() });
+  const jobs = await listProductionJobs();
+  const scopedJobs = (
+    await Promise.all(
+      jobs.map(async (job) => {
+        const order = await getOrder(job.orderId);
+        if (!order) return null;
+        return canReadProductionOrder(order, actor) ? job : null;
+      })
+    )
+  ).filter((job): job is Awaited<ReturnType<typeof listProductionJobs>>[number] => Boolean(job));
+
+  return NextResponse.json({ ok: true, jobs: scopedJobs });
 }
 
 export async function POST(request: Request) {
   const actor = getActorFromRequest(request);
-  if (!canOperateProduction(actor)) {
+  if (!actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  if (!canAccessProductionWorkspace(actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
@@ -37,6 +59,9 @@ export async function POST(request: Request) {
   const order = await getOrder(payload.orderId);
   if (!order) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
+  }
+  if (!canMutateProductionOrder(order, actor)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
   if (order.status !== 'paid') {
     return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });

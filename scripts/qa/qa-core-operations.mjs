@@ -63,9 +63,9 @@ async function postWithRetry(pathname, body, headers = {}, retries = 3, retrySta
   return last;
 }
 
-async function createPaidOrder(customerId, seeded) {
+async function createPaidOrder(customerId, seeded, supplierId = 'supplier-default') {
   const order = await post('/api/orders', {
-    supplierId: 'supplier-default',
+    supplierId,
     shippingAddressMode: 'same_as_account',
     shippingAddress: {
       recipientName: 'QA Customer',
@@ -203,6 +203,8 @@ async function run() {
   const paidOrderId = await createPaidOrder('customer-core-paid', seeded);
   report.push('P0-CORE-03 paid order created via checkout+webhook');
   report.push('P0-CORE-03B checkout idempotency preserved same payment');
+  const alternateSupplierOrderId = await createPaidOrder('customer-core-paid-alt', seeded, 'supplier-alt');
+  report.push('P0-CORE-03C second paid order created for isolated supplier scope');
 
   const createProd = await postWithRetry(
     '/api/production-jobs',
@@ -212,6 +214,17 @@ async function run() {
   );
   assert(createProd.status === 200 || createProd.status === 201, `production create expected 200|201, got ${createProd.status}`);
   report.push('P0-CORE-04 production create idempotent for paid order');
+  const createProdAlternate = await postWithRetry(
+    '/api/production-jobs',
+    { orderId: alternateSupplierOrderId },
+    { 'x-actor-id': 'qa-production', 'x-actor-role': 'production_operator' },
+    4
+  );
+  assert(
+    createProdAlternate.status === 200 || createProdAlternate.status === 201,
+    `alternate production create expected 200|201, got ${createProdAlternate.status}`
+  );
+  report.push('P0-CORE-04B second production job created for scope isolation');
 
   const byOrder = await getWithRetry(`/api/production-jobs/by-order/${paidOrderId}`, {
     'x-actor-id': 'qa-production',
@@ -220,14 +233,92 @@ async function run() {
   assert(byOrder.status === 200, `production by order expected 200, got ${byOrder.status}`);
   const jobId = byOrder.data?.job?.productionJobId;
   assert(typeof jobId === 'string', 'productionJobId missing');
+  const alternateByOrder = await getWithRetry(`/api/production-jobs/by-order/${alternateSupplierOrderId}`, {
+    'x-actor-id': 'qa-production',
+    'x-actor-role': 'production_operator',
+  });
+  assert(alternateByOrder.status === 200, `alternate production by order expected 200, got ${alternateByOrder.status}`);
+  const alternateJobId = alternateByOrder.data?.job?.productionJobId;
+  assert(typeof alternateJobId === 'string', 'alternate productionJobId missing');
 
   if (expectRbac) {
-    const noAuthStart = await post(`/api/production-jobs/${jobId}/start`, {});
-    assert(
-      noAuthStart.status === 401 || noAuthStart.status === 403,
-      `start without actor expected 401|403, got ${noAuthStart.status}`
+    const noAuthList = await get('/api/production-jobs');
+    assert(noAuthList.status === 401, `list without actor expected 401, got ${noAuthList.status}`);
+    report.push('P0-CORE-05 production list rejects anonymous access');
+
+    const noAuthDetail = await get(`/api/production-jobs/${jobId}`);
+    assert(noAuthDetail.status === 401, `detail without actor expected 401, got ${noAuthDetail.status}`);
+    report.push('P0-CORE-05B production detail rejects anonymous access');
+
+    const customerList = await get('/api/production-jobs', {
+      'x-actor-id': 'customer-core-paid',
+      'x-actor-role': 'customer',
+    });
+    assert(customerList.status === 403, `customer production list expected 403, got ${customerList.status}`);
+    report.push('P0-CORE-05C customer blocked from production workspace');
+
+    const supplierOwnList = await get('/api/production-jobs', {
+      'x-actor-id': 'supplier-default',
+      'x-actor-role': 'supplier',
+    });
+    assert(supplierOwnList.status === 200, `supplier own list expected 200, got ${supplierOwnList.status}`);
+    const ownJobIds = Array.isArray(supplierOwnList.data?.jobs) ? supplierOwnList.data.jobs.map((job) => job.productionJobId) : [];
+    assert(ownJobIds.includes(jobId), 'supplier own list missing owned job');
+    assert(!ownJobIds.includes(alternateJobId), 'supplier own list leaked foreign job');
+    report.push('P0-CORE-05D supplier list filtered to owned production scope');
+
+    const supplierOwnDetail = await get(`/api/production-jobs/${jobId}`, {
+      'x-actor-id': 'supplier-default',
+      'x-actor-role': 'supplier',
+    });
+    assert(supplierOwnDetail.status === 200, `supplier own detail expected 200, got ${supplierOwnDetail.status}`);
+    report.push('P0-CORE-05E supplier reads own production job');
+
+    const supplierForeignDetail = await get(`/api/production-jobs/${alternateJobId}`, {
+      'x-actor-id': 'supplier-default',
+      'x-actor-role': 'supplier',
+    });
+    assert(supplierForeignDetail.status === 403, `supplier foreign detail expected 403, got ${supplierForeignDetail.status}`);
+    report.push('P0-CORE-05F supplier blocked from foreign production detail');
+
+    const supplierOwnByOrder = await get(`/api/production-jobs/by-order/${paidOrderId}`, {
+      'x-actor-id': 'supplier-default',
+      'x-actor-role': 'supplier',
+    });
+    assert(supplierOwnByOrder.status === 200, `supplier own by-order expected 200, got ${supplierOwnByOrder.status}`);
+
+    const supplierForeignByOrder = await get(`/api/production-jobs/by-order/${alternateSupplierOrderId}`, {
+      'x-actor-id': 'supplier-default',
+      'x-actor-role': 'supplier',
+    });
+    assert(supplierForeignByOrder.status === 403, `supplier foreign by-order expected 403, got ${supplierForeignByOrder.status}`);
+    report.push('P0-CORE-05G supplier by-order endpoint enforces ownership');
+
+    const supplierCannotStartForeign = await post(
+      `/api/production-jobs/${alternateJobId}/start`,
+      {},
+      { 'x-actor-id': 'supplier-default', 'x-actor-role': 'supplier' }
     );
-    report.push('P0-CORE-05 production start protected by RBAC');
+    assert(supplierCannotStartForeign.status === 403, `supplier foreign start expected 403, got ${supplierCannotStartForeign.status}`);
+
+    const supplierCannotShipForeign = await post(
+      `/api/production-jobs/${alternateJobId}/ship`,
+      { trackingCode: 'BR987654321', carrier: 'Correios' },
+      { 'x-actor-id': 'supplier-default', 'x-actor-role': 'supplier' }
+    );
+    assert(supplierCannotShipForeign.status === 403, `supplier foreign ship expected 403, got ${supplierCannotShipForeign.status}`);
+    report.push('P0-CORE-05H supplier blocked from start/ship outside own scope');
+
+    const platformList = await get('/api/production-jobs', {
+      'x-actor-id': 'qa-platform',
+      'x-actor-role': 'platform_admin',
+    });
+    assert(platformList.status === 200, `platform production list expected 200, got ${platformList.status}`);
+    report.push('P0-CORE-05I platform admin keeps global production visibility');
+
+    const noAuthStart = await post(`/api/production-jobs/${jobId}/start`, {});
+    assert(noAuthStart.status === 401, `start without actor expected 401, got ${noAuthStart.status}`);
+    report.push('P0-CORE-05J production start protected by authenticated RBAC');
   }
 
   const start = await post(

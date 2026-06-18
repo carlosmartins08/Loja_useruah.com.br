@@ -10,7 +10,7 @@ Executar com foco, sem tarefa incompleta, sem conflito entre documentacao e codi
 2. Classificar a mudanca antes de qualquer patch usando a trava pre-patch abaixo.
 3. Planejar ate 10 itens pequenos (cada item com entrega verificavel em 1-2 dias).
 4. Executar um item por vez usando o cartao operacional abaixo.
-5. Fechar a semana atualizando execution tracking e changelog.
+5. Fechar a semana atualizando snapshot, documento de dominio e changelog.
 
 ## Regra de Classificacao Pre-Patch
 Antes de qualquer patch, o agente deve responder objetivamente.
@@ -172,13 +172,9 @@ rg -n "getMockProduct|readStoreFile|writeStoreFile|idempotency|webhook|AuditLog"
 ```
 
 Se houver conflito entre o que a matriz diz e o que o codigo mostra:
-- atualizar `docs/EXECUTION_TRACKING.md` no mesmo ciclo
+- atualizar `docs/EXECUTION_TRACKING.md` no mesmo ciclo como snapshot/evidencia
+- atualizar o documento normativo do dominio no mesmo ciclo
 - registrar decisao em `docs/CHANGELOG_GOVERNANCE.md` se houver mudanca de interpretacao
-
-## Pontas soltas ja detectadas (2026-05-21)
-1. `docs/EXECUTION_TRACKING.md` marca pedidos/logistica backend como ausente, mas ja existem APIs de pedido/producao/envio.
-2. O mesmo arquivo marca suporte/tickets backend como ausente, mas ja existem endpoints de ticket e contexto de suporte.
-3. Persistencia existe hoje por arquivo local (`.tmp-store`), nao por banco relacional; classificacao correta e `PARCIAL`, nao `AUSENTE`.
 
 ## Regra de ouro
 Se a decisao nao cabe claramente em um dominio, nao tem fonte autorizadora clara ou nao tem criterio de aceite escrito, nao executar.

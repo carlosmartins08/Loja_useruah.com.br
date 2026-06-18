@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
       { source: '/admin/support/:orderId', destination: '/support/:orderId', permanent: false },
       { source: '/admin/production', destination: '/production', permanent: false },
       { source: '/admin/finance/payouts', destination: '/finance/payouts', permanent: false },
-      { source: '/admin/impact-reviews', destination: '/curation', permanent: false },
+      { source: '/finance/dashboard', destination: '/finance', permanent: false },
       { source: '/account/artist', destination: '/artist', permanent: false },
       { source: '/account/community', destination: '/community', permanent: false },
       { source: '/account/supplier', destination: '/supplier', permanent: false },

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { canManageCatalog, getActorFromRequest } from '@/lib/access-control';
-import { createCatalogItem, listCatalogItems, type CatalogItemStatus } from '@/lib/catalog-item-store';
+import { createCatalogItem, listCatalogItems, type CatalogItemStatus, validateCatalogItemBusinessRules } from '@/lib/catalog-item-store';
 import { getArtwork } from '@/lib/artwork-store';
 import { isTermsGateEnabledFor, validateTermsAcceptance } from '@/lib/terms-enforcement';
 import { detectImpactSensitiveFields, evaluateRequiredFieldsCompletion } from '@/lib/role-matrix/registration-matrix';
@@ -161,6 +161,17 @@ export async function POST(request: Request) {
   const payload = await request.json().catch(() => null);
   if (!isValidPayload(payload)) {
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });
+  }
+
+  const businessRuleIssues = validateCatalogItemBusinessRules({
+    image: payload.image,
+    colorImages: payload.colorImages,
+    installmentCount: payload.installmentCount,
+    price: payload.price,
+    variants: payload.variants,
+  });
+  if (businessRuleIssues.length > 0) {
+    return NextResponse.json({ error: 'validation_error', detail: 'catalog_business_rules_failed', issues: businessRuleIssues }, { status: 422 });
   }
 
   const artwork = getArtwork(payload.artworkId);

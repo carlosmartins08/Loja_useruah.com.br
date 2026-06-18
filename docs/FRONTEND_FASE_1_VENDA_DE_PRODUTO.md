@@ -1,6 +1,6 @@
 # Frontend da Fase 1 - Venda de Produto
 
-Data de revisao: 2026-06-05
+Data de revisao: 2026-06-17
 
 ## Objetivo
 Definir como o escopo funcional da Fase 1 aparece na interface, sem criar funcionalidade nova fora da fase.
@@ -9,6 +9,7 @@ Definir como o escopo funcional da Fase 1 aparece na interface, sem criar funcio
 - `docs/FASE_1_VENDA_DE_PRODUTO.md` define escopo funcional.
 - Este documento define UI, rotas, blocos, estados visuais e mensagens da Fase 1.
 - Este documento nao cria novo estado, endpoint ou rota sem atualizacao da fonte normativa correspondente.
+- `docs/ROUTES.md` segue como fonte unica para namespace canonico e redirects legados.
 
 ## Rotas canonicas da Fase 1
 Publicas:
@@ -18,44 +19,42 @@ Publicas:
 - `/cart`
 - `/checkout`
 - `/policies`
-- `/contact`
+- `/quem-somos`
+- `/returns`
+- `/help-center`
 
 Privadas do cliente:
 - `/account`
-- `/account/profile`
 - `/account/addresses`
 - `/account/orders`
 - `/account/orders/[id]`
 - `/account/support`
-- `/account/settings`
+- `/account/returns`
+- `/account/wishlist`
+- `/account/wallet`
 
-Privadas do admin master:
+Operacionais internas:
 - `/admin`
-- `/admin/suppliers`
-- `/admin/product-bases`
-- `/admin/materials`
-- `/admin/colors`
-- `/admin/sizes`
-- `/admin/printing-methods`
-- `/admin/freight`
-- `/admin/packaging`
 - `/admin/catalog`
 - `/admin/orders`
-- `/admin/payments`
-- `/admin/shipments`
-- `/admin/support`
-- `/admin/settings`
+- `/admin/payments/connectors`
+- `/admin/registrations`
+- `/support`
+- `/support/tickets`
+- `/support/[orderId]`
+- `/production`
+- `/production/jobs`
+- `/finance`
+- `/finance/payouts`
 
 ## O que o frontend nao deve exibir na Fase 1
-Nao criar links, menus ou paginas ativas para:
+Nao criar links ou menus na navegacao publica e na area do cliente para:
 - `/community`
 - `/@username`
 - `/affiliate`
 - `/artist`
 - `/supplier`
 - `/curation`
-- `/finance`
-- `/production`
 
 Tambem nao exibir:
 - campanhas de movimento
@@ -64,11 +63,13 @@ Tambem nao exibir:
 - painel do artista
 - painel do afiliado
 
+Tambem nao reintroduzir aliases legados como superficie interna; quando houver compatibilidade transitoria, ela deve existir apenas como redirect normativo em `docs/ROUTES.md`.
+
 ## Regra visual
 O frontend da Fase 1 deve parecer:
 - ecommerce publico vendavel
 - area do cliente para pedidos e suporte
-- area operacional do admin master
+- area operacional interna separada por namespace canonico
 
 Nao deve parecer:
 - ecossistema multiator completo

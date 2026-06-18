@@ -30,10 +30,11 @@ function writeState(state: CampaignState) {
   writeStoreFile('campaigns', state);
 }
 
-export async function listCampaigns(filters?: { status?: CampaignStatus; organizationId?: string }) {
+export async function listCampaigns(filters?: { status?: CampaignStatus; organizationId?: string; createdBy?: string }) {
   return Object.values(readState().campaigns).filter((row) => {
     if (filters?.status && row.status !== filters.status) return false;
     if (filters?.organizationId && row.organizationId !== filters.organizationId) return false;
+    if (filters?.createdBy && row.createdBy !== filters.createdBy) return false;
     return true;
   });
 }

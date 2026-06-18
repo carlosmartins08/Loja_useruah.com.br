@@ -1,32 +1,116 @@
-﻿import Link from 'next/link';
-import { Header } from '@/components/navigation/Header';
-import { ArrowRight, BarChart3, BadgeDollarSign, Link2, ScanLine } from 'lucide-react';
+'use client';
 
-const AFFILIATE_LINKS = [
-  {
-    label: 'Colecao Essenciais',
-    slug: 'use-ruah.com/af/essenciais',
-    channel: 'Instagram',
-    clicks: 1280,
-    conversion: '3.2%',
-  },
-  {
-    label: 'Drop Artista Convidado',
-    slug: 'use-ruah.com/af/drop-artista',
-    channel: 'YouTube',
-    clicks: 740,
-    conversion: '2.1%',
-  },
-  {
-    label: 'Campanha Comunidade',
-    slug: 'use-ruah.com/af/comunidade',
-    channel: 'WhatsApp',
-    clicks: 510,
-    conversion: '4.4%',
-  },
-] as const;
+import React from 'react';
+import Link from 'next/link';
+import { ArrowRight, BarChart3, BadgeDollarSign, Link2, ScanLine } from 'lucide-react';
+import { Header } from '@/components/navigation/Header';
+import { getJson, HttpRequestError, postJson } from '@/lib/http-client';
+
+interface ReferralLinkPerformance {
+  referralLinkId: string;
+  slug: string;
+  label: string;
+  channel: string;
+  targetPath: string;
+  status: 'active' | 'paused';
+  clickCount: number;
+  conversionCount: number;
+  conversionRate: number;
+  revenueAmount: number;
+}
+
+interface AffiliateLinksResponse {
+  ok: true;
+  ownerId: string;
+  summary: {
+    totalLinks: number;
+    clicks: number;
+    conversions: number;
+    conversionRate: number;
+    revenueAmount: number;
+  };
+  links: ReferralLinkPerformance[];
+}
+
+const INITIAL_FORM = {
+  label: '',
+  channel: '',
+  targetPath: '/shop',
+  slug: '',
+};
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+}
 
 export default function AffiliateLinksPage() {
+  const [data, setData] = React.useState<AffiliateLinksResponse | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [form, setForm] = React.useState(INITIAL_FORM);
+
+  async function fetchLinks() {
+    return getJson<AffiliateLinksResponse>('/api/affiliate/links');
+  }
+
+  React.useEffect(() => {
+    let active = true;
+    void (async () => {
+      try {
+        const response = await fetchLinks();
+        if (!active) return;
+        setData(response);
+      } catch (err) {
+        if (!active) return;
+        if (err instanceof HttpRequestError && err.status === 401) {
+          setError('Sessao obrigatoria para abrir os links de afiliacao.');
+          return;
+        }
+        if (err instanceof HttpRequestError && err.status === 403) {
+          setError('Seu papel atual nao pode operar links de afiliacao.');
+          return;
+        }
+        setError('Nao foi possivel carregar os links agora.');
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    try {
+      await postJson('/api/affiliate/links', {
+        label: form.label.trim(),
+        channel: form.channel.trim(),
+        targetPath: form.targetPath.trim(),
+        slug: form.slug.trim() || undefined,
+      });
+      setForm(INITIAL_FORM);
+      const response = await fetchLinks();
+      setData(response);
+    } catch (err) {
+      if (err instanceof HttpRequestError && err.status === 422) {
+        setError('Revise label, canal e destino do link.');
+      } else if (err instanceof HttpRequestError && err.status === 403) {
+        setError('Seu papel atual nao pode criar link de afiliacao.');
+      } else {
+        setError('Nao foi possivel criar o link agora.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const links = data?.links ?? [];
+
   return (
     <main className="min-h-screen bg-ruah-50 page-header-offset">
       <Header />
@@ -35,7 +119,7 @@ export default function AffiliateLinksPage() {
           <span className="tech-label text-accent-gold">Affiliate Workspace</span>
           <h1 className="ur-type-display-md italic uppercase text-ruah-950">Links de Divulgacao</h1>
           <p className="text-sm text-ruah-500 max-w-2xl">
-            Organize ativos de divulgacao e acompanhe performance por canal para otimizar conversao.
+            Agora o inventario nasce do runtime. Cada slug publico em <span className="font-semibold text-ruah-950">/af/[slug]</span> registra clique real e alimenta a leitura de conversao.
           </p>
         </div>
       </section>
@@ -52,21 +136,33 @@ export default function AffiliateLinksPage() {
               </Link>
             </div>
 
-            <div className="space-y-3">
-              {AFFILIATE_LINKS.map((item) => (
-                <div key={item.slug} className="border border-ruah-100 rounded-2xl p-4 bg-ruah-50/40">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="text-sm font-semibold text-ruah-950">{item.label}</h3>
-                    <span className="text-xs uppercase tracking-[0.1em] text-ruah-500">{item.channel}</span>
-                  </div>
-                  <p className="mt-2 text-sm text-ruah-600">{item.slug}</p>
-                  <div className="mt-3 flex gap-4 text-xs text-ruah-600">
-                    <span>Cliques: <strong className="text-ruah-950">{item.clicks}</strong></span>
-                    <span>Conversao: <strong className="text-ruah-950">{item.conversion}</strong></span>
-                  </div>
+            {loading ? <p className="text-sm text-ruah-500">Carregando links...</p> : null}
+            {error ? <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
+
+            {!loading ? (
+              links.length === 0 ? (
+                <p className="text-sm text-ruah-500">Nenhum link cadastrado ainda. Crie o primeiro ativo do canal nesta tela.</p>
+              ) : (
+                <div className="space-y-3">
+                  {links.map((item) => (
+                    <div key={item.referralLinkId} className="border border-ruah-100 rounded-2xl p-4 bg-ruah-50/40">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h3 className="text-sm font-semibold text-ruah-950">{item.label}</h3>
+                        <span className="text-xs uppercase tracking-[0.1em] text-ruah-500">{item.channel}</span>
+                      </div>
+                      <p className="mt-2 text-sm text-ruah-600">/af/{item.slug}</p>
+                      <p className="mt-1 text-xs text-ruah-500">Destino: {item.targetPath}</p>
+                      <div className="mt-3 flex flex-wrap gap-4 text-xs text-ruah-600">
+                        <span>Cliques: <strong className="text-ruah-950">{item.clickCount}</strong></span>
+                        <span>Conversoes: <strong className="text-ruah-950">{item.conversionCount}</strong></span>
+                        <span>Taxa: <strong className="text-ruah-950">{item.conversionRate}%</strong></span>
+                        <span>Receita: <strong className="text-ruah-950">{formatCurrency(item.revenueAmount)}</strong></span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )
+            ) : null}
           </article>
 
           <aside className="lg:col-span-4 space-y-6">
@@ -75,27 +171,58 @@ export default function AffiliateLinksPage() {
                 <BarChart3 size={16} className="text-accent-gold" /> Resumo
               </h3>
               <ul className="mt-4 space-y-3 text-sm text-ruah-600">
-                <li className="flex items-center justify-between"><span>Cliques Totais</span><strong className="text-ruah-950">2.530</strong></li>
-                <li className="flex items-center justify-between"><span>Conversao Media</span><strong className="text-ruah-950">3.2%</strong></li>
-                <li className="flex items-center justify-between"><span>Ticket Medio</span><strong className="text-ruah-950">R$ 186</strong></li>
+                <li className="flex items-center justify-between"><span>Links Ativos</span><strong className="text-ruah-950">{data?.summary.totalLinks ?? 0}</strong></li>
+                <li className="flex items-center justify-between"><span>Cliques Totais</span><strong className="text-ruah-950">{data?.summary.clicks ?? 0}</strong></li>
+                <li className="flex items-center justify-between"><span>Conversao Media</span><strong className="text-ruah-950">{data?.summary.conversionRate ?? 0}%</strong></li>
               </ul>
             </article>
 
             <article className="bg-white border border-ruah-100 rounded-3xl p-6 space-y-3">
               <h3 className="text-base font-semibold text-ruah-950 inline-flex items-center gap-2">
-                <BadgeDollarSign size={16} className="text-accent-gold" /> Receita Estimada
+                <BadgeDollarSign size={16} className="text-accent-gold" /> Receita Atribuida
               </h3>
-              <p className="text-sm text-ruah-500">Previsao de repasse atual: R$ 4.920 com base no ciclo corrente.</p>
-              <Link href="/account/wallet" className="text-xs font-bold uppercase tracking-[0.1em] text-accent-gold inline-flex items-center gap-2">
-                Ver Carteira <ArrowRight size={12} />
-              </Link>
+              <p className="text-sm text-ruah-500">
+                {formatCurrency(data?.summary.revenueAmount ?? 0)} registrados por conversao validada. Isso ainda nao equivale a saldo sacavel.
+              </p>
             </article>
 
             <article className="bg-white border border-ruah-100 rounded-3xl p-6 space-y-3">
               <h3 className="text-base font-semibold text-ruah-950 inline-flex items-center gap-2">
-                <ScanLine size={16} className="text-accent-gold" /> Qualidade de Tracking
+                <ScanLine size={16} className="text-accent-gold" /> Novo Link
               </h3>
-              <p className="text-sm text-ruah-500">100% dos links ativos com parametros de atribuicao corretos.</p>
+              <form className="space-y-3" onSubmit={handleSubmit}>
+                <input
+                  value={form.label}
+                  onChange={(event) => setForm((current) => ({ ...current, label: event.target.value }))}
+                  placeholder="Nome do ativo"
+                  className="w-full rounded-2xl border border-ruah-100 px-4 py-3 text-sm outline-none focus:border-accent-gold"
+                />
+                <input
+                  value={form.channel}
+                  onChange={(event) => setForm((current) => ({ ...current, channel: event.target.value }))}
+                  placeholder="Canal"
+                  className="w-full rounded-2xl border border-ruah-100 px-4 py-3 text-sm outline-none focus:border-accent-gold"
+                />
+                <input
+                  value={form.targetPath}
+                  onChange={(event) => setForm((current) => ({ ...current, targetPath: event.target.value }))}
+                  placeholder="/shop"
+                  className="w-full rounded-2xl border border-ruah-100 px-4 py-3 text-sm outline-none focus:border-accent-gold"
+                />
+                <input
+                  value={form.slug}
+                  onChange={(event) => setForm((current) => ({ ...current, slug: event.target.value }))}
+                  placeholder="slug opcional"
+                  className="w-full rounded-2xl border border-ruah-100 px-4 py-3 text-sm outline-none focus:border-accent-gold"
+                />
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full rounded-2xl bg-ruah-950 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50"
+                >
+                  {submitting ? 'Criando...' : 'Criar link'}
+                </button>
+              </form>
             </article>
           </aside>
         </div>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
-import { canOperateProduction, getActorFromRequest } from '@/lib/access-control';
+import { canAccessProductionWorkspace, canMutateProductionOrder, getActorFromRequest } from '@/lib/access-control';
 import { reconcileCommissionAvailabilityForOrder } from '@/lib/commission-store';
 import { getOrder, updateOrderStatus } from '@/lib/order-store';
 import { getProductionJobById, updateProductionJobStatus } from '@/lib/production-store';
@@ -24,7 +24,10 @@ function isValidPayload(payload: unknown): payload is ShipPayload {
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const actor = getActorFromRequest(request);
-  if (!canOperateProduction(actor)) {
+  if (!actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  if (!canAccessProductionWorkspace(actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
@@ -37,6 +40,14 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const job = await getProductionJobById(id);
   if (!job) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
+  }
+
+  const order = await getOrder(job.orderId);
+  if (!order) {
+    return NextResponse.json({ error: 'not_found' }, { status: 404 });
+  }
+  if (!canMutateProductionOrder(order, actor)) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
   if (job.status === 'shipped') {
@@ -52,11 +63,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
   if (job.status !== 'in_progress') {
     return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });
-  }
-
-  const order = await getOrder(job.orderId);
-  if (!order) {
-    return NextResponse.json({ error: 'order_not_found' }, { status: 404 });
   }
 
   if (order.status !== 'in_production' && order.status !== 'paid') {

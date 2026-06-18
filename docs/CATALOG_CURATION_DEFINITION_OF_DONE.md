@@ -128,8 +128,8 @@ CatalogItem deve possuir, no mínimo:
 - `docs/ROUTE_DEFINITION_OF_DONE.md`
 - `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
 
-## Fila oficial de execucao (sprint atual)
-Fonte de controle: `docs/EXECUTION_TRACKING.md` (secao "Sprint atual (WIP 1): Catalogo/Curadoria - 10 itens priorizados").
+## Fila oficial de execucao (snapshot ativo)
+Fonte de controle: `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` + `docs/EXECUTION_TRACKING.md`.
 
 Ordem de ataque obrigatória:
 1. Fechar contratos e estados canônicos (`Artwork` e `CatalogItem`).

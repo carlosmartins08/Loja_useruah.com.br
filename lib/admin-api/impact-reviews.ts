@@ -3,7 +3,7 @@ import { appendAuditLog } from '@/lib/audit-log-store';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
 import { approveImpactReview, listImpactReviews, rejectImpactReview } from '@/lib/impact-review-store';
 import { listIntegrationLogs } from '@/lib/integration-log-store';
-import { canApproveImpactReviews } from '@/lib/role-matrix/permission-matrix';
+import { canApproveImpactReviews, canReadImpactReviews } from '@/lib/role-matrix/permission-matrix';
 import { notifyImpactReviewEvent } from '@/lib/impact-notification-service';
 
 interface ApprovePayload {
@@ -27,6 +27,15 @@ function ensureImpactReviewAccess(request: Request) {
   return { actor, error: null };
 }
 
+function ensureImpactReviewReadAccess(request: Request) {
+  const actor = getActorFromRequest(request);
+  if (isRbacActive() && !canReadImpactReviews(actor?.actorRole)) {
+    return { actor, error: NextResponse.json({ error: 'forbidden' }, { status: 403 }) };
+  }
+
+  return { actor, error: null };
+}
+
 function isValidApprovePayload(payload: unknown): payload is ApprovePayload {
   if (payload === null || payload === undefined) return true;
   if (typeof payload !== 'object') return false;
@@ -41,7 +50,7 @@ function isValidRejectPayload(payload: unknown): payload is RejectPayload {
 }
 
 export async function handleAdminImpactReviewsGet(request: Request) {
-  const { error } = ensureImpactReviewAccess(request);
+  const { error } = ensureImpactReviewReadAccess(request);
   if (error) return error;
 
   const { searchParams } = new URL(request.url);
@@ -54,7 +63,7 @@ export async function handleAdminImpactReviewsGet(request: Request) {
 }
 
 export async function handleAdminImpactReviewNotificationsGet(request: Request) {
-  const { error } = ensureImpactReviewAccess(request);
+  const { error } = ensureImpactReviewReadAccess(request);
   if (error) return error;
 
   const { searchParams } = new URL(request.url);

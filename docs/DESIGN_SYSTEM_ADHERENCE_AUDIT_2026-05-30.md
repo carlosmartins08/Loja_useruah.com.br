@@ -8,6 +8,10 @@ Base de contrato:
 - `docs/DESIGN_SYSTEM_NAVIGATION_AND_OVERLAYS.md`
 - `docs/DESIGN_SYSTEM_ECOMMERCE_FLOWS.md`
 
+Nota de leitura atual:
+- referencias a `components/ai/VirtualAssistant.tsx` abaixo pertencem ao recorte historico desta auditoria;
+- o runtime atual segue `docs/AI_RULES.md` e nao possui esse componente montado.
+
 ## 1) Leitura executiva
 O projeto tem boa base visual e fluxos funcionais, mas ainda viola contratos novos em pontos críticos:
 1. Camadas e `z-index` fora da escala oficial.

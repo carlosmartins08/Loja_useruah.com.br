@@ -15,16 +15,24 @@ export type OrderStatus =
 export interface OrderItemSnapshot {
   catalogItemId: string;
   artworkId: string;
+  artworkAuthorId: string;
   productBaseId: string;
   productName: string;
   variantId: string;
   variantLabel: string;
   productImage: string;
   supplierId: string;
+  campaignId?: string;
+  campaignName?: string;
+  campaignProgressivePriceRule?: string;
+  organizationId?: string;
+  communityOwnerId?: string;
+  referralLinkId?: string;
+  affiliateUserId?: string;
   shippingAddress: ShippingAddress;
   quantity: number;
   unitPrice: number;
-  snapshotVersion: 'phase1-v1';
+  snapshotVersion: 'phase1-v1' | 'phase2-context-v1';
 }
 
 export interface OrderItemRecord extends OrderItemSnapshot {
@@ -36,6 +44,7 @@ export interface OrderItemRecord extends OrderItemSnapshot {
   gatewayFeeAmount: number;
   shippingAmount: number;
   taxReserveAmount: number;
+  communityCommissionAmount: number;
   supplierNetAmount: number;
   artistNetAmount: number;
   platformNetAmount: number;
@@ -107,6 +116,10 @@ function normalizeOrderItem(input: Record<string, unknown>): OrderItemRecord {
     orderItemId: String(input.orderItemId),
     catalogItemId: String(input.catalogItemId),
     artworkId: typeof input.artworkId === 'string' && input.artworkId.trim().length > 0 ? input.artworkId : 'artwork-unknown',
+    artworkAuthorId:
+      typeof input.artworkAuthorId === 'string' && input.artworkAuthorId.trim().length > 0
+        ? input.artworkAuthorId
+        : process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default',
     productBaseId:
       typeof input.productBaseId === 'string' && input.productBaseId.trim().length > 0 ? input.productBaseId : String(input.catalogItemId),
     productName:
@@ -116,6 +129,19 @@ function normalizeOrderItem(input: Record<string, unknown>): OrderItemRecord {
       typeof input.variantLabel === 'string' && input.variantLabel.trim().length > 0 ? input.variantLabel : String(input.variantId),
     productImage: typeof input.productImage === 'string' && input.productImage.trim().length > 0 ? input.productImage : '',
     supplierId: typeof input.supplierId === 'string' && input.supplierId.trim().length > 0 ? input.supplierId : 'supplier-default',
+    campaignId: typeof input.campaignId === 'string' && input.campaignId.trim().length > 0 ? input.campaignId : undefined,
+    campaignName: typeof input.campaignName === 'string' && input.campaignName.trim().length > 0 ? input.campaignName : undefined,
+    campaignProgressivePriceRule:
+      typeof input.campaignProgressivePriceRule === 'string' && input.campaignProgressivePriceRule.trim().length > 0
+        ? input.campaignProgressivePriceRule
+        : undefined,
+    organizationId: typeof input.organizationId === 'string' && input.organizationId.trim().length > 0 ? input.organizationId : undefined,
+    communityOwnerId:
+      typeof input.communityOwnerId === 'string' && input.communityOwnerId.trim().length > 0 ? input.communityOwnerId : undefined,
+    referralLinkId:
+      typeof input.referralLinkId === 'string' && input.referralLinkId.trim().length > 0 ? input.referralLinkId : undefined,
+    affiliateUserId:
+      typeof input.affiliateUserId === 'string' && input.affiliateUserId.trim().length > 0 ? input.affiliateUserId : undefined,
     shippingAddress:
       input.shippingAddress && typeof input.shippingAddress === 'object'
         ? {
@@ -125,7 +151,7 @@ function normalizeOrderItem(input: Record<string, unknown>): OrderItemRecord {
         : fallbackShippingAddress(),
     quantity: Number(input.quantity),
     unitPrice: Number(input.unitPrice),
-    snapshotVersion: input.snapshotVersion === 'phase1-v1' ? 'phase1-v1' : 'phase1-v1',
+    snapshotVersion: input.snapshotVersion === 'phase2-context-v1' ? 'phase2-context-v1' : 'phase1-v1',
     grossItemAmount: Number(input.grossItemAmount),
     supplierAmount: Number(input.supplierAmount),
     artistLicenseAmount: Number(input.artistLicenseAmount),
@@ -133,6 +159,7 @@ function normalizeOrderItem(input: Record<string, unknown>): OrderItemRecord {
     gatewayFeeAmount: Number(input.gatewayFeeAmount),
     shippingAmount: Number(input.shippingAmount),
     taxReserveAmount: Number(input.taxReserveAmount),
+    communityCommissionAmount: Number(input.communityCommissionAmount ?? 0),
     supplierNetAmount: Number(input.supplierNetAmount),
     artistNetAmount: Number(input.artistNetAmount),
     platformNetAmount: Number(input.platformNetAmount),
@@ -157,6 +184,15 @@ export async function createPlacedOrder(input: {
   customerId: string;
   supplierId: string;
   shippingAddress: ShippingAddress;
+  attribution?: {
+    campaignId?: string;
+    campaignName?: string;
+    campaignProgressivePriceRule?: string;
+    organizationId?: string;
+    communityOwnerId?: string;
+    referralLinkId?: string;
+    affiliateUserId?: string;
+  };
   items: Array<{
     catalogItemId: string;
     variantId: string;
@@ -171,22 +207,34 @@ export async function createPlacedOrder(input: {
   const gatewayPct = safePct(process.env.GATEWAY_FEE_PCT, 0.05);
   const shippingPct = safePct(process.env.SHIPPING_PCT, 0);
   const taxReservePct = safePct(process.env.TAX_RESERVE_PCT, 0);
+  const communityPct = safePct(process.env.COMMUNITY_COMMISSION_PCT, 0.05);
   const round2 = (value: number) => Math.round(value * 100) / 100;
 
   const { getCatalogItem } = await import('@/lib/catalog-item-store');
+  const { getArtwork } = await import('@/lib/artwork-store');
   const itemDetails = await Promise.all(
     input.items.map(async (item) => {
       const catalogItem = await getCatalogItem(item.catalogItemId);
       const variant = catalogItem?.variants.find((row) => row.variantId === item.variantId);
+      const artwork = catalogItem ? getArtwork(catalogItem.artworkId) : null;
       return {
         item,
         catalogItem,
         variant,
+        artwork,
       };
     })
   );
 
-  const items: OrderItemRecord[] = itemDetails.map(({ item, catalogItem, variant }) => {
+  const hasAttribution = Boolean(
+    input.attribution?.campaignId ||
+      input.attribution?.organizationId ||
+      input.attribution?.communityOwnerId ||
+      input.attribution?.referralLinkId ||
+      input.attribution?.affiliateUserId
+  );
+
+  const items: OrderItemRecord[] = itemDetails.map(({ item, catalogItem, variant, artwork }) => {
     const gross = round2(item.unitPrice * item.quantity);
     const supplierAmount = round2(gross * supplierPct);
     const artistLicenseAmount = round2(gross * artistPct);
@@ -194,21 +242,30 @@ export async function createPlacedOrder(input: {
     const gatewayFeeAmount = round2(gross * gatewayPct);
     const shippingAmount = round2(gross * shippingPct);
     const taxReserveAmount = round2(gross * taxReservePct);
+    const communityCommissionAmount = input.attribution?.communityOwnerId ? round2(gross * communityPct) : 0;
 
     return {
       orderItemId: `ITEM-${randomUUID()}`,
       catalogItemId: item.catalogItemId,
       artworkId: catalogItem?.artworkId ?? 'artwork-unknown',
+      artworkAuthorId: artwork?.authorId ?? (process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default'),
       productBaseId: catalogItem?.productBaseId ?? item.catalogItemId,
       productName: catalogItem?.name ?? item.catalogItemId,
       variantId: item.variantId,
       variantLabel: variant?.label ?? item.variantId,
       productImage: variant?.image ?? catalogItem?.image ?? '',
       supplierId: input.supplierId,
+      campaignId: input.attribution?.campaignId,
+      campaignName: input.attribution?.campaignName,
+      campaignProgressivePriceRule: input.attribution?.campaignProgressivePriceRule,
+      organizationId: input.attribution?.organizationId,
+      communityOwnerId: input.attribution?.communityOwnerId,
+      referralLinkId: input.attribution?.referralLinkId,
+      affiliateUserId: input.attribution?.affiliateUserId,
       shippingAddress: input.shippingAddress,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
-      snapshotVersion: 'phase1-v1',
+      snapshotVersion: hasAttribution ? 'phase2-context-v1' : 'phase1-v1',
       grossItemAmount: gross,
       supplierAmount,
       artistLicenseAmount,
@@ -216,6 +273,7 @@ export async function createPlacedOrder(input: {
       gatewayFeeAmount,
       shippingAmount,
       taxReserveAmount,
+      communityCommissionAmount,
       supplierNetAmount: round2(supplierAmount - gatewayFeeAmount - taxReserveAmount),
       artistNetAmount: round2(artistLicenseAmount),
       platformNetAmount: round2(platformCommissionAmount),

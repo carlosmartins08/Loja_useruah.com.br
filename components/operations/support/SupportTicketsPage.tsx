@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { Search, MessageSquare, LifeBuoy, AlertCircle, ArrowRight } from 'lucide-react';
 import { getJson, HttpRequestError } from '@/lib/http-client';
 
@@ -17,9 +16,7 @@ interface TicketSummary {
 }
 
 export default function SupportTicketsPage() {
-  const pathname = usePathname();
-  const isAdminContext = pathname.startsWith('/admin');
-  const supportOrderBaseHref = isAdminContext ? '/admin/support' : '/support';
+  const supportOrderBaseHref = '/support';
   const [orderId, setOrderId] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);

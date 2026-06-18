@@ -39,11 +39,11 @@ Aplicar governanca pratica para reduzir retrabalho, mudanca sem controle e perda
 2. Registro unico de mudanca:
 - Toda mudanca critica deve gerar entrada no `docs/CHANGELOG_GOVERNANCE.md`.
 3. Gate de liberacao (BAI07 / Service Validation and Testing):
-- Sem `docs/EXECUTION_TRACKING.md` atualizado e evidencia P0, nao liberar.
+- Sem `docs/EXECUTION_TRACKING.md` atualizado como snapshot ativo e sem evidencia P0, nao liberar.
 4. Pos-incidente (DSS02 + DSS03 / Incident + Problem):
 - Se `emergency`, RCA obrigatorio em ate 24 horas apos merge.
 5. Monitoramento (MEA01):
-- KPIs semanais obrigatorios no `docs/EXECUTION_TRACKING.md`.
+- KPIs semanais obrigatorios no `docs/EXECUTION_TRACKING.md`, sem substituir a fonte normativa do dominio.
 
 ## Artefatos oficiais do baseline
 - Template de PR unico: `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`

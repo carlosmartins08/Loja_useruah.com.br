@@ -20,7 +20,7 @@ export const LEGACY_ROUTE_REDIRECTS: Array<{ from: string; to: string }> = [
   { from: '/account/supplier', to: '/supplier' },
   { from: '/admin/support', to: '/support' },
   { from: '/admin/production', to: '/production' },
-  { from: '/admin/finance', to: '/finance' },
-  { from: '/admin/curation', to: '/curation' },
+  { from: '/admin/support/:orderId', to: '/support/:orderId' },
+  { from: '/admin/finance/payouts', to: '/finance/payouts' },
+  { from: '/finance/dashboard', to: '/finance' },
 ];
-

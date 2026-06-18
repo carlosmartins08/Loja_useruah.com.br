@@ -1,6 +1,6 @@
 # Phase Domain Implementation Matrix
 
-Data de revisao: 2026-06-08
+Data de revisao: 2026-06-18
 
 ## Objetivo
 Criar uma visao unica de realidade entre fase, dominio, entidade, superficie e maturidade atual, para impedir que a documentacao presuma implementacao que o runtime ainda nao provou.
@@ -13,7 +13,7 @@ Criar uma visao unica de realidade entre fase, dominio, entidade, superficie e m
   2. documento oficial da fase
   3. documento oficial do dominio
 - Em caso de conflito de maturidade, prevalece o runtime validado mais recente registrado em:
-  - `docs/EXECUTION_TRACKING.md`
+  - `docs/EXECUTION_TRACKING.md` como snapshot/evidencia recente
   - gates oficiais
   - codigo atual
 
@@ -35,11 +35,11 @@ Criar uma visao unica de realidade entre fase, dominio, entidade, superficie e m
 | Fase 1 | suporte | ticket e contexto 360 | `/account/support`, `/api/tickets`, `/api/support/orders/[orderId]/context` | `IMPLEMENTADO` | `IMPLEMENTADO` | `docs/SUPPORT_TICKETS_DEFINITION_OF_DONE.md` | manter como suporte minimo oficial |
 | Fase 2 | campanhas | `MovementCampaign` basico | `/community/campaigns`, `/api/campaigns` | `PARCIAL` | `PARCIAL` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `lib/campaign-store.ts` | tratar como camada parcial, nao como ecossistema completo |
 | Fase 2 | movimento | `Organization` / membership | superfice documental, sem dominio runtime equivalente confirmado | `PLANEJADO` | `NAO PRESUMIR` | `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` | nao usar como premissa de handoff sem prova runtime |
-| Fase 2 | distribuicao | `CampaignProduct` apontando para `CatalogItem` | superfice documental, sem implementacao runtime confirmada | `PLANEJADO` | `NAO PRESUMIR` | `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` | nao descrever como base pronta |
-| Fase 2 | referral | `ReferralLink`, `ReferralEvent`, `ReferralConversion` | `/affiliate/*` documental; dominio runtime nao confirmado | `PLANEJADO` | `NAO PRESUMIR` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` | manter fora das premissas obrigatorias da Fase 3 |
-| Fase 2 | snapshot contextualizado | `organizationId`, `campaignId`, `movementMarkup`, `referralLinkId` no snapshot | documentacao de fase 2 | `PLANEJADO` | `AUSENTE` no snapshot atual | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `lib/order-store.ts` | nao prometer no handoff como se estivesse pronto |
+| Fase 2 | distribuicao | `CampaignProduct` apontando para `CatalogItem` | `/api/campaigns/[id]/products`, `/community/campaigns`, `/shop?campaignId=` | `PLANEJADO` | `PARCIAL` com vinculo real `campaign -> CatalogItem`, vitrine filtrada e bloqueio de checkout fora da campanha | `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `lib/campaign-product-store.ts` | tratar como camada real de distribuicao parcial, sem promover ainda a dominio maduro de movimento |
+| Fase 2 | referral | `ReferralLink`, `ReferralEvent`, `ReferralConversion` | `/affiliate`, `/affiliate/links`, `/af/[slug]`, `/api/affiliate/links` | `PARCIAL` | `PARCIAL` com clique publico, snapshot e conversao automatica | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `lib/referral-store.ts` | tratar como runtime real de atribuicao, mas sem ledger/reward proprio |
+| Fase 2 | snapshot contextualizado | `organizationId`, `campaignId`, `movementMarkup`, `referralLinkId` no snapshot | `/api/orders`, `lib/order-store.ts` | `PLANEJADO` | `PARCIAL` com `organizationId`, `campaignId`, `campaignName`, `campaignProgressivePriceRule`, `referralLinkId` e `affiliateUserId`; ainda sem `organizationUsername`, `movementMarkup` formal e `priceCompositionVersion` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `lib/order-store.ts` | usar so o que o runtime realmente captura hoje |
 | Fase 3 | arte e curadoria | `Artwork` + submissao/revisao | `/artist`, `/api/artworks`, `/curation` | `PARCIAL` | `PARCIAL` | `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`, `lib/artwork-store.ts` | oficializar usando estados reais atuais |
-| Fase 3 | composicao controlada | `CatalogItem` composto com `Artwork` aprovado | `/api/catalog-items`, `/admin/catalog` | `PARCIAL` | `PARCIAL` | `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`, `docs/EXECUTION_TRACKING.md` | evoluir sem abrir produto paralelo |
+| Fase 3 | composicao controlada | `CatalogItem` composto com `Artwork` aprovado | `/api/catalog-items`, `/admin/catalog` | `PARCIAL` | `PARCIAL` | `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`, `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` | evoluir sem abrir produto paralelo |
 | Fase 3 | supplier completo | `ProductBase`, `Material`, `PriceTable`, `FreightRule`, versionamento pleno | `/supplier` planejado para fase posterior | `PLANEJADO` | `AUSENTE` como dominio maduro | fase 3 draft externo analisado em 2026-06-08 | mover para fase posterior e nao tratar como base oficial agora |
 | Fase 3 | `DecisionLog` generico | decisoes sensiveis de oferta e governanca | sem dominio amplo implementado | `PLANEJADO` | `PARCIAL` e restrito a elevacoes | `lib/decision-log-store.ts` | nao generalizar sem contrato novo |
 | Readiness transversal | pagamentos reais | `Stripe` / cutover / homologacao Fase 1 (`card`/`wallet`) | `docs/P3_*`, `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` | `IMPLEMENTADO` | `BLOQUEADO` | documento de pre-condicao + runbooks | tratar como provider oficial inicial; bloqueio atual = credenciais Stripe + homologacao + persistencia final |

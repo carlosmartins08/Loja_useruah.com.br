@@ -1,6 +1,6 @@
 # Fase 1 - Checklist de Freeze
 
-Data de revisao: 2026-06-04
+Data de revisao: 2026-06-17
 
 ## Objetivo
 Congelar a Fase 1 para permitir preparacao da Fase 2 sem reabrir escopo, interface, fluxo mestre ou criterio de aceite da fase comercial atual.
@@ -18,7 +18,7 @@ Congelar a Fase 1 para permitir preparacao da Fase 2 sem reabrir escopo, interfa
 
 ### 1.1 Fluxo mestre
 Os passos abaixo nao podem mudar sem revalidar formalmente a Fase 1:
-1. `admin_master` publica `CatalogItem`
+1. `platform_admin` publica `CatalogItem`
 2. `customer` compra em `/shop` -> `/product/[id]` -> `/cart` -> `/checkout`
 3. sistema cria `Order` + `OrderItemSnapshot`
 4. pagamento confirma o pedido
@@ -41,9 +41,13 @@ Rotas ativas congeladas:
 - `/admin`
 - `/admin/catalog`
 - `/admin/orders`
-- `/admin/shipments`
-- `/admin/support`
 - `/admin/registrations`
+- `/support`
+- `/support/[orderId]`
+- `/production`
+- `/production/jobs`
+
+Aliases legados operacionais nao fazem parte do freeze; eles existem apenas como compatibilidade transitoria quando documentados em `docs/ROUTES.md`.
 
 ### 1.3 Regras de visibilidade congeladas
 O cliente nao pode passar a ver:
@@ -132,7 +136,7 @@ Se uma mudanca futura afetar:
 - ownership do pedido
 - status/rastreio
 - suporte
-- RBAC entre `customer` e `admin_master`
+- RBAC entre `customer` e operacao interna (`platform_admin`, `support_agent`, `production_operator`, `finance_admin`)
 
 entao essa mudanca nao e "preparacao para Fase 2".
 Ela e alteracao da Fase 1 e deve ser tratada como tal.

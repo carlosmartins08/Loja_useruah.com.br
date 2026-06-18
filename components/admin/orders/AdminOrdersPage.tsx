@@ -167,7 +167,7 @@ export default function AdminOrdersPage() {
                         </button>
                       ) : null}
                       <Link
-                        href={`/admin/support/${encodeURIComponent(order.orderId)}`}
+                        href={`/support/${encodeURIComponent(order.orderId)}`}
                         className="inline-flex items-center gap-2 rounded-2xl border border-ruah-200 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-700"
                       >
                         Abrir contexto <ArrowRight size={14} />

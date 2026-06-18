@@ -50,3 +50,19 @@ export async function patchJson<T>(url: string, body?: unknown, init?: RequestIn
   }
   return (await response.json()) as T;
 }
+
+export async function deleteJson<T>(url: string, body?: unknown, init?: RequestInit): Promise<T> {
+  const response = await fetch(url, {
+    ...init,
+    method: 'DELETE',
+    headers: {
+      'content-type': 'application/json',
+      ...(init?.headers ?? {}),
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!response.ok) {
+    throw new HttpRequestError('DELETE', url, response.status);
+  }
+  return (await response.json()) as T;
+}

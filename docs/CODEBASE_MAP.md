@@ -1,6 +1,6 @@
 # Codebase Map
 
-Data de revisao: 2026-06-09
+Data de revisao: 2026-06-18
 
 ## Objetivo
 Ser a fonte unica de localizacao tecnica do repositorio. Este arquivo nao explica estrategia de produto; ele mostra onde cada responsabilidade vive.
@@ -60,6 +60,8 @@ Ser a fonte unica de localizacao tecnica do repositorio. Este arquivo nao explic
 - `docs/**`
 - `docs/archive/**`
   - historico inativo, fora da camada ativa de decisao
+  - `docs/NEXT_SESSION_TRIGGER.md`
+    - gatilho curto de retomada para reusar a mesma logica de execucao no proximo ciclo
 
 ## Taxonomia curta para nao errar o local
 - `components/**`
@@ -153,6 +155,7 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
 - API:
   - `app/api/catalog-items/**`
   - `app/api/artworks/**`
+  - `app/api/artworks/[id]/start-review/route.ts`
   - `app/api/admin/impact-reviews/**`
   - `lib/admin-api/impact-reviews.ts`
 - Dominio e persistencia:
@@ -166,6 +169,7 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
   - `lib/brand-discovery.ts`
 - QA:
   - `scripts/qa/qa-catalog-lifecycle.mjs`
+  - `scripts/qa/qa-catalog-curation-integration.mjs`
   - `scripts/qa/qa-catalog-persisted.mjs`
   - `scripts/qa/qa-content-governance.mjs`
 
@@ -185,6 +189,7 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
   - `lib/order-ui.ts`
   - `lib/shop-products.ts`
   - `lib/address-book.ts`
+  - `app/c/[campaignId]/route.ts`
 
 ### Pagamentos
 - API:
@@ -229,8 +234,7 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
   - `app/admin/orders/page.tsx`
   - `components/admin/orders/AdminOrdersPage.tsx`
   - `app/production/jobs/page.tsx`
-  - `app/admin/production/page.tsx`
-  - `app/admin/shipments/page.tsx`
+  - `app/supplier/production/page.tsx`
   - `components/operations/production/ProductionJobsPage.tsx`
 - API:
   - `app/api/orders/[orderId]/status/route.ts`
@@ -245,13 +249,15 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
 - QA:
   - `scripts/qa/qa-core-operations.mjs`
   - `scripts/qa/qa-cross-role-impact.mjs`
+  - `scripts/qa/qa-role-authenticated-journeys.mjs`
+  - `scripts/qa/qa-role-journeys-runner.mjs`
 
 ### Suporte e contexto 360
 - Frontend:
   - `app/account/support/page.tsx`
   - `app/support/tickets/page.tsx`
-  - `app/admin/support/page.tsx`
-  - `app/admin/support/[orderId]/page.tsx`
+  - `app/support/[orderId]/page.tsx`
+  - `app/support/escalations/page.tsx`
   - `components/operations/support/SupportTicketsPage.tsx`
   - `components/operations/support/SupportOrderContextPage.tsx`
 - API:
@@ -269,19 +275,44 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
 - Frontend:
   - `app/community/campaigns/page.tsx`
   - `app/community/page.tsx`
+  - `app/community/revenue/page.tsx`
+  - `app/c/[campaignId]/route.ts`
 - API:
   - `app/api/campaigns/**`
+  - `app/api/campaigns/[id]/products/route.ts`
 - Dominio:
+  - `lib/campaign-access.ts`
+  - `lib/campaign-product-store.ts`
   - `lib/campaign-store.ts`
 - QA:
   - `scripts/qa/qa-campaign-impact.mjs`
+  - `scripts/qa/qa-community-curation.mjs`
   - `scripts/qa/qa-finance-impact.mjs`
   - `scripts/qa/qa-payout-ledger-paid.mjs`
+  - `scripts/qa/qa-base-roles.mjs`
+  - `scripts/qa/qa-role-closure.mjs`
+
+### Afiliacao e referral
+- Frontend:
+  - `app/affiliate/page.tsx`
+  - `app/affiliate/links/page.tsx`
+  - `app/af/[slug]/route.ts`
+- API:
+  - `app/api/affiliate/links/route.ts`
+  - `app/api/affiliate/links/[id]/conversions/route.ts`
+- Dominio:
+  - `lib/referral-store.ts`
+  - `lib/access-control.ts`
+- QA:
+  - `scripts/qa/qa-affiliate-referral.mjs`
+  - `scripts/qa/qa-role-closure.mjs`
 
 ### Financeiro, payout e reconciliacao
 - Frontend:
-  - `app/admin/finance/payouts/page.tsx`
+  - `app/finance/page.tsx`
   - `app/finance/payouts/page.tsx`
+  - `components/operations/finance/FinancePayoutsPage.tsx`
+  - `components/operations/finance/OwnerFinanceWorkspace.tsx`
 - API:
   - `app/api/admin/payouts/**`
   - `app/api/payouts/**`
@@ -405,6 +436,7 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
 - onboarding funcional:
   - `npm run qa:functional`
   - `npm run qa:coreops`
+  - `npm run qa:role:journeys`
 - pagamentos:
   - `npm run qa:payments21`
   - `npm run qa:stripe:smoke`
@@ -414,6 +446,7 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
 - gates:
   - `npm run check`
   - `npm run build`
+  - `npm run qa:base:roles`
   - `npm run go:e2e:proof`
 - artefatos:
   - `artifacts/README.md`

@@ -17,6 +17,9 @@ function parsePayload(payload: unknown): RejectPayload | null {
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const actor = getActorFromRequest(request);
+  if (isRbacActive() && !actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
   if (isRbacActive() && !canModerateCampaigns(actor?.actorRole)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }

@@ -50,6 +50,7 @@ Eliminar ambiguidade de uso documental, classificando cada arquivo como fonte de
 - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
 
 ### Referenciais
+- `docs/EXECUTION_TRACKING.md` (snapshot ativo de status e evidencias recentes; nao define regra primÃ¡ria)
 - `docs/CHANGELOG_GOVERNANCE.md` (histórico de decisão; não define regra primária)
 - `docs/FASE_2_1_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` (ponte de compatibilidade; nao abre fase oficial)
 - `docs/PAYMENTS_MULTI_GATEWAY_SETUP.md` (arquitetura e evolucao futura multi-provider; nao e a trilha ativa da Fase 1)
@@ -59,6 +60,7 @@ Eliminar ambiguidade de uso documental, classificando cada arquivo como fonte de
 
 ### Arquivo morto
 - `docs/archive/**`
+- `docs/archive/EXECUTION_TRACKING_HISTORY_2026-06-17.md`
 
 ## Documentos citados e não localizados no repositório atual
 - `docs/USERUAH_360_ARCHITECTURE.md`

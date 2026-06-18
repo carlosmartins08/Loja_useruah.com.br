@@ -119,7 +119,7 @@ export function updateArtworkReview(input: {
   const current = state[input.artworkId];
   if (!current) return { kind: 'not_found' as const };
 
-  if (current.status === 'approved' || current.status === 'rejected') {
+  if (current.status !== 'under_review') {
     return { kind: 'invalid_transition' as const, current };
   }
 
@@ -134,6 +134,26 @@ export function updateArtworkReview(input: {
     status: nextStatus,
     reviewedAt: now,
     reviewReason: input.action === 'reject' ? input.reason?.trim() : current.reviewReason,
+    updatedAt: now,
+  };
+
+  state[input.artworkId] = updated;
+  writeArtworks(state);
+  return { kind: 'updated' as const, previous: current, artwork: updated };
+}
+
+export function startArtworkReview(input: { artworkId: string }) {
+  const state = readArtworks();
+  const current = state[input.artworkId];
+  if (!current) return { kind: 'not_found' as const };
+  if (current.status !== 'submitted') {
+    return { kind: 'invalid_transition' as const, current };
+  }
+
+  const now = new Date().toISOString();
+  const updated: ArtworkRecord = {
+    ...current,
+    status: 'under_review',
     updatedAt: now,
   };
 

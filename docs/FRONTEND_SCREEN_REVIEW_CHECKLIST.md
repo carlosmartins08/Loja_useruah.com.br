@@ -79,7 +79,7 @@ Padronizar revisao de tela para evitar regressao visual, quebra funcional, falha
 - [ ] Evidencia de comandos executados e status.
 - [ ] Indicar explicitamente qual documento foi a fonte de verdade da revisao.
 - [ ] Atualizacao de governanca quando houver mudanca estrutural:
-  - `docs/EXECUTION_TRACKING.md`
+  - `docs/EXECUTION_TRACKING.md` (snapshot/evidencia recente)
   - `docs/CHANGELOG_GOVERNANCE.md`
 
 ## Criterio de bloqueio

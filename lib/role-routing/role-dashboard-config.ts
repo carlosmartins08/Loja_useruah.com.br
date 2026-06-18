@@ -47,8 +47,8 @@ export const ROLE_DASHBOARD_CONFIG = {
     description: 'Acompanhe campanhas ativas, performance de conversao e resultados financeiros da sua comunidade.',
     cards: [
       { title: 'Campanhas Ativas', description: 'Priorize campanhas, metas e ativos criativos por periodo.', href: '/community/campaigns', icon: Megaphone },
-      { title: 'Pedidos e Conversao', description: 'Analise volume de pedidos e funil gerado por cada acao da comunidade.', href: '/account/orders', icon: BarChart3 },
-      { title: 'Repasse e Saldo', description: 'Monitore comissoes, repasses e previsao de recebimento por campanha.', href: '/account/wallet', icon: Wallet },
+      { title: 'Painel da Comunidade', description: 'Consolide prioridades, sinais operacionais e proximos movimentos do ambiente.', href: '/community', icon: BarChart3 },
+      { title: 'Receita e Repasse', description: 'Leia o ledger financeiro real da comunidade e acompanhe solicitacoes de payout.', href: '/community/revenue', icon: Wallet },
     ],
   },
   supplier: {
@@ -64,11 +64,11 @@ export const ROLE_DASHBOARD_CONFIG = {
   affiliate: {
     label: 'Ambiente Affiliate',
     title: 'Dashboard de Performance',
-    description: 'Centralize seus links, acompanhe conversao e controle ganhos com transparencia.',
+    description: 'Centralize seus links, acompanhe conversao e controle atribuicao do canal com transparencia.',
     cards: [
       { title: 'Links e Ativos', description: 'Organize links, codigos e materiais para execucao de campanhas.', href: '/affiliate/links', icon: Link2 },
-      { title: 'Conversao e Pedidos', description: 'Monitore pedidos gerados, taxa de conversao e desempenho por canal.', href: '/account/orders', icon: BarChart3 },
-      { title: 'Comissoes', description: 'Acompanhe saldo, historico e previsao de repasse das comissoes.', href: '/account/wallet', icon: Wallet },
+      { title: 'Painel de Performance', description: 'Revise saude do canal, sinais de conversao e prioridades do ciclo atual.', href: '/affiliate', icon: BarChart3 },
+      { title: 'Diretrizes de Divulgacao', description: 'Confirme regras de uso de marca, mensagem e atribuicao antes da proxima ativacao.', href: '/policies', icon: Wallet },
     ],
   },
   curator: {
@@ -97,8 +97,13 @@ export const ROLE_DASHBOARD_CONFIG = {
     description: 'Controle fila de jobs, status de fabrica e capacidade por janela operacional.',
     cards: [
       { title: 'Jobs de Producao', description: 'Acompanhe fila, bloqueios e throughput por status.', href: '/production/jobs', icon: Factory },
-      { title: 'Pedidos Relacionados', description: 'Consulte pedidos conectados aos jobs ativos.', href: '/account/orders', icon: Package },
-      { title: 'Ocorrencias', description: 'Mapeie desvios e trate escalacoes de operacao.', href: '/support/escalations', icon: ShieldAlert },
+      { title: 'Painel Operacional', description: 'Consolide leitura de capacidade, backlog e prioridade corrente da operacao.', href: '/production', icon: Package },
+      {
+        title: 'Ocorrencias',
+        description: 'Use a propria fila para localizar pedidos travados, desvios de SLA e gargalos do ciclo atual.',
+        href: '/production/jobs',
+        icon: ShieldAlert,
+      },
     ],
   },
   finance_admin: {
@@ -106,7 +111,7 @@ export const ROLE_DASHBOARD_CONFIG = {
     title: 'Controle Financeiro',
     description: 'Monitore payouts, conformidade e decisoes de risco com trilha de auditoria.',
     cards: [
-      { title: 'Dashboard Financeiro', description: 'Visao consolidada de volume, risco e liquidacao.', href: '/finance/dashboard', icon: Landmark },
+      { title: 'Dashboard Financeiro', description: 'Visao consolidada de volume, risco e liquidacao.', href: '/finance', icon: Landmark },
       { title: 'Payouts', description: 'Aprove, rejeite e acompanhe ciclo de pagamentos.', href: '/finance/payouts', icon: Wallet },
       { title: 'Impact Reviews', description: 'Acompanhe revisoes que afetam receita e compliance.', href: '/admin/impact-reviews', icon: ShieldAlert },
     ],
