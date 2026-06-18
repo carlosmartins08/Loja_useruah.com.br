@@ -6,6 +6,7 @@ const PORT = Number(process.env.QA_PORT ?? 3200);
 const QA_SCRIPT = process.env.QA_SCRIPT;
 const QA_SERVER_MODE = (process.env.QA_SERVER_MODE ?? 'dev').toLowerCase();
 const QA_REUSE_EXISTING = String(process.env.QA_REUSE_EXISTING ?? 'false').toLowerCase() === 'true';
+const IS_CODEX_WINDOWS_SANDBOX = process.platform === 'win32' && process.env.CODEX_SANDBOX_NETWORK_DISABLED === '1';
 
 if (!QA_SCRIPT) {
   console.error('QA_SCRIPT is required (example: scripts/qa/qa-catalog-lifecycle.mjs)');
@@ -13,6 +14,11 @@ if (!QA_SCRIPT) {
 }
 
 const BASE_URL = `http://localhost:${PORT}`;
+const NEXT_BIN = 'node_modules/next/dist/bin/next';
+
+function hasNextBuildArtifacts() {
+  return existsSync('.next/BUILD_ID');
+}
 
 function isPortOpen(port) {
   return new Promise((resolve) => {
@@ -89,7 +95,8 @@ function killProcessTree(child) {
 
 function spawnNpm(args) {
   if (process.platform === 'win32') {
-    return spawn('cmd.exe', ['/d', '/s', '/c', `npm ${args.join(' ')}`], {
+    const command = ['npm', ...args].map(quoteWindowsCmdArg).join(' ');
+    return spawn(process.env.ComSpec || 'C:\\Windows\\System32\\cmd.exe', ['/d', '/s', '/c', command], {
       stdio: 'inherit',
       windowsHide: true,
       detached: false,
@@ -100,8 +107,8 @@ function spawnNpm(args) {
   if (npmExecPath && existsSync(npmExecPath)) {
     return spawn(process.execPath, [npmExecPath, ...args], {
       stdio: 'inherit',
-      windowsHide: false,
-      detached: true,
+      windowsHide: process.platform === 'win32',
+      detached: process.platform !== 'win32',
     });
   }
 
@@ -109,6 +116,24 @@ function spawnNpm(args) {
     stdio: 'inherit',
     windowsHide: false,
     detached: true,
+  });
+}
+
+function quoteWindowsCmdArg(value) {
+  if (!value) return '""';
+  if (!/[\s"&|<>^]/.test(value)) return value;
+  return `"${value.replace(/"/g, '\\"')}"`;
+}
+
+function spawnNext(args) {
+  if (!existsSync(NEXT_BIN)) {
+    throw new Error(`QA runner could not find Next.js CLI at ${NEXT_BIN}. Run npm install before QA.`);
+  }
+
+  return spawn(process.execPath, [NEXT_BIN, ...args], {
+    stdio: 'inherit',
+    windowsHide: process.platform === 'win32',
+    detached: process.platform !== 'win32',
   });
 }
 
@@ -129,6 +154,43 @@ function waitForExit(child) {
   });
 }
 
+function waitForServerReady(server, port, timeoutMs = 60000) {
+  if (!server) return waitForPort(port, timeoutMs);
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finalize = (fn, value) => {
+      if (settled) return;
+      settled = true;
+      server.off('error', onError);
+      server.off('exit', onExit);
+      fn(value);
+    };
+    const onError = (error) => {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'EPERM' && IS_CODEX_WINDOWS_SANDBOX) {
+        finalize(
+          reject,
+          new Error(
+            'Windows Codex sandbox blocked the Next.js server process with spawn EPERM. Re-run this QA outside the sandbox or from a normal PowerShell session.'
+          )
+        );
+        return;
+      }
+      finalize(reject, error);
+    };
+    const onExit = (code) => {
+      finalize(reject, new Error(`QA server exited before opening localhost:${port} (exit code ${code ?? 1}).`));
+    };
+
+    server.once('error', onError);
+    server.once('exit', onExit);
+
+    waitForPort(port, timeoutMs)
+      .then(() => finalize(resolve))
+      .catch((error) => finalize(reject, error));
+  });
+}
+
 async function main() {
   const portAlreadyOpen = await isPortOpen(PORT);
   if (portAlreadyOpen && !QA_REUSE_EXISTING) {
@@ -141,23 +203,48 @@ async function main() {
     process.exit(1);
   }
 
-  const startArgs =
-    QA_SERVER_MODE === 'start' ? ['run', 'start', '--', '-p', String(PORT)] : ['run', 'dev', '--', '-p', String(PORT)];
+  let effectiveServerMode = QA_SERVER_MODE;
 
-  if (!portAlreadyOpen && QA_SERVER_MODE === 'start') {
-    cleanNextBuildArtifacts();
-    const build = spawnNpm(['run', 'build']);
-    const buildExit = await waitForExit(build);
-    if (buildExit !== 0) {
-      console.error('QA runner aborted: production build failed before start mode.');
-      process.exit(buildExit);
+  if (!portAlreadyOpen && QA_SERVER_MODE === 'start' && IS_CODEX_WINDOWS_SANDBOX) {
+    if (hasNextBuildArtifacts()) {
+      console.warn(
+        'QA runner warning: Windows Codex sandbox detected. Reusing the existing production build with next start because next build is unstable with spawn EPERM in this environment.'
+      );
+      effectiveServerMode = 'start';
+    } else {
+      console.error(
+        [
+          'QA runner aborted: Windows Codex sandbox cannot compile a fresh Next.js production build reliably in start mode.',
+          'Run `npm run build` outside the sandbox first, or start the app manually and rerun with QA_REUSE_EXISTING=true.',
+        ].join('\n')
+      );
+      process.exit(1);
     }
   }
 
-  const server = portAlreadyOpen ? null : spawnNpm(startArgs);
+  if (!portAlreadyOpen && effectiveServerMode === 'start') {
+    if (!IS_CODEX_WINDOWS_SANDBOX) {
+      cleanNextBuildArtifacts();
+      const build = spawnNpm(['run', 'build']);
+      const buildExit = await waitForExit(build);
+      if (buildExit !== 0) {
+        console.error('QA runner aborted: production build failed before start mode.');
+        process.exit(buildExit);
+      }
+    }
+  }
+
+  const startArgs = effectiveServerMode === 'start' ? ['start', '-p', String(PORT)] : ['dev', '-p', String(PORT)];
+
+  const server =
+    portAlreadyOpen
+      ? null
+      : IS_CODEX_WINDOWS_SANDBOX
+        ? spawnNext(startArgs)
+        : spawnNpm(['run', ...startArgs.slice(0, 1), '--', ...startArgs.slice(1)]);
 
   try {
-    await waitForPort(PORT);
+    await waitForServerReady(server, PORT);
     const qa = spawn(process.execPath, [QA_SCRIPT], {
       stdio: 'inherit',
       env: { ...process.env, QA_BASE_URL: BASE_URL },

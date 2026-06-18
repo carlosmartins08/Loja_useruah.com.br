@@ -1,9 +1,10 @@
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ProductPageView } from '@/components/product/ProductPageView';
 import { buildProductJsonLd, mapCatalogItemToProductPageModel } from '@/components/product/product-data';
 import { findBrandProductMerchandising, findBrandProductSeed } from '@/lib/brand-assets';
+import { appendAuditLog } from '@/lib/audit-log-store';
 import { isCatalogItemLinkedToCampaign, listCampaignCatalogItemIds } from '@/lib/campaign-product-store';
 import { getCatalogItem, listCatalogItems } from '@/lib/catalog-item-store';
 import { resolveShopCampaignContext } from '@/lib/shop-products';
@@ -20,9 +21,27 @@ async function getPublishedProduct(id: string) {
 
 async function resolveProductCampaignContext(id: string, rawCampaignId?: string) {
   const cookieCampaignId = (await cookies()).get('ruah_campaign_id')?.value;
-  const campaignContext = resolveShopCampaignContext(rawCampaignId ?? cookieCampaignId);
-  if (!campaignContext) return null;
-  return isCatalogItemLinkedToCampaign(campaignContext.campaignId, id) ? campaignContext : null;
+  const explicitCampaignId = rawCampaignId?.trim();
+
+  if (explicitCampaignId) {
+    const explicitContext = resolveShopCampaignContext(explicitCampaignId);
+    if (!explicitContext || !isCatalogItemLinkedToCampaign(explicitContext.campaignId, id)) {
+      appendAuditLog({
+        actor_id: 'public-visitor',
+        actor_role: 'public',
+        action: 'campaign.context_redirected',
+        entity_type: 'Campaign',
+        entity_id: explicitCampaignId,
+        reason: `source:/product/${id}|target:/shop?campaignId=${explicitCampaignId}|detail:product_outside_campaign`,
+      });
+      redirect(`/shop?campaignId=${encodeURIComponent(explicitCampaignId)}`);
+    }
+    return explicitContext;
+  }
+
+  const cookieContext = resolveShopCampaignContext(cookieCampaignId);
+  if (!cookieContext) return null;
+  return isCatalogItemLinkedToCampaign(cookieContext.campaignId, id) ? cookieContext : null;
 }
 
 export async function generateMetadata({ params }: { params: Promise<ProductPageParams> }): Promise<Metadata> {

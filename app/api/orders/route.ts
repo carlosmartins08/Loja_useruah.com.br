@@ -156,6 +156,12 @@ async function resolveAttributionContext(request: Request, body: OrderCreatePayl
     referralLinkId?: string;
     affiliateUserId?: string;
   } = {};
+  const ignoredContexts: Array<{
+    entityType: 'Campaign' | 'ReferralLink';
+    entityId: string;
+    action: 'campaign.context_ignored' | 'referral.context_ignored';
+    reason: string;
+  }> = [];
 
   if (campaignId) {
     const campaign = getCampaign(campaignId);
@@ -167,6 +173,13 @@ async function resolveAttributionContext(request: Request, body: OrderCreatePayl
       context.communityOwnerId = campaign.createdBy;
     } else if (explicitCampaignId) {
       return { ok: false as const, error: 'campaign_not_active', detail: campaignId };
+    } else if (cookieCampaignId) {
+      ignoredContexts.push({
+        entityType: 'Campaign',
+        entityId: cookieCampaignId,
+        action: 'campaign.context_ignored',
+        reason: `source:cookie|detail:${campaign ? `status_${campaign.status}` : 'not_found'}`,
+      });
     }
   }
 
@@ -177,10 +190,17 @@ async function resolveAttributionContext(request: Request, body: OrderCreatePayl
       context.affiliateUserId = referralLink.ownerId;
     } else if (explicitReferralLinkId) {
       return { ok: false as const, error: 'referral_link_not_active', detail: referralLinkId };
+    } else if (cookieReferralLinkId) {
+      ignoredContexts.push({
+        entityType: 'ReferralLink',
+        entityId: cookieReferralLinkId,
+        action: 'referral.context_ignored',
+        reason: `source:cookie|detail:${referralLink ? `status_${referralLink.status}` : 'not_found'}`,
+      });
     }
   }
 
-  return { ok: true as const, context };
+  return { ok: true as const, context, ignoredContexts };
 }
 
 export async function POST(request: Request) {
@@ -211,6 +231,17 @@ export async function POST(request: Request) {
   const attribution = await resolveAttributionContext(request, body);
   if (!attribution.ok) {
     return NextResponse.json({ error: attribution.error, detail: attribution.detail }, { status: 409 });
+  }
+
+  for (const ignoredContext of attribution.ignoredContexts) {
+    appendAuditLog({
+      actor_id: customerId,
+      actor_role: actor.actorRole,
+      action: ignoredContext.action,
+      entity_type: ignoredContext.entityType,
+      entity_id: ignoredContext.entityId,
+      reason: ignoredContext.reason,
+    });
   }
 
   const validatedItems = await resolveValidatedOrderItems(body, attribution.context);

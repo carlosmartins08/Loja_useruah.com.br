@@ -7,7 +7,18 @@ export default async function ShopPage(props: {
   const searchParams = (await props.searchParams) ?? {};
   const rawCampaignId = searchParams.campaignId;
   const campaignId = Array.isArray(rawCampaignId) ? rawCampaignId[0] : rawCampaignId;
-  const { products, campaignContext } = await getPublishedShopProducts({ campaignId });
+  const { products, campaignContext, campaignSummary, storefrontState, message, requestedCampaignId } = await getPublishedShopProducts({
+    campaignId,
+  });
 
-  return <ShopPageView products={products} campaignContext={campaignContext} />;
+  return (
+    <ShopPageView
+      products={products}
+      campaignContext={campaignContext}
+      campaignSummary={campaignSummary}
+      storefrontState={storefrontState}
+      storefrontMessage={message}
+      requestedCampaignId={requestedCampaignId}
+    />
+  );
 }

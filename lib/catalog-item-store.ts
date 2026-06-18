@@ -367,7 +367,12 @@ export async function getCatalogItem(catalogItemId: string) {
   if (mysql && shouldUseMysql()) {
     try {
       const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items WHERE catalog_item_id = ?`, [catalogItemId]);
-      return rows[0] ? rowToCatalogItem(rows[0]) : null;
+      if (rows[0]) {
+        return rowToCatalogItem(rows[0]);
+      }
+
+      const state = readCatalog();
+      return state[catalogItemId] ?? null;
     } catch {
       const state = readCatalog();
       return state[catalogItemId] ?? null;

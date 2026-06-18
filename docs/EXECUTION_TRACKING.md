@@ -67,6 +67,8 @@ Revalidado neste ciclo:
 - 2026-06-18: `npm run qa:campaign:impact` -> `PASS` com prova de `scope=campaigns`, aprovacao, pausa e reativacao na mesma esteira de governanca
 - 2026-06-18: `npm run qa:campaign:detail` -> `PASS` com prova de ownership, leitura por `curator/platform_admin`, timeline normalizada e readiness backend em `GET /api/campaigns/[id]`
 - 2026-06-18: `npm run qa:community:revenue` -> `PASS` com prova de atribuicao real por campanha em `/api/commissions/me/campaigns` e coerencia com ledger agregado da comunidade
+- 2026-06-18: `npm run qa:campaign:public` -> `PASS` com prova de `/c/[campaignId]` como superficie publica minima, ativacao via `/c/[campaignId]/shop`, loja/PDP endurecidos para `campaignId` invalido ou inativo, atribuicao combinada `campaign + referral` e ignorar cookie de campanha obsoleto sem perder referral valido
+- 2026-06-18: `npm run ops:campaign:public` -> `PASS` com snapshot operacional em `docs/ops/CAMPAIGN_PUBLIC_DAILY_SUMMARY.md`, incluindo leituras publicas, redirects de contexto, stale cookies e pedidos com atribuicao combinada
 
 Revalidado no mesmo saneamento estrutural:
 - 2026-06-18: `npm run qa:role:journeys` -> `PASS`

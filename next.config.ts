@@ -4,6 +4,7 @@ import type {NextConfig} from 'next';
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
   reactStrictMode: true,
+  allowedDevOrigins: ['127.0.0.1', '::1'],
   // Allow access to remote image placeholder.
   images: {
     qualities: [65, 68, 70, 72, 75],

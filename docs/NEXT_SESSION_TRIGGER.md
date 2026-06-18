@@ -41,6 +41,7 @@ Use este prompt literalmente ou com ajuste minimo:
 - `qa:campaign:impact`: `PASS`
 - `qa:campaign:detail`: `PASS`
 - `qa:community:revenue`: `PASS`
+- `qa:campaign:public`: `PASS`
 
 ## Evidencia adicional deste ciclo
 - `qa:routes`: `PASS`
@@ -51,6 +52,7 @@ Use este prompt literalmente ou com ajuste minimo:
 - `qa:community:revenue`: `PASS`
 - `qa:catalog:curation`: `PASS`
 - `qa:affiliate:referral`: `PASS`
+- `ops:campaign:public`: `PASS`
 - `qa:role:closure`: `PASS`
 - `qa:coreops`: `PASS`
 - `qa:crossrole:impact`: `PASS`

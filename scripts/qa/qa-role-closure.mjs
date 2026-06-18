@@ -281,16 +281,20 @@ async function run() {
   );
   report.push('ROLE-CLOSE-11 active campaign rejects checkout for published item outside linked vitrine');
 
-  const publicCampaign = await req('GET', `/c/${campaignId}`, undefined, { redirect: 'manual' });
-  assert(publicCampaign.status === 307, `public campaign redirect expected 307, got ${publicCampaign.status}`);
-  assert(publicCampaign.location === `${baseUrl}/shop?campaignId=${campaignId}`, `public campaign location mismatch: ${publicCampaign.location}`);
-  assert(publicCampaign.setCookie.includes(`ruah_campaign_id=${campaignId}`), 'campaign cookie missing in public redirect');
+  const publicCampaign = await req('GET', `/c/${campaignId}`);
+  assert(publicCampaign.status === 200, `public campaign page expected 200, got ${publicCampaign.status}`);
+  assert(typeof publicCampaign.data === 'string' && publicCampaign.data.includes(`Campanha ${suffix}`), 'public campaign page missing campaign context');
+
+  const publicCampaignStorefront = await req('GET', `/c/${campaignId}/shop`, undefined, { redirect: 'manual' });
+  assert(publicCampaignStorefront.status === 307, `public campaign storefront redirect expected 307, got ${publicCampaignStorefront.status}`);
+  assert(publicCampaignStorefront.location === `${baseUrl}/shop?campaignId=${campaignId}`, `public campaign storefront location mismatch: ${publicCampaignStorefront.location}`);
+  assert(publicCampaignStorefront.setCookie.includes(`ruah_campaign_id=${campaignId}`), 'campaign cookie missing in storefront redirect');
 
   const publicReferral = await req('GET', `/af/${referralSlug}`, undefined, { redirect: 'manual' });
   assert(publicReferral.status === 307, `public referral redirect expected 307, got ${publicReferral.status}`);
   assert(publicReferral.location === `${baseUrl}/shop`, `public referral location mismatch: ${publicReferral.location}`);
   assert(publicReferral.setCookie.includes(`ruah_referral_link_id=${referralLinkId}`), 'referral cookie missing in public redirect');
-  report.push('ROLE-CLOSE-12 public campaign and referral routes set attribution cookies and campaign storefront filter');
+  report.push('ROLE-CLOSE-12 public campaign page stays coherent and campaign/referral routes still set attribution context');
 
   const order = await req(
     'POST',
