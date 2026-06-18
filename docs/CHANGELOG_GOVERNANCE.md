@@ -34,6 +34,164 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-18] Campanha ganha contrato unico de detalhe operacional reutilizavel por owner e governanca
+- ID: GOV-0115
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `campanhas`
+  - `governanca`
+  - `community_manager`
+- Documento fonte afetado:
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Decisao:
+  - Criar `GET /api/campaigns/[id]` como contrato canonico de detalhe operacional de campanha.
+  - Fazer o contrato servir ao mesmo tempo para `/community/campaigns/[id]` e para o painel inline de `/admin/impact-reviews?scope=campaigns`.
+  - Consolidar no backend `campaign`, `governance`, `governanceHistory`, `timeline`, `linkedProducts`, `readiness` e `attributionSummary` sem abrir store nova.
+- Contexto:
+  - A campanha ja tinha fila, vitrine e moderacao, mas a memoria operacional ficava fragmentada entre card resumido, logs e review isolada.
+- Impacto esperado:
+  - Owner e governanca passam a ler o mesmo estado real da campanha.
+  - Timeline e readiness deixam de depender de logica espalhada em UI.
+- Riscos conhecidos:
+  - O contrato ainda depende de stores locais e nao substitui uma futura consolidacao de dominio se campanha crescer para fora do recorte atual.
+- Plano de rollback:
+  - Recuar apenas o endpoint agregado se surgir uma camada superior que preserve ownership, historico e atribuicao com menos acoplamento.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+
+### [2026-06-18] Receita por campanha vira leitura de atribuicao e nao saldo sacavel isolado
+- ID: GOV-0114
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `campanhas`
+  - `financeiro`
+  - `community_manager`
+- Documento fonte afetado:
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Decisao:
+  - Manter o payout agregado no owner ledger e expor `/api/commissions/me/campaigns` apenas como leitura de atribuicao real por `campaignId`.
+  - Estender `/community/revenue` com secao de receita por campanha, sempre deixando explicito que a leitura nao representa saque isolado por campanha.
+  - Derivar os valores por campanha a partir de `OrderItemSnapshot` + comissoes reais, sem inventar subledger financeiro novo.
+- Contexto:
+  - O runtime ja rastreava `campaignId` no pedido e criava comissao da comunidade, mas a leitura financeira continuava achatada no owner e escondia a composicao por campanha.
+- Impacto esperado:
+  - `community_manager` passa a entender de onde vem a receita sem confundir isso com um segundo saldo sacavel.
+  - A governanca e o detalhe da campanha passam a ler a mesma atribuicao financeira real.
+- Riscos conhecidos:
+  - Se o dominio financeiro evoluir no futuro, a equipe pode tentar rebatizar essa leitura como payout por campanha; isso continua proibido neste recorte.
+- Plano de rollback:
+  - Remover apenas a camada de agrupamento por campanha se a atribuicao deixar de ser rastreavel de forma confiavel.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+
+### [2026-06-18] `/admin/impact-reviews` ganha recorte proprio de campanha com decisao e historico
+- ID: GOV-0113
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `campanhas`
+  - `governanca`
+  - `ui-rotas`
+- Documento fonte afetado:
+  - `docs/ROUTES.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+- Decisao:
+  - Manter `/admin/impact-reviews` como superficie canonica de governanca, mas adicionar nela um recorte proprio de campanha com filtro dedicado, contexto de runtime e historico de decisoes.
+  - Enriquecer `/api/admin/impact-reviews` com filtro por `entityType=Campaign` e contexto da campanha (`name`, `organizationId`, `status`, `productCount`, `progressivePriceRule`).
+  - Permitir que a mesma superficie execute a moderacao final de campanha quando a `impact review` ja estiver aprovada, sem abrir um dominio novo de `Organization`.
+  - Remover de `/community/campaigns` o link para rota administrativa bloqueada; o owner acompanha devolutiva no proprio workspace e a decisao segue na governanca cross-role.
+- Contexto:
+  - A tela existente misturava catalogo, financeiro e campanha como se fossem o mesmo assunto e ainda rotulava campanha como `CatalogItem`, o que impedia usar a governanca de campanha como mesa propria de decisao e historico.
+- Impacto esperado:
+  - `platform_admin` e `curator` passam a enxergar campanha como entidade propria dentro da governanca.
+  - Historico e contexto deixam de ficar escondidos em leitura generica de review.
+  - `community_manager` deixa de receber CTA para rota que o proprio papel nao abre.
+- Riscos conhecidos:
+  - A governanca de campanha continua apoiada na mesma rota canonica e nao substitui uma futura superficie mais ampla de operacao de movimento caso o dominio cresca.
+- Plano de rollback:
+  - Recuar o recorte dedicado apenas se houver uma superficie canonica superior que preserve filtro, historico e decisao sem perder a disciplina atual.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+
+### [2026-06-18] Rejeicao de impact review volta a campanha para `rejected` com devolutiva visivel ao owner
+- ID: GOV-0112
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `campanhas`
+  - `governanca`
+  - `community_manager`
+- Documento fonte afetado:
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/JOURNEY_MATRIX_BY_ROLE.md`
+- Decisao:
+  - Sincronizar a rejeicao de `impact review` de entidade `Campaign` com a volta da campanha para estado `rejected`.
+  - Expor no payload de `/api/campaigns` o ultimo status de governanca, com `reviewId`, `decisionReason` e timestamps.
+  - Fazer `/community/campaigns` mostrar a devolutiva de governanca ao owner e permitir encerramento quando a campanha estiver `active` ou `paused`.
+- Contexto:
+  - A mesa de impacto ja conseguia rejeitar a revisao, mas o owner da campanha nao recebia retorno operacional suficiente e podia ficar preso num limbo entre `pending_review` e bloqueio de ativacao.
+- Impacto esperado:
+  - Campanha rejeitada volta a ser editavel e reenviavel sem intervencao manual paralela.
+  - `community_manager` passa a ver na propria superficie o motivo da rejeicao e o estado real da governanca.
+- Riscos conhecidos:
+  - O fluxo continua parcial como fase: ainda nao existe dominio maduro de `Organization` nem payout financeiro proprio de afiliado.
+- Plano de rollback:
+  - Remover a sincronizacao automatica apenas se surgir uma superficie canonica separada para moderacao de campanha com contrato superior e prova equivalente.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+
+### [2026-06-18] Frontend da Fase 2 deixa de tratar rotas planejadas como mapa pratico de continuidade
+- ID: GOV-0111
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `documentacao`
+  - `campanhas`
+  - `afiliacao`
+- Documento fonte afetado:
+  - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- Decisao:
+  - Reescrever o documento de frontend da Fase 2 para separar explicitamente superficies comprovadas do runtime atual de superficies apenas planejadas.
+  - Parar de usar `/@username*` e `/affiliate/rewards` como se fossem mapa pratico de implementacao.
+  - Atualizar o backend da Fase 2 para deixar claro que `/@username` continua apenas como descoberta planejada, enquanto o runtime comprovado hoje entra por `/community`, `/affiliate`, `/c/[campaignId]` e `/shop?campaignId=...`.
+- Contexto:
+  - Depois da limpeza das superficies publicas, o principal risco de retrabalho passou a ser documental: o texto ativo de frontend ainda misturava intencao de fase com rota viva.
+- Impacto esperado:
+  - Menos chance de abrir trabalho em cima de rota planejada como se fosse backlog tecnico imediato.
+  - Menos ambiguidade sobre o que a Fase 2 realmente sustenta hoje em comunidade, campanha e afiliacao.
+- Riscos conhecidos:
+  - O documento continua citando rotas planejadas, mas agora em secao explicitamente marcada como `nao presumir`.
+- Plano de rollback:
+  - Reverter apenas a classificacao documental se o runtime comprovar essas rotas no mesmo recorte e a matriz for atualizada junto.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+
 ### [2026-06-18] Home e superficies publicas deixam de prometer capacidades e canais que nao existem
 - ID: GOV-0110
 - Status: `aprovada`

@@ -6,6 +6,8 @@ import { countCampaignProducts } from '@/lib/campaign-product-store';
 import { createCampaign, listCampaigns, type CampaignStatus } from '@/lib/campaign-store';
 import { createImpactReview } from '@/lib/impact-review-store';
 import { notifyImpactReviewEvent } from '@/lib/impact-notification-service';
+import type { ImpactReviewRecord } from '@/lib/impact-review-store';
+import { listImpactReviewsByEntities } from '@/lib/impact-review-store';
 
 interface CreateCampaignPayload {
   organizationId: string;
@@ -52,11 +54,34 @@ export async function GET(request: Request) {
   const organizationId = searchParams.get('organizationId') ?? undefined;
   const createdBy = isRbacActive() && actor?.actorRole === 'community_manager' ? actor.actorId : undefined;
   const campaigns = (await listCampaigns({ status, organizationId, createdBy })).filter((campaign) => canReadCampaign(campaign, actor));
+  const governanceByCampaignId = new Map<string, ImpactReviewRecord>();
+
+  for (const review of listImpactReviewsByEntities(
+    'Campaign',
+    campaigns.map((campaign) => campaign.campaignId)
+  )) {
+    const current = governanceByCampaignId.get(review.entityId);
+    if (!current || review.updatedAt > current.updatedAt) {
+      governanceByCampaignId.set(review.entityId, review);
+    }
+  }
+
   return NextResponse.json({
     ok: true,
     campaigns: campaigns.map((campaign) => ({
       ...campaign,
       productCount: countCampaignProducts(campaign.campaignId),
+      governance: (() => {
+        const review = governanceByCampaignId.get(campaign.campaignId);
+        if (!review) return null;
+        return {
+          reviewId: review.reviewId,
+          status: review.status,
+          dueAt: review.dueAt,
+          updatedAt: review.updatedAt,
+          decisionReason: review.decisionReason ?? null,
+        };
+      })(),
     })),
   });
 }

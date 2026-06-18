@@ -1,6 +1,7 @@
 ﻿import { randomUUID } from 'crypto';
 import { readStoreFile, writeStoreFile } from '@/lib/dev-store';
 import { getMysqlPool, shouldUseMysql, type MysqlResult, type MysqlRow } from '@/lib/mysql-runtime';
+import { normalizeEditorialCatalogAssetPath } from '@/lib/product-artwork';
 
 export type CatalogItemStatus = 'draft' | 'pending_review' | 'ready' | 'published' | 'archived';
 
@@ -54,12 +55,49 @@ export interface CatalogItemBusinessRuleInput {
 
 type CatalogState = Record<string, CatalogItemRecord>;
 
+function normalizeMediaItems(items: Array<{ label: string; src: string }>) {
+  return items.map((item) => ({
+    ...item,
+    src: normalizeEditorialCatalogAssetPath(item.src),
+  }));
+}
+
+function normalizeColorImages(colorImages: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(colorImages).map(([label, src]) => [label, normalizeEditorialCatalogAssetPath(src)])
+  );
+}
+
+function normalizeVariants(variants: CatalogItemVariant[]) {
+  return variants.map((variant) => ({
+    ...variant,
+    image: normalizeEditorialCatalogAssetPath(variant.image),
+  }));
+}
+
+function normalizeCatalogItemRecord(record: CatalogItemRecord): CatalogItemRecord {
+  return {
+    ...record,
+    image: normalizeEditorialCatalogAssetPath(record.image),
+    colorImages: normalizeColorImages(record.colorImages),
+    detailImages: normalizeMediaItems(record.detailImages),
+    modelMockups: normalizeMediaItems(record.modelMockups),
+    variants: normalizeVariants(record.variants),
+  };
+}
+
 function readCatalog(): CatalogState {
-  return readStoreFile<CatalogState>('catalog-items', {});
+  const state = readStoreFile<CatalogState>('catalog-items', {});
+  return Object.fromEntries(
+    Object.entries(state).map(([catalogItemId, record]) => [catalogItemId, normalizeCatalogItemRecord(record)])
+  );
 }
 
 function writeCatalog(value: CatalogState) {
-  writeStoreFile('catalog-items', value);
+  const normalized = Object.fromEntries(
+    Object.entries(value).map(([catalogItemId, record]) => [catalogItemId, normalizeCatalogItemRecord(record)])
+  );
+  writeStoreFile('catalog-items', normalized);
 }
 
 function toMysqlDatetime(iso: string) {
@@ -73,7 +111,7 @@ function mysqlDatetimeToIso(value: unknown) {
 }
 
 function rowToCatalogItem(row: MysqlRow): CatalogItemRecord {
-  return {
+  return normalizeCatalogItemRecord({
     catalogItemId: String(row.catalog_item_id),
     artworkId: String(row.artwork_id),
     productBaseId: String(row.product_base_id),
@@ -99,7 +137,7 @@ function rowToCatalogItem(row: MysqlRow): CatalogItemRecord {
     publishedAt: mysqlDatetimeToIso(row.published_at),
     unpublishedAt: mysqlDatetimeToIso(row.unpublished_at),
     publicationReason: row.publication_reason ? String(row.publication_reason) : undefined,
-  };
+  });
 }
 
 function listCatalogItemsFromStore(filters?: { publicationStatus?: CatalogItemStatus; artworkId?: string }) {
@@ -270,7 +308,7 @@ export async function createCatalogItem(
       };
       state[catalogItemId] = overwritten;
       writeCatalog(state);
-      return { item: overwritten, created: false as const };
+      return { item: normalizeCatalogItemRecord(overwritten), created: false as const };
     }
     if (!existing.pricingPolicy && input.pricingPolicy) {
       const patched: CatalogItemRecord = {
@@ -280,7 +318,7 @@ export async function createCatalogItem(
       };
       state[catalogItemId] = patched;
       writeCatalog(state);
-      return { item: patched, created: false as const };
+      return { item: normalizeCatalogItemRecord(patched), created: false as const };
     }
     return { item: existing, created: false as const };
   }
@@ -295,7 +333,7 @@ export async function createCatalogItem(
 
   state[catalogItemId] = record;
   writeCatalog(state);
-  return { item: record, created: true as const };
+  return { item: normalizeCatalogItemRecord(record), created: true as const };
 }
 
 export async function listCatalogItems(filters?: { publicationStatus?: CatalogItemStatus; artworkId?: string }) {

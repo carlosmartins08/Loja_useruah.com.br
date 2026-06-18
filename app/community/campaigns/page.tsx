@@ -8,6 +8,14 @@ import { Header } from '@/components/navigation/Header';
 
 type CampaignStatus = 'draft' | 'pending_review' | 'active' | 'paused' | 'closed' | 'rejected' | 'cancelled';
 
+interface CampaignGovernanceSummary {
+  reviewId: string;
+  status: 'pending_review' | 'approved' | 'rejected';
+  dueAt: string;
+  updatedAt: string;
+  decisionReason: string | null;
+}
+
 interface CampaignRecord {
   campaignId: string;
   organizationId: string;
@@ -22,6 +30,7 @@ interface CampaignRecord {
   createdAt: string;
   updatedAt: string;
   productCount: number;
+  governance: CampaignGovernanceSummary | null;
 }
 
 interface CatalogItemOption {
@@ -88,6 +97,20 @@ function statusLabel(status: CampaignStatus) {
 
 function canManageProducts(status: CampaignStatus) {
   return status === 'draft' || status === 'rejected' || status === 'paused';
+}
+
+function governanceLabel(governance: CampaignGovernanceSummary | null) {
+  if (!governance) return 'Sem revisao registrada';
+  switch (governance.status) {
+    case 'pending_review':
+      return 'Impact review pendente';
+    case 'approved':
+      return 'Impact review aprovada';
+    case 'rejected':
+      return 'Impact review rejeitada';
+    default:
+      return governance.status;
+  }
 }
 
 export default function CommunityCampaignsPage() {
@@ -202,6 +225,25 @@ export default function CommunityCampaignsPage() {
       }
     } finally {
       setActionByCampaign((current) => ({ ...current, [campaignId]: false }));
+    }
+  };
+
+  const handleCloseCampaign = async (campaignId: string) => {
+    setActionByCampaign((current) => ({ ...current, [`${campaignId}:close`]: true }));
+    setError(null);
+    try {
+      await postJson(`/api/campaigns/${encodeURIComponent(campaignId)}/close`);
+      await loadCampaigns();
+    } catch (err) {
+      if (err instanceof HttpRequestError && err.status === 403) {
+        setError('Esta campanha nao pertence ao seu escopo atual.');
+      } else if (err instanceof HttpRequestError && err.status === 409) {
+        setError('A campanha so pode ser encerrada quando estiver ativa ou pausada.');
+      } else {
+        setError('Nao foi possivel encerrar a campanha agora.');
+      }
+    } finally {
+      setActionByCampaign((current) => ({ ...current, [`${campaignId}:close`]: false }));
     }
   };
 
@@ -332,6 +374,7 @@ export default function CommunityCampaignsPage() {
                     const canSubmit = campaign.status === 'draft' || campaign.status === 'rejected';
                     const productsMutable = canManageProducts(campaign.status);
                     const isSelected = selectedCampaignId === campaign.campaignId;
+                    const canClose = campaign.status === 'active' || campaign.status === 'paused';
 
                     return (
                       <article key={campaign.campaignId} className="rounded-3xl border border-ruah-100 bg-ruah-50/60 p-5">
@@ -370,7 +413,42 @@ export default function CommunityCampaignsPage() {
                           </div>
                         </div>
 
+                        {campaign.governance ? (
+                          <div className="mt-4 rounded-2xl border border-ruah-100 bg-white p-4">
+                            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                              <div>
+                                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ruah-400">Governanca</p>
+                                <p className="mt-2 text-sm font-semibold text-ruah-950">{governanceLabel(campaign.governance)}</p>
+                                <p className="mt-2 text-xs text-ruah-500">
+                                  Review {campaign.governance.reviewId} atualizado em{' '}
+                                  {new Date(campaign.governance.updatedAt).toLocaleString('pt-BR')}
+                                </p>
+                              </div>
+                              <div className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500">
+                                {campaign.governance.status === 'pending_review'
+                                  ? `SLA ate ${new Date(campaign.governance.dueAt).toLocaleString('pt-BR')}`
+                                  : 'Decisao registrada'}
+                              </div>
+                            </div>
+                            {campaign.governance.decisionReason ? (
+                              <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                                {campaign.governance.decisionReason}
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : null}
+
                         <div className="mt-4 flex flex-wrap items-center gap-3">
+                          <Link
+                            href={`/community/campaigns/${campaign.campaignId}`}
+                            className="rounded-2xl border border-ruah-200 bg-white px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-950"
+                          >
+                            <span className="inline-flex items-center gap-2">
+                              <ArrowRight size={14} />
+                              Abrir detalhe
+                            </span>
+                          </Link>
+
                           {canSubmit ? (
                             <button
                               type="button"
@@ -381,6 +459,20 @@ export default function CommunityCampaignsPage() {
                               <span className="inline-flex items-center gap-2">
                                 <Send size={14} />
                                 {actionByCampaign[campaign.campaignId] ? 'Enviando...' : 'Submeter para revisao'}
+                              </span>
+                            </button>
+                          ) : null}
+
+                          {canClose ? (
+                            <button
+                              type="button"
+                              onClick={() => void handleCloseCampaign(campaign.campaignId)}
+                              disabled={Boolean(actionByCampaign[`${campaign.campaignId}:close`])}
+                              className="rounded-2xl border border-ruah-200 bg-white px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-950 disabled:opacity-50"
+                            >
+                              <span className="inline-flex items-center gap-2">
+                                <ShieldAlert size={14} />
+                                {actionByCampaign[`${campaign.campaignId}:close`] ? 'Encerrando...' : 'Encerrar campanha'}
                               </span>
                             </button>
                           ) : null}
@@ -402,6 +494,11 @@ export default function CommunityCampaignsPage() {
                           <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500">
                             {productsMutable ? 'Vitrine editavel neste estado' : 'Vitrine congelada neste estado'}
                           </span>
+                          {campaign.status === 'rejected' && campaign.governance?.decisionReason ? (
+                            <span className="text-xs font-semibold uppercase tracking-[0.1em] text-amber-700">
+                              Corrija a regra ou a vitrine e reenvie para revisao
+                            </span>
+                          ) : null}
                         </div>
 
                         {isSelected ? (
@@ -604,9 +701,9 @@ export default function CommunityCampaignsPage() {
                     : 'Vitrine so e editavel em rascunho, rejeicao ou pausa.'}
                 </p>
               ) : null}
-              <Link href="/admin/impact-reviews" className="text-xs font-bold uppercase tracking-[0.1em] text-accent-gold inline-flex items-center gap-2">
-                Abrir mesa de impacto <ArrowRight size={12} />
-              </Link>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500">
+                A decisao final acontece na governanca cross-role. Aqui o owner acompanha status, devolutiva e proximo reenvio sem depender da rota administrativa.
+              </p>
             </article>
           </aside>
         </div>

@@ -1,5 +1,16 @@
 export type ProductArtworkKind = 'shirt' | 'sweatshirt' | 'tote' | 'cap' | 'generic';
 
+const LEGACY_EDITORIAL_CATALOG_ASSET_MAP: Record<string, string> = {
+  '/assets/editorial/catalog/tee-off-white/main.jpg':
+    '/assets/editorial/catalog/camiseta-regular/offwhite-oracao/mockup-camiseta-regular-offwhite-oracao-front.svg',
+  '/assets/editorial/catalog/tee-off-white/detail-collar.jpg':
+    '/assets/editorial/catalog/camiseta-regular/offwhite-oracao/mockup-camiseta-regular-offwhite-oracao-detail-gola.svg',
+  '/assets/editorial/catalog/tee-off-white/model-front.jpg':
+    '/assets/editorial/catalog/camiseta-regular/offwhite-oracao/mockup-camiseta-regular-offwhite-oracao-right-3q.svg',
+  '/assets/editorial/catalog/tee-black/main.jpg':
+    '/assets/editorial/catalog/camiseta-regular/preto-presenca/mockup-camiseta-regular-preto-presenca-front.svg',
+};
+
 interface ProductArtworkDescriptor {
   kind: ProductArtworkKind;
   familyLabel: string;
@@ -42,6 +53,11 @@ export function isProductMockupPlaceholder(src: string) {
   return typeof src === 'string' && src.startsWith('/assets/products/mockups/');
 }
 
+export function normalizeEditorialCatalogAssetPath(src: string) {
+  if (typeof src !== 'string') return src;
+  return LEGACY_EDITORIAL_CATALOG_ASSET_MAP[src] ?? src;
+}
+
 function parseProductArtworkParts(src: string): ProductArtworkParts | null {
   if (!isProductMockupPlaceholder(src)) return null;
 
@@ -67,6 +83,9 @@ function parseProductArtworkParts(src: string): ProductArtworkParts | null {
 }
 
 export function toEditorialCatalogAssetPath(src: string) {
+  const normalizedSrc = normalizeEditorialCatalogAssetPath(src);
+  if (normalizedSrc !== src) return normalizedSrc;
+
   const parsed = parseProductArtworkParts(src);
   if (!parsed) return src;
 
@@ -75,7 +94,8 @@ export function toEditorialCatalogAssetPath(src: string) {
 }
 
 export function describeProductArtwork(src: string): ProductArtworkDescriptor {
-  const parsed = parseProductArtworkParts(src);
+  const normalizedSrc = normalizeEditorialCatalogAssetPath(src);
+  const parsed = parseProductArtworkParts(normalizedSrc);
 
   if (!parsed) {
     return {

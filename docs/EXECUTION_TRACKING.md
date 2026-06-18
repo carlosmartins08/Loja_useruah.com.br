@@ -64,6 +64,9 @@ Revalidado neste ciclo:
 - 2026-06-18: `npm run qa:blindspots` -> `PASS`
 - 2026-06-18: `npm run build` -> `PASS`
 - 2026-06-18: `npm run qa:base:roles` -> `PASS`
+- 2026-06-18: `npm run qa:campaign:impact` -> `PASS` com prova de `scope=campaigns`, aprovacao, pausa e reativacao na mesma esteira de governanca
+- 2026-06-18: `npm run qa:campaign:detail` -> `PASS` com prova de ownership, leitura por `curator/platform_admin`, timeline normalizada e readiness backend em `GET /api/campaigns/[id]`
+- 2026-06-18: `npm run qa:community:revenue` -> `PASS` com prova de atribuicao real por campanha em `/api/commissions/me/campaigns` e coerencia com ledger agregado da comunidade
 
 Revalidado no mesmo saneamento estrutural:
 - 2026-06-18: `npm run qa:role:journeys` -> `PASS`
@@ -75,9 +78,13 @@ Revalidado no mesmo saneamento estrutural:
 - 2026-06-18: `npm run check` + `npm run build` + smoke runtime servido por `next start` em `http://127.0.0.1:3343/` -> home passou a exibir CTA/editorial novo (`Ver Catalogo Publicado`, `Abrir Journal`, `Leituras da Colecao`), `help-center` removeu contato fake e `product/[id]` passou a apontar CTA flutuante para `/help-center`
 - 2026-06-18: `npm run check` + `npm run build` + smoke runtime servido por `next start` em `http://127.0.0.1:3344/` -> `/returns` deixou de simular lookup publico e passou a orientar por pedido autenticado, `/policies` trocou CTA de portal autonomo por instrucoes reais e `/quem-somos` deixou de vender papel institucional acima do runtime atual
 - 2026-06-18: `npm run check` + `npm run build` + smoke runtime servido por `next start` em `http://127.0.0.1:3345/login` -> `/login` removeu botoes falsos de Google/GitHub, passou a declarar acesso nativo por email/senha e deixou de insinuar login social inexistente
+- 2026-06-18: saneamento documental ativo da Fase 2 -> `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` passou a separar superficies comprovadas de superficies apenas planejadas; `/@username*` e `/affiliate/rewards` deixam de aparecer como mapa pratico de continuidade
+- 2026-06-18: `npm run qa:community-curation` + `npm run qa:base:roles` -> rejeicao de `impact review` de campanha agora devolve a campanha para `rejected`, expõe `decisionReason` em `/api/campaigns` e torna `/community/campaigns` uma superficie com devolutiva operacional real para o owner
+- 2026-06-18: `npm run qa:campaign:impact` + `npm run qa:base:roles` -> `/admin/impact-reviews` passou a ter recorte proprio de campanhas com filtro por `entityType=Campaign`, contexto de runtime da campanha e caminho direto de moderacao final; `/community/campaigns` deixou de apontar owner para rota administrativa bloqueada
 - 2026-06-18: `npm run qa:coreops` -> `PASS`
 - 2026-06-18: `npm run qa:crossrole:impact` -> `PASS`
 - 2026-06-18: `npm run qa:matrix:audit` -> `PASS`
+- 2026-06-18: `npm run qa:campaign:detail` + `npm run qa:community:revenue` + `npm run qa:base:roles` -> campanha ganhou contrato unico de detalhe operacional em `/api/campaigns/[id]` e `/community/campaigns/[id]`; comunidade passou a ler receita por campanha sem inventar payout isolado
 
 ## Risco residual real
 - O runtime atual esta coerente com as rotas canonicas, mas varios documentos historicos ainda citam aliases antigos por contexto.
@@ -87,11 +94,14 @@ Revalidado no mesmo saneamento estrutural:
 - O dominio `catalogo-curadoria` avancou em prova integrada real, mas ainda nao deve ser tratado como fechado enquanto o fluxo de operacao criativa de artista e a camada de acervo final continuarem parciais.
 - As superficies operacionais de `artist`, `community_manager` e `affiliate` agora fecham no runtime com atribuicao real e prova ativa; o que segue parcial e o dominio mais amplo da Fase 2, nao mais a coerencia basica desses papeis.
 - `CampaignProduct` deixou de ser so intencao documental e virou runtime parcial real, mas ainda nao equivale a um dominio maduro de movimento, membership ou precificacao comunitaria completa.
+- A rejeicao de governanca de campanha deixou de prender o owner num limbo opaco: agora o runtime devolve a campanha para `rejected` com motivo visivel, mas a moderacao de campanha continua parcial enquanto nao existir uma superficie dedicada mais rica para decisao e historico.
+- A mesa de governanca ja ganhou um recorte proprio de campanhas com historico e contexto, mas isso ainda nao equivale a um dominio pleno de movimento ou a uma esteira ampla de moderacao multi-etapa fora da rota canonica atual.
 - O dominio de afiliacao continua parcial como fase porque ainda nao existe ledger/reward financeiro proprio; o que existe de forma comprovada e o tracking real de link, clique, snapshot e conversao automatica.
 - O snapshot contextualizado da Fase 2 avancou para composicao real de preco de campanha no pedido, mas isso ainda nao equivale a um dominio maduro de `Organization`, membership ou regras comerciais mais amplas de movimento.
 - As superficies publicas `/` e `/category/[slug]` deixaram de vender por card estatico, mas a ordenacao comercial dessas vitrines ainda e simples e nao deve ser confundida com motor de merchandising maduro.
 - As principais superficies publicas de entrada agora tambem deixaram de prometer personalizacao self-service, canais externos e contatos oficiais nao sustentados pelo runtime; o risco remanescente passa a ser encontrar copy futura ou aspiracional em paginas publicas ainda nao auditadas neste mesmo criterio.
 - A frente publica ficou bem mais honesta, mas ainda vale auditar outras paginas editoriais ou institucionais novas com o mesmo criterio para evitar reintroducao de fluxo cenografico.
+- A documentacao ativa da Fase 2 ficou menos propensa a reabrir escopo errado, mas ainda exige disciplina para nao transformar rotas planejadas em backlog presumido sem atualizar antes a matriz.
 - Mencoes historicas a `/admin/support`, `/admin/production`, `/admin/finance/payouts` e `/finance/dashboard` sao evidencia de contexto e nao descrevem o runtime canonico atual.
 - Essas citacoes historicas nao autorizam patch nem definem superficie viva.
 - Qualquer nova limpeza documental deve preservar a fronteira:

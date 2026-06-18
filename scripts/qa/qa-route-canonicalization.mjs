@@ -60,6 +60,7 @@ function run() {
   }
 
   assert(!communityCampaigns.includes('/account/orders'), 'community page still links to blocked customer order route');
+  assert(!communityCampaigns.includes('/admin/impact-reviews'), 'community campaigns page still links community owner to admin-only governance route');
   assert(!affiliateLinks.includes('/account/wallet'), 'affiliate page still links to blocked customer wallet route');
   assert(routesDoc.includes('/admin/impact-reviews'), 'routes document missing cross-role canonical surface');
   assert(!accessRouting.includes("pathname.startsWith('/admin/production')"), 'admin guard still authorizes removed /admin/production shell');

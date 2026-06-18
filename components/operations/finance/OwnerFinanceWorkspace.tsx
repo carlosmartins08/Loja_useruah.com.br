@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { ArrowUpRight, CircleDollarSign, Clock3, Wallet } from 'lucide-react';
 import { getJson, HttpRequestError, postJson } from '@/lib/http-client';
 
@@ -29,12 +30,34 @@ interface OwnerLedgerResponse {
   }>;
 }
 
+interface CampaignRevenueResponse {
+  ok: boolean;
+  ownerId: string;
+  ownerRole: 'community_manager';
+  campaigns: Array<{
+    campaignId: string;
+    campaignName: string;
+    campaignStatus: string;
+    orderCount: number;
+    commissionCount: number;
+    pending: number;
+    availableGross: number;
+    latestOrderAt: string | null;
+  }>;
+}
+
 type OwnerFinanceWorkspaceProps = {
   workspaceLabel: string;
   title: string;
   description: string;
   forbiddenMessage: string;
   loadErrorMessage: string;
+  campaignBreakdown?: {
+    title: string;
+    description: string;
+    emptyMessage: string;
+    loadErrorMessage: string;
+  };
 };
 
 function formatCurrency(value: number) {
@@ -47,16 +70,26 @@ export default function OwnerFinanceWorkspace({
   description,
   forbiddenMessage,
   loadErrorMessage,
+  campaignBreakdown,
 }: OwnerFinanceWorkspaceProps) {
   const [ledger, setLedger] = React.useState<OwnerLedgerResponse | null>(null);
+  const [campaignRevenue, setCampaignRevenue] = React.useState<CampaignRevenueResponse | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [campaignRevenueError, setCampaignRevenueError] = React.useState<string | null>(null);
   const [requesting, setRequesting] = React.useState(false);
 
   const refreshLedger = React.useCallback(async () => {
     const refreshed = await getJson<OwnerLedgerResponse>('/api/commissions/me');
     setLedger(refreshed);
   }, []);
+
+  const refreshCampaignRevenue = React.useCallback(async () => {
+    if (!campaignBreakdown) return;
+    const refreshed = await getJson<CampaignRevenueResponse>('/api/commissions/me/campaigns');
+    setCampaignRevenueError(null);
+    setCampaignRevenue(refreshed);
+  }, [campaignBreakdown]);
 
   React.useEffect(() => {
     let active = true;
@@ -81,6 +114,28 @@ export default function OwnerFinanceWorkspace({
       window.clearTimeout(timeoutId);
     };
   }, [forbiddenMessage, loadErrorMessage, refreshLedger]);
+
+  React.useEffect(() => {
+    if (!campaignBreakdown) return;
+
+    let active = true;
+    const timeoutId = window.setTimeout(() => {
+      if (!active) return;
+      refreshCampaignRevenue().catch((err) => {
+        if (!active) return;
+        if (err instanceof HttpRequestError && err.status === 403) {
+          setCampaignRevenueError(forbiddenMessage);
+          return;
+        }
+        setCampaignRevenueError(campaignBreakdown.loadErrorMessage);
+      });
+    }, 0);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeoutId);
+    };
+  }, [campaignBreakdown, forbiddenMessage, refreshCampaignRevenue]);
 
   const requestPayout = async () => {
     if (!ledger || ledger.balances.availableToWithdraw <= 0) return;
@@ -202,6 +257,52 @@ export default function OwnerFinanceWorkspace({
                 </div>
               </aside>
             </section>
+
+            {campaignBreakdown ? (
+              <section className="rounded-[2rem] border border-ruah-100 bg-white p-6 shadow-sm">
+                <h2 className="text-lg font-semibold text-ruah-950">{campaignBreakdown.title}</h2>
+                <p className="mt-3 max-w-3xl text-sm text-ruah-500">{campaignBreakdown.description}</p>
+                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500">
+                  Repasse solicitado continua no nivel da comunidade. Esta leitura por campanha mostra atribuicao, nao saque isolado por campanha.
+                </p>
+
+                {campaignRevenueError ? <p className="mt-4 text-sm text-ruah-500">{campaignRevenueError}</p> : null}
+
+                <div className="mt-5 space-y-3">
+                  {campaignRevenue && campaignRevenue.campaigns.length > 0 ? (
+                    campaignRevenue.campaigns.map((campaign) => (
+                      <Link
+                        key={campaign.campaignId}
+                        href={`/community/campaigns/${campaign.campaignId}`}
+                        className="block rounded-2xl border border-ruah-100 bg-ruah-50 p-4 transition hover:border-accent-gold"
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-accent-gold">{campaign.campaignId}</p>
+                            <p className="mt-2 text-sm font-semibold text-ruah-950">{campaign.campaignName}</p>
+                            <p className="mt-2 text-xs font-semibold uppercase tracking-[0.1em] text-ruah-500">
+                              {campaign.campaignStatus} | {campaign.orderCount} pedido(s) | {campaign.commissionCount} comissao(oes)
+                            </p>
+                          </div>
+                          <div className="text-left md:text-right">
+                            <p className="text-sm font-black text-ruah-950">{formatCurrency(campaign.availableGross)}</p>
+                            <p className="mt-1 text-xs text-ruah-500">Disponivel bruto</p>
+                            <p className="mt-2 text-xs text-ruah-500">
+                              Pendente {formatCurrency(campaign.pending)}
+                            </p>
+                            <p className="mt-2 text-xs text-ruah-500">
+                              Ultimo pedido {campaign.latestOrderAt ? new Date(campaign.latestOrderAt).toLocaleString('pt-BR') : 'Nao informado'}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    ))
+                  ) : campaignRevenue && !campaignRevenueError ? (
+                    <p className="text-sm text-ruah-500">{campaignBreakdown.emptyMessage}</p>
+                  ) : null}
+                </div>
+              </section>
+            ) : null}
           </>
         ) : null}
       </div>

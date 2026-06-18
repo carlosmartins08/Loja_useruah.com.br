@@ -21,7 +21,6 @@ export function Hero() {
                     src={BRAND_EDITORIAL_ASSETS.heroLeft}
                     alt="Fé 1"
                     fill
-                    priority
                     sizes="(max-width: 1024px) 33vw, 25vw"
                     className="object-cover"
                   />
@@ -76,7 +75,6 @@ export function Hero() {
                 src={BRAND_EDITORIAL_ASSETS.heroRight}
                 alt="Fé 3"
                 fill
-                priority
                 sizes="(max-width: 1024px) 100vw, 33vw"
                 className="object-cover"
               />

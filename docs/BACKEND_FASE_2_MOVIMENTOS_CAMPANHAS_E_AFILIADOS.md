@@ -24,7 +24,8 @@ Regra dura:
 - nao criar carrinho paralelo
 
 Fluxo correto:
-- `/@username` ou `/community` ou `/affiliate`
+- quando existir, `/@username` entra apenas como descoberta e contexto, nunca como checkout proprio;
+- hoje o runtime comprovado entra por `/community`, `/affiliate`, `/c/[campaignId]` ou `/shop?campaignId=...`;
 - `CatalogItem` contextualizado
 - `/cart`
 - `/checkout`
@@ -55,6 +56,8 @@ Estado atual reconhecido:
 - o snapshot atual continua preservando a base da Fase 1, com extensao real em `phase2-context-pricing-v1` quando a compra nasce de campanha ativa e precisa congelar composicao de preco;
 - `CampaignProduct` deixou de ser so capacidade documental: hoje ja aponta para `CatalogItem` publicado, sustenta `/api/campaigns/[id]/products`, a vitrine filtrada em `/shop?campaignId=...` e o bloqueio de checkout para item fora do recorte da campanha;
 - a validacao de pedido ja nao compara so com o preco base da variante: ela respeita a regra progressiva da campanha e persiste `movementMarkup` + `priceCompositionVersion` no snapshot;
+- `GET /api/campaigns/[id]` agora consolida detalhe operacional de campanha com governanca atual, historico de `ImpactReview`, timeline normalizada, vitrine vinculada, readiness backend e atribuicao financeira leve;
+- `GET /api/commissions/me/campaigns` agora deriva receita por campanha a partir de `OrderItemSnapshot` + comissao real da comunidade, mas sem criar payout por campanha nem saldo sacavel isolado;
 - `Organization` segue sem dominio runtime equivalente maduro;
 - `Referral*` ja existe como runtime parcial de atribuicao, mas ainda sem reward financeiro proprio.
 

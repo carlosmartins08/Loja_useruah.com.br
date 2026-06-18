@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { getActorFromRequest, isRbacActive } from '@/lib/access-control';
-import { approveImpactReview, listImpactReviews, rejectImpactReview } from '@/lib/impact-review-store';
+import {
+  approveImpactReview,
+  getImpactReview,
+  listImpactReviews,
+  rejectImpactReview,
+  type ImpactReviewEntityType,
+  type ImpactReviewRecord,
+} from '@/lib/impact-review-store';
 import { listIntegrationLogs } from '@/lib/integration-log-store';
 import { canApproveImpactReviews, canReadImpactReviews } from '@/lib/role-matrix/permission-matrix';
 import { notifyImpactReviewEvent } from '@/lib/impact-notification-service';
+import { getCampaign, updateCampaignStatus } from '@/lib/campaign-store';
+import { countCampaignProducts } from '@/lib/campaign-product-store';
+import { listCampaigns } from '@/lib/campaign-store';
 
 interface ApprovePayload {
   reason?: string;
@@ -17,6 +27,8 @@ interface RejectPayload {
 interface ImpactReviewRouteContext {
   params: Promise<{ id: string }>;
 }
+
+const IMPACT_ENTITY_TYPES: ImpactReviewEntityType[] = ['CatalogItem', 'Payout', 'Campaign', 'Refund', 'Chargeback'];
 
 function ensureImpactReviewAccess(request: Request) {
   const actor = getActorFromRequest(request);
@@ -49,16 +61,54 @@ function isValidRejectPayload(payload: unknown): payload is RejectPayload {
   return typeof row.reason === 'string' && row.reason.trim().length > 0;
 }
 
+function parseImpactEntityType(input: string | null): ImpactReviewEntityType | undefined {
+  if (!input) return undefined;
+  return IMPACT_ENTITY_TYPES.includes(input as ImpactReviewEntityType) ? (input as ImpactReviewEntityType) : undefined;
+}
+
+async function serializeImpactReviews(reviews: ImpactReviewRecord[]) {
+  const campaignIds = Array.from(new Set(reviews.filter((row) => row.entityType === 'Campaign').map((row) => row.entityId)));
+  const campaigns =
+    campaignIds.length > 0
+      ? await listCampaigns().then((rows) => rows.filter((campaign) => campaignIds.includes(campaign.campaignId)))
+      : [];
+  const campaignsById = new Map(
+    campaigns.map((campaign) => [
+      campaign.campaignId,
+      {
+        campaignId: campaign.campaignId,
+        name: campaign.name,
+        organizationId: campaign.organizationId,
+        status: campaign.status,
+        progressivePriceRule: campaign.progressivePriceRule,
+        startsAt: campaign.startsAt,
+        endsAt: campaign.endsAt,
+        createdBy: campaign.createdBy,
+        updatedAt: campaign.updatedAt,
+        productCount: countCampaignProducts(campaign.campaignId),
+      },
+    ])
+  );
+
+  return reviews.map((review) => ({
+    ...review,
+    campaign: review.entityType === 'Campaign' ? campaignsById.get(review.entityId) ?? null : undefined,
+  }));
+}
+
 export async function handleAdminImpactReviewsGet(request: Request) {
   const { error } = ensureImpactReviewReadAccess(request);
   if (error) return error;
 
   const { searchParams } = new URL(request.url);
   const statusInput = searchParams.get('status');
+  const entityType = parseImpactEntityType(searchParams.get('entityType'));
   const status =
     statusInput === 'pending_review' || statusInput === 'approved' || statusInput === 'rejected' ? statusInput : undefined;
   const onlyOverdue = searchParams.get('onlyOverdue') === 'true';
-  const reviews = listImpactReviews({ status, onlyOverdue });
+  const reviews = (await serializeImpactReviews(listImpactReviews({ status, onlyOverdue })))
+    .filter((row) => (entityType ? row.entityType === entityType : true))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   return NextResponse.json({ ok: true, reviews });
 }
 
@@ -123,6 +173,23 @@ export async function handleAdminImpactReviewRejectPost(request: Request, contex
   }
 
   const { id } = await context.params;
+  const currentReview = getImpactReview(id);
+  if (!currentReview) return NextResponse.json({ error: 'not_found' }, { status: 404 });
+
+  if (currentReview.entityType === 'Campaign') {
+    const campaign = getCampaign(currentReview.entityId);
+    if (!campaign) {
+      return NextResponse.json({ error: 'campaign_not_found_for_review' }, { status: 409 });
+    }
+
+    if (campaign.status !== 'pending_review') {
+      return NextResponse.json(
+        { error: 'invalid_transition', detail: 'campaign_not_pending_review', campaignStatus: campaign.status },
+        { status: 409 }
+      );
+    }
+  }
+
   const result = rejectImpactReview({
     reviewId: id,
     rejectedBy: actor?.actorId ?? 'unknown',
@@ -131,6 +198,36 @@ export async function handleAdminImpactReviewRejectPost(request: Request, contex
   if (result.kind === 'not_found') return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (result.kind === 'missing_reason') return NextResponse.json({ error: 'validation_error' }, { status: 422 });
   if (result.kind === 'invalid_transition') return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });
+
+  if (result.review.entityType === 'Campaign') {
+    const campaignSync = await updateCampaignStatus({
+      campaignId: result.review.entityId,
+      from: ['pending_review'],
+      to: 'rejected',
+    });
+
+    if (campaignSync.kind === 'not_found') {
+      return NextResponse.json({ error: 'campaign_not_found_for_review' }, { status: 409 });
+    }
+
+    if (campaignSync.kind === 'invalid_transition') {
+      return NextResponse.json(
+        { error: 'invalid_transition', detail: 'campaign_not_pending_review', campaignStatus: campaignSync.campaign.status },
+        { status: 409 }
+      );
+    }
+
+    appendAuditLog({
+      actor_id: actor?.actorId ?? 'unknown',
+      actor_role: actor?.actorRole ?? 'unknown',
+      action: 'campaign.rejected',
+      entity_type: 'Campaign',
+      entity_id: campaignSync.campaign.campaignId,
+      previous_status: campaignSync.previous.status,
+      new_status: campaignSync.campaign.status,
+      reason: result.review.decisionReason ?? 'rejected_by_platform_admin',
+    });
+  }
 
   appendAuditLog({
     actor_id: actor?.actorId ?? 'unknown',

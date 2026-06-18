@@ -5,6 +5,8 @@ import { existsSync, rmSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { QA_LOCAL_AUTH_USERS_JSON } from './qa-local-auth-users.mjs';
 
+process.env.AUTH_LOCAL_USERS_JSON = process.env.AUTH_LOCAL_USERS_JSON ?? QA_LOCAL_AUTH_USERS_JSON;
+
 const PORT = Number(process.env.QA_PORT ?? 3333);
 const BASE_URL = `http://localhost:${PORT}`;
 
@@ -18,6 +20,8 @@ const QA_SCRIPTS = [
   'scripts/qa/qa-role-closure.mjs',
   'scripts/qa/qa-core-operations.mjs',
   'scripts/qa/qa-community-curation.mjs',
+  'scripts/qa/qa-campaign-detail.mjs',
+  'scripts/qa/qa-community-revenue-by-campaign.mjs',
   'scripts/qa/qa-cross-role-impact.mjs',
   'scripts/qa/qa-finance-impact.mjs',
   'scripts/qa/qa-payout-ledger-paid.mjs',

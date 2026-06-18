@@ -21,6 +21,8 @@ async function req(method, pathname, body, headers = {}) {
 
 async function run() {
   const report = [];
+  const adminHeaders = { 'x-actor-id': 'qa-admin-campaign', 'x-actor-role': 'platform_admin' };
+  const rejectionReason = 'Ajuste a regra progressiva antes de reenviar.';
 
   const noAuthCampaigns = await req('GET', '/api/campaigns');
   assert(noAuthCampaigns.status === 401, `anonymous campaigns list expected 401, got ${noAuthCampaigns.status}`);
@@ -111,6 +113,45 @@ async function run() {
   });
   assert(ownSubmit.status === 200, `community own submit expected 200, got ${ownSubmit.status}`);
   report.push('CC-08 owner submits campaign to pending_review');
+
+  const pendingReviews = await req('GET', '/api/admin/impact-reviews?status=pending_review', undefined, adminHeaders);
+  assert(pendingReviews.status === 200, `admin pending impact reviews expected 200, got ${pendingReviews.status}`);
+  const campaignReview = Array.isArray(pendingReviews.data?.reviews)
+    ? pendingReviews.data.reviews.find((review) => review.entityType === 'Campaign' && review.entityId === campaignId)
+    : null;
+  assert(campaignReview?.reviewId, 'campaign impact review missing from pending queue');
+
+  const rejectCampaignReview = await req(
+    'POST',
+    `/api/admin/impact-reviews/${campaignReview.reviewId}/reject`,
+    { reason: rejectionReason },
+    adminHeaders
+  );
+  assert(rejectCampaignReview.status === 200, `campaign impact review reject expected 200, got ${rejectCampaignReview.status}`);
+  report.push('CC-08B platform admin rejection returns campaign to rejected with explicit reason');
+
+  const ownerAfterReject = await req('GET', '/api/campaigns', undefined, {
+    'x-actor-id': 'qa-community-a',
+    'x-actor-role': 'community_manager',
+  });
+  assert(ownerAfterReject.status === 200, `community own campaigns after rejection expected 200, got ${ownerAfterReject.status}`);
+  const rejectedCampaign = Array.isArray(ownerAfterReject.data?.campaigns)
+    ? ownerAfterReject.data.campaigns.find((campaign) => campaign.campaignId === campaignId)
+    : null;
+  assert(rejectedCampaign?.status === 'rejected', `campaign should be rejected after impact review rejection, got ${String(rejectedCampaign?.status)}`);
+  assert(rejectedCampaign?.governance?.status === 'rejected', `campaign governance should be rejected, got ${String(rejectedCampaign?.governance?.status)}`);
+  assert(
+    rejectedCampaign?.governance?.decisionReason === rejectionReason,
+    `campaign governance reason mismatch: ${String(rejectedCampaign?.governance?.decisionReason)}`
+  );
+  report.push('CC-08C owner sees rejection status and reason in own campaign workspace');
+
+  const resubmitAfterReject = await req('POST', `/api/campaigns/${campaignId}/submit`, {}, {
+    'x-actor-id': 'qa-community-a',
+    'x-actor-role': 'community_manager',
+  });
+  assert(resubmitAfterReject.status === 200, `community resubmit after rejection expected 200, got ${resubmitAfterReject.status}`);
+  report.push('CC-08D owner can adjust and resubmit after governance rejection');
 
   const communityLedger = await req('GET', '/api/commissions/me', undefined, {
     'x-actor-id': 'qa-community-a',

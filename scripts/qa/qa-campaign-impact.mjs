@@ -34,6 +34,7 @@ async function run() {
   const report = [];
   const communityHeaders = { 'x-actor-id': 'qa-community', 'x-actor-role': 'community_manager' };
   const adminHeaders = { 'x-actor-id': 'qa-admin', 'x-actor-role': 'platform_admin' };
+  const curatorHeaders = { 'x-actor-id': 'qa-curator', 'x-actor-role': 'curator' };
 
   const create = await post(
     '/api/campaigns',
@@ -67,6 +68,15 @@ async function run() {
   assert(campaignReview?.reviewId, 'campaign impact review not found in admin queue');
   report.push('QA-CAMPAIGN-04 campaign impact review visible in admin queue');
 
+  const campaignScope = await get('/api/admin/impact-reviews?status=pending_review&entityType=Campaign', adminHeaders);
+  assert(campaignScope.status === 200, `campaign-scoped queue expected 200, got ${campaignScope.status}`);
+  const campaignRows = Array.isArray(campaignScope.data?.reviews) ? campaignScope.data.reviews : [];
+  const campaignScopedRow = campaignRows.find((row) => row.reviewId === campaignReview.reviewId);
+  assert(campaignRows.every((row) => row.entityType === 'Campaign'), 'campaign-scoped queue returned non-campaign rows');
+  assert(campaignScopedRow?.campaign?.campaignId === campaignId, 'campaign-scoped queue missing campaign context');
+  assert(campaignScopedRow?.campaign?.name, 'campaign-scoped queue missing campaign name');
+  report.push('QA-CAMPAIGN-04B campaign governance scope isolates campaign reviews with runtime context');
+
   const approveReview = await post(`/api/admin/impact-reviews/${campaignReview.reviewId}/approve`, { reason: 'qa unblock campaign activation' }, adminHeaders);
   assert(approveReview.status === 200, `impact review approve expected 200, got ${approveReview.status}`);
   report.push('QA-CAMPAIGN-05 impact review approved by platform_admin');
@@ -75,6 +85,16 @@ async function run() {
   assert(approveCampaign.status === 200, `campaign approve after impact review expected 200, got ${approveCampaign.status}`);
   assert(approveCampaign.data?.campaign?.status === 'active', `campaign status expected active, got ${String(approveCampaign.data?.campaign?.status)}`);
   report.push('QA-CAMPAIGN-06 pending_review -> active after review approval');
+
+  const pauseCampaign = await post(`/api/campaigns/${campaignId}/pause`, {}, curatorHeaders);
+  assert(pauseCampaign.status === 200, `campaign pause expected 200, got ${pauseCampaign.status}`);
+  assert(pauseCampaign.data?.campaign?.status === 'paused', `campaign status expected paused, got ${String(pauseCampaign.data?.campaign?.status)}`);
+  report.push('QA-CAMPAIGN-07 active -> paused by campaign moderator');
+
+  const reactivateCampaign = await post(`/api/campaigns/${campaignId}/approve`, {}, curatorHeaders);
+  assert(reactivateCampaign.status === 200, `campaign reactivate expected 200, got ${reactivateCampaign.status}`);
+  assert(reactivateCampaign.data?.campaign?.status === 'active', `campaign status expected active after reactivation, got ${String(reactivateCampaign.data?.campaign?.status)}`);
+  report.push('QA-CAMPAIGN-08 paused -> active by campaign moderator in same governance rail');
 
   console.log(JSON.stringify({ status: 'PASS', baseUrl, report, campaignId }, null, 2));
 }
