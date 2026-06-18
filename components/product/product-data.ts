@@ -9,10 +9,14 @@ export interface ProductPageModel {
   id: string;
   name: string;
   price: number;
+  basePrice: number;
   image: string;
   category: string;
   segment: string;
   tags: string[];
+  variantId: string;
+  variantLabel: string;
+  pricingPolicyMinPrice?: number;
   colorImages: Record<string, string>;
   fit: 'slim' | 'regular' | 'oversized';
   fabric: string;
@@ -30,15 +34,21 @@ export interface ProductPageModel {
 export function mapCatalogItemToProductPageModel(item: CatalogItemRecord): ProductPageModel {
   const seed = findBrandProductSeed(item.catalogItemId);
   const merchandising = findBrandProductMerchandising(item.catalogItemId);
+  const primaryVariant = item.variants.find((variant) => variant.inStock) ?? item.variants[0] ?? null;
+  const basePrice = primaryVariant?.price ?? item.price;
 
   return {
     id: item.catalogItemId,
     name: seed?.name ?? item.name,
-    price: seed?.price ?? item.price,
+    price: basePrice,
+    basePrice,
     image: merchandising?.image ?? item.image,
     category: merchandising?.category ?? item.category ?? 'Autoral',
     segment: merchandising?.segment ?? item.segment ?? 'Customizada',
     tags: merchandising?.tags ?? item.tags ?? [],
+    variantId: primaryVariant?.variantId ?? 'default',
+    variantLabel: primaryVariant?.label ?? 'Padrão',
+    pricingPolicyMinPrice: item.pricingPolicy?.minPrice,
     colorImages: merchandising?.colorImages ?? item.colorImages,
     fit: merchandising?.fit ?? item.fit,
     fabric: merchandising?.fabric ?? item.fabric,

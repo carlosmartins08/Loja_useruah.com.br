@@ -52,10 +52,10 @@ Quando a extensao da Fase 2 for implementada de forma real, `OrderItemSnapshot` 
 - `priceCompositionVersion`
 
 Estado atual reconhecido:
-- o snapshot oficial continua preservando a base da Fase 1, mas ja captura contexto parcial em `phase2-context-v1` quando a compra nasce de campanha/referral;
-- hoje o runtime ja consegue persistir `organizationId`, `campaignId`, `campaignName`, `campaignProgressivePriceRule`, `referralLinkId` e `affiliateUserId`;
-- `campaignProgressivePriceRule` e apenas o snapshot da regra atual da campanha e nao substitui um dominio formal de `movementMarkup`;
-- `organizationUsername`, `movementMarkup` e `priceCompositionVersion` continuam fora e nao podem ser presumidos.
+- o snapshot oficial continua preservando a base da Fase 1, mas ja captura contexto ampliado em `phase2-context-pricing-v1` quando a compra nasce de campanha ativa com composicao formal de preco;
+- hoje o runtime ja consegue persistir `organizationId`, `campaignId`, `campaignName`, `campaignProgressivePriceRule`, `referralLinkId`, `affiliateUserId`, `movementMarkup` e `priceCompositionVersion`;
+- `movementMarkup` e `priceCompositionVersion` agora representam a composicao real de preco validada em runtime para a campanha ativa, nao uma promessa vaga;
+- `organizationUsername` continua fora e nao pode ser presumido.
 
 ## O que entra como escopo oficial da fase
 - `MovementCampaign` basico: capacidade parcial no runtime atual

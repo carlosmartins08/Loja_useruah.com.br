@@ -145,7 +145,7 @@ export default function RegisterPage() {
       id: 'FAROL' as Persona,
       title: 'Conexão Farol',
       subtitle: 'Igrejas / Ministérios',
-      description: 'Represento uma comunidade que busca personalização em escala para eventos e missões.',
+      description: 'Represento uma comunidade e quero organizar compras ou interesse coletivo com atendimento orientado, sem depender de personalização self-service.',
       icon: Church,
       color: 'bg-ruah-950/10 text-ruah-950',
     },
@@ -309,7 +309,7 @@ export default function RegisterPage() {
                   <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent-gold mb-4 block font-bold">Início da Jornada</span>
                   <h1 className="text-4xl md:text-6xl font-serif italic text-ruah-950 leading-tight">Escolha como sua fé <br/>quer se expressar.</h1>
                   <p className="text-sm text-ruah-400 mt-6 max-w-md md:mx-0 mx-auto">
-                    A UseRuah é um ecossistema. Identifique sua persona para que possamos oferecer a melhor experiência de co-criação.
+                    A UseRuah organiza perfis de compra, comunidade e colaboração para liberar a jornada adequada sem prometer automação que ainda não existe.
                   </p>
                 </div>
 
@@ -423,7 +423,7 @@ export default function RegisterPage() {
                   {persona === 'FAROL' && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="flex flex-col gap-2 md:col-span-2">
-                        <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Nome da Instituição / Paróquia / Mistério</label>
+                        <label className="text-[9px] font-bold uppercase tracking-widest text-ruah-300">Nome da Instituição / Paróquia / Ministério</label>
                         <input value={draft.institutionName} onChange={(e) => handleFieldChange('institutionName', e.target.value)} onBlur={() => handleFieldBlur('institutionName')} required type="text" placeholder="Ex: Paróquia São Lucas" className="bg-ruah-50 border border-ruah-100 rounded-2xl px-6 py-4 text-xs font-bold outline-none focus:border-accent-gold transition-all" />
                         {errors.institutionName && <p className="text-[10px] text-red-600 font-semibold">{errors.institutionName}</p>}
                       </div>
@@ -538,7 +538,7 @@ export default function RegisterPage() {
                    <p className="text-[10px] text-ruah-400 font-medium uppercase leading-relaxed tracking-widest">
                       {persona === 'ALMA' 
                         ? 'Seu acesso está liberado. Comece sua busca pela peça que respira sua verdade.'
-                        : 'Nossa curadoria revisará os dados do seu ministério/arte em até 24h para liberar ferramentas exclusivas.'}
+                        : 'Nossa equipe revisará os dados enviados para liberar o próximo passo compatível com esse perfil.'}
                    </p>
                 </div>
 

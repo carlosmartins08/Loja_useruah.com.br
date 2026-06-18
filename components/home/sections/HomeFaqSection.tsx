@@ -1,8 +1,8 @@
-﻿import { HOME_FAQ } from '@/components/home/home-data';
+import { HOME_FAQ } from '@/components/home/home-data';
+import { MOTION_DURATION, MOTION_EASING } from '@/lib/ui/motion';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
-import { MOTION_DURATION, MOTION_EASING } from '@/lib/ui/motion';
 
 interface HomeFaqSectionProps {
   openFaq: number | null;
@@ -20,7 +20,7 @@ export function HomeFaqSection({ openFaq, onToggle }: HomeFaqSectionProps) {
               O Sopro <br /> das Dúvidas.
             </h2>
             <p className="text-[11px] font-bold text-ruah-300 uppercase tracking-[0.2em] leading-relaxed max-w-xs">
-              Tudo o que você precisa entender sobre como transformamos sua oração em um movimento de arte.
+              O que já está disponível hoje sobre catálogo publicado, produção sob demanda, compra e cadastro de interesse.
             </p>
             <Link href="/help-center" className="flex items-center gap-4 text-xs font-bold uppercase tracking-[0.1em] text-accent-gold group">
               Ver Central Completa <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -28,16 +28,16 @@ export function HomeFaqSection({ openFaq, onToggle }: HomeFaqSectionProps) {
           </div>
 
           <div className="lg:w-2/3 flex flex-col gap-4">
-            {HOME_FAQ.map((item, i) => (
-              <div key={i} className="bg-white rounded-[2rem] border border-ruah-100 overflow-hidden transition-all hover:border-accent-gold/30">
-                <button onClick={() => onToggle(i)} className="w-full p-8 flex items-center justify-between text-left">
+            {HOME_FAQ.map((item, index) => (
+              <div key={index} className="bg-white rounded-[2rem] border border-ruah-100 overflow-hidden transition-all hover:border-accent-gold/30">
+                <button onClick={() => onToggle(index)} className="w-full p-8 flex items-center justify-between text-left">
                   <span className="text-xl font-serif italic font-semibold uppercase tracking-tighter text-ruah-950">{item.q}</span>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all motion-base ${openFaq === i ? 'bg-ruah-950 text-white' : 'bg-ruah-50 text-ruah-200'}`}>
-                    <ChevronDown size={20} className={`transition-transform motion-slow ${openFaq === i ? 'rotate-180' : ''}`} />
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all motion-base ${openFaq === index ? 'bg-ruah-950 text-white' : 'bg-ruah-50 text-ruah-200'}`}>
+                    <ChevronDown size={20} className={`transition-transform motion-slow ${openFaq === index ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
                 <AnimatePresence>
-                  {openFaq === i && (
+                  {openFaq === index && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
@@ -59,6 +59,3 @@ export function HomeFaqSection({ openFaq, onToggle }: HomeFaqSectionProps) {
     </section>
   );
 }
-
-
-

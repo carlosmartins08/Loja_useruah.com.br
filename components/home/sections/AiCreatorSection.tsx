@@ -10,21 +10,22 @@ export function AiCreatorSection() {
           <div className="lg:col-span-4 flex flex-col gap-8">
             <div className="flex items-center gap-4">
               <div className="decor-gold-line" />
-              <span className="tech-label text-accent-gold">Estúdio de coleção</span>
+              <span className="tech-label text-accent-gold">Estúdio editorial</span>
             </div>
             <h2 className="ur-type-display-md italic uppercase">
-              Sua Fé <br /> em Direção <br /> Criativa.
+              Coleção com <br /> leitura <br /> clara.
             </h2>
             <p className="text-[12px] font-bold text-ruah-400 leading-relaxed max-w-xs tracking-[0.1em] uppercase mb-4">
-              Em vez de prometer automação vazia, mostramos caminhos de coleção, combinação e leitura para sua peça nascer com propósito.
+              Aqui a proposta não é fingir automação nem customização instantânea. A home organiza clima, linguagem e recortes do catálogo para a pessoa entender rápido o que já existe.
             </p>
             <Link href="/shop" className="flex items-center gap-4 group">
               <div className="w-14 h-14 bg-ruah-950 text-white rounded-full flex items-center justify-center group-hover:bg-accent-gold transition-colors">
                 <ArrowRight size={20} />
               </div>
-              <span className="text-xs font-bold uppercase tracking-[0.1em] group-hover:text-accent-gold transition-colors">Explorar a coleção</span>
+              <span className="text-xs font-bold uppercase tracking-[0.1em] group-hover:text-accent-gold transition-colors">Explorar o catálogo</span>
             </Link>
           </div>
+
           <div className="lg:col-span-6 relative aspect-square lg:aspect-video rounded-[3rem] overflow-hidden bg-ruah-50 border border-ruah-100 flex items-center justify-center group">
             <AppImage
               context="hero"
@@ -41,7 +42,7 @@ export function AiCreatorSection() {
                 ))}
               </div>
               <p className="text-white text-[11px] font-bold leading-relaxed tracking-[0.1em] uppercase">
-                &quot;Definindo direção para: <span className="text-accent-gold italic">Grupo de oração São José</span>. Paleta clara, leitura contemplativa e base regular para uso recorrente.&quot;
+                &quot;Leitura editorial ativa: <span className="text-accent-gold italic">autoral, contemplativa e sóbria</span>. Base publicada pronta para compra, sem camada fictícia de personalização.&quot;
               </p>
             </div>
           </div>

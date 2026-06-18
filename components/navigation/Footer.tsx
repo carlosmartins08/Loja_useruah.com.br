@@ -82,14 +82,14 @@ export function Footer() {
           <div className="flex flex-col gap-6">
             <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white/70">Atendimento</span>
             <div className="flex flex-col gap-4">
-              <Link href="https://wa.me/5511999999999" target="_blank" className="bg-white/5 border border-white/15 rounded-2xl p-5 hover:bg-white/10 transition-all group">
+              <Link href="/help-center" className="bg-white/5 border border-white/15 rounded-2xl p-5 hover:bg-white/10 transition-all group">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-xs font-semibold uppercase tracking-[0.1em] text-white">Atendimento UseRuah</span>
                 </div>
                 <p className="text-sm text-white/70 mb-3">Tire dúvidas sobre pedido, pagamento, entrega e suporte.</p>
                 <span className="text-xs font-semibold text-accent-gold uppercase tracking-[0.08em] group-hover:gap-3 flex items-center gap-2 transition-all">
-                  WhatsApp Oficial <ArrowRight size={12} />
+                  Central de Ajuda <ArrowRight size={12} />
                 </span>
               </Link>
               <div className="flex items-center gap-3 px-5 py-4 bg-white/5 rounded-2xl border border-white/15">

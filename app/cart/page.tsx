@@ -72,7 +72,7 @@ export default function CartPage() {
           ) : (
             <>
               {cart.map((item, index) => (
-                <div key={`${item.id}-${item.spec ?? index}`} className="flex gap-8 pb-8 border-b border-ruah-100 group bg-white p-8 rounded-[2.5rem] shadow-sm hover:shadow-md transition-all">
+                <div key={item.lineId || `${item.id}-${item.spec ?? index}`} className="flex gap-8 pb-8 border-b border-ruah-100 group bg-white p-8 rounded-[2.5rem] shadow-sm hover:shadow-md transition-all">
                   <div className="relative w-32 aspect-square bg-ruah-50 rounded-2xl overflow-hidden shrink-0 border border-ruah-100 group-hover:border-accent-gold transition-colors">
                     <AppImage
                       context="content-banner"
@@ -105,15 +105,26 @@ export default function CartPage() {
                             <span>{item.productionDays} dias uteis</span>
                           </>
                         ) : null}
+                        {item.campaignName ? (
+                          <>
+                            <span className="text-accent-gold">•</span>
+                            <span>{item.campaignName}</span>
+                          </>
+                        ) : null}
                       </div>
+                      {item.movementMarkup ? (
+                        <p className="mt-3 text-[10px] uppercase font-black tracking-widest text-accent-gold">
+                          Campanha aplicada: -R$ {item.movementMarkup.totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </p>
+                      ) : null}
                     </div>
 
                     <div className="flex items-center justify-between mt-8">
                       <div className="flex items-center border border-ruah-100 rounded-xl p-2 gap-6 bg-ruah-50/60">
                         <button
                           type="button"
-                          disabled={updatingItemId === item.id}
-                          onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                          disabled={updatingItemId === item.lineId}
+                          onClick={() => handleQuantityChange(item.lineId, item.quantity - 1)}
                           className="w-8 h-8 rounded-lg flex items-center justify-center text-ruah-400 hover:text-accent-gold hover:bg-white transition-all disabled:opacity-50"
                         >
                           -
@@ -121,8 +132,8 @@ export default function CartPage() {
                         <span className="text-xs font-mono font-black text-ruah-950">{item.quantity}</span>
                         <button
                           type="button"
-                          disabled={updatingItemId === item.id}
-                          onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                          disabled={updatingItemId === item.lineId}
+                          onClick={() => handleQuantityChange(item.lineId, item.quantity + 1)}
                           className="w-8 h-8 rounded-lg flex items-center justify-center text-ruah-400 hover:text-accent-gold hover:bg-white transition-all disabled:opacity-50"
                         >
                           +
@@ -130,8 +141,8 @@ export default function CartPage() {
                       </div>
                       <button
                         type="button"
-                        disabled={updatingItemId === item.id}
-                        onClick={() => handleRemove(item.id)}
+                        disabled={updatingItemId === item.lineId}
+                        onClick={() => handleRemove(item.lineId)}
                         className="flex items-center gap-2 text-[10px] uppercase font-black tracking-widest text-ruah-300 hover:text-red-500 transition-colors py-2 px-4 hover:bg-red-50 rounded-xl disabled:opacity-50"
                       >
                         <Trash2 size={14} /> Remover Arte

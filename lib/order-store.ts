@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { readStoreFile, writeStoreFile } from '@/lib/dev-store';
 import { getMysqlPool, shouldUseMysql, type MysqlResult, type MysqlRow } from '@/lib/mysql-runtime';
+import type { MovementMarkupSnapshot } from '@/lib/campaign-pricing';
 
 export type OrderStatus =
   | 'draft'
@@ -32,7 +33,9 @@ export interface OrderItemSnapshot {
   shippingAddress: ShippingAddress;
   quantity: number;
   unitPrice: number;
-  snapshotVersion: 'phase1-v1' | 'phase2-context-v1';
+  priceCompositionVersion?: string;
+  movementMarkup?: MovementMarkupSnapshot | null;
+  snapshotVersion: 'phase1-v1' | 'phase2-context-v1' | 'phase2-context-pricing-v1';
 }
 
 export interface OrderItemRecord extends OrderItemSnapshot {
@@ -151,7 +154,20 @@ function normalizeOrderItem(input: Record<string, unknown>): OrderItemRecord {
         : fallbackShippingAddress(),
     quantity: Number(input.quantity),
     unitPrice: Number(input.unitPrice),
-    snapshotVersion: input.snapshotVersion === 'phase2-context-v1' ? 'phase2-context-v1' : 'phase1-v1',
+    priceCompositionVersion:
+      typeof input.priceCompositionVersion === 'string' && input.priceCompositionVersion.trim().length > 0
+        ? input.priceCompositionVersion
+        : undefined,
+    movementMarkup:
+      input.movementMarkup && typeof input.movementMarkup === 'object'
+        ? (input.movementMarkup as MovementMarkupSnapshot)
+        : undefined,
+    snapshotVersion:
+      input.snapshotVersion === 'phase2-context-pricing-v1'
+        ? 'phase2-context-pricing-v1'
+        : input.snapshotVersion === 'phase2-context-v1'
+          ? 'phase2-context-v1'
+          : 'phase1-v1',
     grossItemAmount: Number(input.grossItemAmount),
     supplierAmount: Number(input.supplierAmount),
     artistLicenseAmount: Number(input.artistLicenseAmount),
@@ -198,6 +214,8 @@ export async function createPlacedOrder(input: {
     variantId: string;
     quantity: number;
     unitPrice: number;
+    priceCompositionVersion?: string;
+    movementMarkup?: MovementMarkupSnapshot | null;
   }>;
 }): Promise<OrderRecord> {
   const now = new Date().toISOString();
@@ -265,7 +283,13 @@ export async function createPlacedOrder(input: {
       shippingAddress: input.shippingAddress,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
-      snapshotVersion: hasAttribution ? 'phase2-context-v1' : 'phase1-v1',
+      priceCompositionVersion: item.priceCompositionVersion,
+      movementMarkup: item.movementMarkup,
+      snapshotVersion: item.priceCompositionVersion
+        ? 'phase2-context-pricing-v1'
+        : hasAttribution
+          ? 'phase2-context-v1'
+          : 'phase1-v1',
       grossItemAmount: gross,
       supplierAmount,
       artistLicenseAmount,

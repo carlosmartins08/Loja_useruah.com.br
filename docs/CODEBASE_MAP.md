@@ -188,6 +188,7 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
   - `lib/order-store.ts`
   - `lib/order-ui.ts`
   - `lib/shop-products.ts`
+  - `lib/campaign-pricing.ts`
   - `lib/address-book.ts`
   - `app/c/[campaignId]/route.ts`
 

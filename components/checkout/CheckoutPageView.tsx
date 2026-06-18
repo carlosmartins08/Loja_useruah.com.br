@@ -67,6 +67,13 @@ export function CheckoutPageView() {
       return;
     }
 
+    const campaignIds = Array.from(new Set(cart.map((item) => item.campaignId).filter((value): value is string => Boolean(value))));
+    const hasMixedCampaignContext = campaignIds.length > 1 || (campaignIds.length === 1 && cart.some((item) => !item.campaignId));
+    if (hasMixedCampaignContext) {
+      setCheckoutError('Seu carrinho mistura itens com contexto de campanha diferente. Feche uma compra por campanha.');
+      return;
+    }
+
     const supplierId = cart[0]?.customSpecs?.supplierId || 'supplier-default';
 
     setIsProcessing(true);
@@ -79,9 +86,10 @@ export function CheckoutPageView() {
         supplierId,
         shippingAddressMode: selectedAddress === 'home' ? 'same_as_account' : 'custom',
         shippingAddress,
+        campaignId: campaignIds[0],
         items: cart.map((item) => ({
           catalogItemId: item.id,
-          variantId: item.spec || 'default',
+          variantId: item.variantId,
           quantity: item.quantity,
           unitPrice: item.price,
         })),

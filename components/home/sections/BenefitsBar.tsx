@@ -1,11 +1,11 @@
-﻿import { Cpu, Star, Truck, UserCircle } from 'lucide-react';
+import { Cpu, Star, Truck, UserCircle } from 'lucide-react';
 import { TrustBadgeGrid } from '@/components/shared/TrustBadgeGrid';
 
 const BENEFITS = [
-  { label: 'Arte com Propósito', detail: 'Curadoria Crist?', icon: Star },
+  { label: 'Arte com Propósito', detail: 'Curadoria Cristã', icon: Star },
   { label: 'Produção Consciente', detail: 'Sob Demanda em SP', icon: Cpu },
-  { label: 'Entrega Sagrada', detail: 'Pacto de Qualidade', icon: Truck },
-  { label: 'Impacto Real', detail: 'Apoio a Evangelização', icon: UserCircle },
+  { label: 'Catálogo Publicado', detail: 'Peças Reais à Venda', icon: Truck },
+  { label: 'Compra com Contexto', detail: 'Coleção, Preço e Leitura', icon: UserCircle },
 ];
 
 export function BenefitsBar() {
@@ -17,6 +17,3 @@ export function BenefitsBar() {
     </section>
   );
 }
-
-
-

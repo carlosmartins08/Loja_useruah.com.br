@@ -16,7 +16,7 @@ export function CheckoutOrderSummary({ cart, subtotal, total }: CheckoutOrderSum
 
         <div className="flex flex-col gap-8 mb-10 max-h-80 overflow-y-auto pr-2">
           {cart.map((item, idx) => (
-            <div key={`${item.id}-${idx}`} className="flex gap-6">
+            <div key={item.lineId || `${item.id}-${idx}`} className="flex gap-6">
               <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-ruah-50 border border-ruah-100 shrink-0">
                 <AppImage context="product-thumb" src={item.image} alt={item.name} fill className="object-cover" />
               </div>
@@ -30,6 +30,11 @@ export function CheckoutOrderSummary({ cart, subtotal, total }: CheckoutOrderSum
                   </div>
                 )}
                 <span className="text-xs font-mono font-semibold text-ruah-950">R$ {item.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                {item.movementMarkup ? (
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-accent-gold">
+                    Campanha: -R$ {item.movementMarkup.totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                ) : null}
               </div>
             </div>
           ))}

@@ -35,7 +35,7 @@ const FAQ_CATEGORIES = [
       },
       {
         q: 'Peças personalizadas podem ser trocadas?',
-        a: 'Itens customizados seguem política específica. Fale com nosso concierge para validação do caso.'
+        a: 'Hoje a loja pública trabalha com catálogo publicado. Se existir um pedido tratado fora do fluxo padrão, a elegibilidade de troca depende do contexto registrado no atendimento.'
       }
     ]
   },
@@ -218,21 +218,21 @@ export default function HelpCenterPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
-                <div className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base shadow-subtle">
+                <Link href="/account/support" className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base shadow-subtle">
                   <Mail size={24} className="text-ruah-300" />
-                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">E-mail</span>
-                  <span className="text-sm font-semibold">falecom@useruah.com</span>
-                </div>
-                <div className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base shadow-subtle">
+                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">Minha Conta</span>
+                  <span className="text-sm font-semibold text-center">Abra um ticket autenticado</span>
+                </Link>
+                <Link href="/account/orders" className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base shadow-subtle">
                   <Phone size={24} className="text-ruah-300" />
-                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">Telefone</span>
-                  <span className="text-sm font-semibold">+55 11 9999-9999</span>
-                </div>
-                <div className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base shadow-subtle">
+                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">Pedidos</span>
+                  <span className="text-sm font-semibold text-center">Acompanhe entrega e trocas</span>
+                </Link>
+                <Link href="/policies" className="p-6 bg-white rounded-3xl border border-ruah-100 flex flex-col items-center gap-3 hover:border-accent-gold motion-base shadow-subtle">
                   <MessageSquare size={24} className="text-ruah-300" />
-                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">WhatsApp</span>
-                  <span className="text-sm font-semibold">Atendimento Viva</span>
-                </div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">Políticas</span>
+                  <span className="text-sm font-semibold text-center">Consulte regras da loja</span>
+                </Link>
               </div>
             </div>
           </div>

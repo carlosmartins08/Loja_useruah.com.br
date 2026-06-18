@@ -7,7 +7,8 @@ import { ProductCard } from '@/components/commerce/ProductCard';
 import { ChevronDown, ArrowUpRight } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
-import { buildCategoryJsonLd, categoryFilters, formatCategoryName, getCategoryProductsBySlug } from '@/components/category/category-data';
+import { buildCategoryJsonLd, categoryFilters, formatCategoryName } from '@/components/category/category-data';
+import { getPublishedShopProducts } from '@/lib/shop-products';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -15,14 +16,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   return {
     title: `${categoryName} | Universo Ruah`,
-    description: `Descubra a coleção ${categoryName} da UseRuah. Arte cristã autêntica para manifestar sua fé com propósito.`,
+    description: `Descubra a coleção ${categoryName} da UseRuah. Somente itens publicados no catálogo real entram aqui.`,
   };
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const categoryName = formatCategoryName(slug);
-  const products = getCategoryProductsBySlug(slug);
+  const { products: publishedProducts } = await getPublishedShopProducts();
+  const products = publishedProducts.filter((product) => product.category === categoryName);
   const jsonLd = buildCategoryJsonLd(slug, categoryName);
 
   return (
@@ -41,10 +43,10 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
               </h1>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-t border-ruah-100 pt-8">
                 <p className="text-[10px] font-bold text-ruah-300 max-w-sm tracking-widest leading-relaxed uppercase">
-                  Arte que respira. Cada peça nesta coleção foi curada para conectar sua identidade cristã com o design contemporâneo.
+                  Arte que respira. Cada peça desta coleção foi publicada no catálogo real antes de aparecer aqui.
                 </p>
                 <p className="text-[10px] font-bold text-ruah-300 max-w-sm tracking-widest text-left md:text-right uppercase">
-                  Peças sustentáveis, produzidas sob demanda para evitar o desperdício e honrar a criação.
+                  Peças sustentáveis, produzidas sob demanda para evitar desperdício e honrar a criação.
                 </p>
               </div>
             </div>
@@ -54,7 +56,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                 <span className="tech-label text-accent-gold">Curadoria da categoria</span>
                 <h2 className="mt-5 text-3xl font-serif italic uppercase leading-none text-ruah-950">Uma vitrine com leitura clara e presença de marca.</h2>
                 <p className="mt-5 text-sm font-medium leading-relaxed text-ruah-500">
-                  A categoria precisa funcionar como ponte entre narrativa editorial e intenção de compra. Aqui a leitura ficou mais próxima da energia da home.
+                  A categoria precisa funcionar como ponte entre narrativa editorial e intenção de compra. Aqui só entra item já publicado no catálogo.
                 </p>
                 <div className="mt-8 grid grid-cols-3 gap-4 border-t border-ruah-100 pt-6">
                   <div className="flex flex-col gap-2">
@@ -62,8 +64,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
                     <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Itens</span>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <span className="text-2xl font-serif italic font-black text-ruah-950">1</span>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Artista destaque</span>
+                    <span className="text-2xl font-serif italic font-black text-ruah-950">{products.length > 0 ? 'SIM' : 'NAO'}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-ruah-400">Curadoria ativa</span>
                   </div>
                   <div className="flex flex-col gap-2">
                     <span className="text-2xl font-serif italic font-black text-ruah-950">100%</span>
@@ -126,10 +128,24 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             </div>
           </div>
 
-          <div className="lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
-            {products.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
+          <div className="lg:col-span-9">
+            {products.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                {products.map((product) => (
+                  <ProductCard key={product.id} {...product} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-[2rem] border border-ruah-100 bg-white p-10 text-center shadow-sm">
+                <h2 className="text-2xl font-serif italic uppercase text-ruah-950">Nenhum item publicado nesta categoria.</h2>
+                <p className="mt-4 text-sm font-medium text-ruah-500">
+                  A categoria continua visível, mas não vai inventar produto fora do catálogo vivo. Volte para a coleção completa e escolha outro recorte.
+                </p>
+                <Link href="/shop" className="mt-8 inline-flex items-center gap-2 bg-ruah-950 text-white px-8 py-4 rounded-xl text-xs font-bold uppercase tracking-[0.16em] hover:bg-accent-gold transition-colors">
+                  Ver catálogo completo <ArrowUpRight size={14} />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 

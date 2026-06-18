@@ -29,6 +29,11 @@ interface OrderStatusPayload {
     variantLabel: string;
     quantity: number;
     unitPrice: number;
+    priceCompositionVersion: string | null;
+    movementMarkup: null | {
+      totalAmount: number;
+      tierLabel: string;
+    };
     snapshotVersion: string;
   }>;
   shipment: null | {
@@ -135,6 +140,11 @@ export default function AccountOrderDetailPage({ params }: { params: Promise<{ i
                           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ruah-400">
                             Qtd: {item.quantity} | R$ {item.unitPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </p>
+                          {item.movementMarkup ? (
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-accent-gold">
+                              Campanha {item.movementMarkup.tierLabel}: -R$ {item.movementMarkup.totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          ) : null}
                         </div>
                       </div>
                     ))}

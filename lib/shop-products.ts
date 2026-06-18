@@ -13,6 +13,21 @@ export interface ShopCampaignContext {
   progressivePriceRule: string;
 }
 
+function toShopCampaignContext(campaignId: string) {
+  const campaign = getCampaign(campaignId);
+  if (!campaign || campaign.status !== 'active') return null;
+  return {
+    campaignId: campaign.campaignId,
+    campaignName: campaign.name,
+    organizationId: campaign.organizationId,
+    progressivePriceRule: campaign.progressivePriceRule,
+  } satisfies ShopCampaignContext;
+}
+
+function pickPrimaryVariant(item: CatalogItemRecord) {
+  return item.variants.find((variant) => variant.inStock) ?? item.variants[0] ?? null;
+}
+
 function pickHoverImage(item: CatalogItemRecord) {
   const candidates = [
     ...Object.values(item.colorImages),
@@ -27,11 +42,14 @@ function pickHoverImage(item: CatalogItemRecord) {
 function mapCatalogItemToShopProduct(item: CatalogItemRecord): ShopProduct {
   const seed = findBrandProductSeed(item.catalogItemId);
   const merchandising = findBrandProductMerchandising(item.catalogItemId);
+  const primaryVariant = pickPrimaryVariant(item);
+  const basePrice = primaryVariant?.price ?? item.price;
 
   return {
     id: item.catalogItemId,
     name: seed?.name ?? item.name,
-    price: seed?.price ?? item.price,
+    price: basePrice,
+    basePrice,
     category: merchandising?.category ?? item.category ?? 'Autoral',
     segment: merchandising?.segment ?? item.segment ?? 'Customizada',
     image: merchandising?.image ?? item.image,
@@ -43,7 +61,16 @@ function mapCatalogItemToShopProduct(item: CatalogItemRecord): ShopProduct {
           ? 'Campanha'
           : undefined,
     tags: merchandising?.tags ?? item.tags ?? [],
+    variantId: primaryVariant?.variantId ?? 'default',
+    variantLabel: primaryVariant?.label ?? 'Padrão',
+    pricingPolicyMinPrice: item.pricingPolicy?.minPrice,
   };
+}
+
+export function resolveShopCampaignContext(campaignId?: string) {
+  const normalized = campaignId?.trim();
+  if (!normalized) return null;
+  return toShopCampaignContext(normalized);
 }
 
 export async function getPublishedShopProducts(input?: {
@@ -59,8 +86,8 @@ export async function getPublishedShopProducts(input?: {
     };
   }
 
-  const campaign = getCampaign(campaignId);
-  if (!campaign || campaign.status !== 'active') {
+  const campaignContext = toShopCampaignContext(campaignId);
+  if (!campaignContext) {
     return {
       products: items.map(mapCatalogItemToShopProduct),
       campaignContext: null,
@@ -72,11 +99,6 @@ export async function getPublishedShopProducts(input?: {
 
   return {
     products: filteredItems.map(mapCatalogItemToShopProduct),
-    campaignContext: {
-      campaignId: campaign.campaignId,
-      campaignName: campaign.name,
-      organizationId: campaign.organizationId,
-      progressivePriceRule: campaign.progressivePriceRule,
-    },
+    campaignContext,
   };
 }

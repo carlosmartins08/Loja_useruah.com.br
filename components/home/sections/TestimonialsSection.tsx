@@ -1,4 +1,4 @@
-﻿import { HOME_TESTIMONIALS } from '@/components/home/home-data';
+import { HOME_TESTIMONIALS } from '@/components/home/home-data';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { AppImage } from '@/components/shared/AppImage';
@@ -14,9 +14,9 @@ export function TestimonialsSection({ activeTestimonial, onNext, onPrev }: Testi
     <section className="section-space bg-white">
       <div className="section-container">
         <div className="flex flex-col items-center text-center mb-20">
-          <span className="tech-label text-accent-gold mb-6">Sopro da Comunidade</span>
+          <span className="tech-label text-accent-gold mb-6">Leituras da coleção</span>
           <h2 className="text-5xl lg:text-7xl font-serif italic font-semibold uppercase tracking-tighter text-ruah-950">
-            Vozes que <br /> Respiram Fé.
+            Formas de <br /> entrar na marca.
           </h2>
         </div>
 
@@ -67,8 +67,8 @@ export function TestimonialsSection({ activeTestimonial, onNext, onPrev }: Testi
                     <ChevronLeft size={20} />
                   </button>
                   <div className="flex gap-2">
-                    {HOME_TESTIMONIALS.map((_, i) => (
-                      <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${activeTestimonial === i ? 'bg-accent-gold w-4' : 'bg-white/30'}`} />
+                    {HOME_TESTIMONIALS.map((_, index) => (
+                      <div key={index} className={`w-1.5 h-1.5 rounded-full transition-all ${activeTestimonial === index ? 'bg-accent-gold w-4' : 'bg-white/30'}`} />
                     ))}
                   </div>
                   <button onClick={onNext} className="w-12 h-12 bg-white/10 text-white rounded-full flex items-center justify-center hover:bg-accent-gold transition-colors">
@@ -83,5 +83,3 @@ export function TestimonialsSection({ activeTestimonial, onNext, onPrev }: Testi
     </section>
   );
 }
-
-

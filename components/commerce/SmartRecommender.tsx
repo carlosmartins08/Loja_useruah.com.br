@@ -11,6 +11,7 @@ export interface SmartRecommendationItem {
   price: number;
   image: string;
   bundleHint: string;
+  href?: string;
 }
 
 export function SmartRecommender({ recommendations }: { recommendations: SmartRecommendationItem[] }) {
@@ -32,7 +33,11 @@ export function SmartRecommender({ recommendations }: { recommendations: SmartRe
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {visible.map((product) => (
-          <Link key={product.id} href={`/product/${product.id}`} className="group bg-white border border-ruah-100 rounded-3xl p-6 hover:shadow-fancy transition-all duration-500">
+          <Link
+            key={product.id}
+            href={product.href ?? `/product/${product.id}`}
+            className="group bg-white border border-ruah-100 rounded-3xl p-6 hover:shadow-fancy transition-all duration-500"
+          >
             <div className="flex gap-6 items-center">
               <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-ruah-50">
                 <AppImage context="content-banner" src={product.image} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />

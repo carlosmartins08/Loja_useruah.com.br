@@ -117,7 +117,7 @@ export function CartDrawer() {
                 <>
                 <div className="space-y-8">
                   {cart.map((item, idx) => (
-                    <div key={`${item.id}-${idx}`} className="flex gap-6 group">
+                    <div key={item.lineId || `${item.id}-${idx}`} className="flex gap-6 group">
                       <div className="relative w-24 h-32 rounded-2xl overflow-hidden bg-ruah-50 border border-ruah-100 shadow-sm">
                         <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover" />
                         {item.productionDays && (
@@ -131,7 +131,7 @@ export function CartDrawer() {
                           <h3 className="text-xs font-bold uppercase tracking-tight text-ruah-950 group-hover:text-accent-gold transition-colors">
                             {item.name}
                           </h3>
-                          <button type="button" onClick={() => removeFromCart(item.id)}
+                          <button type="button" onClick={() => removeFromCart(item.lineId)}
                             className="text-ruah-300 hover:text-red-500 transition-colors"
                           >
                             <Trash2 size={14} />
@@ -156,13 +156,13 @@ export function CartDrawer() {
                         
                         <div className="flex items-center justify-between mt-auto">
                           <div className="flex items-center gap-4 bg-ruah-50 rounded-full px-3 py-1">
-                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            <button type="button" onClick={() => updateQuantity(item.lineId, item.quantity - 1)}
                               className="text-ruah-400 hover:text-ruah-950"
                             >
                               <Minus size={12} />
                             </button>
                             <span className="text-xs font-mono font-bold w-4 text-center">{item.quantity}</span>
-                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            <button type="button" onClick={() => updateQuantity(item.lineId, item.quantity + 1)}
                               className="text-ruah-400 hover:text-ruah-950"
                             >
                               <Plus size={12} />
@@ -172,6 +172,11 @@ export function CartDrawer() {
                             R$ {(item.price * item.quantity).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </span>
                         </div>
+                        {item.movementMarkup ? (
+                          <span className="mt-2 text-[10px] font-bold uppercase tracking-[0.1em] text-accent-gold">
+                            Campanha ativa: -R$ {item.movementMarkup.totalAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   ))}

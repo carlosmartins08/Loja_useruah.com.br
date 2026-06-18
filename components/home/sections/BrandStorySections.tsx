@@ -1,12 +1,29 @@
-﻿
 import { Plus } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
 import Link from 'next/link';
 
 const PERSONAS = [
-  { name: 'Alma', desc: 'Compro para manifestar minha identidade cristã com estilo.', icon: '01', cta: 'Sou Consumidor' },
-  { name: 'Farol', desc: 'Lidero um grupo e quero produtos que conectem nossa missão.', icon: '02', cta: 'Sou Líder' },
-  { name: 'Sopro', desc: 'Crio artes e quero comercializar minha fé em nossa rede.', icon: '03', cta: 'Sou Artista' },
+  {
+    name: 'Alma',
+    desc: 'Busco peças publicadas que expressem minha fé com linguagem contemporânea.',
+    icon: '01',
+    cta: 'Ver Catálogo',
+    href: '/shop',
+  },
+  {
+    name: 'Farol',
+    desc: 'Quero encontrar coleções coerentes para o meu grupo sem depender de um fluxo sob medida que o site ainda não entrega.',
+    icon: '02',
+    cta: 'Explorar Peças',
+    href: '/shop',
+  },
+  {
+    name: 'Sopro',
+    desc: 'Tenho interesse em futuras colaborações e prefiro um processo curado a um cadastro que promete tudo para qualquer pessoa.',
+    icon: '03',
+    cta: 'Quero Me Cadastrar',
+    href: '/register',
+  },
 ];
 
 export function BrandStorySections() {
@@ -18,9 +35,11 @@ export function BrandStorySections() {
           <div className="layout-grid-media gap-12 lg:gap-16 items-end mb-20">
             <div className="lg:col-span-6 flex flex-col gap-6">
               <span className="tech-label text-accent-gold">Manifesto de Escolha</span>
-              <h2 className="ur-type-display-lg text-white font-serif italic font-semibold uppercase tracking-tighter">Onde você <br /> respira?</h2>
+              <h2 className="ur-type-display-lg text-white font-serif italic font-semibold uppercase tracking-tighter">
+                Onde você <br /> respira?
+              </h2>
               <p className="max-w-xl text-sm font-medium leading-relaxed text-white/65">
-                A marca precisa acolher diferentes intenções sem perder forma. Estes três caminhos dão leitura imediata de quem entra e do que pode fazer aqui.
+                A marca precisa acolher diferentes intenções sem inventar capacidade. Estes três caminhos ajudam a pessoa a entender rápido que tipo de relação pode ter com o catálogo hoje.
               </p>
             </div>
             <div className="lg:col-span-6 rounded-[2.75rem] border border-white/10 bg-white/5 p-8 backdrop-blur-sm shadow-fancy">
@@ -48,7 +67,7 @@ export function BrandStorySections() {
                 <span className="relative z-10 text-5xl font-serif text-accent-gold italic font-black mb-6 opacity-30 group-hover:opacity-100 transition-opacity">{persona.icon}</span>
                 <h3 className="text-white text-3xl font-serif uppercase italic font-black mb-4">{persona.name}</h3>
                 <p className="text-white/70 text-sm font-medium leading-relaxed mb-10 flex-1">{persona.desc}</p>
-                <Link href="/register" className="relative z-10 w-full py-4 text-center border border-white/20 rounded-2xl text-xs font-bold text-white uppercase tracking-[0.1em] group-hover:bg-accent-gold group-hover:border-accent-gold transition-all">
+                <Link href={persona.href} className="relative z-10 w-full py-4 text-center border border-white/20 rounded-2xl text-xs font-bold text-white uppercase tracking-[0.1em] group-hover:bg-accent-gold group-hover:border-accent-gold transition-all">
                   {persona.cta}
                 </Link>
               </div>
@@ -63,37 +82,39 @@ export function BrandStorySections() {
             <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_90%_10%,rgba(196,164,132,0.1),transparent_50%)] pointer-events-none" />
             <div className="layout-grid-media gap-14 lg:gap-16 items-center">
               <div className="lg:col-span-5 flex flex-col gap-10 relative z-10">
-                <span className="tech-label text-accent-gold">Impacto Ruah</span>
-                <h2 className="text-5xl lg:text-7xl font-serif font-black italic uppercase leading-[0.85] tracking-tighter">O Sopro da <br /> Criação.</h2>
+                <span className="tech-label text-accent-gold">Operação real</span>
+                <h2 className="text-5xl lg:text-7xl font-serif font-black italic uppercase leading-[0.85] tracking-tighter">
+                  Catálogo em <br /> movimento.
+                </h2>
                 <div className="flex flex-col gap-6">
                   <p className="text-base font-medium text-ruah-500 leading-relaxed">
-                    O Projeto Ruah é uma iniciativa que transforma orações em arte. Cada produto carrega a essência de uma conexão profunda com o Criador, apoiando comunidades e evangelização em todo o Brasil.
+                    A entrega concreta da UseRuah hoje é mais simples do que boa parte do discurso de marca sugeria: catálogo publicado, produção sob demanda e navegação editorial para facilitar a escolha.
                   </p>
                   <div className="grid grid-cols-2 gap-8 mt-4">
                     <div className="flex flex-col gap-2">
-                      <span className="text-3xl font-serif italic font-black text-ruah-950">100%</span>
-                      <span className="text-xs font-semibold text-ruah-400 uppercase tracking-[0.1em]">Genuinamente Brasileiro</span>
+                      <span className="text-3xl font-serif italic font-black text-ruah-950">Sob demanda</span>
+                      <span className="text-xs font-semibold text-ruah-400 uppercase tracking-[0.1em]">Produção após compra</span>
                     </div>
                     <div className="flex flex-col gap-2">
                       <span className="text-3xl font-serif italic font-black text-ruah-950">Curadoria</span>
-                      <span className="text-xs font-semibold text-ruah-400 uppercase tracking-[0.1em]">Arte & Espiritualidade</span>
+                      <span className="text-xs font-semibold text-ruah-400 uppercase tracking-[0.1em]">Leitura visual consistente</span>
                     </div>
                   </div>
                 </div>
                 <Link href="/quem-somos" className="flex items-center gap-4 text-xs font-bold uppercase tracking-[0.1em] text-accent-gold border-b border-accent-gold/20 pb-1 self-start">
-                  Saiba Como Ajudamos Missões <Plus size={14} />
+                  Entender Como Funciona <Plus size={14} />
                 </Link>
               </div>
 
               <div className="lg:col-span-7 relative aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
-                <AppImage context="content-banner" src="/assets/editorial/impact-studio.svg" alt="Qualidade Ruah" fill className="object-cover" />
+                <AppImage context="content-banner" src="/assets/editorial/impact-studio.svg" alt="Operação editorial UseRuah" fill className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-ruah-950/35 via-transparent to-transparent" />
                 <div className="absolute left-8 right-8 bottom-8 flex items-end justify-between gap-6">
                   <div className="rounded-full bg-white/90 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ruah-950">
-                    Missão em movimento
+                    Operação em movimento
                   </div>
                   <div className="rounded-[2rem] border border-white/20 bg-ruah-950/70 px-5 py-4 backdrop-blur-sm">
-                    <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">Impacto</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/50">Leitura</span>
                     <span className="block mt-1 text-2xl font-serif italic text-white">Arte com direção</span>
                   </div>
                 </div>
@@ -107,7 +128,7 @@ export function BrandStorySections() {
         <div className="bg-[#FAFAFA] rounded-[3rem] overflow-hidden p-8 lg:p-16 border border-ruah-100 shadow-subtle relative">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_92%_16%,rgba(197,160,89,0.1),transparent_28%)] pointer-events-none" />
           <div className="layout-grid-media gap-14 lg:gap-16 items-center relative z-10">
-            <div className="lg:col-span-7 relative aspect-[4/3] rounded-[2.5rem] overflow-hidden" style={{ position: 'relative' }}>
+            <div className="lg:col-span-7 relative aspect-[4/3] rounded-[2.5rem] overflow-hidden">
               <AppImage context="content-banner" src="/assets/editorial/editorial-atelier.svg" alt="Ruah Editorial" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-ruah-950/35 via-transparent to-transparent" />
               <div className="absolute left-8 bottom-8 rounded-full bg-white/90 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ruah-950">
@@ -120,7 +141,7 @@ export function BrandStorySections() {
                 Vista o <br /> Seu Sopro.
               </h2>
               <p className="text-lg text-ruah-500 mb-12 max-w-md leading-relaxed">
-                Moda cristã que vai além do vestuário. Conectamos sua fé com o design, criando peças que comunicam os valores do Reino.
+                Moda cristã publicada, com compra direta e linguagem visual intencional. O foco aqui é menos slogan e mais coerência entre catálogo, forma e contexto.
               </p>
               <div className="mb-10 grid grid-cols-2 gap-4">
                 <div className="rounded-[1.75rem] border border-ruah-100 bg-white p-5 shadow-sm">
@@ -133,7 +154,7 @@ export function BrandStorySections() {
                 </div>
               </div>
               <Link href="/shop" className="bg-ruah-950 text-white rounded-full px-12 py-5 font-bold uppercase text-xs tracking-[0.2em] hover:bg-accent-gold transition-all active:scale-95 shadow-xl shadow-ruah-950/10">
-                Começar Jornada
+                Ver Peças Publicadas
               </Link>
             </div>
           </div>
@@ -144,20 +165,22 @@ export function BrandStorySections() {
         <div className="layout-grid-media gap-14 lg:gap-20 items-center">
           <div className="lg:col-span-5 flex flex-col gap-8">
             <span className="tech-label text-accent-gold">Nossa Identidade</span>
-            <h2 className="text-5xl font-serif tracking-tight leading-tight uppercase font-black">CADA ORAÇÃO <br /> É ÚNICA, ASSIM <br /> COMO VOCÊ.</h2>
+            <h2 className="text-5xl font-serif tracking-tight leading-tight uppercase font-black">
+              CADA ORAÇÃO <br /> É ÚNICA, ASSIM <br /> COMO VOCÊ.
+            </h2>
             <div className="flex flex-col gap-6 text-ruah-500 font-medium text-sm leading-relaxed">
-              <p>O Ruah nasceu para manifestar a beleza de Deus através do design. Acreditamos que a vestimenta pode ser um canal de evangelização silenciosa e poderosa.</p>
-              <p>Unimos artistas e designers que respiram a Palavra para criar estampas que contam histórias de fé, esperança e caridade, conectando pessoas ao sagrado no dia a dia.</p>
+              <p>O Ruah nasceu para traduzir fé em linguagem visual sem depender de clichê religioso nem de promessa operacional vazia.</p>
+              <p>A curadoria reúne traços, temas e atmosferas que podem evoluir com o tempo, mas a base pública de hoje é objetiva: peças já publicadas, leitura clara de coleção e produção sob demanda.</p>
               <Link href="/quem-somos" className="text-accent-gold font-bold border-b border-accent-gold/30 inline-block pb-1 mt-4 self-start">
                 Descubra Nossa Origem
               </Link>
             </div>
           </div>
           <div className="lg:col-span-7 relative aspect-[16/9] rounded-[3rem] overflow-hidden shadow-2xl">
-            <AppImage context="content-banner" src="/assets/editorial/community-manifesto.svg" alt="Comunidade Ruah" fill className="object-cover" />
+            <AppImage context="content-banner" src="/assets/editorial/community-manifesto.svg" alt="Comunidade visual Ruah" fill className="object-cover" />
             <div className="absolute inset-0 bg-ruah-950/20" />
             <div className="absolute bottom-10 left-10 right-10 flex items-end justify-between gap-6">
-              <span className="text-white text-3xl font-serif italic font-semibold uppercase tracking-tighter">Arte & Missão.</span>
+              <span className="text-white text-3xl font-serif italic font-semibold uppercase tracking-tighter">Arte & Catálogo.</span>
               <div className="rounded-[2rem] border border-white/20 bg-white/10 px-5 py-4 backdrop-blur-sm">
                 <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">Essência</span>
                 <span className="mt-1 block text-xl font-serif italic text-white">Fé com linguagem visual</span>
@@ -169,8 +192,3 @@ export function BrandStorySections() {
     </>
   );
 }
-
-
-
-
-

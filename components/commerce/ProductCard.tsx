@@ -9,37 +9,80 @@ import { Plus, Heart, Star, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { composeCampaignPrice } from '@/lib/campaign-pricing';
+import type { ShopCampaignContext } from '@/lib/shop-products';
 
 interface ProductCardProps {
   id: string;
   name: string;
   category: string;
   price: number;
+  basePrice?: number;
   image: string;
   hoverImage?: string;
   badge?: string;
+  variantId?: string;
+  variantLabel?: string;
+  pricingPolicyMinPrice?: number;
+  campaignContext?: ShopCampaignContext | null;
 }
 
-export function ProductCard({ id, name, category, price, image, hoverImage, badge }: ProductCardProps) {
+export function ProductCard({
+  id,
+  name,
+  category,
+  price,
+  basePrice,
+  image,
+  hoverImage,
+  badge,
+  variantId,
+  variantLabel,
+  pricingPolicyMinPrice,
+  campaignContext,
+}: ProductCardProps) {
   const { addToCart } = useCart();
   const [isFavorite, setIsFavorite] = React.useState(false);
   const [isAdded, setIsAdded] = React.useState(false);
   const [imageFailed, setImageFailed] = React.useState(false);
   const stage = getProductStageTone(image);
   const useEditorialArtwork = isProductMockupPlaceholder(image) || isProductMockupPlaceholder(hoverImage ?? image);
+  const resolvedBasePrice = basePrice ?? price;
+  const resolvedVariantId = variantId ?? 'default';
+  const resolvedVariantLabel = variantLabel ?? 'Padrão';
+  const linePrice = composeCampaignPrice({
+    baseUnitPrice: resolvedBasePrice,
+    quantity: 1,
+    progressivePriceRule: campaignContext?.progressivePriceRule,
+    minUnitPrice: pricingPolicyMinPrice,
+  });
+  const detailHref = campaignContext ? `/product/${id}?campaignId=${campaignContext.campaignId}` : `/product/${id}`;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     addToCart({
+      lineId: `${id}:${resolvedVariantId}:`,
       id,
+      variantId: resolvedVariantId,
+      variantLabel: resolvedVariantLabel,
       name,
-      price,
+      price: linePrice.effectiveUnitPrice,
+      basePrice: resolvedBasePrice,
       image,
       quantity: 1,
       category,
-      productionDays: 3
+      productionDays: 3,
+      pricingPolicyMinPrice,
+      campaignId: campaignContext?.campaignId,
+      campaignName: campaignContext?.campaignName,
+      campaignProgressivePriceRule: campaignContext?.progressivePriceRule,
+      organizationId: campaignContext?.organizationId,
+      customSpecs: {
+        variantId: resolvedVariantId,
+        variantLabel: resolvedVariantLabel,
+      },
     });
     
     setIsAdded(true);
@@ -60,7 +103,7 @@ export function ProductCard({ id, name, category, price, image, hoverImage, badg
       className="group"
     >
       <Link
-        href={`/product/${id}`}
+        href={detailHref}
         className={`block relative aspect-[3/4] rounded-[2.5rem] overflow-hidden mb-6 border shadow-subtle group-hover:shadow-xl transition-all duration-700 ${stage.frameClassName}`}
         style={{ position: 'relative' }}
       >
@@ -150,7 +193,7 @@ export function ProductCard({ id, name, category, price, image, hoverImage, badg
 
       <div className="px-2">
         <div className="flex justify-between items-start mb-4 uppercase">
-          <Link href={`/product/${id}`} className="block">
+          <Link href={detailHref} className="block">
             <h3 className="font-bold text-base text-ruah-950 group-hover:text-accent-gold transition-colors tracking-tight">
               {name}
             </h3>
@@ -165,8 +208,16 @@ export function ProductCard({ id, name, category, price, image, hoverImage, badg
         </div>
         <div className="flex items-center justify-between gap-4">
            <div className="flex items-center gap-4">
-             <span className="font-mono text-sm font-bold text-accent-gold">R$ {price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-             <span className="text-xs text-ruah-400 font-semibold tracking-[0.08em] line-through">R$ {(price * 1.2).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}</span>
+             <span className="font-mono text-sm font-bold text-accent-gold">R$ {linePrice.effectiveUnitPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+             {linePrice.perUnitDelta > 0 ? (
+               <span className="text-xs text-ruah-400 font-semibold tracking-[0.08em] line-through">
+                 R$ {resolvedBasePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+               </span>
+             ) : (
+               <span className="text-xs text-ruah-400 font-semibold tracking-[0.08em] line-through">
+                 R$ {(price * 1.2).toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
+               </span>
+             )}
            </div>
            
            <motion.button 

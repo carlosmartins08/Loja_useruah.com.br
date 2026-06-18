@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
-import React from 'react';
 import { motion } from 'motion/react';
-import { AppImage } from '@/components/shared/AppImage';
 import { ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { AppImage } from '@/components/shared/AppImage';
 import { BRAND_EDITORIAL_ASSETS } from '@/lib/brand-assets';
+import Link from 'next/link';
+import React from 'react';
 
 export function Hero() {
   return (
@@ -16,7 +16,8 @@ export function Hero() {
             <div className="flex flex-col gap-10 lg:gap-14">
               <div className="flex gap-4 lg:gap-6">
                 <div className="relative w-1/3 aspect-[3/4] rounded-[2rem] lg:rounded-3xl overflow-hidden mt-8 lg:mt-16">
-                  <AppImage context="content-banner"
+                  <AppImage
+                    context="content-banner"
                     src={BRAND_EDITORIAL_ASSETS.heroLeft}
                     alt="Fé 1"
                     fill
@@ -26,7 +27,8 @@ export function Hero() {
                   />
                 </div>
                 <div className="relative w-2/3 aspect-[16/10] lg:aspect-[16/9] rounded-[2rem] lg:rounded-3xl overflow-hidden">
-                  <AppImage context="content-banner"
+                  <AppImage
+                    context="content-banner"
                     src={BRAND_EDITORIAL_ASSETS.heroCenter}
                     alt="Fé 2"
                     fill
@@ -48,7 +50,7 @@ export function Hero() {
                 </h1>
                 <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10 mt-10 lg:mt-12">
                   <Link href="/shop" className="bg-ruah-950 text-white rounded-full px-12 py-5 lg:py-6 font-bold uppercase text-[10px] lg:text-[11px] tracking-[0.3em] hover:bg-accent-gold transition-all flex items-center justify-center lg:justify-start gap-4 active:scale-95 shadow-2xl shadow-ruah-950/20">
-                    Transformar Oração em Arte <ArrowRight size={18} />
+                    Ver Catálogo Publicado <ArrowRight size={18} />
                   </Link>
                   <div className="h-px flex-1 bg-ruah-100 hidden lg:block" />
                 </div>
@@ -69,7 +71,8 @@ export function Hero() {
             </div>
 
             <div className="relative w-full aspect-square rounded-[2.5rem] lg:rounded-3xl overflow-hidden mb-2 shadow-2xl">
-              <AppImage context="content-banner"
+              <AppImage
+                context="content-banner"
                 src={BRAND_EDITORIAL_ASSETS.heroRight}
                 alt="Fé 3"
                 fill
@@ -84,10 +87,10 @@ export function Hero() {
 
             <div className="flex flex-col gap-6 lg:gap-4 px-2 lg:px-0">
               <p className="text-base text-ruah-600 leading-relaxed max-w-sm lg:max-w-xs font-medium">
-                Cada oração é única, assim como você. O Projeto Ruah conecta sua fé com a criatividade para manifestar o Reino através de peças exclusivas.
+                A UseRuah reúne peças autorais já publicadas, produzidas sob demanda e organizadas por uma leitura editorial clara. Menos promessa abstrata, mais catálogo que você realmente consegue comprar hoje.
               </p>
               <Link href="/quem-somos" className="text-[11px] font-bold uppercase tracking-[0.2em] text-ruah-950 border-b-2 border-accent-gold inline-block self-start pb-2 hover:text-accent-gold transition-colors">
-                Nossa Missão
+                Entender a Marca
               </Link>
             </div>
           </div>
@@ -100,4 +103,3 @@ export function Hero() {
     </section>
   );
 }
-

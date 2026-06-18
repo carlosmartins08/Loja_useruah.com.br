@@ -22,14 +22,17 @@ import { ProductMediaGallery } from '@/components/commerce/ProductMediaGallery';
 import { ProductSizeAdvisor } from '@/components/commerce/ProductSizeAdvisor';
 import { isProductMockupPlaceholder } from '@/lib/product-artwork';
 import { getProductStageTone } from '@/lib/product-stage';
+import { composeCampaignPrice } from '@/lib/campaign-pricing';
+import type { ShopCampaignContext } from '@/lib/shop-products';
 
 interface ProductPageViewProps {
   product: ProductPageModel;
   jsonLd: unknown;
   recommendations: SmartRecommendationItem[];
+  campaignContext?: ShopCampaignContext | null;
 }
 
-export function ProductPageView({ product, jsonLd, recommendations }: ProductPageViewProps) {
+export function ProductPageView({ product, jsonLd, recommendations, campaignContext }: ProductPageViewProps) {
   const availableColors = React.useMemo(() => Object.keys(product.colorImages), [product.colorImages]);
   const defaultColor = availableColors[0] ?? 'Padrão';
   const [selectedColor, setSelectedColor] = React.useState<string | null>(null);
@@ -45,11 +48,17 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
   const heroStage = getProductStageTone(activeImage);
   const heroFailed = Boolean(failedHeroImages[activeImage]);
   const heroUsesEditorialArtwork = isProductMockupPlaceholder(activeImage);
+  const stickyPrice = composeCampaignPrice({
+    baseUnitPrice: product.basePrice,
+    quantity: 1,
+    progressivePriceRule: campaignContext?.progressivePriceRule,
+    minUnitPrice: product.pricingPolicyMinPrice,
+  }).effectiveUnitPrice;
 
   return (
     <main className="bg-[#FFFFFF] min-h-screen page-header-offset">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <StickyMobileBar price={product.price} />
+      <StickyMobileBar price={stickyPrice} />
       <Header />
       <WhatsAppSticky />
 
@@ -63,7 +72,9 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
                 <h1 className="ur-type-display-xl uppercase italic">{product.name}.</h1>
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent-gold">{catalogContext}</p>
                 <p className="text-sm font-semibold text-ruah-500 leading-relaxed max-w-[320px] mt-4">
-                  Peça publicada para compra direta, com produção sob demanda e leitura visual alinhada ao catálogo ativo da marca.
+                  {campaignContext
+                    ? `Peça publicada e realmente vinculada à campanha ${campaignContext.campaignName}, com preço calculado pela regra ${campaignContext.progressivePriceRule}.`
+                    : 'Peça publicada para compra direta, com produção sob demanda e leitura visual alinhada ao catálogo ativo da marca.'}
                 </p>
               </div>
 
@@ -108,6 +119,7 @@ export function ProductPageView({ product, jsonLd, recommendations }: ProductPag
             <ProductInteractive
               {...product}
               image={activeImage}
+              campaignContext={campaignContext}
               selectedColor={activeColor}
               colorOptions={availableColors}
               onColorChange={setSelectedColor}

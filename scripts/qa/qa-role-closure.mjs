@@ -6,6 +6,10 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function round2(value) {
+  return Math.round(value * 100) / 100;
+}
+
 async function req(method, pathname, body, options = {}) {
   const response = await fetch(`${baseUrl}${pathname}`, {
     method,
@@ -90,6 +94,9 @@ async function resolvePendingReviewId(entityType, entityId, adminHeaders) {
 async function run() {
   const suffix = String(Date.now());
   const report = [];
+  const expectedDiscountedUnitPrice = round2(139.9 * 0.95);
+  const expectedOrderAmount = round2(expectedDiscountedUnitPrice * 2);
+  const expectedSavings = round2((139.9 - expectedDiscountedUnitPrice) * 2);
   const artistId = `qa-artist-closure-${suffix}`;
   const communityId = `qa-community-closure-${suffix}`;
   const affiliateId = `qa-affiliate-closure-${suffix}`;
@@ -172,7 +179,7 @@ async function run() {
       name: `Campanha ${suffix}`,
       description: 'QA closure campaign',
       budget: 3000,
-      progressivePriceRule: 'baseline',
+      progressivePriceRule: '2-5=5%;6-10=10%',
     },
     { headers: communityHeaders }
   );
@@ -304,8 +311,8 @@ async function run() {
         {
           catalogItemId,
           variantId: `TEE-OFFWHITE-M-${suffix}`,
-          quantity: 1,
-          unitPrice: 139.9,
+          quantity: 2,
+          unitPrice: expectedDiscountedUnitPrice,
         },
       ],
       customer: { id: customerId },
@@ -317,16 +324,19 @@ async function run() {
       },
     }
   );
-  assert(order.status === 201, `order create expected 201, got ${order.status}`);
+  assert(order.status === 201, `order create expected 201, got ${order.status} -> ${JSON.stringify(order.data)}`);
   const orderId = order.data?.order?.orderId;
   assert(typeof orderId === 'string', 'orderId missing');
   const orderItem = order.data?.order?.items?.[0];
   assert(orderItem?.campaignId === campaignId, 'order snapshot missing campaignId');
   assert(orderItem?.campaignName === `Campanha ${suffix}`, 'order snapshot missing campaignName');
-  assert(orderItem?.campaignProgressivePriceRule === 'baseline', 'order snapshot missing campaign progressive rule');
+  assert(orderItem?.campaignProgressivePriceRule === '2-5=5%;6-10=10%', 'order snapshot missing campaign progressive rule');
+  assert(orderItem?.priceCompositionVersion === 'phase2-campaign-pricing-v1', 'order snapshot missing price composition version');
+  assert(orderItem?.movementMarkup?.tierLabel === '2-5=5%', 'order snapshot missing applied campaign tier');
+  assert(orderItem?.movementMarkup?.totalAmount === expectedSavings, `order snapshot savings expected ${expectedSavings}, got ${orderItem?.movementMarkup?.totalAmount}`);
   assert(orderItem?.referralLinkId === referralLinkId, 'order snapshot missing referralLinkId');
   assert(orderItem?.artworkAuthorId === artistId, 'order snapshot missing artist ownership');
-  report.push('ROLE-CLOSE-13 order snapshot preserves artist, campaign ids, campaign metadata and referral context');
+  report.push('ROLE-CLOSE-13 order snapshot freezes artist, campaign ids, campaign pricing composition and referral context');
 
   const checkout = await req(
     'POST',
@@ -335,9 +345,9 @@ async function run() {
       orderId,
       method: 'pix',
       provider: 'sandbox',
-      amount: 139.9,
+      amount: expectedOrderAmount,
       currency: 'BRL',
-      items: [{ id: catalogItemId, name: `Camiseta Runtime ${suffix}`, quantity: 1, unitPrice: 139.9 }],
+      items: [{ id: catalogItemId, name: `Camiseta Runtime ${suffix}`, quantity: 2, unitPrice: expectedDiscountedUnitPrice }],
     },
     { headers: { 'x-idempotency-key': `role-close-checkout-${suffix}` } }
   );
@@ -422,8 +432,8 @@ async function run() {
   assert(affiliateLink, 'affiliate link missing after conversion');
   assert(affiliateLink.clickCount === 1, `affiliate clickCount expected 1, got ${affiliateLink?.clickCount}`);
   assert(affiliateLink.conversionCount === 1, `affiliate conversionCount expected 1, got ${affiliateLink?.conversionCount}`);
-  assert(affiliateLink.revenueAmount === 139.9, `affiliate revenue expected 139.9, got ${affiliateLink?.revenueAmount}`);
-  report.push('ROLE-CLOSE-19 affiliate conversion is attributed automatically from payment approval');
+  assert(affiliateLink.revenueAmount === expectedOrderAmount, `affiliate revenue expected ${expectedOrderAmount}, got ${affiliateLink?.revenueAmount}`);
+  report.push('ROLE-CLOSE-19 affiliate conversion is attributed automatically from payment approval with campaign-priced order amount');
 
   console.log(JSON.stringify({ status: 'PASS', baseUrl, orderId, artworkId, campaignId, referralLinkId, report }, null, 2));
 }

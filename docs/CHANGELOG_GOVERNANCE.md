@@ -34,6 +34,112 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-18] Home e superficies publicas deixam de prometer capacidades e canais que nao existem
+- ID: GOV-0110
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `loja`
+  - `ui-rotas`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+- Decisao:
+  - Reescrever a narrativa publica de `/`, `/help-center`, `/login`, `/register`, `/returns`, `/policies`, `/quem-somos`, footer, menu mobile, catalogo e CTA de produto para parar de insinuar personalizacao self-service, portal autonomo de troca, login social inexistente, canal de YouTube, Spotify, WhatsApp oficial ou prova social literal sem runtime correspondente.
+  - Transformar depoimentos, hub de midia e blocos de apoio em camadas editoriais honestas, ligadas ao catalogo publicado e aos canais internos reais do site.
+  - Fazer suporte e pos-venda publicos apontarem para `help-center`, `account/support`, `account/orders`, `returns` e `policies`, em vez de contatos placeholder ou fluxo mockado.
+- Contexto:
+  - Depois que `/` e `/category/[slug]` passaram a ler o catalogo publicado real, a maior incoerencia remanescente deixou de ser dado e passou a ser discurso.
+  - A loja ainda podia sugerir capacidades comerciais, canais e contatos que o runtime nao sustentava.
+- Impacto esperado:
+  - Menos risco reputacional de prometer fluxo, comunidade, canal ou atendimento que nao existe.
+  - Home, produto, cadastro, ajuda, manifesto institucional e pos-venda passam a contar a mesma verdade operacional.
+  - A marca continua editorial sem depender de ficcao comercial.
+- Riscos conhecidos:
+  - Ainda pode existir copy futura ou aspiracional em superficies nao auditadas neste recorte.
+  - A camada editorial continua forte; se a equipe relaxar, a tentacao de reintroduzir promessa antes do runtime continua alta.
+- Plano de rollback:
+  - Reverter apenas textos e links publicos que perderem aderencia caso um canal ou fluxo real seja implementado no mesmo patch.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+
+### [2026-06-18] Home e categorias publicas passam a respeitar o catalogo publicado real
+- ID: GOV-0109
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `catalogo-curadoria`
+  - `ui-rotas`
+  - `loja`
+- Documento fonte afetado:
+  - `docs/CODEBASE_MAP.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Fazer `/` e `/category/[slug]` consumirem a mesma fonte runtime de `CatalogItem` publicado usada por `/shop`.
+  - Remover a dependencia de cards estaticos para vitrine vendavel nessas superficies.
+  - Tratar estado vazio como estado honesto, sem inventar produto publicado.
+- Contexto:
+  - O checkout, `/shop` e `/product/[id]` ja estavam coerentes com o catalogo vivo, mas home e categorias ainda podiam sugerir uma loja paralela baseada em seeds editoriais.
+  - Isso mantinha uma ambiguidade perigosa: duas leituras publicas diferentes do que realmente estava a venda.
+- Impacto esperado:
+  - A navegacao publica fica mais coerente com a curadoria e com o runtime de venda.
+  - A home continua editorial, mas deixa de mentir sobre disponibilidade comercial.
+  - Categoria passa a ser um recorte real do catalogo publicado, nao uma vitrine ficticia.
+- Riscos conhecidos:
+  - A narrativa editorial de home e categoria ainda depende de blocos estaticos em torno da vitrine.
+  - Nao existe ordenacao comercial madura; o destaque atual segue simples.
+- Plano de rollback:
+  - Reverter apenas a leitura runtime dessas superficies se surgir uma camada superior de merchandising publicada com fonte unica propria.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+
+### [2026-06-18] Snapshot da Fase 2 passa a congelar composicao real de preco de campanha
+- ID: GOV-0108
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `campanhas`
+  - `pedidos-logistica`
+  - `checkout`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+- Decisao:
+  - Instituir um helper canonico de precificacao de campanha para calcular preco efetivo por quantidade a partir de `progressivePriceRule`.
+  - Fazer vitrine, produto, carrinho, checkout e `/api/orders` usarem a mesma composicao de preco.
+  - Persistir `movementMarkup` e `priceCompositionVersion` no `OrderItemSnapshot` quando a compra nascer de campanha ativa.
+  - Fechar a prova disso dentro de `qa:role:closure` com regra real `2-5=5%`.
+- Contexto:
+  - Ate aqui, a campanha ja atribuía contexto comercial, mas o runtime ainda tratava `unitPrice` contra o valor base da variante.
+  - Isso deixava a Fase 2 com metadado de campanha no pedido, sem congelar a conta real que levou ao valor pago.
+- Impacto esperado:
+  - Preco de campanha deixa de ser maquiagem de UI.
+  - O pedido passa a registrar a mesma conta usada para validar checkout e calcular o total pago.
+  - A auditoria consegue diferenciar campanha ativa sem inventar um dominio maduro maior do que o que existe hoje.
+- Riscos conhecidos:
+  - O dominio de `Organization` continua ausente como camada madura.
+  - Home e categorias editoriais ainda nao devem ser confundidas com a vitrine runtime de catalogo publicado.
+- Plano de rollback:
+  - Reverter a composicao de preco contextual apenas se surgir contrato superior de precificacao que substitua essa regra no mesmo patch.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/EXECUTION_TRACKING.md`
+  - `docs/NEXT_SESSION_TRIGGER.md`
+  - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`
+  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+
 ### [2026-06-18] Campanha passa a ter vitrine real por `CampaignProduct`
 - ID: GOV-0107
 - Status: `aprovada`

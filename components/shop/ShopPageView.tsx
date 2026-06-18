@@ -7,15 +7,11 @@ import { ProductCard } from '@/components/commerce/ProductCard';
 import { ChevronDown, LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { SHOP_CATEGORIES, SHOP_SEGMENTS, ShopCategory, ShopProduct, ShopSegment } from '@/components/shop/shop-data';
+import type { ShopCampaignContext } from '@/lib/shop-products';
 
 interface ShopPageViewProps {
   products: ShopProduct[];
-  campaignContext?: {
-    campaignId: string;
-    campaignName: string;
-    organizationId: string;
-    progressivePriceRule: string;
-  } | null;
+  campaignContext?: ShopCampaignContext | null;
 }
 
 export function ShopPageView({ products, campaignContext }: ShopPageViewProps) {
@@ -126,7 +122,7 @@ export function ShopPageView({ products, campaignContext }: ShopPageViewProps) {
                   }`}
                 >
                   <span className={`text-xs font-semibold uppercase tracking-[0.12em] ${activeSegment === seg.id ? 'text-accent-gold' : 'text-ruah-300'}`}>
-                    {seg.id === 'All' ? 'Catálogo completo' : seg.id === 'Base' ? 'Linha essencial' : 'Linha personalizada'}
+                    {seg.id === 'All' ? 'Catálogo completo' : seg.id === 'Base' ? 'Linha essencial' : 'Linha autoral'}
                   </span>
                   <h3 className="text-xl font-serif italic uppercase leading-none">{seg.label}</h3>
                   <p className={`text-sm font-medium leading-relaxed ${activeSegment === seg.id ? 'text-white/70' : 'text-ruah-500'}`}>{seg.detail}</p>
@@ -237,7 +233,7 @@ export function ShopPageView({ products, campaignContext }: ShopPageViewProps) {
               <AnimatePresence mode="popLayout">
                 {filteredProducts.map((product) => (
                   <motion.div key={product.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.4 }}>
-                    <ProductCard {...product} />
+                    <ProductCard {...product} campaignContext={campaignContext} />
                   </motion.div>
                 ))}
               </AnimatePresence>

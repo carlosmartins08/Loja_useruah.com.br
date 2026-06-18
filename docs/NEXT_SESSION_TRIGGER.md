@@ -62,15 +62,17 @@ Use este prompt literalmente ou com ajuste minimo:
 - A cadeia `artwork aprovado -> CatalogItem pending_review -> impact review -> ready -> published` passou a ter prova ativa; nao voltar a tratar bootstrap seed como unica evidencia valida do dominio.
 - `artist`, `community_manager` e `affiliate` deixaram de ser papeis parcialmente cenograficos: agora fecham atribuicao real ate pedido, ledger ou conversao conforme seu escopo.
 - Afiliacao deixou de ser tela estatica: `/affiliate`, `/affiliate/links`, `/api/affiliate/links`, `/af/[slug]` e o snapshot de pedido agora sustentam link, clique e conversao reais, mas sem ledger de rewards.
-- O snapshot contextualizado da Fase 2 deixou de congelar so ids: quando a compra nasce de campanha ativa, ele ja preserva `campaignName` e a regra progressiva vigente da campanha, sem fingir ainda um dominio formal de `movementMarkup`.
+- O snapshot contextualizado da Fase 2 deixou de congelar so ids e metadados soltos: quando a compra nasce de campanha ativa, ele ja preserva `campaignName`, a regra vigente e a composicao formal de preco com `movementMarkup` + `priceCompositionVersion`.
 - `CampaignProduct` deixou de ser capacidade imaginada: `/api/campaigns/[id]/products`, `/community/campaigns`, `/c/[campaignId]` e o checkout agora respeitam vinculo real entre campanha ativa e `CatalogItem` publicado.
+- `/` e `/category/[slug]` deixaram de se apoiar em cards estaticos para vender: agora refletem o catalogo publicado real que alimenta `/shop`.
+- Home, help center, login, cadastro publico, footer, menu mobile, CTA de produto, `/returns`, `/policies` e `/quem-somos` deixaram de prometer personalizacao self-service, portal autonomo de troca, login social inexistente, canais externos ou contatos oficiais que o runtime nao sustenta hoje.
 
 ## Proxima frente permitida
 Escolher apenas uma por vez:
 - limpar historico documental ainda ativo que possa induzir leitura errada do runtime atual
 - atacar um dominio ainda `PARCIAL` sem reabrir a coerencia ja fechada dos papeis
-- fechar a proxima lacuna objetiva de Fase 2 sem fingir payout de afiliado ou snapshot contextualizado antes da hora
-- remover novo ponto de ambiguidade estrutural se ele aparecer em rota, guard, jornada ou QA
+- fechar a proxima lacuna objetiva de Fase 2 sem fingir payout financeiro proprio de afiliado ou dominio maduro de `Organization`
+- remover novo ponto de ambiguidade estrutural se ele aparecer em rota, guard, jornada, QA ou copy publica com promessa sem runtime
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:

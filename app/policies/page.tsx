@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
-import { RefreshCcw, Check, X, ArrowRight, Factory, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Check, Factory, RefreshCcw, X } from 'lucide-react';
 import Link from 'next/link';
-import { Header } from '@/components/navigation/Header';
 import { Footer } from '@/components/navigation/Footer';
+import { Header } from '@/components/navigation/Header';
 
 export default function PoliciesPage() {
   return (
@@ -15,13 +15,13 @@ export default function PoliciesPage() {
           <div className="absolute top-0 right-0 w-1/3 h-full bg-accent-gold/5 blur-[120px]" />
           <div className="section-container relative z-10">
             <div className="max-w-3xl">
-              <span className="tech-label text-accent-gold mb-6 block italic">Manifesto de Fé</span>
+              <span className="tech-label text-accent-gold mb-6 block">Políticas da loja</span>
               <h1 className="ur-type-display-lg italic uppercase mb-10 text-balance">
-                Política de Compra <br />
-                <span className="text-accent-gold">Consciente</span>
+                Compra sob demanda <br />
+                <span className="text-accent-gold">com regra clara</span>
               </h1>
               <p className="text-sm text-white/75 leading-relaxed max-w-2xl">
-                Trabalhamos sob demanda. Cada peça é iniciada após a confirmação do pedido, reduzindo desperdício e preservando a qualidade artesanal.
+                A operação da UseRuah é simples no que importa: peça publicada, produção após compra, critérios de troca objetivos e atendimento rastreável quando o caso sai do padrão.
               </p>
             </div>
           </div>
@@ -41,17 +41,17 @@ export default function PoliciesPage() {
               <div className="flex flex-col gap-4 rounded-[2rem] border border-ruah-100 bg-white p-6 shadow-subtle">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-accent-gold/10 flex items-center justify-center text-accent-gold"><RefreshCcw size={16} /></div>
-                  <h2 className="text-sm font-semibold text-ruah-950">Troca de Arte</h2>
+                  <h2 className="text-sm font-semibold text-ruah-950">Troca de tamanho ou cor</h2>
                 </div>
-                <p className="text-sm text-ruah-600 leading-relaxed">Até 30 dias para troca de cor ou tamanho, com novo ciclo de produção.</p>
+                <p className="text-sm text-ruah-600 leading-relaxed">Pode exigir novo ciclo de produção, porque a peça nasce sob demanda.</p>
               </div>
 
               <div className="flex flex-col gap-4 rounded-[2rem] border border-ruah-100 bg-white p-6 shadow-subtle">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-600"><AlertTriangle size={16} /></div>
-                  <h2 className="text-sm font-semibold text-ruah-950">Falha Técnica</h2>
+                  <h2 className="text-sm font-semibold text-ruah-950">Falha técnica</h2>
                 </div>
-                <p className="text-sm text-ruah-600 leading-relaxed">Até 90 dias para análise e priorização de nova manufatura.</p>
+                <p className="text-sm text-ruah-600 leading-relaxed">Defeitos e avarias passam por análise operacional antes de reposição, crédito ou estorno.</p>
               </div>
             </div>
           </div>
@@ -63,14 +63,14 @@ export default function PoliciesPage() {
             <div className="layout-grid-product gap-10 lg:gap-16">
               <div className="lg:col-span-4 flex flex-col gap-8 lg:sticky lg:top-24">
                 <div className="flex flex-col gap-4">
-                  <span className="tech-label text-accent-gold">Framework</span>
-                  <h2 className="ur-type-display-md italic uppercase">Diretrizes de Manufatura</h2>
+                  <span className="tech-label text-accent-gold">Base operacional</span>
+                  <h2 className="ur-type-display-md italic uppercase">Como tratamos seu pedido</h2>
                 </div>
                 <div className="flex flex-col gap-3 rounded-[2.5rem] border border-ruah-100 bg-white p-5 shadow-subtle">
-                  {['Arrependimento', 'Ciclo de Sopro', 'Logística Reversa', 'Custos de Envio'].map((tab) => (
-                    <button key={tab} className="w-full p-4 text-left bg-white border border-ruah-100 rounded-2xl text-sm font-semibold hover:border-accent-gold hover:text-accent-gold motion-base">
-                      {tab}
-                    </button>
+                  {['Arrependimento legal', 'Produção sob demanda', 'Logística reversa', 'Reembolso'].map((item) => (
+                    <div key={item} className="w-full p-4 bg-white border border-ruah-100 rounded-2xl text-sm font-semibold text-ruah-950">
+                      {item}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -83,16 +83,16 @@ export default function PoliciesPage() {
                     <h3 className="text-2xl font-serif italic text-ruah-950">Ciclo sob demanda</h3>
                   </div>
                   <p className="text-sm text-ruah-600 leading-relaxed">
-                    Como não trabalhamos com estoque, toda troca pode exigir novo ciclo de produção artesanal.
+                    Como não trabalhamos com estoque, parte das trocas pode exigir nova produção. Isso não é defeito do fluxo; é a consequência direta da operação escolhida.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
                       <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Etapa 1</span>
-                      <p className="text-sm font-semibold text-ruah-950">Recebimento e análise (48h)</p>
+                      <p className="text-sm font-semibold text-ruah-950">Recebimento e análise inicial</p>
                     </div>
                     <div className="flex flex-col gap-2">
                       <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Etapa 2</span>
-                      <p className="text-sm font-semibold text-ruah-950">Nova produção conforme prazo original</p>
+                      <p className="text-sm font-semibold text-ruah-950">Definição entre troca, crédito ou estorno</p>
                     </div>
                   </div>
                 </div>
@@ -106,9 +106,9 @@ export default function PoliciesPage() {
                       { label: 'Trama do tecido intacta', status: true },
                       { label: 'Embalagem original preservada', status: true },
                       { label: 'Marcas de uso ou lavagem', status: false },
-                      { label: 'Alterações de alfaiataria', status: false },
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center justify-between py-3 border-b border-ruah-100">
+                      { label: 'Alterações de costura ou ajuste', status: false },
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-center justify-between py-3 border-b border-ruah-100">
                         <span className={`text-sm font-medium ${item.status ? 'text-ruah-900' : 'text-ruah-400'}`}>{item.label}</span>
                         {item.status ? <Check size={16} className="text-green-500" /> : <X size={16} className="text-red-400" />}
                       </div>
@@ -121,18 +121,18 @@ export default function PoliciesPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
                       <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Cartão de crédito</span>
-                      <p className="text-sm text-white/80 leading-relaxed">Visualização em até duas faturas após validação da logística reversa.</p>
+                      <p className="text-sm text-white/80 leading-relaxed">Visualização em até duas faturas após a conclusão do processo operacional.</p>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">PIX direto</span>
-                      <p className="text-sm text-white/80 leading-relaxed">Reembolso na conta de origem em até 5 dias úteis.</p>
+                      <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">PIX</span>
+                      <p className="text-sm text-white/80 leading-relaxed">Reembolso na conta de origem em até 5 dias úteis depois da aprovação.</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="p-6 border border-dashed border-ruah-200 rounded-3xl bg-ruah-50 shadow-subtle">
                   <p className="text-sm text-ruah-600 leading-relaxed">
-                    <span className="text-ruah-950 font-semibold">Importante:</span> peças com artes customizadas ou sob medida só serão aceitas em caso comprovado de falha de manufatura.
+                    <span className="text-ruah-950 font-semibold">Importante:</span> pedidos tratados fora do fluxo padrão dependem de contexto registrado no atendimento. A política válida é a que o runtime realmente consegue rastrear.
                   </p>
                 </div>
               </div>
@@ -144,14 +144,20 @@ export default function PoliciesPage() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(197,160,89,0.06),transparent_28%)]" />
           <div className="section-container text-center flex flex-col items-center gap-8">
             <div className="flex flex-col gap-4">
+              <span className="tech-label text-accent-gold">Próximo passo</span>
               <h2 className="ur-type-display-md italic uppercase">
-                Resolva <span className="text-accent-gold">Autonomamente</span>
+                Inicie pelo <span className="text-accent-gold">pedido real</span>
               </h2>
-              <p className="text-sm text-ruah-500 max-w-md mx-auto">Acesse o portal com CPF e número do pedido para solicitar troca ou devolução.</p>
+              <p className="text-sm text-ruah-500 max-w-md mx-auto">Use a jornada de trocas e devoluções que já existe hoje no produto, sem depender de um portal cenográfico.</p>
             </div>
-            <Link href="/returns" className="bg-ruah-950 text-white px-10 py-5 rounded-2xl text-sm font-semibold uppercase tracking-[0.12em] hover:bg-accent-gold motion-base shadow-fancy flex items-center gap-3 group relative z-10">
-              Acessar portal de trocas <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Link href="/returns" className="bg-ruah-950 text-white px-10 py-5 rounded-2xl text-sm font-semibold uppercase tracking-[0.12em] hover:bg-accent-gold motion-base shadow-fancy flex items-center gap-3 group relative z-10">
+                Ver instruções de troca <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link href="/account/orders" className="border border-ruah-100 text-ruah-950 px-10 py-5 rounded-2xl text-sm font-semibold uppercase tracking-[0.12em] hover:border-accent-gold hover:text-accent-gold motion-base flex items-center gap-3">
+                Abrir meus pedidos <ArrowRight size={18} />
+              </Link>
+            </div>
           </div>
         </section>
       </main>

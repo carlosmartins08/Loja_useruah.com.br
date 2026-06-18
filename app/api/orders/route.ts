@@ -11,6 +11,7 @@ import { canManageFinancialOperations, canOperateSupport } from '@/lib/role-matr
 import { extractCookieValue } from '@/lib/session-token';
 import { getCampaign } from '@/lib/campaign-store';
 import { isCatalogItemLinkedToCampaign } from '@/lib/campaign-product-store';
+import { composeCampaignPrice } from '@/lib/campaign-pricing';
 import { getReferralLinkById } from '@/lib/referral-store';
 
 interface OrderCreatePayload {
@@ -75,7 +76,22 @@ function isValidOrderPayload(payload: unknown): payload is OrderCreatePayload {
   });
 }
 
-async function validateCatalogAndInventory(payload: OrderCreatePayload) {
+async function resolveValidatedOrderItems(
+  payload: OrderCreatePayload,
+  attribution: {
+    campaignId?: string;
+    campaignProgressivePriceRule?: string;
+  }
+) {
+  const validatedItems: Array<{
+    catalogItemId: string;
+    variantId: string;
+    quantity: number;
+    unitPrice: number;
+    priceCompositionVersion?: string;
+    movementMarkup?: ReturnType<typeof composeCampaignPrice>['movementMarkup'];
+  }> = [];
+
   for (const item of payload.items) {
     const catalogItem = await getCatalogItem(item.catalogItemId);
     if (!catalogItem) {
@@ -91,32 +107,35 @@ async function validateCatalogAndInventory(payload: OrderCreatePayload) {
     if (!variant.inStock) {
       return { ok: false as const, error: 'variant_out_of_stock', detail: item.variantId };
     }
-    if (Number(item.unitPrice.toFixed(2)) !== Number(variant.price.toFixed(2))) {
-      return { ok: false as const, error: 'price_mismatch', detail: item.catalogItemId };
-    }
-  }
-  return { ok: true as const };
-}
-
-function validateCampaignProductAttribution(
-  payload: OrderCreatePayload,
-  attribution: {
-    campaignId?: string;
-  }
-) {
-  if (!attribution.campaignId) return { ok: true as const };
-
-  for (const item of payload.items) {
-    if (!isCatalogItemLinkedToCampaign(attribution.campaignId, item.catalogItemId)) {
+    if (attribution.campaignId && !isCatalogItemLinkedToCampaign(attribution.campaignId, item.catalogItemId)) {
       return {
         ok: false as const,
         error: 'catalog_item_not_in_campaign',
         detail: item.catalogItemId,
       };
     }
+
+    const priceComposition = composeCampaignPrice({
+      baseUnitPrice: variant.price,
+      quantity: item.quantity,
+      progressivePriceRule: attribution.campaignProgressivePriceRule,
+      minUnitPrice: catalogItem.pricingPolicy?.minPrice,
+    });
+    if (Number(item.unitPrice.toFixed(2)) !== Number(priceComposition.effectiveUnitPrice.toFixed(2))) {
+      return { ok: false as const, error: 'price_mismatch', detail: item.catalogItemId };
+    }
+
+    validatedItems.push({
+      catalogItemId: item.catalogItemId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+      unitPrice: priceComposition.effectiveUnitPrice,
+      priceCompositionVersion: attribution.campaignId ? priceComposition.priceCompositionVersion : undefined,
+      movementMarkup: attribution.campaignId ? priceComposition.movementMarkup : undefined,
+    });
   }
 
-  return { ok: true as const };
+  return { ok: true as const, items: validatedItems };
 }
 
 async function resolveAttributionContext(request: Request, body: OrderCreatePayload) {
@@ -189,19 +208,14 @@ export async function POST(request: Request) {
     }
   }
 
-  const catalogValidation = await validateCatalogAndInventory(body);
-  if (!catalogValidation.ok) {
-    return NextResponse.json({ error: catalogValidation.error, detail: catalogValidation.detail }, { status: 409 });
-  }
-
   const attribution = await resolveAttributionContext(request, body);
   if (!attribution.ok) {
     return NextResponse.json({ error: attribution.error, detail: attribution.detail }, { status: 409 });
   }
 
-  const campaignProductValidation = validateCampaignProductAttribution(body, attribution.context);
-  if (!campaignProductValidation.ok) {
-    return NextResponse.json({ error: campaignProductValidation.error, detail: campaignProductValidation.detail }, { status: 409 });
+  const validatedItems = await resolveValidatedOrderItems(body, attribution.context);
+  if (!validatedItems.ok) {
+    return NextResponse.json({ error: validatedItems.error, detail: validatedItems.detail }, { status: 409 });
   }
 
   const order = await createPlacedOrder({
@@ -209,7 +223,7 @@ export async function POST(request: Request) {
     supplierId: body.supplierId,
     shippingAddress: body.shippingAddress,
     attribution: attribution.context,
-    items: body.items,
+    items: validatedItems.items,
   });
 
   appendAuditLog({

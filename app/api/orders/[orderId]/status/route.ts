@@ -29,6 +29,8 @@ export async function GET(request: Request, context: { params: Promise<{ orderId
       variantLabel: item.variantLabel,
       quantity: item.quantity,
       unitPrice: item.unitPrice,
+      priceCompositionVersion: item.priceCompositionVersion ?? null,
+      movementMarkup: item.movementMarkup ?? null,
       snapshotVersion: item.snapshotVersion,
     })),
     shipment: view.shipment

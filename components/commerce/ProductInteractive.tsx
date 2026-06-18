@@ -8,17 +8,25 @@ import { useCart } from '@/context/CartContext';
 import { SmartShipping } from './SmartShipping';
 import { useRouter } from 'next/navigation';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
+import { composeCampaignPrice } from '@/lib/campaign-pricing';
+import type { ShopCampaignContext } from '@/lib/shop-products';
+import Link from 'next/link';
 
 interface ProductInteractiveProps {
   id: string;
   name: string;
   price: number;
+  basePrice: number;
   image: string;
+  variantId: string;
+  variantLabel: string;
   productionDays?: number;
   installmentCount?: number;
   sizeOptions?: string[];
   printOptions?: string[];
   packagingOptions?: BrandPackagingOption[];
+  pricingPolicyMinPrice?: number;
+  campaignContext?: ShopCampaignContext | null;
   selectedColor?: string;
   colorOptions?: string[];
   onColorChange?: (color: string) => void;
@@ -37,12 +45,17 @@ export function ProductInteractive({
   id,
   name,
   price,
+  basePrice,
   image,
+  variantId,
+  variantLabel,
   productionDays = 7,
   installmentCount = 3,
   sizeOptions = ['P', 'M', 'G', 'GG'],
   printOptions = ['Serigrafia'],
   packagingOptions = [{ name: 'Pack UseRuah', description: 'Proteção essencial com apresentação limpa.' }],
+  pricingPolicyMinPrice,
+  campaignContext,
   selectedColor,
   colorOptions,
   onColorChange,
@@ -58,7 +71,6 @@ export function ProductInteractive({
   const [isReviewing, setIsReviewing] = React.useState(false);
   const reviewRef = React.useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
-  const installmentValue = price / installmentCount;
   const color = selectedColor ?? internalColor ?? resolvedColorOptions[0];
   const printType = internalPrintType && printOptions.includes(internalPrintType) ? internalPrintType : (printOptions[0] ?? 'Serigrafia');
   const size = internalSize && sizeOptions.includes(internalSize) ? internalSize : (sizeOptions[0] ?? 'Único');
@@ -66,6 +78,19 @@ export function ProductInteractive({
     internalPackaging && packagingOptions.some((option) => option.name === internalPackaging)
       ? internalPackaging
       : (packagingOptions[0]?.name ?? 'Pack UseRuah');
+  const priceComposition = React.useMemo(
+    () =>
+      composeCampaignPrice({
+        baseUnitPrice: basePrice,
+        quantity,
+        progressivePriceRule: campaignContext?.progressivePriceRule,
+        minUnitPrice: pricingPolicyMinPrice,
+      }),
+    [basePrice, campaignContext?.progressivePriceRule, pricingPolicyMinPrice, quantity]
+  );
+  const unitPrice = priceComposition.effectiveUnitPrice;
+  const installmentValue = unitPrice / installmentCount;
+  const totalLinePrice = unitPrice * quantity;
 
   useFocusTrap({
     active: isReviewing,
@@ -75,15 +100,26 @@ export function ProductInteractive({
 
   const handleAddToCart = () => {
     addToCart({
+      lineId: `${id}:${variantId}:${size} | ${color} | ${printType} | ${packaging}`,
       id,
+      variantId,
+      variantLabel,
       name,
-      price,
+      price: unitPrice,
+      basePrice,
       image,
       quantity,
       spec: `${size} | ${color} | ${printType} | ${packaging}`,
       productionDays,
+      pricingPolicyMinPrice,
+      campaignId: campaignContext?.campaignId,
+      campaignName: campaignContext?.campaignName,
+      campaignProgressivePriceRule: campaignContext?.progressivePriceRule,
+      organizationId: campaignContext?.organizationId,
       customSpecs: {
         supplierId: 'supplier-default',
+        variantId,
+        variantLabel,
         size,
         color,
         printType,
@@ -121,7 +157,7 @@ export function ProductInteractive({
                   ref={reviewRef}
                   role="dialog"
                   aria-modal="true"
-                  aria-label="Revisão da customização"
+                  aria-label="Revisão da seleção"
                   tabIndex={-1}
                   className="bg-white rounded-[3rem] w-full max-w-lg p-12 flex flex-col gap-8 shadow-2xl border border-ruah-100"
                   onClick={(event) => event.stopPropagation()}
@@ -141,7 +177,9 @@ export function ProductInteractive({
                         { label: 'Cor', value: color },
                         { label: 'Estampa', value: printType },
                         { label: 'Embalagem', value: packaging },
-                        { label: 'Quantidade', value: quantity }
+                        { label: 'Quantidade', value: quantity },
+                        { label: 'Valor unitário', value: `R$ ${unitPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` },
+                        { label: 'Subtotal', value: `R$ ${totalLinePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` },
                      ].map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center pb-4 border-b border-ruah-100 last:border-0 last:pb-0">
                            <span className="text-xs font-bold text-ruah-300 uppercase tracking-[0.1em]">{item.label}</span>
@@ -180,14 +218,36 @@ export function ProductInteractive({
               <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">Produção sob demanda</span>
             </div>
           </div>
-          <span className="text-5xl font-serif text-ruah-950 tracking-tighter">R$ {price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+          <span className="text-5xl font-serif text-ruah-950 tracking-tighter">R$ {unitPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
           <div className="flex items-center gap-3">
-             <span className="text-xs text-ruah-300 line-through font-bold tracking-[0.1em] uppercase">DE R$ {(price * 1.4).toFixed(2)}</span>
-             <span className="bg-ruah-50 text-ruah-950 text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">Oferta atual</span>
+             {priceComposition.perUnitDelta > 0 ? (
+               <>
+                 <span className="text-xs text-ruah-300 line-through font-bold tracking-[0.1em] uppercase">
+                   DE R$ {basePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                 </span>
+                 <span className="bg-ruah-50 text-ruah-950 text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">
+                   {priceComposition.tierLabel}
+                 </span>
+               </>
+             ) : (
+               <>
+                 <span className="text-xs text-ruah-300 line-through font-bold tracking-[0.1em] uppercase">DE R$ {(price * 1.4).toFixed(2)}</span>
+                 <span className="bg-ruah-50 text-ruah-950 text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">Oferta atual</span>
+               </>
+             )}
           </div>
           <p className="text-sm font-medium text-ruah-500 mt-2">
             ou {installmentCount}x de R$ {installmentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
+          {campaignContext ? (
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold">
+              {priceComposition.perUnitDelta > 0
+                ? `Campanha ${campaignContext.campaignName}: economia de R$ ${priceComposition.totalDelta.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })} nesta seleção.`
+                : `Campanha ${campaignContext.campaignName}: a regra ${campaignContext.progressivePriceRule} passa a valer conforme a quantidade.`}
+            </p>
+          ) : null}
        </div>
 
        <div className="bg-ruah-950 text-white p-6 rounded-3xl flex flex-col gap-4 shadow-xl">
@@ -363,15 +423,15 @@ export function ProductInteractive({
 export function WhatsAppSticky() {
   return (
     <div className="fixed bottom-24 md:bottom-10 right-6 md:right-10 z-sticky">
-       <a 
-        href="https://wa.me/5511999999999" 
-        target="_blank" rel="noopener noreferrer" className="w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform active:scale-95 group"
+       <Link
+        href="/help-center"
+        className="w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform active:scale-95 group"
        >
          <Zap size={24} className="fill-current" />
          <div className="absolute right-full mr-4 bg-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-[0.1em] text-ruah-950 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-ruah-100">
-           Atendimento Consultivo
+           Central de Ajuda
          </div>
-       </a>
+       </Link>
     </div>
   );
 }

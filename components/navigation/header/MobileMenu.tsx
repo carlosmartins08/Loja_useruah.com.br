@@ -164,7 +164,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   </div>
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-widest block text-ruah-950">Atendimento</span>
-                    <span className="text-[9px] font-medium uppercase tracking-widest text-ruah-400">WhatsApp Oficial</span>
+                    <span className="text-[9px] font-medium uppercase tracking-widest text-ruah-400">Canal de suporte</span>
                   </div>
                 </Link>
                 <Link href="/account/orders" className="flex items-center gap-4 group" onClick={onClose}>
