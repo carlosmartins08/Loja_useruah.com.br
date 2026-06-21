@@ -1,12 +1,12 @@
 # Active Front
 
-Data de revisao: 2026-06-20
+Data de revisao: 2026-06-21
 Branch: `feat/payments-gateway-cutover-checklist`
 Responsavel atual: `Codex + usuario`
-Status da frente: `FRONT_4_IN_PROGRESS`
+Status da frente: `FRONT_5_BLOCKED_EXTERNAL_WINDOW`
 
 ## Objetivo atual
-Executar um plano serial de resolucao sem criar documentacao nova, usando apenas os documentos ativos que ja governam o projeto e sem deixar a sessao travar em loop de prova local.
+Preservar a base validada sem reabrir frentes fechadas e manter `FRONT_5_REAL_PAYMENTS_CUTOVER` congelada ate existir janela externa objetiva de homolog final e cutover.
 
 ## Gatilho rapido de retomada
 Se a sessao cair ou for retomada depois:
@@ -16,15 +16,15 @@ Se a sessao cair ou for retomada depois:
 
 ## Frente unica aberta
 Frente atual selecionada:
-- `FRONT_4_PUBLIC_SURFACES_HONESTY`
+- `FRONT_5_REAL_PAYMENTS_CUTOVER`
 
 Motivo:
-- `FRONT_2_AFFILIATE_REFERRAL` fechou o recorte novo com prova especifica e prova integrada.
-- `FRONT_3_CATALOG_CURATION_HARDENING` tambem fechou o recorte atual com prova especifica em `community-curation` e `catalog:curation`, sem abrir Fase 3 autonoma.
-- a proxima lacuna pratica agora e evitar que novas paginas publicas voltem a prometer runtime inexistente.
+- `FRONT_4_PUBLIC_SURFACES_HONESTY` fechou o recorte ativo com varredura final curta, patch isolado e gate revalidado.
+- `journal`, `register` e `footer` deixaram de sustentar promessa publica morta ou CTA sem destino real.
+- a proxima frente autorizada ja nao e interna: depende de janela externa objetiva para homolog final e cutover de pagamento real.
 
 Recorte atual em execucao:
-- auditar superficies publicas restantes com criterio de honestidade de runtime, sem reintroduzir CTA, copy ou caminho cenografico.
+- nenhuma implementacao interna nova de pagamento real deve abrir antes da janela externa; o trabalho atual e manter a frente correta parada, e nao forcar feature para preencher o vazio.
 
 ## Plano serial de execucao
 1. `FRONT_1_COMMUNITY_CAMPAIGNS`
@@ -74,6 +74,8 @@ Nao tocar: redesign de checkout, fase nova de produto, workaround de ambiente tr
 - Campanha publica, detalhe operacional de campanha, receita por campanha e referral com prova ativa em QA.
 - `scripts/qa/qa-api-runner.mjs` endurecido para falhar de forma honesta no Windows sandbox em vez de fabricar falso negativo por `npm.cmd` ou `next build`.
 - `docs/NEXT_SESSION_TRIGGER.md` e `docs/EXECUTION_TRACKING.md` consolidados como memoria macro do ciclo anterior.
+- `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md` agora tambem concentra um plano executavel para os pontos identificados, separando bloqueio externo, dominios parciais e itens que ainda nao podem ser prometidos como prontos.
+- `docs/DOCS_CLASSIFICATION.md`, `docs/README_DOCS_HIERARCHY.md` e `docs/EXECUTION_CONSOLIDATED_MASTER.md` foram realinhados para parar disputa de autoridade entre ordem de leitura, snapshot e fonte normativa.
 - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`, `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md` e `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` alinhados ao runtime parcial real da Fase 2.
 - `npm run check` revalidado em `2026-06-20` com `PASS`.
 - Plano serial de execucao consolidado sem criar documento novo.
@@ -89,43 +91,66 @@ Nao tocar: redesign de checkout, fase nova de produto, workaround de ambiente tr
 - `app/quem-somos/page.tsx` deixou de expor copy publica corrompida e passou a declarar o estagio real do produto sem mojibake.
 - `npm run utf8:check` revalidado em `2026-06-20` com `PASS`.
 - smoke local em `next dev` para `/artista/lucas-santana`, `/category/autoral`, `/help-center` e `/quem-somos` revalidado em `2026-06-20` com `PASS`.
+- `app/journal/page.tsx` deixou de apontar para detalhe editorial inexistente.
+- `app/register/page.tsx` trocou pseudo-links de termos/politicas por link real para `/policies`.
+- `components/navigation/Footer.tsx` deixou de tratar icones sem destino como CTA.
+- `docs/EXECUTION_TRACKING.md` voltou ao contrato de snapshot curto e deixou de quebrar `qa:blindspots`.
+- `npm run check` revalidado em `2026-06-21` com `PASS`.
+- `npm run qa:base:roles` revalidado em `2026-06-21` com `PASS`, incluindo `qa:routes`, `qa:blindspots`, `build`, `utf8:check`, `qa:product:guardrails` e malha autenticada por papel.
+- smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
-Hardening de `FRONT_4_PUBLIC_SURFACES_HONESTY` nas paginas publicas com maior risco de promessa falsa ou texto quebrado: `artista`, `category`, `help-center` e `quem-somos`, seguido de `utf8:check`, `check` e smoke local dirigido.
+Endurecimento da cadeia de `FRONT_5_REAL_PAYMENTS_CUTOVER`: `p3:precheck`, `p3:plug`, `go:preflight` e `go:e2e:proof` agora bloqueiam explicitamente `HML_BASE_URL=http://localhost:3000`, para nao vender readiness local como janela real de homolog final.
 
 ## Bloqueio atual
-Nao ha bloqueio tecnico imediato na frente atual.
+`FRONT_4_PUBLIC_SURFACES_HONESTY` nao tem mais bloqueio tecnico e saiu do estado ativo.
 
 O risco real agora mudou:
-- quebrar a serializacao e atacar duas frentes ao mesmo tempo
-- voltar a transformar plano de execucao em documento paralelo sem autoridade
-- misturar pagamentos reais com frentes internas que nao dependem da janela externa
-- promover dominio `PARCIAL` para `IMPLEMENTADO` sem prova nova
-- voltar a tratar falha de ambiente ou execucao fora do contrato do gate como se fosse regressao do app
+- reabrir `FRONT_4` sem evidencia nova
+- misturar pagamentos reais com inventario interno que nao depende da janela externa
+- contornar a falta de janela com workaround travestido de feature
+- promover pagamento real para `IMPLEMENTADO` sem evidencia operacional externa
+- tratar readiness local como se fosse homolog final fora de `localhost`
 
 ## Evidencia
-- `npm run check`: `PASS` em `2026-06-20`
+- `npm run p3:precheck`: `BLOCKED_EXTERNAL_BASE_URL` em `2026-06-21` quando `HML_BASE_URL=http://localhost:3000`
+- `npm run p3:plug`: `BLOCKED_EXTERNAL_BASE_URL` em `2026-06-21`
+- `npm run go:preflight`: `BLOCKED_EXTERNAL_BASE_URL` em `2026-06-21`
+- `npm run go:e2e:proof`: `BLOCKED_EXTERNAL_BASE_URL` em `2026-06-21`
+- `npm run check`: `PASS` em `2026-06-21`
+- `npm run qa:base:roles`: `PASS` em `2026-06-21`
+- `npm run build`: `PASS` em `2026-06-21` via `qa:base:roles`
+- `npm run utf8:check`: `PASS` em `2026-06-21` via `qa:base:roles`
 - `npm run utf8:check`: `PASS` em `2026-06-20`
 - `qa:affiliate:referral` com `QA_SERVER_MODE=dev`: `PASS` em `2026-06-20`
 - `qa:role:closure` com `QA_SERVER_MODE=dev`, `PAYOUT_SECURITY_WINDOW_DAYS=0` e `AUTH_SESSION_SECRET=qa-local-session-secret`: `PASS` em `2026-06-20`
 - `qa:community-curation` com `QA_SERVER_MODE=dev`: `PASS` em `2026-06-20`
 - `qa:catalog:curation` com `QA_SERVER_MODE=dev`: `PASS` em `2026-06-20`
 - smoke local em `next dev`: `PASS` em `2026-06-20` para `/artista/lucas-santana`, `/category/autoral`, `/help-center` e `/quem-somos`
+- smoke local em `next start`: `PASS` em `2026-06-21` para `/`, `/journal` e `/register`
 - `docs/NEXT_SESSION_TRIGGER.md`: ciclo anterior fechado com regra clara de retomada
 - `docs/EXECUTION_TRACKING.md`: snapshot ativo revalidado com o saneamento documental do ciclo
 - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`: `CampaignProduct` e snapshot contextualizado agora aparecem como `PARCIAL` tambem no status documental
 - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md` e `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md`: handoffs atualizados para nao bloquear leitura do runtime parcial real
 - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`: sequencia macro passa a refletir execucao serial das frentes abertas
+- `app/journal/page.tsx`: home editorial sem rota detalhada inexistente
+- `app/register/page.tsx`: termos/politicas com destino real em `/policies`
+- `components/navigation/Footer.tsx`: icones neutros, sem CTA falso
+- `scripts/release/p3-plug-and-run.mjs`, `scripts/release/go-live-preflight.mjs` e `scripts/release/go-live-e2e-proof.mjs`: dry-run agora denuncia bloqueio externo real quando a base URL ainda e local
+- `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`, `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md` e `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`: runbooks alinhados para separar baseline local aprovada de janela externa real ainda bloqueada
+- `docs/P3_ENV_READY_TO_FILL.md` e `docs/RUNBOOK_GO_LIVE.md`: atalhos operacionais agora deixam explicito que `BLOCKED_EXTERNAL_BASE_URL` em localhost e o comportamento correto antes da janela real
+- `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md` e `docs/CHECKLIST_RELEASE_PAGAMENTOS.md`: templates auxiliares agora exigem `PASS` fora de localhost e tratam bloqueio local como leitura honesta do gate
 - `app/community/campaigns/[id]/page.tsx`: detalhe de campanha agora mostra proximo passo coerente e acoes acionaveis por role/estado
 - `app/api/affiliate/links/[id]/pause/route.ts` e `app/api/affiliate/links/[id]/activate/route.ts`: transicoes operacionais reais de `ReferralLink`
 - `app/affiliate/links/page.tsx`: workspace do afiliado agora explicita e controla status ativo/pausado
 - `scripts/qa/qa-affiliate-referral.mjs`: suite preparada e aprovada para o recorte novo
 
 ## Proximo passo exato
-Continuar `FRONT_4_PUBLIC_SURFACES_HONESTY` sem expandir escopo:
-1. fazer uma ultima varredura de baixo custo nas superficies publicas restantes para confirmar que o padrao de honestidade nao reapareceu fora do recorte ja tocado;
-2. se nada novo surgir, promover formalmente a proxima frente serial para `FRONT_5_REAL_PAYMENTS_CUTOVER`;
-3. se surgir mais uma superficie cenografica, tratar em patch isolado e encerrar `FRONT_4` no mesmo criterio de prova curta.
+Executar `FRONT_5_REAL_PAYMENTS_CUTOVER` somente quando a dependencia externa existir:
+1. confirmar janela real de homolog final e cutover;
+2. confirmar que `HML_BASE_URL` saiu de `http://localhost:3000` e aponta para a homolog final real;
+3. rodar `npm run p3:precheck`, `npm run qa:stripe:smoke`, `npm run qa:payments21`, `npm run qa:provider:activate`, `npm run qa:functional`, `npm run qa:coreops` e `npm run qa:matrix:audit`;
+4. se a janela nao existir, nao abrir patch de pagamento real e nao forcar workaround de ambiente.
 
 ## Nao reabrir sem evidencia nova
 - `lib/access-control.ts` como autoridade canonica de permissao

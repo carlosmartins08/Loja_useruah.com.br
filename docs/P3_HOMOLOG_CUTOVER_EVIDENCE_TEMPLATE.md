@@ -12,11 +12,17 @@ Ambiente: homologacao
 Base URL homolog:  
 Provider/Modo: `stripe`
 
+Leitura obrigatoria:
+- enquanto `Base URL homolog` apontar para `localhost`, o resultado correto dos dry-runs de cutover e go-live e `BLOCKED_EXTERNAL_BASE_URL`
+- esta evidencia so pode ser marcada como aprovada quando a homolog final real estiver fora de `localhost`
+
 ## Pre-check
 - [ ] `npm run check` PASS
 - [ ] `npm run qa:provider:requirements` `READY_FOR_SMOKE`
 - [ ] `npm run qa:payments21` PASS
-- [ ] `npm run p3:precheck` PASS
+- [ ] `npm run p3:precheck` PASS fora de localhost
+- [ ] `npm run p3:plug` em dry-run coerente com o ambiente atual
+- [ ] `npm run go:preflight` em dry-run coerente com o ambiente atual
 - [ ] Credenciais minimas do modo escolhido preenchidas sem expor segredo em evidencias
 - [ ] Validacao executada conforme `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
 
@@ -48,6 +54,9 @@ Provider/Modo: `stripe`
 - Status: `APROVADO | REPROVADO`
 - Decisao:
 - Proximo passo:
+- Leitura do gate:
+  - `BLOCKED_EXTERNAL_BASE_URL` = janela externa ainda nao aberta
+  - `PASS` = janela externa real executada com evidencia valida
 
 ## Rollback (se aplicavel)
 - Gatilho:

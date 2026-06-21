@@ -20,10 +20,10 @@ export function Footer() {
               Loja oficial da UseRuah para venda simples de produtos publicados, com pedido, pagamento e entrega acompanhados pela conta do cliente.
             </p>
             <div className="flex gap-3">
-              <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-ruah-950 transition-all cursor-pointer">
+              <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center text-white/60" aria-hidden="true">
                 <Instagram size={16} />
               </div>
-              <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-ruah-950 transition-all cursor-pointer">
+              <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center text-white/60" aria-hidden="true">
                 <Globe size={16} />
               </div>
             </div>

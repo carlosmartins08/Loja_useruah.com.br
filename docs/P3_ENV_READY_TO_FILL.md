@@ -6,12 +6,16 @@ Regra de nomenclatura:
 - A Fase 3 oficial de produto esta definida separadamente em:
   - `docs/FASE_3_CATALOGO_ESCALAVEL_ARTE_CURADORIA_E_COMPOSICAO_CONTROLADA.md`
 
-Objetivo: deixar o ambiente pronto para ativar cutover real assim que as credenciais existirem.
+Objetivo: deixar o ambiente pronto para ativar cutover real assim que as credenciais existirem e `HML_BASE_URL` apontar para a homolog final real.
 
 Atalho pronto:
 - Template copiavel: `infra/env/.env.p3.template`
 - Dry-run da sequencia: `npm run p3:plug`
 - Execucao automatica da sequencia: `npm run p3:plug:run`
+
+Leitura obrigatoria:
+- enquanto `HML_BASE_URL` continuar em `localhost`, o resultado correto de `npm run p3:plug` e `BLOCKED_EXTERNAL_BASE_URL`
+- `npm run p3:plug:run` e `npm run go:preflight:run` so fazem sentido quando a janela externa real estiver aberta
 
 ## 0) Checklist Rapido (Admin Tecnico)
 
@@ -19,8 +23,8 @@ Atalho pronto:
 2. Usar `stripe` como provider real inicial da Fase 1.
 3. Preencher bloco global e somente 1 bloco de credencial.
 4. Confirmar que `PAYMENT_PERSISTENCE=mysql` e `DATABASE_URL` comecam com `mysql://`.
-5. Rodar `npm run p3:plug:run`.
-6. Rodar `npm run go:preflight:run`.
+5. Se `HML_BASE_URL` ainda for local, rodar apenas `npm run p3:plug` e confirmar `BLOCKED_EXTERNAL_BASE_URL`.
+6. Rodar `npm run p3:plug:run` e `npm run go:preflight:run` somente quando `HML_BASE_URL` estiver fora de `localhost`.
 
 ## 1) Bloco global obrigatorio
 
@@ -28,7 +32,7 @@ Copie este bloco para `.env`:
 
 ```env
 # Base homolog
-HML_BASE_URL=https://SEU_HOST_HML
+HML_BASE_URL=https://SEU_HOST_HML_FINAL
 
 # Modo escolhido:
 # - stripe como provider oficial inicial da Fase 1
@@ -113,6 +117,12 @@ Ou executar tudo em sequencia:
 npm run p3:plug:run
 ```
 
+Se a URL final ainda nao existir, validar apenas o bloqueio honesto:
+
+```bash
+npm run p3:plug
+```
+
 Onde o smoke pode ser:
 - `qa:gateway-real:smoke`
 - `qa:inter:smoke`
@@ -130,12 +140,13 @@ npm run qa:stripe:smoke
 
 ## 4) Criterio de pronto
 
-- `p3:precheck`: PASS
+- `p3:precheck`: PASS somente fora de localhost
 - `qa:provider:requirements`: provider resolvido corretamente e sem `missing_env`
 - `qa:providers:ready`: `stripe` pronto para o recorte ativo
 - smoke do modo/provider: PASS
 - `qa:payments21`: PASS
 - `qa:coreops`: PASS
+- `p3:plug`: `BLOCKED_EXTERNAL_BASE_URL` enquanto a janela externa ainda nao existir
 
 Leitura obrigatoria para este ciclo:
 - o relatorio global pode continuar `PARTIAL_READY` se outros providers permanecerem fora do recorte ativo

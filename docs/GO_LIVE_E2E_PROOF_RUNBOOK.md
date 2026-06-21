@@ -1,29 +1,36 @@
 # Go-Live E2E Proof Runbook
 
-Data: 2026-05-28  
-Objetivo: provar, com evidência executável, que não há bloqueio crítico conhecido para subir o projeto.
+Data de revisao: 2026-06-21
 
-## 1) Pré-condições
-- `.env` sem duplicidade de chave crítica.
-- `PAYMENT_PROVIDER=stripe`
+## Objetivo
+Provar, com evidencia executavel, que nao ha bloqueio critico conhecido para subir o projeto no recorte atual de go-live.
+
+## 1) Pre-condicoes
+- `.env` sem duplicidade de chave critica.
+- `PAYMENT_PROVIDER=stripe`.
 - `PAYMENT_GATEWAY_TARGET` deve permanecer vazio neste recorte oficial da Fase 1.
-- `PAYMENT_PERSISTENCE=mysql`
-- `DATABASE_URL=mysql://...`
-- Validacao operacional do ambiente seguindo `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`.
-- Credenciais da `stripe` preenchidas:
+- `PAYMENT_PERSISTENCE=mysql`.
+- `DATABASE_URL=mysql://...`.
+- `HML_BASE_URL` deve apontar para a homolog final real quando a prova completa for executada.
+- validacao operacional do ambiente seguindo `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`.
+- credenciais da `stripe` preenchidas:
   - `PAYMENT_ENABLE_STRIPE`
   - `PAYMENT_STRIPE_BASE_URL`
   - `PAYMENT_STRIPE_API_KEY`
   - `PAYMENT_STRIPE_WEBHOOK_SECRET`
 - `gateway_real` generico nao e o bloqueio oficial deste recorte.
 
-## 2) Prova única (comando)
+## 2) Prova unica
 - Dry-run:
   - `npm run go:e2e:proof`
-- Execução completa:
+- Execucao completa:
   - `npm run go:e2e:proof:run`
 
-Sequência executada:
+Leitura obrigatoria do dry-run:
+- se `HML_BASE_URL` ainda apontar para `localhost`, o resultado correto e `BLOCKED_EXTERNAL_BASE_URL`
+- `READY_TO_EXECUTE` so faz sentido quando a homolog final real ja estiver apontada
+
+Sequencia executada:
 1. `check:strict`
 2. `alert:critical`
 3. `p3:precheck`
@@ -36,23 +43,27 @@ Sequência executada:
 10. `qa:functional`
 11. `qa:matrix:audit`
 
-## 3) Critério de aprovação
-- `PASS` em todos os passos acima.
+## 3) Criterio de aprovacao
+- Dry-run:
+  - `BLOCKED_EXTERNAL_BASE_URL` enquanto a janela real nao existir
+  - `READY_TO_EXECUTE` somente quando `HML_BASE_URL` estiver fora de `localhost`
+- Execucao completa:
+  - `PASS` em todos os passos acima
 - `qa:blindspots` sem:
-  - duplicidade de env crítica,
-  - colisão de rota API,
-  - rota admin sem guarda mínima,
-  - ausência de docs obrigatórios de governança.
-- `qa:matrix:audit` sem inconsistência crítica de usuário/catálogo.
+  - duplicidade de env critica
+  - colisao de rota API
+  - rota admin sem guarda minima
+  - ausencia de docs obrigatorios de governanca
+- `qa:matrix:audit` sem inconsistencia critica de usuario/catalogo
 
-## 4) Evidência obrigatória no release
-- Saída final do `go:e2e:proof:run`.
+## 4) Evidencia obrigatoria no release
+- Saida final do `go:e2e:proof` ou `go:e2e:proof:run`.
 - Registro em:
-  - `docs/EXECUTION_TRACKING.md` (snapshot/evidencia recente)
+  - `docs/EXECUTION_TRACKING.md`
   - `docs/CHANGELOG_GOVERNANCE.md`
-  - `docs/BLIND_SPOT_CLOSURE_CHECKLIST.md` (Gate Final preenchido)
+  - `docs/BLIND_SPOT_CLOSURE_CHECKLIST.md`
 
-## 5) Regra de decisão
-- `GO`: todos os passos PASS.
-- `GO condicionado`: no máximo 1-2 pendências não críticas com owner e prazo D+2.
-- `NO-GO`: qualquer falha em pagamento, webhook, matriz, conciliação ou guardas de rota admin.
+## 5) Regra de decisao
+- `GO`: execucao completa em `PASS`.
+- `GO CONDICIONADO`: base interna aprovada, mas ainda sem janela externa real ou com pendencia operacional controlada e owner definido.
+- `NO-GO`: qualquer falha em pagamento, webhook, matriz, conciliacao ou guardas de rota admin.

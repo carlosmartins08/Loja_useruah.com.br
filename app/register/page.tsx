@@ -488,7 +488,15 @@ export default function RegisterPage() {
                   <div className="flex items-start gap-4 p-6 bg-ruah-50/50 rounded-2xl border border-ruah-100">
                      <input checked={draft.termsAccepted} onChange={(e) => handleFieldChange('termsAccepted', e.target.checked)} onBlur={() => handleFieldBlur('termsAccepted')} type="checkbox" required className="mt-1 w-4 h-4 rounded border-ruah-200 text-accent-gold focus:ring-accent-gold" />
                      <p className="text-[10px] text-ruah-400 font-medium leading-relaxed uppercase tracking-widest">
-                        Aceito os <span className="text-ruah-950 font-bold decoration-accent-gold underline decoration-2 cursor-pointer">Termos de Co-Criação</span> e a <span className="text-ruah-950 font-bold decoration-accent-gold underline decoration-2 cursor-pointer">Política de Sopro Protegido</span> da UseRuah.
+                        Aceito as{' '}
+                        <Link href="/policies" className="text-ruah-950 font-bold decoration-accent-gold underline decoration-2">
+                          regras da loja
+                        </Link>{' '}
+                        e a{' '}
+                        <Link href="/policies" className="text-ruah-950 font-bold decoration-accent-gold underline decoration-2">
+                          politica publica vigente
+                        </Link>{' '}
+                        da UseRuah.
                      </p>
                   </div>
                   {errors.termsAccepted && <p className="text-[10px] text-red-600 font-semibold">{errors.termsAccepted}</p>}

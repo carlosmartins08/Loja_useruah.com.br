@@ -34,6 +34,43 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-21] Autoridade documental de continuidade foi consolidada e desduplicada
+- ID: GOV-0116
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `documentacao`
+  - `governanca`
+- Documento fonte afetado:
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/ACTIVE_FRONT.md`
+  - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+- Decisao:
+  - Consolidar a autoridade de continuidade em `ACTIVE_FRONT`, `NEXT_SESSION_TRIGGER`, `PLANO_MESTRE_CONTINUIDADE_TECNICA` e `PHASE_DOMAIN_IMPLEMENTATION_MATRIX`.
+  - Rebaixar `README_DOCS_HIERARCHY` e `EXECUTION_CONSOLIDATED_MASTER` para navegacao e governanca referencial, sem poder disputar frente ativa ou ordem serial.
+  - Explicitar a diferenca entre ordem de consulta e hierarquia de autoridade para impedir dupla interpretacao.
+- Contexto:
+  - A base ja tinha boa memoria operacional, mas ainda existia margem para ler ordem de retomada como se fosse a mesma coisa que precedencia normativa.
+  - Isso mantinha risco de retrabalho e reabertura de discussao ja fechada.
+- Impacto esperado:
+  - Menos chance de usar documento referencial para autorizar mudanca.
+  - Menos disputa entre snapshot, hierarquia, plano mestre e frente ativa.
+- Riscos conhecidos:
+  - Se a equipe voltar a atualizar varios documentos como se todos definissem a mesma decisao, a ambiguidade reaparece.
+- Plano de rollback:
+  - Reabrir a classificacao apenas se uma fonte superior unica absorver continuidade, snapshot e navegacao sem perda de clareza.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+  - `docs/ACTIVE_FRONT.md`
+  - `.agents/session-state.json`
+
 ### [2026-06-18] Campanha ganha contrato unico de detalhe operacional reutilizavel por owner e governanca
 - ID: GOV-0115
 - Status: `aprovada`

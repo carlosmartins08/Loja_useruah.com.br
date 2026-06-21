@@ -1,6 +1,6 @@
 # Runbook Go-Live (D-7 a D+2)
 
-Data de revisao: 2026-05-21  
+Data de revisao: 2026-06-21  
 Status: ativo  
 Objetivo: colocar o projeto em producao comercial com controle de risco operacional e financeiro.
 
@@ -67,6 +67,9 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
 - Atalho automatizado (preflight completo):
   - dry-run: `npm run go:preflight`
   - execucao: `npm run go:preflight:run`
+- Leitura obrigatoria do atalho:
+  - `npm run go:preflight` deve devolver `BLOCKED_EXTERNAL_BASE_URL` enquanto `HML_BASE_URL` continuar local
+  - `npm run go:preflight:run` so e valido quando a homolog final real estiver apontada e a janela estiver aberta
 - Comandos:
   - `npm run qa:providers:ready`
   - smoke dedicado do modo escolhido (`qa:stripe:smoke` para o recorte oficial atual da Fase 1)
@@ -79,6 +82,7 @@ Objetivo: colocar o projeto em producao comercial com controle de risco operacio
 - Aceite:
   - todos em PASS, exceto `qa:providers:ready` quando outros providers permanecerem fora do escopo do ciclo
   - para o recorte oficial atual, `stripe` deve estar pronto e validado
+  - `p3:precheck` e `go:preflight:run` so contam como PASS operacional fora de `localhost`
   - seguir validacao operacional de `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`
 
 3. Testar rollback operacional.

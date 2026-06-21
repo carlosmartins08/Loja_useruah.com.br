@@ -1,6 +1,6 @@
 # Next Session Trigger
 
-Data de revisao: 2026-06-20
+Data de revisao: 2026-06-21
 
 ## Objetivo
 Retomar a execucao exatamente pela mesma logica de saneamento e evolucao validada neste ciclo, sem reabrir decisoes fechadas e sem misturar escopo novo com base ja consolidada.
@@ -75,6 +75,10 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - `qa:campaign:detail`: `PASS`
 - `qa:community:revenue`: `PASS`
 - `qa:campaign:public`: `PASS`
+- `p3:precheck`: `BLOCKED_EXTERNAL_BASE_URL` quando `HML_BASE_URL=http://localhost:3000`
+- `p3:plug`: `BLOCKED_EXTERNAL_BASE_URL` em dry-run quando a base ainda e local
+- `go:preflight`: `BLOCKED_EXTERNAL_BASE_URL` em dry-run quando a base ainda e local
+- `go:e2e:proof`: `BLOCKED_EXTERNAL_BASE_URL` em dry-run quando a base ainda e local
 
 ## Evidencia adicional deste ciclo
 - `qa:routes`: `PASS`
@@ -94,6 +98,7 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - `qa:role:closure` em `QA_SERVER_MODE=dev`: `PASS` quando a execucao respeita `PAYOUT_SECURITY_WINDOW_DAYS=0` e `AUTH_SESSION_SECRET=qa-local-session-secret`
 - `utf8:check`: `PASS`
 - smoke local em `next dev` para `/artista/lucas-santana`, `/category/autoral`, `/help-center` e `/quem-somos`: `PASS`
+- smoke local em `next start` para `/`, `/journal` e `/register`: `PASS`
 
 ## Regra anti-loop
 - Se a mesma prova local falhar ou for interrompida duas vezes sem produzir evidencia nova, isso deixa de ser tarefa ativa e vira limitacao de ambiente.
@@ -141,8 +146,8 @@ Seguir apenas a ordem serial abaixo, uma por vez:
 Leitura operacional deste momento:
 - `affiliate-referral` fechou o recorte novo.
 - `catalogo-curadoria/artwork` fechou o recorte validado nesta sessao.
-- `superficies publicas` ja saneou o recorte mais gritante em `artista`, `category`, `help-center` e `quem-somos`.
-- a frente ativa continua `superficies publicas` ate a varredura final curta ou promocao explicita para `real-payments-cutover`.
+- `superficies publicas` fechou o recorte ativo com saneamento de `artista`, `category`, `help-center`, `quem-somos`, `journal`, `register` e `footer`.
+- a frente ativa agora e `real-payments-cutover`, mas em estado `BLOQUEADO` ate existir janela externa objetiva e `HML_BASE_URL` sair de `localhost`.
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:

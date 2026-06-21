@@ -1,6 +1,6 @@
 # Execution Tracking (Snapshot Ativo + Ponte para Historico)
 
-Data de revisao: 2026-06-20
+Data de revisao: 2026-06-21
 
 ## Objetivo
 Manter uma leitura curta do estado operacional atual, das evidencias revalidadas no ciclo e dos riscos que ainda impedem confundir homologacao com producao real.
@@ -8,14 +8,9 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 ## Regra de uso
 - Este arquivo registra snapshot ativo e evidencia recente.
 - Este arquivo nao autoriza mudanca sozinho.
-- O gatilho canonico de retomada da proxima sessao esta em:
-  - `docs/NEXT_SESSION_TRIGGER.md`
-- Regra, escopo e precedencia continuam em:
-  - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
-  - `docs/EXECUTION_OPERATING_TEMPLATE.md`
-  - documento de fase, readiness ou dominio correspondente
-- Historico narrativo completo foi arquivado em:
-  - `docs/archive/EXECUTION_TRACKING_HISTORY_2026-06-17.md`
+- O gatilho canonico de retomada da proxima sessao esta em `docs/NEXT_SESSION_TRIGGER.md`.
+- Regra, escopo e precedencia continuam em `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`, `docs/EXECUTION_OPERATING_TEMPLATE.md` e no documento de dominio correspondente.
+- Historico narrativo completo foi arquivado em `docs/archive/EXECUTION_TRACKING_HISTORY_2026-06-17.md`.
 
 ## Snapshot executivo atual
 - Fase 1 comercial local/homologada controlada: `GO`
@@ -38,98 +33,55 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 
 ## Bloco 2 - Snapshot semanal ativo
 ### Dominio ativo do ciclo
-- `planejamento de execucao serial`
-- `superficies publicas`
+- `planejamento de execucao serial` com `superficies publicas` encerrada e `real-payments-cutover` promovida apenas como proxima frente autorizada, ainda dependente de janela externa
 
 ### Proximos movimentos validos
-1. Tratar `affiliate-referral` e `catalogo-curadoria/artwork` como recortes fechados neste ciclo.
-2. Tratar `superficies publicas` como frente atual unica.
-3. Considerar `artista`, `category`, `help-center` e `quem-somos` como recortes ja endurecidos com prova local real neste ciclo.
-4. Fazer uma ultima varredura leve em superficies publicas restantes antes de declarar `FRONT_4` satisfeito.
-5. Tratar `real-payments-cutover` como frente separada e dependente de janela externa, nao como desculpa para travar tudo antes.
-6. Preservar namespaces canonicos por papel, login server-side real e gate serial `qa:base:roles` em qualquer frente que toque rota, jornada, RBAC ou superficie cross-role.
+1. Tratar `affiliate-referral`, `catalogo-curadoria/artwork` e `superficies publicas` como recortes fechados neste ciclo.
+2. Nao reabrir pagina publica saneada sem evidencia nova de promessa falsa, CTA cenografico ou rota morta.
+3. Abrir `real-payments-cutover` somente quando a janela externa existir, com `p3:precheck` fora de `localhost`, seguido de `qa:stripe:smoke`, `qa:payments21`, `qa:provider:activate`, `qa:functional`, `qa:coreops` e `qa:matrix:audit`.
+4. Preservar namespaces canonicos por papel, login server-side real e gate serial `qa:base:roles` em qualquer mudanca de rota, jornada, RBAC ou superficie cross-role.
 
 ### KPIs minimos do ciclo
-- Gates do ciclo fechados: `check`, `qa:routes`, `build`, `qa:functional`, `qa:role:journeys`
-- Documentos ativos de fase sem alias morto: `PASS`
-- Paginas legadas montadas removidas do app tree: `PASS`
-- Dashboard de `production_operator` sem CTA para namespace bloqueado: `PASS`
+- Base validada por `check`, `qa:routes`, `build`, `qa:functional`, `qa:role:journeys`, docs ativos sem alias morto, app tree sem shells legados e dashboard de `production_operator` sem CTA para namespace bloqueado.
 
 ## Bloco 3 - Evidencias P0 ativas
-Revalidado neste ciclo:
-- 2026-06-20: `affiliate-referral` saiu do estado cenografico de status e ganhou controle operacional real de `ReferralLink` -> `app/api/affiliate/links/[id]/pause/route.ts`, `app/api/affiliate/links/[id]/activate/route.ts`, `lib/referral-store.ts` e `/affiliate/links` agora permitem pausar/reativar links; `/af/[slug]` continua atribuindo apenas quando o link esta ativo
-- 2026-06-20: `qa:affiliate:referral` -> `PASS` em `QA_SERVER_MODE=dev`, com prova de pausa, fallback publico sem atribuicao, reativacao, clique persistido e conversao idempotente
-- 2026-06-20: `qa:role:closure` -> `PASS` em `QA_SERVER_MODE=dev`, desde que a execucao respeite a mesma malha de env do gate oficial (`PAYOUT_SECURITY_WINDOW_DAYS=0`, `AUTH_SESSION_SECRET=qa-local-session-secret`)
-- 2026-06-20: `qa:community-curation` -> `PASS` em `QA_SERVER_MODE=dev`, com prova de ownership, autenticacao, escopo autoral e transicao `submitted -> under_review -> approved`
-- 2026-06-20: `qa:catalog:curation` -> `PASS` em `QA_SERVER_MODE=dev`, com prova de `artwork aprovado -> CatalogItem pending_review -> impact review -> ready -> published -> vitrine publica`
-- 2026-06-20: `app/community/campaigns/[id]/page.tsx` passou a transformar o detalhe operacional de campanha em superficie acionavel por papel e estado, com proximo passo coerente e uso direto dos endpoints ja existentes de `submit`, `approve`, `pause` e `close`, sem abrir rota ou regra nova
-- 2026-06-20: plano de execucao serial consolidado sem documento novo -> `docs/ACTIVE_FRONT.md`, `docs/NEXT_SESSION_TRIGGER.md`, `docs/EXECUTION_TRACKING.md` e `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md` passam a carregar a sequencia operacional `community-campaigns -> affiliate-referral -> catalogo-curadoria/artwork -> superficies publicas -> real-payments-cutover`
-- 2026-06-20: saneamento documental ativo da Fase 2 -> `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`, `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md` e `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` deixaram de tratar `CampaignProduct`, referral e snapshot contextual como planejamento puro quando o runtime atual ja sustenta capacidade parcial real
-- 2026-06-20: `app/artista/[slug]/page.tsx`, `app/category/[slug]/page.tsx`, `app/help-center/page.tsx` e `app/quem-somos/page.tsx` deixaram de sustentar promessas cenograficas ou copy publica corrompida; o recorte agora aponta para catalogo, journal, policies e account reais
-- 2026-06-20: `npm run utf8:check` -> `PASS`
-- 2026-06-20: smoke local em `next dev` -> `PASS` para `/artista/lucas-santana`, `/category/autoral`, `/help-center` e `/quem-somos`
-- 2026-06-20: `npm run check` -> `PASS`
-- 2026-06-18: `npm run check` -> `PASS`
-- 2026-06-18: `npm run qa:routes` -> `PASS`
-- 2026-06-18: `npm run qa:blindspots` -> `PASS`
-- 2026-06-18: `npm run build` -> `PASS`
-- 2026-06-18: `npm run qa:base:roles` -> `PASS`
-- 2026-06-18: `npm run qa:campaign:impact` -> `PASS` com prova de `scope=campaigns`, aprovacao, pausa e reativacao na mesma esteira de governanca
-- 2026-06-18: `npm run qa:campaign:detail` -> `PASS` com prova de ownership, leitura por `curator/platform_admin`, timeline normalizada e readiness backend em `GET /api/campaigns/[id]`
-- 2026-06-18: `npm run qa:community:revenue` -> `PASS` com prova de atribuicao real por campanha em `/api/commissions/me/campaigns` e coerencia com ledger agregado da comunidade
-- 2026-06-18: `npm run qa:campaign:public` -> `PASS` com prova de `/c/[campaignId]` como superficie publica minima, ativacao via `/c/[campaignId]/shop`, loja/PDP endurecidos para `campaignId` invalido ou inativo, atribuicao combinada `campaign + referral` e ignorar cookie de campanha obsoleto sem perder referral valido
-- 2026-06-18: `npm run ops:campaign:public` -> `PASS` com snapshot operacional em `docs/ops/CAMPAIGN_PUBLIC_DAILY_SUMMARY.md`, incluindo leituras publicas, redirects de contexto, stale cookies e pedidos com atribuicao combinada
-
-Revalidado no mesmo saneamento estrutural:
-- 2026-06-18: `npm run qa:role:journeys` -> `PASS`
-- 2026-06-18: `npm run qa:community-curation` -> `PASS` com prova de `401` anonimo em `artworks`, escopo autoral por `authorId`, `start-review` obrigatorio, aprovacao restrita a curadoria e vinculo real de `CatalogItem` publicado na vitrine da campanha
-- 2026-06-18: `npm run qa:catalog:curation` -> `PASS` com prova de `artwork aprovado -> CatalogItem pending_review -> impact review aprovado -> ready -> published -> vitrine publica`
-- 2026-06-18: `npm run qa:affiliate:referral` -> `PASS` com prova de `401/403`, criacao de link por owner, redirect publico em `/af/[slug]`, clique persistido, conversao idempotente e leitura por `platform_admin`
-- 2026-06-18: `npm run qa:role:closure` -> `PASS` com prova integrada de `artwork -> catalogo -> campaignProduct -> campanha ativa -> storefront filtrada -> regra progressiva 2-5=5% -> bloqueio de checkout fora da campanha -> order snapshot com movementMarkup + priceCompositionVersion -> payment -> ship -> ledger/payout de artist e community -> conversao automatica do affiliate`
-- 2026-06-18: `npm run build` + validacao visual local em `artifacts/home-runtime-check.png` e `artifacts/category-autoral-runtime-check.png` -> home e categoria passaram a ler o catalogo publicado real, sem vitrine vendavel paralela
-- 2026-06-18: `npm run check` + `npm run build` + smoke runtime servido por `next start` em `http://127.0.0.1:3343/` -> home passou a exibir CTA/editorial novo (`Ver Catalogo Publicado`, `Abrir Journal`, `Leituras da Colecao`), `help-center` removeu contato fake e `product/[id]` passou a apontar CTA flutuante para `/help-center`
-- 2026-06-18: `npm run check` + `npm run build` + smoke runtime servido por `next start` em `http://127.0.0.1:3344/` -> `/returns` deixou de simular lookup publico e passou a orientar por pedido autenticado, `/policies` trocou CTA de portal autonomo por instrucoes reais e `/quem-somos` deixou de vender papel institucional acima do runtime atual
-- 2026-06-18: `npm run check` + `npm run build` + smoke runtime servido por `next start` em `http://127.0.0.1:3345/login` -> `/login` removeu botoes falsos de Google/GitHub, passou a declarar acesso nativo por email/senha e deixou de insinuar login social inexistente
-- 2026-06-18: saneamento documental ativo da Fase 2 -> `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` passou a separar superficies comprovadas de superficies apenas planejadas; `/@username*` e `/affiliate/rewards` deixam de aparecer como mapa pratico de continuidade
-- 2026-06-18: `npm run qa:community-curation` + `npm run qa:base:roles` -> rejeicao de `impact review` de campanha agora devolve a campanha para `rejected`, expõe `decisionReason` em `/api/campaigns` e torna `/community/campaigns` uma superficie com devolutiva operacional real para o owner
-- 2026-06-18: `npm run qa:campaign:impact` + `npm run qa:base:roles` -> `/admin/impact-reviews` passou a ter recorte proprio de campanhas com filtro por `entityType=Campaign`, contexto de runtime da campanha e caminho direto de moderacao final; `/community/campaigns` deixou de apontar owner para rota administrativa bloqueada
-- 2026-06-18: `npm run qa:coreops` -> `PASS`
-- 2026-06-18: `npm run qa:crossrole:impact` -> `PASS`
-- 2026-06-18: `npm run qa:matrix:audit` -> `PASS`
-- 2026-06-18: `npm run qa:campaign:detail` + `npm run qa:community:revenue` + `npm run qa:base:roles` -> campanha ganhou contrato unico de detalhe operacional em `/api/campaigns/[id]` e `/community/campaigns/[id]`; comunidade passou a ler receita por campanha sem inventar payout isolado
+- 2026-06-21: `scripts/release/p3-cutover-evidence.mjs` passou a bloquear explicitamente `HML_BASE_URL` em `localhost`; `npm run p3:precheck` agora devolve `BLOCKED_EXTERNAL_BASE_URL` nesse cenario e evita leitura falsa de cutover pronto.
+- 2026-06-21: `scripts/release/p3-plug-and-run.mjs`, `scripts/release/go-live-preflight.mjs` e `scripts/release/go-live-e2e-proof.mjs` passaram a bloquear `localhost` em dry-run; `npm run p3:plug`, `npm run go:preflight` e `npm run go:e2e:proof` deixaram de anunciar `READY_TO_EXECUTE` sem homolog final real.
+- 2026-06-21: `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`, `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md`, `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md` e `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` passaram a separar explicitamente baseline local aprovada de janela externa real ainda bloqueada.
+- 2026-06-21: `docs/P3_ENV_READY_TO_FILL.md` e `docs/RUNBOOK_GO_LIVE.md` deixaram de sugerir execucao linear de cutover com `localhost`; os atalhos agora explicam quando o resultado correto e `BLOCKED_EXTERNAL_BASE_URL`.
+- 2026-06-21: `docs/P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE.md` e `docs/CHECKLIST_RELEASE_PAGAMENTOS.md` deixaram de tratar `p3:precheck` como PASS genérico; agora exigem leitura coerente com ambiente real fora de `localhost`.
+- 2026-06-21: `npm run check` -> `PASS`.
+- 2026-06-21: `npm run qa:base:roles` -> `PASS`, revalidando `qa:routes`, `qa:blindspots`, `build`, `utf8:check`, `qa:product:guardrails` e a malha serial autenticada por papel.
+- 2026-06-21: smoke local em `next start` -> `PASS` para `/`, `/journal` e `/register`; `/journal` deixou de expor `href="/journal/[id]"` inexistente.
+- 2026-06-21: `app/journal/page.tsx`, `app/register/page.tsx` e `components/navigation/Footer.tsx` deixaram de insinuar detalhe editorial inexistente, termos/politicas sem destino real e icones com comportamento de CTA sem rota suportada.
+- 2026-06-20: `affiliate-referral` ganhou controle operacional real de `ReferralLink` com pausa/reativacao em `app/api/affiliate/links/[id]/pause/route.ts`, `app/api/affiliate/links/[id]/activate/route.ts`, `lib/referral-store.ts` e `/affiliate/links`; `/af/[slug]` continua atribuindo apenas quando o link esta ativo.
+- 2026-06-20: `qa:affiliate:referral` -> `PASS` em `QA_SERVER_MODE=dev`, com prova de pausa, fallback publico sem atribuicao, reativacao, clique persistido e conversao idempotente.
+- 2026-06-20: `qa:role:closure` -> `PASS` em `QA_SERVER_MODE=dev`, respeitando a mesma malha de env do gate oficial (`PAYOUT_SECURITY_WINDOW_DAYS=0`, `AUTH_SESSION_SECRET=qa-local-session-secret`).
+- 2026-06-20: `qa:community-curation` -> `PASS` em `QA_SERVER_MODE=dev`, com prova de ownership, autenticacao, escopo autoral e transicao `submitted -> under_review -> approved`.
+- 2026-06-20: `qa:catalog:curation` -> `PASS` em `QA_SERVER_MODE=dev`, com prova de `artwork aprovado -> CatalogItem pending_review -> impact review -> ready -> published -> vitrine publica`.
+- 2026-06-20: `app/community/campaigns/[id]/page.tsx` virou superficie acionavel por papel e estado, usando `submit`, `approve`, `pause` e `close` sem abrir rota ou regra nova.
+- 2026-06-20: `docs/ACTIVE_FRONT.md`, `docs/NEXT_SESSION_TRIGGER.md`, `docs/EXECUTION_TRACKING.md` e `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md` consolidaram a sequencia serial `community-campaigns -> affiliate-referral -> catalogo-curadoria/artwork -> superficies publicas -> real-payments-cutover`.
+- 2026-06-20: `app/artista/[slug]/page.tsx`, `app/category/[slug]/page.tsx`, `app/help-center/page.tsx` e `app/quem-somos/page.tsx` deixaram de sustentar promessas cenograficas ou copy publica corrompida.
+- 2026-06-20: `npm run utf8:check` -> `PASS`.
+- 2026-06-20: smoke local em `next dev` -> `PASS` para `/artista/lucas-santana`, `/category/autoral`, `/help-center` e `/quem-somos`.
+- 2026-06-20: `npm run check` -> `PASS`.
+- 2026-06-18: `qa:routes`, `qa:blindspots`, `build` e `qa:base:roles` -> `PASS` no saneamento estrutural anterior.
+- 2026-06-18: `qa:campaign:impact`, `qa:campaign:detail`, `qa:community:revenue` e `qa:campaign:public` -> `PASS`, provando campanha ativa, governanca, atribuicao publica e receita por campanha.
+- 2026-06-18: `qa:community-curation`, `qa:catalog:curation`, `qa:affiliate:referral` e `qa:role:closure` -> `PASS`, consolidando a cadeia `artwork -> catalogo -> campaignProduct -> campanha ativa -> storefront -> order snapshot -> conversao do affiliate`.
+- 2026-06-18: `home`, `category`, `returns`, `policies` e `login` deixaram de prometer lookup publico, portal autonomo, login social inexistente ou vitrine paralela ao catalogo publicado.
 
 ## Risco residual real
 - O runtime atual esta coerente com as rotas canonicas, mas varios documentos historicos ainda citam aliases antigos por contexto.
 - Runners de QA que recompilam em paralelo no mesmo `.next` podem fabricar falha de ambiente; a referencia obrigatoria para a base atual passa a ser a execucao serial de `qa:base:roles`.
-- Em Windows sandboxado, `next build` pode falhar com `spawn EPERM` mesmo depois de compilar. Como `build` e `qa:base:roles` passaram fora do sandbox no mesmo working tree em 2026-06-18, isso deve ser tratado como ruido operacional do ambiente e nao como regressao do app.
-- O dominio de `artwork` continua `PARCIAL`, mas agora ja diferencia falta de sessao de falta de permissao, respeita a etapa `submitted -> under_review -> approved/rejected` e tem prova de ownership/autorizacao no gate `qa:community-curation`.
-- O dominio `catalogo-curadoria` avancou em prova integrada real, mas ainda nao deve ser tratado como fechado enquanto o fluxo de operacao criativa de artista e a camada de acervo final continuarem parciais.
-- As superficies operacionais de `artist`, `community_manager` e `affiliate` agora fecham no runtime com atribuicao real e prova ativa; o que segue parcial e o dominio mais amplo da Fase 2, nao mais a coerencia basica desses papeis.
-- `CampaignProduct` deixou de ser so intencao documental e virou runtime parcial real, mas ainda nao equivale a um dominio maduro de movimento, membership ou precificacao comunitaria completa.
-- A rejeicao de governanca de campanha deixou de prender o owner num limbo opaco: agora o runtime devolve a campanha para `rejected` com motivo visivel, mas a moderacao de campanha continua parcial enquanto nao existir uma superficie dedicada mais rica para decisao e historico.
-- A mesa de governanca ja ganhou um recorte proprio de campanhas com historico e contexto, mas isso ainda nao equivale a um dominio pleno de movimento ou a uma esteira ampla de moderacao multi-etapa fora da rota canonica atual.
-- O dominio de afiliacao continua parcial como fase porque ainda nao existe ledger/reward financeiro proprio; o que existe de forma comprovada e o tracking real de link, clique, snapshot e conversao automatica.
-- O snapshot contextualizado da Fase 2 avancou para composicao real de preco de campanha no pedido, mas isso ainda nao equivale a um dominio maduro de `Organization`, membership ou regras comerciais mais amplas de movimento.
-- As superficies publicas `/` e `/category/[slug]` deixaram de vender por card estatico, mas a ordenacao comercial dessas vitrines ainda e simples e nao deve ser confundida com motor de merchandising maduro.
-- As principais superficies publicas de entrada agora tambem deixaram de prometer personalizacao self-service, canais externos e contatos oficiais nao sustentados pelo runtime; o risco remanescente passa a ser encontrar copy futura ou aspiracional em paginas publicas ainda nao auditadas neste mesmo criterio.
-- A frente publica ficou bem mais honesta, mas ainda vale auditar outras paginas editoriais ou institucionais novas com o mesmo criterio para evitar reintroducao de fluxo cenografico.
-- O recorte publico mais gritante desta sessao foi saneado com prova local, mas ainda e prudente uma ultima varredura leve antes de declarar `FRONT_4` totalmente encerrado.
-- A documentacao ativa da Fase 2 ficou menos propensa a reabrir escopo errado, mas ainda exige disciplina para nao transformar rotas planejadas em backlog presumido sem atualizar antes a matriz.
+- Em Windows sandboxado, `next build` pode falhar com `spawn EPERM`; quando `build` e `qa:base:roles` passam fora do sandbox no mesmo working tree, isso deve ser tratado como ruido operacional do ambiente e nao como regressao do app.
+- Os dominios `artwork`, `catalogo-curadoria`, `affiliate` e `CampaignProduct` seguem `PARCIAL`; o que fechou foi a coerencia minima de runtime, nao a maturidade plena da Fase 2.
+- A mesa de governanca e o snapshot contextual de campanha melhoraram, mas ainda nao equivalem a dominio maduro de movimento, membership ou precificacao comunitaria ampla.
+- `FRONT_4_PUBLIC_SURFACES_HONESTY` fechou o recorte atual, mas qualquer pagina editorial ou institucional nova ainda precisa passar pelo mesmo criterio para evitar reintroducao de fluxo cenografico.
 - Sem seguir a serializacao nova, a tendencia natural e misturar frente interna resolvivel com bloqueio externo de homolog final e voltar a paralisar a execucao.
-- Se um runner local repetir o mesmo bloqueio sem novo aprendizado, insistir nele vira perda de sessao; o correto e registrar a limitacao e pivotar para outra frente serial resolvivel.
-- Em Windows sandboxado, rota nova provada por QA pode exigir `QA_SERVER_MODE=dev` quando `start` estiver reutilizando build antigo ou quando `next build` terminar em `spawn EPERM`; isso nao muda o contrato do app, so a forma de provar localmente.
-- Mencoes historicas a `/admin/support`, `/admin/production`, `/admin/finance/payouts` e `/finance/dashboard` sao evidencia de contexto e nao descrevem o runtime canonico atual.
-- Essas citacoes historicas nao autorizam patch nem definem superficie viva.
-- Qualquer nova limpeza documental deve preservar a fronteira:
-  - `docs/**` ativo para regra, snapshot e redirecionador util
-  - `docs/archive/**` para historico sem autoridade atual
+- `p3:precheck`, `p3:plug`, `go:preflight` e `go:e2e:proof` agora devem bloquear `localhost`; se qualquer um desses gates voltar a parecer liberado sem URL real, a leitura esta errada ou o script regrediu.
+- Mencoes historicas a `/admin/support`, `/admin/production`, `/admin/finance/payouts` e `/finance/dashboard` sao apenas contexto e nao autorizam patch nem definem superficie viva.
 
 ## Regra de atualizacao
-- Atualizar este arquivo apenas com:
-  - snapshot atual
-  - evidencias revalidadas no ciclo
-  - risco residual objetivo
+- Atualizar este arquivo apenas com snapshot atual, evidencias revalidadas no ciclo e risco residual objetivo.
 - Nao reexpandir este arquivo com narrativa longa de execucao passada.
-- Quando a informacao deixar de dirigir decisao atual, mover para:
-  - `docs/archive/**`; ou
-  - `docs/CHANGELOG_GOVERNANCE.md`, se o ponto for decisao e nao evidencia.
+- Quando a informacao deixar de dirigir decisao atual, mover para `docs/archive/**` ou `docs/CHANGELOG_GOVERNANCE.md`.

@@ -24,6 +24,15 @@ function resolveProvider() {
   return mode;
 }
 
+function isLocalBaseUrl(value) {
+  try {
+    const url = new URL(String(value).trim());
+    return ['localhost', '127.0.0.1', '::1'].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 function buildSequence() {
   const provider = resolveProvider();
   const providerSmoke = COMMANDS_BY_PROVIDER[provider] ?? '<<defina PAYMENT_PROVIDER/PAYMENT_GATEWAY_TARGET corretamente>>';
@@ -51,13 +60,17 @@ function main() {
   const execute = process.argv.includes('--execute');
   const sequence = buildSequence();
   if (!execute) {
+    const blockedByLocalBaseUrl = isLocalBaseUrl(process.env.HML_BASE_URL);
     console.log(
       JSON.stringify(
         {
-          status: 'READY_TO_EXECUTE',
+          status: blockedByLocalBaseUrl ? 'BLOCKED_EXTERNAL_BASE_URL' : 'READY_TO_EXECUTE',
           mode: 'dry-run',
-          message: 'Use `npm run go:preflight:run` para executar preflight completo.',
+          message: blockedByLocalBaseUrl
+            ? 'HML_BASE_URL ainda aponta para localhost; o preflight completo continua bloqueado ate existir homolog final real.'
+            : 'Use `npm run go:preflight:run` para executar preflight completo.',
           provider: resolveProvider() || null,
+          baseUrl: process.env.HML_BASE_URL ?? null,
           sequence,
         },
         null,

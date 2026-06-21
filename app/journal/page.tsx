@@ -3,9 +3,8 @@
 import React from 'react';
 import { Header } from '@/components/navigation/Header';
 import { Breadcrumbs } from '@/components/navigation/Breadcrumbs';
-import { ArrowRight, Calendar, User, Clock } from 'lucide-react';
+import { Calendar, User, Clock } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
-import Link from 'next/link';
 import { BRAND_JOURNAL_ARTICLES } from '@/lib/brand-assets';
 
 export default function JournalPage() {
@@ -58,7 +57,7 @@ export default function JournalPage() {
       </section>
 
       <section className="section-container pb-32">
-        <Link href={`/journal/${featuredArticle.id}`} className="group relative aspect-[21/9] rounded-[4rem] overflow-hidden block shadow-fancy">
+        <article className="group relative aspect-[21/9] rounded-[4rem] overflow-hidden block shadow-fancy">
           <AppImage
             context="content-banner"
             src={featuredArticle.image}
@@ -83,18 +82,18 @@ export default function JournalPage() {
               </div>
               <h2 className="ur-type-display-md text-white uppercase">{featuredArticle.title}</h2>
               <p className="max-w-2xl text-sm font-medium leading-relaxed text-white/70">{featuredArticle.excerpt}</p>
-              <div className="flex items-center gap-4 text-white font-bold uppercase text-[10px] tracking-widest border-b border-white/30 self-start pb-1 group-hover:border-white motion-base">
-                Ler artigo completo <ArrowRight size={16} />
+              <div className="text-white/70 font-bold uppercase text-[10px] tracking-widest">
+                Recorte editorial em destaque
               </div>
             </div>
           </div>
-        </Link>
+        </article>
       </section>
 
       <section className="section-container">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {articles.map((article) => (
-            <Link key={article.id} href={`/journal/${article.id}`} className="group flex flex-col gap-8">
+            <article key={article.id} className="group flex flex-col gap-8">
               <div className="relative aspect-[16/9] rounded-[2.5rem] overflow-hidden shadow-xl">
                 <AppImage context="content-banner" src={article.image} alt={article.title} fill className="object-cover group-hover:scale-[1.05] transition-transform motion-slow" />
               </div>
@@ -113,7 +112,7 @@ export default function JournalPage() {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-ruah-300">Por {article.author}</span>
                 </div>
               </div>
-            </Link>
+            </article>
           ))}
         </div>
       </section>

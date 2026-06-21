@@ -1,8 +1,13 @@
 # Checklist Release - Pagamentos Reais
 
+Leitura obrigatoria:
+- esta checklist nao autoriza release com `HML_BASE_URL` em `localhost`
+- antes da janela real, o comportamento correto dos atalhos de cutover e go-live e `BLOCKED_EXTERNAL_BASE_URL`
+
 ## Gate obrigatorio
 - [ ] `npm run alert:critical`
 - [ ] `npm run check`
+- [ ] `npm run p3:precheck` PASS fora de localhost
 - [ ] `npm run qa:payments21`
 - [ ] `npm run qa:exceptions`
 - [ ] `npm run qa:coreops`
@@ -15,6 +20,8 @@
 - [ ] Evento de licenciamento por venda com arte
 
 ## Integracao e risco
+- [ ] `npm run go:preflight:run` PASS fora de localhost
+- [ ] `npm run go:e2e:proof:run` PASS fora de localhost
 - [ ] Webhook assinado e idempotente validado
 - [ ] Reprocessamento de webhook validado
 - [ ] Excecoes de cancel/refund/chargeback validadas sem duplicidade

@@ -24,6 +24,15 @@ function resolveProvider() {
   return mode;
 }
 
+function isLocalBaseUrl(value) {
+  try {
+    const url = new URL(String(value).trim());
+    return ['localhost', '127.0.0.1', '::1'].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 function buildSequence() {
   const provider = resolveProvider();
   const providerSmoke = COMMANDS_BY_PROVIDER[provider] ?? '<<defina PAYMENT_PROVIDER/PAYMENT_GATEWAY_TARGET corretamente>>';
@@ -55,13 +64,17 @@ function main() {
   const execute = process.argv.includes('--execute');
   const sequence = buildSequence();
   if (!execute) {
+    const blockedByLocalBaseUrl = isLocalBaseUrl(process.env.HML_BASE_URL);
     console.log(
       JSON.stringify(
         {
-          status: 'READY_TO_EXECUTE',
+          status: blockedByLocalBaseUrl ? 'BLOCKED_EXTERNAL_BASE_URL' : 'READY_TO_EXECUTE',
           mode: 'dry-run',
-          message: 'Use `npm run go:e2e:proof:run` para executar a prova completa de go-live.',
+          message: blockedByLocalBaseUrl
+            ? 'HML_BASE_URL ainda aponta para localhost; a prova completa de go-live continua bloqueada ate existir homolog final real.'
+            : 'Use `npm run go:e2e:proof:run` para executar a prova completa de go-live.',
           provider: resolveProvider() || null,
+          baseUrl: process.env.HML_BASE_URL ?? null,
           sequence,
         },
         null,
@@ -86,15 +99,15 @@ function main() {
 
   console.log(
     JSON.stringify(
-        {
-          status: 'PASS',
-          phase: 'GO_LIVE_E2E_PROOF',
-          provider: resolveProvider() || null,
-          executed: sequence,
-        },
-        null,
-        2
-      )
+      {
+        status: 'PASS',
+        phase: 'GO_LIVE_E2E_PROOF',
+        provider: resolveProvider() || null,
+        executed: sequence,
+      },
+      null,
+      2
+    )
   );
 }
 

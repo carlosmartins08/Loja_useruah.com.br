@@ -232,7 +232,7 @@ Baseline obrigatoria:
 - [ ] npm run qa:coreops
 - [ ] npm run qa:matrix:audit
 - [ ] npm run qa:auth:cookie
-- [ ] npm run p3:precheck
+- [ ] npm run p3:precheck em PASS fora de localhost
 - [ ] npm run qa:provider:requirements
 - [ ] npm run qa:providers:ready
 - [ ] npm run qa:stripe:smoke
@@ -315,14 +315,14 @@ Baseline obrigatoria:
 - [x] npm run qa:coreops
 - [x] npm run qa:matrix:audit
 - [x] npm run qa:auth:cookie
-- [x] npm run p3:precheck
+- [ ] npm run p3:precheck em PASS fora de localhost
 - [x] npm run qa:provider:requirements
 - [x] npm run qa:providers:ready
 - [x] npm run qa:stripe:smoke
 - [x] npm run qa:payments21
 - [x] npm run qa:provider:activate
-- [x] npm run go:preflight:run
-- [x] npm run go:e2e:proof:run
+- [ ] npm run go:preflight:run fora de localhost
+- [ ] npm run go:e2e:proof:run fora de localhost
 
 Execucao da janela real:
 - [ ] Checkout real criado em homolog final fora de localhost
@@ -355,11 +355,12 @@ Pendencia residual, se houver:
 
 Motivo objetivo do veredito:
 - A baseline tecnica completa foi aprovada no repositorio, mas a janela real de homolog final ainda nao foi executada.
+- Desde `2026-06-21`, `p3:precheck`, `p3:plug`, `go:preflight` e `go:e2e:proof` bloqueiam explicitamente `localhost`; portanto baseline local aprovada nao equivale a janela real liberada.
 ```
 
 Tentativa objetiva de execucao:
 - `2026-06-09`
-- `npm run p3:precheck`: `READY`
+- `npm run p3:precheck`: `BLOCKED_EXTERNAL_BASE_URL`
 - leitura do gate: provider `stripe` pronto no recorte local, mas `HML_BASE_URL=http://localhost:3000`
 - conclusao: a janela real fora de `localhost` nao foi iniciada; o bloqueio atual e ambiente final de homolog ainda nao apontado
 
@@ -370,14 +371,18 @@ Preenchimento parcial ja provado no repositorio:
 - [x] npm run qa:coreops
 - [x] npm run qa:matrix:audit
 - [x] npm run qa:auth:cookie
-- [x] npm run p3:precheck
 - [x] npm run qa:provider:requirements
 - [x] npm run qa:providers:ready
 - [x] npm run qa:stripe:smoke
 - [x] npm run qa:payments21
 - [x] npm run qa:provider:activate
-- [x] npm run go:preflight:run
-- [x] npm run go:e2e:proof:run
+- [x] npm run p3:precheck bloqueia localhost com `BLOCKED_EXTERNAL_BASE_URL`
+- [x] npm run p3:plug bloqueia localhost com `BLOCKED_EXTERNAL_BASE_URL`
+- [x] npm run go:preflight bloqueia localhost com `BLOCKED_EXTERNAL_BASE_URL`
+- [x] npm run go:e2e:proof bloqueia localhost com `BLOCKED_EXTERNAL_BASE_URL`
+- [ ] npm run p3:precheck em PASS fora de localhost
+- [ ] npm run go:preflight:run fora de localhost
+- [ ] npm run go:e2e:proof:run fora de localhost
 - [ ] Janela real em homolog final fora de localhost
 - [ ] 10 transacoes reais consecutivas homologadas sem divergencia
 - [ ] Evidencia operacional final de reconciliacao, observabilidade e rollback com os responsaveis da operacao
@@ -404,7 +409,7 @@ Evidencias:
 - fundacao de `auth/session` da Fase 1: LIBERADA
 - `npm run qa:coreops`: PASS
 - `npm run qa:matrix:audit`: PASS
-- `npm run p3:precheck`: PASS
+- `npm run p3:precheck`: PASS no ciclo anterior, antes do bloqueio explicito de `localhost` virar contrato do gate
 - `npm run qa:provider:requirements`: READY_FOR_SMOKE
 - `npm run qa:providers:ready`: PARTIAL_READY global com `stripe` pronta no recorte ativo
 - `npm run qa:stripe:smoke`: PASS
@@ -413,13 +418,14 @@ Evidencias:
 - `npm run check`: PASS
 - `npm run build`: PASS
 - `npm run qa:functional`: PASS
-- `npm run go:preflight:run`: PASS
-- `npm run go:e2e:proof:run`: PASS
+- `npm run go:preflight:run`: PASS no ciclo anterior, antes do bloqueio explicito de `localhost` virar contrato do gate
+- `npm run go:e2e:proof:run`: PASS no ciclo anterior, antes do bloqueio explicito de `localhost` virar contrato do gate
 
 Leitura objetiva:
 - `auth/session` deixou de ser impeditivo tecnico da Fase 1
 - a trilha Stripe passou nos gates de homologacao definidos para o recorte atual
 - a baseline tecnica completa do aceite final passou no repositorio local
+- desde `2026-06-21`, os gates de cutover e go-live deixaram de aceitar `localhost` como se fosse janela real
 - o estado `GO CONDICIONADO` nao decorre de falha de auth, credencial ou integracao do provider no ciclo homologado
 - a condicionante atual e ausencia de janela real em homolog final, aceite final de producao e cutover real
 - a Fase 1 permaneceu integra no ciclo

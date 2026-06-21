@@ -35,6 +35,15 @@ function req(keys) {
   return keys.filter((key) => !hasValue(key));
 }
 
+function isLocalBaseUrl(value) {
+  try {
+    const url = new URL(String(value).trim());
+    return ['localhost', '127.0.0.1', '::1'].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 function providerRequirements(provider) {
   if (provider === 'gateway_real') {
     return ['PAYMENT_GATEWAY_BASE_URL', 'PAYMENT_GATEWAY_API_KEY', 'PAYMENT_GATEWAY_MERCHANT_ID'];
@@ -115,6 +124,27 @@ if (String(process.env.PAYMENT_PERSISTENCE ?? '').toLowerCase() !== 'mysql') {
 
 if (!String(process.env.DATABASE_URL ?? '').startsWith('mysql://')) {
   console.error(JSON.stringify({ status: 'FAIL', reason: 'invalid_database_url', expectedPrefix: 'mysql://' }, null, 2));
+  process.exit(1);
+}
+
+if (isLocalBaseUrl(process.env.HML_BASE_URL)) {
+  console.error(
+    JSON.stringify(
+      {
+        status: 'BLOCKED_EXTERNAL_BASE_URL',
+        reason: 'localhost_does_not_open_real_cutover_window',
+        baseUrl: process.env.HML_BASE_URL,
+        targetProvider,
+        checklist: [
+          'Apontar HML_BASE_URL para a homolog final real',
+          'Confirmar dono da janela e ambiente alvo',
+          'Reexecutar npm run p3:precheck',
+        ],
+      },
+      null,
+      2
+    )
+  );
   process.exit(1);
 }
 
