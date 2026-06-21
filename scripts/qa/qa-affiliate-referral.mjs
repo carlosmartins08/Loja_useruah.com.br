@@ -82,10 +82,33 @@ async function run() {
   assert(createdLink.conversionCount === 0, `created link conversionCount expected 0, got ${createdLink.conversionCount}`);
   report.push('AFF-04 owner reads newly created link with zeroed performance');
 
+  const pauseLink = await req('POST', `/api/affiliate/links/${referralLinkId}/pause`, {}, { headers: affiliateHeaders });
+  assert(pauseLink.status === 200, `affiliate pause link expected 200, got ${pauseLink.status}`);
+  assert(pauseLink.data?.link?.status === 'paused', `paused link status expected paused, got ${String(pauseLink.data?.link?.status)}`);
+  report.push('AFF-05 affiliate can pause an owned referral link');
+
+  const pausedRedirect = await req('GET', `/af/${slug}`, undefined, { redirect: 'manual' });
+  assert(pausedRedirect.status === 307, `paused referral redirect expected 307, got ${pausedRedirect.status}`);
+  assert(pausedRedirect.location === `${baseUrl}/shop`, `paused referral fallback mismatch: ${pausedRedirect.location}`);
+  report.push('AFF-06 paused referral slug falls back to generic shop without preserving attribution');
+
+  const ownLinksWhilePaused = await req('GET', '/api/affiliate/links', undefined, { headers: affiliateHeaders });
+  const pausedLink = Array.isArray(ownLinksWhilePaused.data?.links)
+    ? ownLinksWhilePaused.data.links.find((item) => item.referralLinkId === referralLinkId)
+    : null;
+  assert(pausedLink, 'paused referral link missing from owner list');
+  assert(pausedLink.clickCount === 0, `paused link clickCount expected 0, got ${pausedLink.clickCount}`);
+  report.push('AFF-07 paused link does not accumulate click from public fallback');
+
+  const reactivateLink = await req('POST', `/api/affiliate/links/${referralLinkId}/activate`, {}, { headers: affiliateHeaders });
+  assert(reactivateLink.status === 200, `affiliate reactivate link expected 200, got ${reactivateLink.status}`);
+  assert(reactivateLink.data?.link?.status === 'active', `reactivated link status expected active, got ${String(reactivateLink.data?.link?.status)}`);
+  report.push('AFF-08 affiliate can reactivate an owned referral link');
+
   const publicRedirect = await req('GET', `/af/${slug}`, undefined, { redirect: 'manual' });
   assert(publicRedirect.status === 307, `public referral redirect expected 307, got ${publicRedirect.status}`);
   assert(publicRedirect.location === `${baseUrl}${targetPath}`, `public redirect target mismatch: ${publicRedirect.location}`);
-  report.push('AFF-05 public slug redirects to target path and records click');
+  report.push('AFF-09 public slug redirects to target path and records click after reactivation');
 
   const ownLinksAfterClick = await req('GET', '/api/affiliate/links', undefined, { headers: affiliateHeaders });
   const clickedLink = Array.isArray(ownLinksAfterClick.data?.links)
@@ -93,7 +116,7 @@ async function run() {
     : null;
   assert(clickedLink, 'clicked referral link missing from owner list');
   assert(clickedLink.clickCount === 1, `clicked link clickCount expected 1, got ${clickedLink.clickCount}`);
-  report.push('AFF-06 owner sees persisted click after public redirect');
+  report.push('AFF-10 owner sees persisted click after public redirect');
 
   const affiliateConversion = await req(
     'POST',
@@ -102,7 +125,7 @@ async function run() {
     { headers: affiliateHeaders }
   );
   assert(affiliateConversion.status === 403, `affiliate conversion record expected 403, got ${affiliateConversion.status}`);
-  report.push('AFF-07 affiliate cannot self-record conversion');
+  report.push('AFF-11 affiliate cannot self-record conversion');
 
   const adminConversion = await req(
     'POST',
@@ -112,7 +135,7 @@ async function run() {
   );
   assert(adminConversion.status === 201, `admin conversion record expected 201, got ${adminConversion.status}`);
   assert(adminConversion.data?.event?.orderId === orderId, 'conversion orderId mismatch');
-  report.push('AFF-08 platform admin records conversion');
+  report.push('AFF-12 platform admin records conversion');
 
   const duplicateAdminConversion = await req(
     'POST',
@@ -122,7 +145,7 @@ async function run() {
   );
   assert(duplicateAdminConversion.status === 200, `duplicate conversion expected 200, got ${duplicateAdminConversion.status}`);
   assert(duplicateAdminConversion.data?.reused === true, 'duplicate conversion should reuse existing event');
-  report.push('AFF-09 conversion write is idempotent by link and order');
+  report.push('AFF-13 conversion write is idempotent by link and order');
 
   const adminReadOwner = await req(
     'GET',
@@ -131,7 +154,7 @@ async function run() {
     { headers: adminHeaders }
   );
   assert(adminReadOwner.status === 200, `admin ownerId read expected 200, got ${adminReadOwner.status}`);
-  report.push('AFF-10 platform admin can inspect affiliate owner scope');
+  report.push('AFF-14 platform admin can inspect affiliate owner scope');
 
   const ownLinksAfterConversion = await req('GET', '/api/affiliate/links', undefined, { headers: affiliateHeaders });
   const convertedLink = Array.isArray(ownLinksAfterConversion.data?.links)
@@ -141,7 +164,7 @@ async function run() {
   assert(convertedLink.conversionCount === 1, `converted link conversionCount expected 1, got ${convertedLink.conversionCount}`);
   assert(convertedLink.revenueAmount === 199.9, `converted link revenue expected 199.9, got ${convertedLink.revenueAmount}`);
   assert(convertedLink.conversionRate === 100, `converted link conversionRate expected 100, got ${convertedLink.conversionRate}`);
-  report.push('AFF-11 owner sees conversion, revenue and conversion rate from persisted runtime events');
+  report.push('AFF-15 owner sees conversion, revenue and conversion rate from persisted runtime events');
 
   console.log(JSON.stringify({ status: 'PASS', baseUrl, referralLinkId, slug, orderId, report }, null, 2));
 }

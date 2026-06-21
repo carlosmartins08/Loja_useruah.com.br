@@ -13,7 +13,8 @@ import {
   Wallet,
 } from 'lucide-react';
 import { Header } from '@/components/navigation/Header';
-import { getJson, HttpRequestError } from '@/lib/http-client';
+import { getJson, HttpRequestError, postJson } from '@/lib/http-client';
+import { useUser } from '@/context/UserContext';
 
 type CampaignStatus = 'draft' | 'pending_review' | 'active' | 'paused' | 'closed' | 'rejected' | 'cancelled';
 type GovernanceStatus = 'pending_review' | 'approved' | 'rejected';
@@ -177,17 +178,91 @@ function readinessActionLabel(label: string, active: boolean) {
   );
 }
 
+function nextStepMessage(detail: CampaignDetailResponse, capabilities: {
+  canSubmitCampaign: boolean;
+  canActivateCampaign: boolean;
+  canPauseCampaign: boolean;
+  canCloseCampaign: boolean;
+}) {
+  if (detail.campaign.status === 'draft') {
+    if (!detail.readiness.hasLinkedProducts) {
+      return 'Vincule ao menos um CatalogItem publicado antes de submeter a campanha para revisao.';
+    }
+    if (capabilities.canSubmitCampaign) {
+      return 'A campanha ja tem base minima. O proximo passo coerente e submeter para impact review.';
+    }
+    return 'A campanha esta pronta para submissao, mas a acao depende do owner ou de platform_admin.';
+  }
+
+  if (detail.campaign.status === 'rejected') {
+    if (!detail.readiness.hasLinkedProducts) {
+      return 'A ultima governanca rejeitou a campanha e a vitrine ainda esta incompleta. Corrija a base e reenvie.';
+    }
+    if (capabilities.canSubmitCampaign) {
+      return 'Revise a devolutiva da governanca, ajuste a campanha e reenvie para nova revisao.';
+    }
+    return 'A campanha foi rejeitada. O reenvio depende do owner ou de platform_admin.';
+  }
+
+  if (detail.campaign.status === 'pending_review') {
+    if (detail.readiness.hasPendingImpactReview) {
+      return 'A campanha esta na fila de impact review. Agora o owner deve acompanhar a governanca, nao tentar contornar o bloqueio.';
+    }
+    if (capabilities.canActivateCampaign) {
+      return 'A impact review ja passou. O proximo passo coerente e ativar a campanha na governanca final.';
+    }
+    return 'A campanha aguarda moderacao final depois da impact review.';
+  }
+
+  if (detail.campaign.status === 'active') {
+    if (capabilities.canPauseCampaign) {
+      return 'A campanha esta ativa e a vitrine publica ja vale no runtime. Pause antes de qualquer mudanca estrutural.';
+    }
+    if (capabilities.canCloseCampaign) {
+      return 'A campanha esta ativa. O owner pode encerrar quando o ciclo comercial terminar.';
+    }
+    return 'A campanha esta ativa. Agora a disciplina e acompanhar vitrine, atribuicao e receita por campanha.';
+  }
+
+  if (detail.campaign.status === 'paused') {
+    if (capabilities.canActivateCampaign) {
+      return 'A campanha esta pausada. A governanca pode reativar quando o recorte estiver pronto para voltar ao ar.';
+    }
+    if (capabilities.canCloseCampaign) {
+      return 'A campanha esta pausada. O owner pode encerrar se nao fizer sentido reativar.';
+    }
+    return 'A campanha esta pausada. O proximo passo depende de reativacao por governanca ou encerramento pelo owner.';
+  }
+
+  if (detail.campaign.status === 'closed') {
+    return 'A campanha foi encerrada. Use esta pagina como memoria operacional e referencia de atribuicao.';
+  }
+
+  if (detail.campaign.status === 'cancelled') {
+    return 'A campanha foi cancelada. Nao ha proxima acao operacional no runtime atual.';
+  }
+
+  return 'Sem proxima acao automatica definida para este estado.';
+}
+
 export default function CommunityCampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolved = React.use(params);
+  const { userId, userRole } = useUser();
   const [detail, setDetail] = React.useState<CampaignDetailResponse | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [actionMessage, setActionMessage] = React.useState<string | null>(null);
+  const [runningAction, setRunningAction] = React.useState<'submit' | 'activate' | 'pause' | 'close' | null>(null);
+
+  const loadDetail = React.useCallback(async () => {
+    return getJson<CampaignDetailResponse>(`/api/campaigns/${encodeURIComponent(resolved.id)}`);
+  }, [resolved.id]);
 
   React.useEffect(() => {
     let active = true;
     const timeoutId = window.setTimeout(() => {
       if (!active) return;
-      getJson<CampaignDetailResponse>(`/api/campaigns/${encodeURIComponent(resolved.id)}`)
+      loadDetail()
         .then((payload) => {
           if (!active) return;
           setDetail(payload);
@@ -218,7 +293,64 @@ export default function CommunityCampaignDetailPage({ params }: { params: Promis
       active = false;
       window.clearTimeout(timeoutId);
     };
-  }, [resolved.id]);
+  }, [loadDetail]);
+
+  const refreshDetail = React.useCallback(async () => {
+    const payload = await loadDetail();
+    setDetail(payload);
+    return payload;
+  }, [loadDetail]);
+
+  const isPlatformAdmin = userRole === 'platform_admin';
+  const isCommunityOwner = detail ? userRole === 'community_manager' && detail.campaign.createdBy === userId : false;
+  const canSubmitCampaign = Boolean(detail && detail.readiness.canSubmit && (isCommunityOwner || isPlatformAdmin));
+  const canActivateCampaign = Boolean(detail && detail.readiness.canActivate && isPlatformAdmin);
+  const canPauseCampaign = Boolean(detail && detail.readiness.canPause && isPlatformAdmin);
+  const canCloseCampaign = Boolean(detail && detail.readiness.canClose && (isCommunityOwner || isPlatformAdmin));
+
+  const handleCampaignAction = React.useCallback(
+    async (action: 'submit' | 'activate' | 'pause' | 'close') => {
+      const endpoint =
+        action === 'submit'
+          ? 'submit'
+          : action === 'activate'
+            ? 'approve'
+            : action === 'pause'
+              ? 'pause'
+              : 'close';
+
+      const successMessage =
+        action === 'submit'
+          ? 'Campanha reenviada para impact review.'
+          : action === 'activate'
+            ? 'Campanha ativada no runtime.'
+            : action === 'pause'
+              ? 'Campanha pausada na governanca.'
+              : 'Campanha encerrada pelo owner.';
+
+      setRunningAction(action);
+      setError(null);
+      setActionMessage(null);
+      try {
+        await postJson(`/api/campaigns/${encodeURIComponent(resolved.id)}/${endpoint}`, {});
+        await refreshDetail();
+        setActionMessage(successMessage);
+      } catch (err) {
+        if (err instanceof HttpRequestError && err.status === 403) {
+          setError('Seu papel atual nao pode executar esta acao nesta campanha.');
+        } else if (err instanceof HttpRequestError && err.status === 409) {
+          setError('A campanha nao aceita esta transicao no estado atual.');
+        } else if (err instanceof HttpRequestError && err.status === 401) {
+          setError('Sua sessao expirou antes de concluir a acao.');
+        } else {
+          setError('Nao foi possivel executar a acao na campanha agora.');
+        }
+      } finally {
+        setRunningAction(null);
+      }
+    },
+    [refreshDetail, resolved.id]
+  );
 
   return (
     <main className="min-h-screen bg-ruah-50 page-header-offset">
@@ -233,6 +365,7 @@ export default function CommunityCampaignDetailPage({ params }: { params: Promis
 
           {loading ? <p className="text-sm text-ruah-500">Carregando memoria operacional...</p> : null}
           {error ? <p className="text-sm text-red-700">{error}</p> : null}
+          {actionMessage ? <p className="text-sm text-emerald-700">{actionMessage}</p> : null}
 
           {detail ? (
             <>
@@ -282,12 +415,76 @@ export default function CommunityCampaignDetailPage({ params }: { params: Promis
                   <h2 className="text-lg font-semibold text-ruah-950">Readiness e proximos movimentos</h2>
                 </div>
 
+                <div className="mt-4 rounded-2xl border border-ruah-100 bg-ruah-50 p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-ruah-400">Proximo passo coerente</p>
+                  <p className="mt-2 text-sm text-ruah-950">
+                    {nextStepMessage(detail, { canSubmitCampaign, canActivateCampaign, canPauseCampaign, canCloseCampaign })}
+                  </p>
+                </div>
+
                 <div className="mt-4 flex flex-wrap gap-2">
                   {readinessActionLabel('Pode submeter', detail.readiness.canSubmit)}
                   {readinessActionLabel('Pode ativar', detail.readiness.canActivate)}
                   {readinessActionLabel('Pode pausar', detail.readiness.canPause)}
                   {readinessActionLabel('Pode encerrar', detail.readiness.canClose)}
                 </div>
+
+                {(canSubmitCampaign || canActivateCampaign || canPauseCampaign || canCloseCampaign || detail.readiness.isPublicStorefrontLive) ? (
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    {canSubmitCampaign ? (
+                      <button
+                        type="button"
+                        onClick={() => void handleCampaignAction('submit')}
+                        disabled={runningAction !== null}
+                        className="rounded-2xl bg-ruah-950 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50"
+                      >
+                        {runningAction === 'submit' ? 'Enviando...' : 'Submeter para revisao'}
+                      </button>
+                    ) : null}
+
+                    {canActivateCampaign ? (
+                      <button
+                        type="button"
+                        onClick={() => void handleCampaignAction('activate')}
+                        disabled={runningAction !== null}
+                        className="rounded-2xl bg-ruah-950 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50"
+                      >
+                        {runningAction === 'activate' ? 'Ativando...' : detail.campaign.status === 'paused' ? 'Reativar campanha' : 'Ativar campanha'}
+                      </button>
+                    ) : null}
+
+                    {canPauseCampaign ? (
+                      <button
+                        type="button"
+                        onClick={() => void handleCampaignAction('pause')}
+                        disabled={runningAction !== null}
+                        className="rounded-2xl border border-ruah-200 bg-white px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-950 disabled:opacity-50"
+                      >
+                        {runningAction === 'pause' ? 'Pausando...' : 'Pausar campanha'}
+                      </button>
+                    ) : null}
+
+                    {canCloseCampaign ? (
+                      <button
+                        type="button"
+                        onClick={() => void handleCampaignAction('close')}
+                        disabled={runningAction !== null}
+                        className="rounded-2xl border border-ruah-200 bg-white px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-950 disabled:opacity-50"
+                      >
+                        {runningAction === 'close' ? 'Encerrando...' : 'Encerrar campanha'}
+                      </button>
+                    ) : null}
+
+                    {detail.readiness.isPublicStorefrontLive ? (
+                      <Link
+                        href={`/c/${detail.campaign.campaignId}`}
+                        className="rounded-2xl border border-ruah-200 bg-white px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-950"
+                      >
+                        Abrir rota publica
+                      </Link>
+                    ) : null}
+                  </div>
+                ) : null}
 
                 <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
                   <div className="rounded-2xl border border-ruah-100 bg-ruah-50 p-4">

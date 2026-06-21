@@ -131,6 +131,31 @@ export function getReferralLinkBySlug(slug: string) {
   return Object.values(readState().links).find((row) => row.slug === slug) ?? null;
 }
 
+export function updateReferralLinkStatus(input: {
+  referralLinkId: string;
+  from: ReferralLinkStatus[];
+  to: ReferralLinkStatus;
+}) {
+  const state = readState();
+  const current = state.links[input.referralLinkId];
+  if (!current) return { kind: 'not_found' as const };
+  if (current.status === input.to) {
+    return { kind: 'unchanged' as const, link: current };
+  }
+  if (!input.from.includes(current.status)) {
+    return { kind: 'invalid_transition' as const, link: current };
+  }
+
+  const updated: ReferralLinkRecord = {
+    ...current,
+    status: input.to,
+    updatedAt: new Date().toISOString(),
+  };
+  state.links[input.referralLinkId] = updated;
+  writeState(state);
+  return { kind: 'updated' as const, previous: current, link: updated };
+}
+
 export function recordReferralClick(input: { referralLinkId: string }) {
   const state = readState();
   const link = state.links[input.referralLinkId];

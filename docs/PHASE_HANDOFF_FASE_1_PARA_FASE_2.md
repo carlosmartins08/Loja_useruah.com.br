@@ -1,6 +1,6 @@
 # Passagem de Bastao - Fase 1 para Fase 2
 
-Data de revisao: 2026-06-08
+Data de revisao: 2026-06-20
 
 ## Objetivo
 Impedir que a evolucao da Fase 2 crie duplicidade, retrabalho ou arquitetura paralela sobre a venda ja definida na Fase 1.
@@ -38,12 +38,19 @@ Essa base nao deve ser reimplementada pela Fase 2.
 - `Organization / Movement`: ainda nao presumir como dominio maduro
 - username publico unico e `/@username`: ainda nao presumir como fluxo fechado ponta a ponta
 - `MovementCategory`: planejado
-- `MovementMarkup`: planejado
-- `ReferralLink`: planejado
-- `ReferralEvent`: planejado
-- `ReferralConversion`: planejado
+- `CampaignProduct` vinculado a `CatalogItem`: capacidade parcial comprovada
+- contexto comercial de campanha no `OrderItemSnapshot`: capacidade parcial comprovada
+- `ReferralLink`: capacidade parcial comprovada
+- `ReferralEvent`: capacidade parcial comprovada
+- `ReferralConversion`: capacidade parcial comprovada
 - compradores com dados limitados: planejado
 - arrecadacao do movimento: planejado
+
+Capacidade parcial comprovada hoje significa:
+- `/c/[campaignId]` e `/shop?campaignId=...` como superficies reais de atribuicao e vitrine filtrada
+- `CampaignProduct` vinculando campanha ativa a `CatalogItem` publicado
+- `OrderItemSnapshot` preservando `organizationId`, `campaignId`, `campaignName`, `campaignProgressivePriceRule`, `referralLinkId`, `affiliateUserId`, `movementMarkup` e `priceCompositionVersion`
+- `/affiliate`, `/affiliate/links` e `/af/[slug]` sustentando link, clique e conversao automatica sem reward financeiro proprio
 
 Esse contexto deve ser acoplado ao fluxo de venda existente, nao duplicado.
 

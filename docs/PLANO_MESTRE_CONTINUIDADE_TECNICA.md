@@ -1,6 +1,6 @@
 # Plano Mestre de Continuidade Tecnica
 
-Data de revisao: 2026-06-08
+Data de revisao: 2026-06-20
 Owner: Produto + Engenharia
 
 ## Objetivo
@@ -34,21 +34,25 @@ Definir um quadro unico de continuidade para o projeto evoluir sem reabrir fase,
   - `npm run qa:functional`: PASS
 - `gateway_real` generico: `PLANEJADO` como bridge futura.
 - `pix`: fora do recorte imediato.
-- Fase 2: fechada para execucao ate nova evidencia objetiva.
-- Fase 3: fechada para execucao como frente principal ate nova evidencia objetiva.
+- Fase 2: aberta apenas para endurecimento serial de dominios `PARCIAL` ja provados no runtime.
+- Fase 3: continua fechada como frente autonoma; so cabe hardening pontual do fluxo `artwork -> catalogo` quando ele ja estiver acoplado ao runtime atual e nao abrir produto paralelo.
+
+### Agora, antes do aceite final de producao Stripe
+- Registrar e executar apenas 1 frente por vez.
+- Atacar somente dominios `PARCIAL` que ja tenham prova runtime e gate claro.
+- Tratar pagamento real como trilha bloqueada por dependencia externa, nao como motivo para misturar frentes internas.
 
 ### Depois do aceite final de producao Stripe
 - Registrar evidencia operacional e manter a Fase 1 como baseline vendavel.
-- Abrir no maximo 1 recorte de evolucao por vez.
-- O primeiro recorte elegivel de produto continua sendo Fase 2 em cima do que a matriz marcar como `IMPLEMENTADO` ou `PARCIAL` conscientemente aceito.
-- No estado atual do runtime, o unico ponto com base minimamente utilizavel e `MovementCampaign` basico.
+- Continuar abrindo no maximo 1 recorte de evolucao por vez.
+- Promover para `IMPLEMENTADO` apenas o que subir de maturidade na matriz com prova nova.
 
 ### O que continua proibido
 - criar produto paralelo ao `CatalogItem`
 - criar checkout paralelo
 - criar `Order`, `Payment` ou `Cart` paralelos
 - abrir Fase 3 como frente principal antes de consolidar o que a Fase 2 realmente tem
-- tratar `Organization`, `CampaignProduct`, `Referral*` ou snapshot expandido como base pronta
+- tratar `Organization`, username publico, reward financeiro proprio de afiliado ou snapshot alem do contrato parcial atual como base pronta
 - mexer em codigo para compensar ambiente Stripe incompleto
 - reabrir documentacao sem evidencia nova
 
@@ -83,12 +87,20 @@ Se a Etapa 1 terminar em `GO` ou `GO CONDICIONADO` sem risco de regressao de flu
   - Fase 1 funcional fechada
   - Fase 1 producao ainda condicionada ate aceite final de producao
 
-### Etapa 3 - Proximo recorte de produto
-So pode abrir novo recorte quando todas as condicoes abaixo forem verdadeiras:
+### Etapa 3 - Frentes internas serializadas
+Enquanto a janela real da Stripe nao abre, a execucao interna so pode seguir se todas as condicoes abaixo forem verdadeiras:
 - Fase 1 continua preservada
-- Stripe concluiu aceite final de producao e readiness operacional real
 - o recorte cabe em 1 unico dominio
+- a matriz marca a capacidade como `PARCIAL` ou `IMPLEMENTADO`
 - nenhuma dependencia `NAO PRESUMIR` esta sendo tratada como pronta
+- o gate de prova da frente esta definido antes do patch
+
+Sequencia obrigatoria:
+1. `community-campaigns`
+2. `affiliate-referral`
+3. `catalogo-curadoria/artwork` apenas como hardening acoplado ao runtime atual
+4. `superficies publicas` com criterio de honestidade de runtime
+5. `real-payments-cutover` quando a janela externa existir
 
 ## Regra de escolha do proximo recorte
 Pergunta obrigatoria:
@@ -99,11 +111,12 @@ o proximo passo depende de capacidade IMPLEMENTADA ou PARCIAL validada?
 
 Se a resposta for `nao`, o recorte nao abre.
 
-## Melhor proximo recorte quando Stripe estiver resolvida
+## Melhor proximo recorte agora
 Pelo estado atual das docs e do runtime:
-- Fase 2 continua sendo a frente correta
-- o recorte mais coerente e estreito e `MovementCampaign` basico
-- qualquer expansao para `Organization`, `Referral*`, snapshot contextualizado ou supplier completo deve esperar prova runtime
+- a frente correta imediata e `community-campaigns`
+- a segunda frente correta e `affiliate-referral`
+- `catalogo-curadoria/artwork` entra depois como endurecimento do fluxo real ja conectado ao catalogo publicado
+- qualquer expansao para `Organization`, `/@username`, reward financeiro proprio de afiliado ou supplier completo deve esperar prova runtime ou decisao nova de produto
 
 ## Checklist anti-retrabalho
 - usar `docs/FASE_1_VENDA_DE_PRODUTO.md` para escopo da base vendavel
@@ -113,10 +126,13 @@ Pelo estado atual das docs e do runtime:
 - usar `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` para tudo que for pagamento real
 
 ## Regra final
-O projeto so continua de forma coerente se cada etapa provar a anterior.
+O projeto so continua de forma coerente se cada frente provar a anterior e se a serializacao for respeitada.
 
-Sem prova Stripe:
-- nao existe Fase 2 honesta em execucao.
+Sem prova da frente atual:
+- nao se abre a seguinte.
+
+Sem janela Stripe:
+- nao existe `GO` honesto de pagamento real, mas ainda existe endurecimento interno honesto dos dominios `PARCIAL` ja provados.
 
 Sem base Fase 2 realmente validada:
-- nao existe Fase 3 honesta em execucao.
+- nao existe Fase 3 honesta como expansao autonoma.

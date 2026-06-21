@@ -11,15 +11,18 @@ import { BRAND_EDITORIAL_ASSETS } from '@/lib/brand-assets';
 const FAQ_ITEMS = [
   {
     question: "O que significa 'Ruah'?",
-    answer: 'Ruah é uma palavra hebraica ligada a sopro, vento e espírito. Na marca, ela funciona como eixo simbólico para uma moda cristã com linguagem visual contemplativa e direção própria.',
+    answer:
+      'Ruah e uma palavra hebraica ligada a sopro, vento e espirito. Na marca, ela funciona como eixo simbolico para uma moda crista com linguagem visual contemplativa e direcao propria.',
   },
   {
-    question: 'Como os produtos são fabricados?',
-    answer: 'A operação pública trabalha com produção sob demanda. A peça entra em produção depois da compra, o que reduz estoque parado e mantém a vitrine mais aderente ao catálogo real.',
+    question: 'Como os produtos sao fabricados?',
+    answer:
+      'A operacao publica trabalha com producao sob demanda. A peca entra em producao depois da compra, o que reduz estoque parado e mantem a vitrine mais aderente ao catalogo real.',
   },
   {
-    question: 'Qual é o papel da UseRuah hoje?',
-    answer: 'Hoje o papel da UseRuah é mais objetivo do que parte do discurso antigo sugeria: reunir peças publicadas, organizar leitura editorial de coleção e sustentar compra, pagamento e atendimento com rastreabilidade.',
+    question: 'Qual e o papel da UseRuah hoje?',
+    answer:
+      'Hoje o papel da UseRuah e mais objetivo do que parte do discurso antigo sugeria: reunir pecas publicadas, organizar leitura editorial de colecao e sustentar compra, pagamento e atendimento com rastreabilidade.',
   },
 ];
 
@@ -61,10 +64,10 @@ export default function AboutPage() {
               Manifesto UseRuah
             </motion.span>
             <motion.h1 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="ur-type-display-xl italic leading-[0.85] tracking-tighter uppercase mb-16">
-              Catálogo com <br /> <span className="not-italic">linguagem própria.</span>
+              Catalogo com <br /> <span className="not-italic">linguagem propria.</span>
             </motion.h1>
             <motion.p initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-lg lg:text-xl font-medium uppercase tracking-[0.2em] leading-relaxed text-white/60 max-w-2xl">
-              A UseRuah existe para traduzir fé em forma visual sem prometer capacidades que o produto ainda não entrega. Hoje isso significa coleção publicada, direção editorial e operação sob demanda.
+              A UseRuah existe para traduzir fe em forma visual sem prometer capacidades que o produto ainda nao entrega. Hoje isso significa colecao publicada, direcao editorial e operacao sob demanda.
             </motion.p>
           </div>
         </div>
@@ -82,8 +85,8 @@ export default function AboutPage() {
                 O SOPRO <br /> DA MARCA.
               </h2>
               <div className="flex flex-col gap-8 text-ruah-500 font-medium uppercase text-[10px] tracking-widest leading-loose">
-                <p>Ruah, em hebraico, carrega a ideia de sopro, vento e espírito. A marca usa esse eixo como linguagem, não como desculpa para inflar promessa operacional.</p>
-                <p>O objetivo prático é construir uma presença visual coerente: peças que já existem no catálogo, leitura clara de coleção e uma estética que não dependa de clichê religioso.</p>
+                <p>Ruah, em hebraico, carrega a ideia de sopro, vento e espirito. A marca usa esse eixo como linguagem, nao como desculpa para inflar promessa operacional.</p>
+                <p>O objetivo pratico e construir uma presenca visual coerente: pecas que ja existem no catalogo, leitura clara de colecao e uma estetica que nao dependa de cliche religioso.</p>
               </div>
             </div>
             <div className="lg:col-span-7 relative aspect-square rounded-[4rem] overflow-hidden shadow-fancy">
@@ -93,15 +96,15 @@ export default function AboutPage() {
 
           <div className="layout-grid-media gap-20 lg:gap-24 items-center">
             <div className="lg:col-span-7 relative aspect-square rounded-[4rem] overflow-hidden shadow-fancy order-2 lg:order-1">
-              <AppImage context="content-banner" src={BRAND_EDITORIAL_ASSETS.aboutCommunity} alt="Coleção UseRuah" fill className="object-cover" />
+              <AppImage context="content-banner" src={BRAND_EDITORIAL_ASSETS.aboutCommunity} alt="Colecao UseRuah" fill className="object-cover" />
             </div>
             <div className="lg:col-span-5 flex flex-col gap-12 order-1 lg:order-2 self-center">
               <h2 className="text-5xl font-serif uppercase italic leading-none tracking-tighter font-black text-ruah-950">
                 VISTA-SE DE <br /> CONTEXTO.
               </h2>
               <div className="flex flex-col gap-8 text-ruah-500 font-medium uppercase text-[10px] tracking-widest leading-loose">
-                <p>A UseRuah não opera hoje como plataforma aberta para igreja, artista e customização em escala. O que existe publicamente é uma loja com catálogo publicado, compra simples e atendimento rastreável.</p>
-                <p>Isso não diminui a marca. Pelo contrário: obriga cada página a dizer a verdade sobre o estágio atual do produto.</p>
+                <p>A UseRuah nao opera hoje como plataforma aberta para igreja, artista e customizacao em escala. O que existe publicamente e uma loja com catalogo publicado, compra simples e atendimento rastreavel.</p>
+                <p>Isso nao diminui a marca. Pelo contrario: obriga cada pagina a dizer a verdade sobre o estagio atual do produto.</p>
               </div>
             </div>
           </div>
@@ -112,7 +115,7 @@ export default function AboutPage() {
         <div className="section-container text-center">
           <span className="tech-label text-accent-gold mb-8 block">Base operacional</span>
           <h3 className="text-4xl font-serif mb-12 max-w-3xl mx-auto italic font-black text-ruah-950">
-            Produção sob demanda, catálogo publicado e menos distância entre discurso de marca e runtime.
+            Producao sob demanda, catalogo publicado e menos distancia entre discurso de marca e runtime.
           </h3>
           <div className="flex justify-center flex-wrap gap-16">
             <div className="flex flex-col gap-2">
@@ -121,7 +124,7 @@ export default function AboutPage() {
             </div>
             <div className="flex flex-col gap-2">
               <span className="text-3xl font-serif font-black italic">1</span>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-400">Catálogo público coerente</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-ruah-400">Catalogo publico coerente</span>
             </div>
             <div className="flex flex-col gap-2">
               <span className="text-3xl font-serif font-black italic">0%</span>
@@ -135,12 +138,12 @@ export default function AboutPage() {
         <div className="section-container">
           <div className="layout-grid-product gap-12 lg:gap-16">
             <div className="lg:col-span-4 self-start">
-              <span className="tech-label text-accent-gold mb-8 block">Dúvidas Frequentes</span>
+              <span className="tech-label text-accent-gold mb-8 block">Duvidas Frequentes</span>
               <h2 className="text-5xl font-serif uppercase italic leading-none tracking-tighter font-black text-ruah-950 mb-8">
-                TRANSPARÊNCIA <br /> ANTES DO MITO.
+                TRANSPARENCIA <br /> ANTES DO MITO.
               </h2>
               <p className="text-[10px] font-bold uppercase tracking-widest leading-loose text-ruah-400 max-w-xs">
-                Entenda o que a marca significa, o que a operação sustenta hoje e o que ainda não deve ser vendido como capacidade pronta.
+                Entenda o que a marca significa, o que a operacao sustenta hoje e o que ainda nao deve ser vendido como capacidade pronta.
               </p>
             </div>
             <div className="lg:col-span-8 border-t border-ruah-100">

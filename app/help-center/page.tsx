@@ -135,23 +135,23 @@ export default function HelpCenterPage() {
                 <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold flex items-center gap-2">Ver meus pedidos <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" /></span>
               </Link>
 
-              <div className="group p-8 bg-ruah-50 rounded-[2.5rem] border border-ruah-100 hover:border-accent-gold/30 motion-base cursor-pointer">
+              <Link href="/policies" className="group p-8 bg-ruah-50 rounded-[2.5rem] border border-ruah-100 hover:border-accent-gold/30 motion-base">
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-accent-gold mb-5 shadow-sm">
                   <ShieldCheck size={24} />
                 </div>
                 <h3 className="text-xl font-serif italic mb-2">Pacto de Qualidade</h3>
                 <p className="text-sm text-ruah-500 leading-relaxed mb-5">Conheça nossos padrões de produção e tecidos.</p>
-                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold flex items-center gap-2">Ver padrões <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" /></span>
-              </div>
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold flex items-center gap-2">Ver politicas <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" /></span>
+              </Link>
 
-              <div className="group p-8 bg-ruah-50 rounded-[2.5rem] border border-ruah-100 hover:border-accent-gold/30 motion-base cursor-pointer">
+              <Link href="/account/orders" className="group p-8 bg-ruah-50 rounded-[2.5rem] border border-ruah-100 hover:border-accent-gold/30 motion-base">
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-accent-gold mb-5 shadow-sm">
                   <Truck size={24} />
                 </div>
                 <h3 className="text-xl font-serif italic mb-2">Rastreio Ruah</h3>
-                <p className="text-sm text-ruah-500 leading-relaxed mb-5">Saiba onde sua entrega está agora.</p>
-                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold flex items-center gap-2">Rastrear agora <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" /></span>
-              </div>
+                <p className="text-sm text-ruah-500 leading-relaxed mb-5">Entre na sua conta para acompanhar entrega, rastreio e eventuais trocas.</p>
+                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-accent-gold flex items-center gap-2">Abrir meus pedidos <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" /></span>
+              </Link>
             </div>
           </div>
         </section>

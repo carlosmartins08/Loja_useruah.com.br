@@ -1,6 +1,6 @@
 # Backend da Fase 2 - Movimentos, Campanhas e Afiliados
 
-Data de revisao: 2026-06-18
+Data de revisao: 2026-06-20
 
 ## Objetivo
 Definir a camada minima de backend da Fase 2 sem criar arquitetura paralela a Fase 1 e sem descrever como pronto o que ainda esta em implementacao ou apenas planejado.
@@ -47,9 +47,9 @@ Leitura obrigatoria:
 - fora de `MovementCampaign` basico, os demais itens nao devem ser presumidos como dominio maduro sem prova runtime.
 
 ## Regras estruturais de desenho
-- quando implementado, `CampaignProduct` deve apontar para `CatalogItem`
+- no runtime atual, `CampaignProduct` deve continuar apontando para `CatalogItem`
 - quando implementado, `Organization.username` deve ser unico globalmente
-- quando implementado, contexto de movimento/campanha/referral deve ser persistido no `OrderItemSnapshot`
+- contexto de movimento/campanha/referral ja pode ser persistido no `OrderItemSnapshot` dentro do contrato parcial atual; qualquer expansao alem dele exige prova runtime
 - permissao de movimento e afiliado deve ser explicita, sem heranca frouxa
 
 Estado atual reconhecido:

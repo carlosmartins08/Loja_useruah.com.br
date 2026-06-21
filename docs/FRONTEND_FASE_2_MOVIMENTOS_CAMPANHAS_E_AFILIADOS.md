@@ -44,6 +44,7 @@ Regra de UX para essas superficies:
 - campanha ativa deve mostrar apenas itens realmente vinculados ao recorte publicado;
 - `/community/campaigns/[id]` deve ser tratado como memoria operacional da campanha, com timeline, governanca, bloqueios e atribuicao leve no mesmo contrato do backend;
 - afiliacao deve mostrar links, cliques, conversoes e receita atribuida sem chamar isso de saldo ou payout;
+- `/affiliate/links` deve permitir pausar e reativar `ReferralLink` quando o canal nao puder mais atribuir novos pedidos;
 - `/community/revenue` pode detalhar receita por campanha, mas sempre como atribuicao composicional; payout continua agregado no owner ledger;
 - nenhuma dessas telas pode insinuar `Organization` madura, membership formal ou reward financeiro proprio se o backend ainda nao sustenta isso.
 

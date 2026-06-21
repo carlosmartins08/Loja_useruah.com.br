@@ -48,6 +48,7 @@ export default function AffiliateLinksPage() {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
+  const [runningActionId, setRunningActionId] = React.useState<string | null>(null);
   const [form, setForm] = React.useState(INITIAL_FORM);
 
   async function fetchLinks() {
@@ -110,6 +111,29 @@ export default function AffiliateLinksPage() {
   };
 
   const links = data?.links ?? [];
+  const activeLinks = links.filter((item) => item.status === 'active').length;
+  const pausedLinks = links.filter((item) => item.status === 'paused').length;
+
+  const handleStatusAction = async (item: ReferralLinkPerformance) => {
+    const endpoint = item.status === 'active' ? 'pause' : 'activate';
+    setRunningActionId(item.referralLinkId);
+    setError(null);
+    try {
+      await postJson(`/api/affiliate/links/${encodeURIComponent(item.referralLinkId)}/${endpoint}`, {});
+      const response = await fetchLinks();
+      setData(response);
+    } catch (err) {
+      if (err instanceof HttpRequestError && err.status === 403) {
+        setError('Seu papel atual nao pode alterar este link.');
+      } else if (err instanceof HttpRequestError && err.status === 409) {
+        setError('O link ja estava nesse estado e precisa ser recarregado.');
+      } else {
+        setError('Nao foi possivel atualizar o status do link agora.');
+      }
+    } finally {
+      setRunningActionId(null);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-ruah-50 page-header-offset">
@@ -148,7 +172,16 @@ export default function AffiliateLinksPage() {
                     <div key={item.referralLinkId} className="border border-ruah-100 rounded-2xl p-4 bg-ruah-50/40">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <h3 className="text-sm font-semibold text-ruah-950">{item.label}</h3>
-                        <span className="text-xs uppercase tracking-[0.1em] text-ruah-500">{item.channel}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs uppercase tracking-[0.1em] text-ruah-500">{item.channel}</span>
+                          <span
+                            className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${
+                              item.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                            }`}
+                          >
+                            {item.status === 'active' ? 'Ativo' : 'Pausado'}
+                          </span>
+                        </div>
                       </div>
                       <p className="mt-2 text-sm text-ruah-600">/af/{item.slug}</p>
                       <p className="mt-1 text-xs text-ruah-500">Destino: {item.targetPath}</p>
@@ -157,6 +190,22 @@ export default function AffiliateLinksPage() {
                         <span>Conversoes: <strong className="text-ruah-950">{item.conversionCount}</strong></span>
                         <span>Taxa: <strong className="text-ruah-950">{item.conversionRate}%</strong></span>
                         <span>Receita: <strong className="text-ruah-950">{formatCurrency(item.revenueAmount)}</strong></span>
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          onClick={() => void handleStatusAction(item)}
+                          disabled={runningActionId !== null}
+                          className="rounded-2xl border border-ruah-200 bg-white px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-ruah-950 disabled:opacity-50"
+                        >
+                          {runningActionId === item.referralLinkId
+                            ? item.status === 'active'
+                              ? 'Pausando...'
+                              : 'Reativando...'
+                            : item.status === 'active'
+                              ? 'Pausar link'
+                              : 'Reativar link'}
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -171,7 +220,8 @@ export default function AffiliateLinksPage() {
                 <BarChart3 size={16} className="text-accent-gold" /> Resumo
               </h3>
               <ul className="mt-4 space-y-3 text-sm text-ruah-600">
-                <li className="flex items-center justify-between"><span>Links Ativos</span><strong className="text-ruah-950">{data?.summary.totalLinks ?? 0}</strong></li>
+                <li className="flex items-center justify-between"><span>Links Ativos</span><strong className="text-ruah-950">{activeLinks}</strong></li>
+                <li className="flex items-center justify-between"><span>Links Pausados</span><strong className="text-ruah-950">{pausedLinks}</strong></li>
                 <li className="flex items-center justify-between"><span>Cliques Totais</span><strong className="text-ruah-950">{data?.summary.clicks ?? 0}</strong></li>
                 <li className="flex items-center justify-between"><span>Conversao Media</span><strong className="text-ruah-950">{data?.summary.conversionRate ?? 0}%</strong></li>
               </ul>

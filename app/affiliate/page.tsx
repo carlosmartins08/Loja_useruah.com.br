@@ -71,12 +71,23 @@ export default function AffiliateHomePage() {
     };
   }, []);
 
-  const topLink = data?.links[0] ?? null;
+  const topLink = React.useMemo(() => {
+    const links = data?.links ?? [];
+    return (
+      [...links].sort((left, right) => {
+        if (right.revenueAmount !== left.revenueAmount) return right.revenueAmount - left.revenueAmount;
+        if (right.conversionCount !== left.conversionCount) return right.conversionCount - left.conversionCount;
+        return right.clickCount - left.clickCount;
+      })[0] ?? null
+    );
+  }, [data?.links]);
+  const activeLinks = data?.links.filter((item) => item.status === 'active').length ?? 0;
+  const pausedLinks = data?.links.filter((item) => item.status === 'paused').length ?? 0;
   const statusCards = [
     {
       title: 'Ativos de divulgacao',
-      value: String(data?.summary.totalLinks ?? 0),
-      detail: 'Links reais cadastrados neste owner e servidos por `/af/[slug]`.',
+      value: `${activeLinks}/${data?.summary.totalLinks ?? 0}`,
+      detail: 'Links ativos sobre o inventario total. Os pausados deixam de atribuir novos pedidos.',
       icon: Link2,
     },
     {
@@ -143,6 +154,9 @@ export default function AffiliateHomePage() {
                 <p>
                   Melhor ativo atual:{' '}
                   <span className="font-semibold text-ruah-950">{topLink ? `${topLink.label} (${topLink.channel})` : 'nenhum link cadastrado ainda'}</span>
+                </p>
+                <p>
+                  Links pausados: <span className="font-semibold text-ruah-950">{pausedLinks}</span>
                 </p>
               </div>
             ) : null}

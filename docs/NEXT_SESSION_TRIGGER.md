@@ -1,19 +1,51 @@
 # Next Session Trigger
 
-Data de revisao: 2026-06-18
+Data de revisao: 2026-06-20
 
 ## Objetivo
 Retomar a execucao exatamente pela mesma logica de saneamento e evolucao validada neste ciclo, sem reabrir decisoes fechadas e sem misturar escopo novo com base ja consolidada.
 
+## Gatilho canonico de retomada
+Toda nova sessao deve comecar por este gatilho, nesta ordem:
+1. Ler `docs/ACTIVE_FRONT.md`.
+2. Ler `docs/NEXT_SESSION_TRIGGER.md`.
+3. Ler `docs/EXECUTION_TRACKING.md`.
+4. Ler `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`.
+5. Confirmar verbalmente ou internamente:
+   - onde o trabalho parou;
+   - o que ja foi provado;
+   - qual e a frente unica ativa;
+   - qual e o proximo passo exato;
+   - qual e a condicao de pivot para evitar loop.
+6. So depois executar.
+
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Retome a execucao a partir de docs/NEXT_SESSION_TRIGGER.md e docs/EXECUTION_TRACKING.md. Preserve a logica ja validada: seguranca antes de UI, namespace canonico como verdade interna, RBAC em lib/access-control.ts como autoridade, smoke autenticado por papel como prova real, e qa:base:roles como gate obrigatorio antes de liberar mudanca. Nao reabra escopo ja fechado; avance apenas na proxima frente permitida e me avise se algum passo violar essa disciplina.`
+`Retome a execucao a partir de docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/EXECUTION_TRACKING.md e docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md. Preserve a logica ja validada: seguranca antes de UI, namespace canonico como verdade interna, RBAC em lib/access-control.ts como autoridade, smoke autenticado por papel como prova real, e qa:base:roles como gate obrigatorio antes de liberar mudanca. Nao crie documento novo; execute apenas a frente serial atual e me avise se algum passo violar essa disciplina.`
+
+## Checklist anti-retrabalho
+Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
+- estou partindo da frente ativa registrada, e nao de memoria parcial;
+- nao vou reabrir frente ja provada sem evidencia nova;
+- nao vou criar documento paralelo para decidir o que os documentos ativos ja decidem;
+- nao vou insistir no mesmo runner se ele repetir o mesmo bloqueio sem aprendizado novo;
+- consigo dizer em uma linha qual e o proximo passo exato desta sessao.
+
+Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementar.
+
+## Protocolo de continuidade operacional
+- `docs/ACTIVE_FRONT.md` passa a ser a memoria operacional canonica da frente em aberto.
+- `.agents/session-state.json` espelha o mesmo estado em formato legivel por maquina.
+- `docs/EXECUTION_TRACKING.md` continua como snapshot macro e ponte para historico.
+- Se a sessao encerrar com bloqueio, registrar o bloqueio em `docs/ACTIVE_FRONT.md` e `.agents/session-state.json` antes de parar.
 
 ## Regra de retomada obrigatoria
 1. Ler antes de agir:
+   - `docs/ACTIVE_FRONT.md`
    - `docs/NEXT_SESSION_TRIGGER.md`
    - `docs/EXECUTION_TRACKING.md`
+   - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
    - `docs/ROUTES.md`
    - `docs/JOURNEY_MATRIX_BY_ROLE.md`
    - `docs/CODEBASE_MAP.md`
@@ -27,6 +59,7 @@ Use este prompt literalmente ou com ajuste minimo:
    - nao usar header fallback para validar fluxo sensivel se o runtime exigir sessao real
    - nao criar rota nova para contornar guard existente
    - nao reexportar pagina de outro papel para fingir jornada propria
+   - nao insistir no mesmo runner local quando ele repetir o mesmo bloqueio sem aprendizado novo; registrar o limite em `docs/ACTIVE_FRONT.md` e pivotar para a proxima frente serial resolvivel
 4. Sempre provar antes de encerrar:
    - `npm run check`
    - `npm run build` quando houver impacto estrutural
@@ -57,6 +90,21 @@ Use este prompt literalmente ou com ajuste minimo:
 - `qa:coreops`: `PASS`
 - `qa:crossrole:impact`: `PASS`
 - `qa:matrix:audit`: `PASS`
+- `qa:affiliate:referral` em `QA_SERVER_MODE=dev`: `PASS`
+- `qa:role:closure` em `QA_SERVER_MODE=dev`: `PASS` quando a execucao respeita `PAYOUT_SECURITY_WINDOW_DAYS=0` e `AUTH_SESSION_SECRET=qa-local-session-secret`
+- `utf8:check`: `PASS`
+- smoke local em `next dev` para `/artista/lucas-santana`, `/category/autoral`, `/help-center` e `/quem-somos`: `PASS`
+
+## Regra anti-loop
+- Se a mesma prova local falhar ou for interrompida duas vezes sem produzir evidencia nova, isso deixa de ser tarefa ativa e vira limitacao de ambiente.
+- A sessao deve registrar esse limite em `docs/ACTIVE_FRONT.md` e `.agents/session-state.json`, depois seguir para outra frente serial valida.
+
+## Contrato minimo da proxima sessao
+A proxima sessao so esta autorizada a:
+1. continuar a frente ativa atual; ou
+2. promover explicitamente a frente seguinte quando a atual estiver saneada e isso for registrado nos docs ativos.
+
+Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do primeiro patch.
 
 ## Verdades que nao devem ser reabertas sem evidencia nova
 - `lib/access-control.ts` e a autoridade canonica de permissao de runtime.
@@ -66,6 +114,8 @@ Use este prompt literalmente ou com ajuste minimo:
 - Redirect legado e compatibilidade externa, nao superficie interna viva.
 - Falha em runner paralelo nao vale como regressao se a malha serial passar.
 - `spawn EPERM` em `next build` dentro de sandbox Windows nao vale como regressao se `build` e `qa:base:roles` passarem fora do sandbox no mesmo working tree.
+- Em Windows sandboxado, uma rota nova pode exigir `QA_SERVER_MODE=dev` para QA especifica quando `start` estiver reusando build antigo sem o patch atual.
+- Divergencia entre execucao manual e gate oficial so vale como sinal tecnico quando as mesmas envs do gate estiverem presentes.
 - `/community/campaigns/[id]` e `GET /api/campaigns/[id]` agora sao a memoria operacional canonica da campanha, inclusive para leitura por governanca.
 - `/api/commissions/me/campaigns` e a secao nova de `/community/revenue` mostram atribuicao real por campanha, nao payout isolado por campanha.
 - Curadoria de `artwork` nao pula mais de `submitted` direto para decisao final; a etapa `under_review` passou a ser contrato real do runtime.
@@ -81,11 +131,18 @@ Use este prompt literalmente ou com ajuste minimo:
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-Escolher apenas uma por vez:
-- limpar historico documental ainda ativo que possa induzir leitura errada do runtime atual
-- atacar um dominio ainda `PARCIAL` sem reabrir a coerencia ja fechada dos papeis
-- fechar a proxima lacuna objetiva de Fase 2 sem fingir payout financeiro proprio de afiliado ou dominio maduro de `Organization`
-- remover novo ponto de ambiguidade estrutural se ele aparecer em rota, guard, jornada, QA ou copy publica com promessa sem runtime
+Seguir apenas a ordem serial abaixo, uma por vez:
+1. `community-campaigns`
+2. `affiliate-referral`
+3. `catalogo-curadoria/artwork` em modo hardening, sem abrir Fase 3 autonoma
+4. `superficies publicas`
+5. `real-payments-cutover` quando a janela externa existir
+
+Leitura operacional deste momento:
+- `affiliate-referral` fechou o recorte novo.
+- `catalogo-curadoria/artwork` fechou o recorte validado nesta sessao.
+- `superficies publicas` ja saneou o recorte mais gritante em `artista`, `category`, `help-center` e `quem-somos`.
+- a frente ativa continua `superficies publicas` ate a varredura final curta ou promocao explicita para `real-payments-cutover`.
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:

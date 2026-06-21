@@ -1,6 +1,6 @@
 # Fase 2 - Movimentos, Campanhas e Afiliados
 
-Data de revisao: 2026-06-18
+Data de revisao: 2026-06-20
 
 ## Objetivo
 Definir o escopo funcional oficial da Fase 2 sobre a venda ja provada na Fase 1, sem fazer o texto parecer mais maduro do que o runtime atual.
@@ -40,20 +40,23 @@ Checkout continua sendo:
 - `/cart`
 - `/checkout`
 
-## Contexto adicional planejado para o snapshot
-Quando a extensao da Fase 2 for implementada de forma real, `OrderItemSnapshot` deve receber:
+## Contexto adicional do snapshot da Fase 2
+Campos ja comprovados no runtime atual quando a compra nasce de campanha ativa:
 - `organizationId`
-- `organizationUsername`
 - `campaignId`
 - `campaignName`
+- `campaignProgressivePriceRule`
 - `movementMarkup`
 - `referralLinkId`
 - `affiliateUserId`
 - `priceCompositionVersion`
 
+Campo ainda planejado, sem prova runtime ponta a ponta:
+- `organizationUsername`
+
 Estado atual reconhecido:
 - o snapshot oficial continua preservando a base da Fase 1, mas ja captura contexto ampliado em `phase2-context-pricing-v1` quando a compra nasce de campanha ativa com composicao formal de preco;
-- hoje o runtime ja consegue persistir `organizationId`, `campaignId`, `campaignName`, `campaignProgressivePriceRule`, `referralLinkId`, `affiliateUserId`, `movementMarkup` e `priceCompositionVersion`;
+- hoje o runtime ja consegue persistir todos os campos listados acima, exceto `organizationUsername`;
 - `movementMarkup` e `priceCompositionVersion` agora representam a composicao real de preco validada em runtime para a campanha ativa, nao uma promessa vaga;
 - `organizationUsername` continua fora e nao pode ser presumido.
 
@@ -63,7 +66,7 @@ Estado atual reconhecido:
 - `Organization / Movement`: escopo previsto, ainda nao comprovado como dominio maduro
 - username publico unico e vitrine `/@username`: escopo previsto, ainda nao comprovado ponta a ponta
 - categorias internas de movimento: escopo previsto
-- links rastreaveis e afiliacao: capacidade parcial no runtime atual para `ReferralLink`, clique publico em `/af/[slug]`, snapshot de pedido com `referralLinkId` e conversao registrada automaticamente; reward financeiro proprio segue fora
+- links rastreaveis e afiliacao: capacidade parcial no runtime atual para `ReferralLink`, clique publico em `/af/[slug]`, pausa/reativacao operacional do link, snapshot de pedido com `referralLinkId` e conversao registrada automaticamente; reward financeiro proprio segue fora
 - arrecadacao e contexto comercial do movimento: escopo previsto, dependente de implementacao adicional
 
 ## O que fica fora

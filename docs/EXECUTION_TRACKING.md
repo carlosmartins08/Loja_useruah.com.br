@@ -1,6 +1,6 @@
 # Execution Tracking (Snapshot Ativo + Ponte para Historico)
 
-Data de revisao: 2026-06-18
+Data de revisao: 2026-06-20
 
 ## Objetivo
 Manter uma leitura curta do estado operacional atual, das evidencias revalidadas no ciclo e dos riscos que ainda impedem confundir homologacao com producao real.
@@ -38,18 +38,16 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 
 ## Bloco 2 - Snapshot semanal ativo
 ### Dominio ativo do ciclo
-- `ui-rotas`
-- `rbac`
-- `qa por papel`
-- `governanca documental`
+- `planejamento de execucao serial`
+- `superficies publicas`
 
 ### Proximos movimentos validos
-1. Preservar namespaces canonicos por papel como unica referencia interna.
-2. Manter alias legado apenas como redirect transitorio, nunca como page montada.
-3. Validar jornadas autenticadas por papel com login server-side e cookie real, sem depender de header fallback.
-4. Executar a malha serial `qa:base:roles` antes de liberar mudanca em RBAC, rota ou dashboard.
-5. Usar `docs/EXECUTION_TRACKING.md` so para snapshot e evidencias recentes.
-6. Mandar historico narrativo e contexto antigo para `docs/archive/**` ou `docs/CHANGELOG_GOVERNANCE.md`.
+1. Tratar `affiliate-referral` e `catalogo-curadoria/artwork` como recortes fechados neste ciclo.
+2. Tratar `superficies publicas` como frente atual unica.
+3. Considerar `artista`, `category`, `help-center` e `quem-somos` como recortes ja endurecidos com prova local real neste ciclo.
+4. Fazer uma ultima varredura leve em superficies publicas restantes antes de declarar `FRONT_4` satisfeito.
+5. Tratar `real-payments-cutover` como frente separada e dependente de janela externa, nao como desculpa para travar tudo antes.
+6. Preservar namespaces canonicos por papel, login server-side real e gate serial `qa:base:roles` em qualquer frente que toque rota, jornada, RBAC ou superficie cross-role.
 
 ### KPIs minimos do ciclo
 - Gates do ciclo fechados: `check`, `qa:routes`, `build`, `qa:functional`, `qa:role:journeys`
@@ -59,6 +57,18 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 
 ## Bloco 3 - Evidencias P0 ativas
 Revalidado neste ciclo:
+- 2026-06-20: `affiliate-referral` saiu do estado cenografico de status e ganhou controle operacional real de `ReferralLink` -> `app/api/affiliate/links/[id]/pause/route.ts`, `app/api/affiliate/links/[id]/activate/route.ts`, `lib/referral-store.ts` e `/affiliate/links` agora permitem pausar/reativar links; `/af/[slug]` continua atribuindo apenas quando o link esta ativo
+- 2026-06-20: `qa:affiliate:referral` -> `PASS` em `QA_SERVER_MODE=dev`, com prova de pausa, fallback publico sem atribuicao, reativacao, clique persistido e conversao idempotente
+- 2026-06-20: `qa:role:closure` -> `PASS` em `QA_SERVER_MODE=dev`, desde que a execucao respeite a mesma malha de env do gate oficial (`PAYOUT_SECURITY_WINDOW_DAYS=0`, `AUTH_SESSION_SECRET=qa-local-session-secret`)
+- 2026-06-20: `qa:community-curation` -> `PASS` em `QA_SERVER_MODE=dev`, com prova de ownership, autenticacao, escopo autoral e transicao `submitted -> under_review -> approved`
+- 2026-06-20: `qa:catalog:curation` -> `PASS` em `QA_SERVER_MODE=dev`, com prova de `artwork aprovado -> CatalogItem pending_review -> impact review -> ready -> published -> vitrine publica`
+- 2026-06-20: `app/community/campaigns/[id]/page.tsx` passou a transformar o detalhe operacional de campanha em superficie acionavel por papel e estado, com proximo passo coerente e uso direto dos endpoints ja existentes de `submit`, `approve`, `pause` e `close`, sem abrir rota ou regra nova
+- 2026-06-20: plano de execucao serial consolidado sem documento novo -> `docs/ACTIVE_FRONT.md`, `docs/NEXT_SESSION_TRIGGER.md`, `docs/EXECUTION_TRACKING.md` e `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md` passam a carregar a sequencia operacional `community-campaigns -> affiliate-referral -> catalogo-curadoria/artwork -> superficies publicas -> real-payments-cutover`
+- 2026-06-20: saneamento documental ativo da Fase 2 -> `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`, `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md` e `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` deixaram de tratar `CampaignProduct`, referral e snapshot contextual como planejamento puro quando o runtime atual ja sustenta capacidade parcial real
+- 2026-06-20: `app/artista/[slug]/page.tsx`, `app/category/[slug]/page.tsx`, `app/help-center/page.tsx` e `app/quem-somos/page.tsx` deixaram de sustentar promessas cenograficas ou copy publica corrompida; o recorte agora aponta para catalogo, journal, policies e account reais
+- 2026-06-20: `npm run utf8:check` -> `PASS`
+- 2026-06-20: smoke local em `next dev` -> `PASS` para `/artista/lucas-santana`, `/category/autoral`, `/help-center` e `/quem-somos`
+- 2026-06-20: `npm run check` -> `PASS`
 - 2026-06-18: `npm run check` -> `PASS`
 - 2026-06-18: `npm run qa:routes` -> `PASS`
 - 2026-06-18: `npm run qa:blindspots` -> `PASS`
@@ -103,7 +113,11 @@ Revalidado no mesmo saneamento estrutural:
 - As superficies publicas `/` e `/category/[slug]` deixaram de vender por card estatico, mas a ordenacao comercial dessas vitrines ainda e simples e nao deve ser confundida com motor de merchandising maduro.
 - As principais superficies publicas de entrada agora tambem deixaram de prometer personalizacao self-service, canais externos e contatos oficiais nao sustentados pelo runtime; o risco remanescente passa a ser encontrar copy futura ou aspiracional em paginas publicas ainda nao auditadas neste mesmo criterio.
 - A frente publica ficou bem mais honesta, mas ainda vale auditar outras paginas editoriais ou institucionais novas com o mesmo criterio para evitar reintroducao de fluxo cenografico.
+- O recorte publico mais gritante desta sessao foi saneado com prova local, mas ainda e prudente uma ultima varredura leve antes de declarar `FRONT_4` totalmente encerrado.
 - A documentacao ativa da Fase 2 ficou menos propensa a reabrir escopo errado, mas ainda exige disciplina para nao transformar rotas planejadas em backlog presumido sem atualizar antes a matriz.
+- Sem seguir a serializacao nova, a tendencia natural e misturar frente interna resolvivel com bloqueio externo de homolog final e voltar a paralisar a execucao.
+- Se um runner local repetir o mesmo bloqueio sem novo aprendizado, insistir nele vira perda de sessao; o correto e registrar a limitacao e pivotar para outra frente serial resolvivel.
+- Em Windows sandboxado, rota nova provada por QA pode exigir `QA_SERVER_MODE=dev` quando `start` estiver reutilizando build antigo ou quando `next build` terminar em `spawn EPERM`; isso nao muda o contrato do app, so a forma de provar localmente.
 - Mencoes historicas a `/admin/support`, `/admin/production`, `/admin/finance/payouts` e `/finance/dashboard` sao evidencia de contexto e nao descrevem o runtime canonico atual.
 - Essas citacoes historicas nao autorizam patch nem definem superficie viva.
 - Qualquer nova limpeza documental deve preservar a fronteira:

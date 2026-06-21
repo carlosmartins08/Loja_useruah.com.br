@@ -1,6 +1,6 @@
 # Passagem de Bastao - Fase 2 para Fase 3
 
-Data de revisao: 2026-06-08
+Data de revisao: 2026-06-20
 
 ## Objetivo
 Definir a passagem oficial entre a Fase 2 e a Fase 3 sem presumir maturidade que o runtime atual ainda nao provou.
@@ -47,13 +47,17 @@ Regra principal:
 - presumir snapshot contextualizado da Fase 2 onde ele ainda nao existe no runtime
 
 ## Capacidades da Fase 2 que nao podem ser presumidas como base pronta
-Enquanto a matriz unica nao as marcar como `IMPLEMENTADO`, a Fase 3 nao pode depender estruturalmente de:
+A Fase 3 nao pode depender estruturalmente de:
 - `Organization` madura
-- `CampaignProduct`
-- `ReferralLink`
-- `ReferralEvent`
-- `ReferralConversion`
-- `organizationId`, `campaignId`, `movementMarkup` e correlatos persistidos no `OrderItemSnapshot`
+- membership formal de movimento
+- username publico unico e jornada `/@username` fechada ponta a ponta
+- `organizationUsername` persistido no `OrderItemSnapshot`
+- reward financeiro proprio de afiliado
+
+## Capacidades parciais da Fase 2 que a Fase 3 pode consumir com restricao
+- `CampaignProduct` real, mas ainda parcial, como vinculo entre campanha ativa e `CatalogItem` publicado
+- `ReferralLink`, `ReferralEvent` e `ReferralConversion` como atribuicao real, mas sem ledger ou payout proprio de afiliado
+- `organizationId`, `campaignId`, `campaignName`, `campaignProgressivePriceRule`, `referralLinkId`, `affiliateUserId`, `movementMarkup` e `priceCompositionVersion` no `OrderItemSnapshot` apenas no contrato parcial ja provado
 
 ## Regra para consumo de capacidade parcial da Fase 2
 Se uma capacidade da Fase 2 estiver `PARCIAL`, a Fase 3 so pode:
