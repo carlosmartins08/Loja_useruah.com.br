@@ -227,7 +227,7 @@ Todo erro em campo critico deve ser exibido proximo ao campo correspondente e in
   - `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`
   - `docs/CATALOG_CURATION_DEFINITION_OF_DONE.md`
   - `docs/SUPPORT_TICKETS_DEFINITION_OF_DONE.md`
-- Qualquer mudanca de estado/contrato deve seguir `docs/EXECUTION_CONSOLIDATED_MASTER.md`.
+- Qualquer mudanca de estado/contrato deve seguir `docs/DOCS_CLASSIFICATION.md` e `docs/README_DOCS_HIERARCHY.md`.
 - Qualquer mudanca transversal deste baseline deve:
   1. atualizar `docs/ROUTE_DEFINITION_OF_DONE.md`;
   2. refletir validacao em `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`;

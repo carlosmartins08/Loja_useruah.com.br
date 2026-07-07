@@ -47,7 +47,8 @@ Aplicar governanca pratica para reduzir retrabalho, mudanca sem controle e perda
 
 ## Artefatos oficiais do baseline
 - Template de PR unico: `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
-- Consolidado de regras: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+- Autoridade documental: `docs/DOCS_CLASSIFICATION.md`
+- Crosswalk de leitura: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
 - Execucao semanal: `docs/EXECUTION_OPERATING_TEMPLATE.md`
 - Decisoes e excecoes: `docs/CHANGELOG_GOVERNANCE.md`
 

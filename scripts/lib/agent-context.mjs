@@ -3,6 +3,22 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { recommendSkills, getCatalogSize } from './skill-catalog.mjs';
 
+const AUTHORITY_DOCS = [
+  'docs/ACTIVE_FRONT.md',
+  'docs/NEXT_SESSION_TRIGGER.md',
+  'docs/DOCS_CLASSIFICATION.md',
+  'docs/README_DOCS_HIERARCHY.md',
+  'docs/EXECUTION_TRACKING.md',
+  'docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md',
+  'docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md',
+];
+
+const CANONICAL_COMMANDS = [
+  'npm run agents:route -- "<pedido>"',
+  'npm run agents:brief',
+  'npm run agents:exec -- -- <comando>',
+];
+
 const AGENT_PLANS = {
   FRONT_1_COMMUNITY_CAMPAIGNS: {
     currentMission: 'Fechar o recorte de campanhas com ownership real e sem abrir dominio paralelo.',
@@ -164,9 +180,12 @@ export function buildAgentPlan(root = process.cwd(), contextText = '') {
   return {
     activeFront: front,
     blocked,
+    blockedReasons: blocked ? sessionState.blockers ?? [] : [],
     objective,
     branch: sessionState.branch || activeFront.branch || null,
     generatedAt: new Date().toISOString(),
+    authorityDocs: AUTHORITY_DOCS,
+    canonicalCommands: CANONICAL_COMMANDS,
     currentMission: selected.currentMission,
     requiredAgents: selected.requiredAgents,
     supportOffices: selected.supportOffices,
@@ -176,6 +195,9 @@ export function buildAgentPlan(root = process.cwd(), contextText = '') {
     recommendedSkills,
     sourceFiles: {
       activeFront: 'docs/ACTIVE_FRONT.md',
+      nextSessionTrigger: 'docs/NEXT_SESSION_TRIGGER.md',
+      docsClassification: 'docs/DOCS_CLASSIFICATION.md',
+      docsHierarchy: 'docs/README_DOCS_HIERARCHY.md',
       routingMatrix: 'docs/AI_AGENTS_ROUTING_MATRIX.md',
       sessionState: '.agents/session-state.json',
     },
@@ -217,6 +239,12 @@ export function formatAgentBrief(plan) {
 
   lines.push(
     '',
+    'Authority docs:',
+    toBulletList(plan.authorityDocs),
+    '',
+    'Canonical commands:',
+    toBulletList(plan.canonicalCommands),
+    '',
     'Required agents:',
     toBulletList(plan.requiredAgents),
     '',
@@ -227,10 +255,14 @@ export function formatAgentBrief(plan) {
     recommendedSkills,
     '',
     'Next actions:',
-    toBulletList(plan.nextActions),
-    '',
-    `Stop condition: ${plan.stopCondition ?? 'n/a'}`
+    toBulletList(plan.nextActions)
   );
+
+  if (Array.isArray(plan.blockedReasons) && plan.blockedReasons.length > 0) {
+    lines.push('', 'Blocked reasons:', toBulletList(plan.blockedReasons));
+  }
+
+  lines.push('', `Stop condition: ${plan.stopCondition ?? 'n/a'}`);
 
   return lines.join('\n');
 }

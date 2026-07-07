@@ -65,6 +65,7 @@
     "qa:product:guardrails": "node scripts/qa/qa-product-guardrails.mjs",
     "qa:ux:journeys": "node scripts/qa/qa-ux-journeys.mjs",
     "qa:payments21": "set QA_PORT=3321&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-payments-2-1.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& set AUTH_SESSION_SECRET=qa-local-session-secret&& node scripts/qa/qa-api-runner.mjs",
+    "qa:payments21:readiness": "node scripts/qa/qa-payments-2-1-readiness.mjs",
     "qa:gateway-real:smoke": "set QA_PORT=3326&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-gateway-real-smoke.mjs&& set RBAC_ACTIVE=true&& node scripts/qa/qa-api-runner.mjs",
     "qa:inter:smoke": "set QA_PORT=3204&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa/qa-inter-smoke.mjs&& set RBAC_ACTIVE=true&& node scripts/qa/qa-api-runner.mjs",
     "qa:infinitepay:smoke": "set QA_PORT=3209&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa/qa-infinitepay-smoke.mjs&& set RBAC_ACTIVE=true&& node scripts/qa/qa-api-runner.mjs",

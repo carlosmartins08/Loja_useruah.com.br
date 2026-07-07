@@ -1,4 +1,4 @@
-﻿# Execution Status Matrix (Redirecionado)
+# Execution Status Matrix (Redirecionado)
 
 Data de revisao: 2026-05-23
 

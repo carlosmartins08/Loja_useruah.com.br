@@ -159,9 +159,9 @@ Antes de subir PR de frontend:
 4. Validar `docs/DESIGN_SYSTEM_MOTION_GRID_TYPE.md`.
 5. Validar `docs/DESIGN_SYSTEM_NAVIGATION_AND_OVERLAYS.md`.
 6. Validar `docs/DESIGN_SYSTEM_ECOMMERCE_FLOWS.md`.
-7. Validar `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`.
+7. Validar `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`.
 8. Validar `docs/UI_VOICE_TONE_GLOSSARY.md`.
-9. Validar checklist integrado em `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`.
+9. Se houver mudanca de rota/UX, validar `docs/ROUTE_DEFINITION_OF_DONE.md`.
 
 Regra operacional anti-drift:
 - excecao local nao substitui contrato global;

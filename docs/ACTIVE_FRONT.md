@@ -75,7 +75,7 @@ Nao tocar: redesign de checkout, fase nova de produto, workaround de ambiente tr
 - `scripts/qa/qa-api-runner.mjs` endurecido para falhar de forma honesta no Windows sandbox em vez de fabricar falso negativo por `npm.cmd` ou `next build`.
 - `docs/NEXT_SESSION_TRIGGER.md` e `docs/EXECUTION_TRACKING.md` consolidados como memoria macro do ciclo anterior.
 - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md` agora tambem concentra um plano executavel para os pontos identificados, separando bloqueio externo, dominios parciais e itens que ainda nao podem ser prometidos como prontos.
-- `docs/DOCS_CLASSIFICATION.md`, `docs/README_DOCS_HIERARCHY.md` e `docs/EXECUTION_CONSOLIDATED_MASTER.md` foram realinhados para parar disputa de autoridade entre ordem de leitura, snapshot e fonte normativa.
+- `docs/DOCS_CLASSIFICATION.md` define a autoridade entre documentos; `docs/README_DOCS_HIERARCHY.md` organiza a ordem de leitura; `docs/EXECUTION_CONSOLIDATED_MASTER.md` ficou como crosswalk de apoio, sem disputar precedencia.
 - `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md`, `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md` e `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` alinhados ao runtime parcial real da Fase 2.
 - `npm run check` revalidado em `2026-06-20` com `PASS`.
 - Plano serial de execucao consolidado sem criar documento novo.

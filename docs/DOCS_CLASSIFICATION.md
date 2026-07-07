@@ -56,8 +56,9 @@ Leitura correta:
 
 ### Referenciais ativos
 - `docs/EXECUTION_TRACKING.md`
+- `docs/AI_AGENTS_ROUTING_MATRIX.md`
 - `docs/README_DOCS_HIERARCHY.md`
-- `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+- `docs/EXECUTION_CONSOLIDATED_MASTER.md` como crosswalk consolidado e ponte de leitura; nao usar para definir precedencia nem para resolver conflito
 - `docs/EXECUTION_OPERATING_TEMPLATE.md`
 - `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
 - `docs/CODEBASE_MAP.md`
@@ -76,11 +77,14 @@ Leitura correta:
 - `docs/CHECKLIST_RELEASE_PAGAMENTOS.md`
 
 ### Redirecionadores legados
-- `docs/EXECUTION_STATUS_MATRIX.md`
-- `docs/FASE_2_1_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+- nenhum redirecionador legado permanece na camada ativa; os stubs historicos relevantes foram movidos para `docs/archive/`
 
 ### Arquivo morto
 - `docs/archive/**`
+- `docs/archive/EXECUTION_STATUS_MATRIX.md`
+- `docs/archive/P0_EVIDENCE_LOG.md`
+- `docs/archive/FRONTEND_PR_CHECKLIST.md`
+- `docs/archive/FASE_2_1_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
 
 ## Regras anti-dupla autoridade
 - `docs/ACTIVE_FRONT.md` define a frente serial ativa.
@@ -88,11 +92,11 @@ Leitura correta:
 - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md` define a continuidade macro e o plano executavel consolidado.
 - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` define maturidade real do runtime.
 - `docs/EXECUTION_TRACKING.md` registra snapshot e evidencia recente, mas nao autoriza mudanca sozinho.
-- `docs/README_DOCS_HIERARCHY.md` e `docs/EXECUTION_CONSOLIDATED_MASTER.md` orientam navegacao e governanca, mas nao podem disputar frente ativa nem serializacao com os docs acima.
+- `docs/README_DOCS_HIERARCHY.md` orienta navegacao e `docs/EXECUTION_CONSOLIDATED_MASTER.md` funciona como crosswalk amplo, mas nenhum dos dois pode disputar frente ativa, serializacao ou autoridade com os docs acima.
 
 ## Gate de mudanca de classificacao
 Para mudar um documento entre categorias:
 - [ ] atualizar este arquivo
 - [ ] atualizar `docs/README_DOCS_HIERARCHY.md` se a ordem de consulta mudar
-- [ ] atualizar `docs/EXECUTION_CONSOLIDATED_MASTER.md` se a fonte de governanca por dominio mudar
+- [ ] atualizar `docs/EXECUTION_CONSOLIDATED_MASTER.md` se o crosswalk amplo precisar refletir nova fonte de dominio
 - [ ] registrar decisao em `docs/CHANGELOG_GOVERNANCE.md`

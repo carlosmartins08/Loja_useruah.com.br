@@ -181,7 +181,7 @@ Esse e o fluxo que define o sucesso da Fase 1. Tudo que nao fortalece esse fluxo
 ## Regra anti-retrabalho
 - Nao abrir nova frente se o fluxo mestre ainda nao passou.
 - Nao desenvolver fase futura para "ja deixar pronto" se isso atrasar a fase atual.
-- Nao criar novo documento de fase sem atualizar explicitamente a precedencia em `docs/EXECUTION_CONSOLIDATED_MASTER.md`.
+- Nao criar novo documento de fase sem atualizar explicitamente a precedencia em `docs/DOCS_CLASSIFICATION.md` e, se o crosswalk mudar, em `docs/EXECUTION_CONSOLIDATED_MASTER.md`.
 - Nao chamar de concluido o que nao tiver evidencia executavel.
 
 ## Definicao de pronto

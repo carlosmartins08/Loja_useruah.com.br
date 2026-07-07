@@ -22,6 +22,7 @@ const targetProvider =
       ? rawTargetProvider
       : 'gateway_real'
     : providerMode;
+const paymentsStep = targetProvider === 'stripe' ? 'qa:payments21:readiness' : 'qa:payments21';
 
 if (!(targetProvider in providerSmokeCommands)) {
   console.error(
@@ -46,7 +47,7 @@ const steps = [
   { id: 'STEP-02', cmd: ['run', 'alert:critical'] },
   { id: 'STEP-03', cmd: ['run', 'qa:providers:ready'] },
   { id: 'STEP-04', cmd: ['run', providerSmokeCommands[targetProvider]] },
-  { id: 'STEP-05', cmd: ['run', 'qa:payments21'] },
+  { id: 'STEP-05', cmd: ['run', paymentsStep] },
   { id: 'STEP-06', cmd: ['run', 'qa:exceptions'] },
 ];
 

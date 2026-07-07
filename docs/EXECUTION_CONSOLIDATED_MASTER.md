@@ -1,9 +1,9 @@
-# Execution Consolidated Master (Governanca Referencial)
+# Execution Consolidated Master (Crosswalk Referencial)
 
 Data de revisao: 2026-06-21
 
 ## Status deste arquivo
-Este arquivo continua util como referencia de governanca e precedencia ampla, mas nao e mais a fonte principal para:
+Este arquivo continua util como crosswalk amplo de navegacao e historico de governanca, mas nao e mais a fonte principal para:
 - frente ativa
 - retomada de sessao
 - ordem serial de execucao do ciclo atual
@@ -13,6 +13,11 @@ Para isso, prevalece:
 2. `docs/NEXT_SESSION_TRIGGER.md`
 3. `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
 4. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+
+## Regra de uso deste arquivo
+- ler este arquivo quando precisar localizar a familia certa de documentos
+- nao usar este arquivo para arbitrar conflito entre docs vivos
+- nao registrar aqui decisao nova que ja pertence a `docs/ACTIVE_FRONT.md`, `docs/NEXT_SESSION_TRIGGER.md`, `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md` ou `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
 
 ## Objetivo
 Eliminar conflitos e duplicidades entre documentos, definindo fonte por dominio, estados canonicos e regras de precedencia sem disputar a memoria operacional ativa.

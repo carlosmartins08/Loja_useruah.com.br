@@ -30,7 +30,7 @@ Use este template em todo PR que altere fluxo, estado, contrato, permissao ou co
 - Documento fonte do dominio (link/caminho):
 - Secao do `docs/CODEBASE_MAP.md` usada para localizacao tecnica:
 - Se houver divergencia encontrada, qual decisao foi adotada:
-- Referencia ao consolidado: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+- Referencia ao crosswalk de apoio: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
 - Referencia de baseline de controle: `docs/GOVERNANCE_COBIT_ITIL_BASELINE.md`
 
 ## 2.1) Validacao 360 de usuario/papel (obrigatorio para RBAC, cadastro, rota e contrato)
@@ -113,7 +113,7 @@ Observacao de gate automatizado:
 ## 9) Checklist anticonflito (gate)
 - [ ] Nao dupliquei regra em documento paralelo.
 - [ ] Atualizei apenas o documento fonte do dominio afetado.
-- [ ] Se alterei regra global, atualizei `docs/EXECUTION_CONSOLIDATED_MASTER.md`.
+- [ ] Se alterei regra global, atualizei `docs/DOCS_CLASSIFICATION.md`, `docs/README_DOCS_HIERARCHY.md` e, se necessario, `docs/EXECUTION_CONSOLIDATED_MASTER.md` como crosswalk apenas.
 - [ ] Se alterei rota/UI, alinhei `docs/ROUTE_DEFINITION_OF_DONE.md`.
 - [ ] Se alterei criterio de PR, alinhei este template e o baseline COBIT/ITIL.
 - [ ] Se alterei API/servico/store/componente critico, atualizei `docs/CODEBASE_MAP.md`.

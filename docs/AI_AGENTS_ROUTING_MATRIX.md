@@ -3,7 +3,7 @@
 Data de revisao: 2026-07-07
 
 ## Objetivo
-Traduzir a estrutura de agentes definida em `.ai-agents` para uso real neste projeto, sem criar duplicidade de autoridade e sem ignorar a frente ativa.
+Traduzir a estrutura operacional de agentes deste projeto para uso real, sem criar duplicidade de autoridade e sem ignorar a frente ativa.
 
 ## Regra central
 Agente nao e enfeite de governanca.
@@ -27,16 +27,21 @@ Regra pratica:
 Ordem de precedencia para este projeto:
 1. `docs/ACTIVE_FRONT.md`
 2. `docs/NEXT_SESSION_TRIGGER.md`
-3. `docs/EXECUTION_TRACKING.md`
-4. `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
-5. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
-6. `docs/ARCHITECTURE.md`
-7. `docs/CODEBASE_MAP.md`
-8. `.ai-agents/architecture/ARCHITECTURE.md`
-9. `.ai-agents/registry/AGENT_REGISTRY.md`
-10. `.ai-agents/runtime/AGENTOS_RUNTIME_V1.md`
+3. `docs/DOCS_CLASSIFICATION.md`
+4. `docs/README_DOCS_HIERARCHY.md`
+5. `docs/EXECUTION_TRACKING.md`
+6. `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+7. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+8. `docs/ARCHITECTURE.md`
+9. `docs/CODEBASE_MAP.md`
+10. `.agents/session-state.json`
+11. `scripts/lib/agent-context.mjs`
 
 Se houver conflito, a frente ativa e o plano mestre do projeto mandam no curto prazo.
+
+Nota:
+- a pasta `.ai-agents` nao faz parte da camada ativa deste repositorio
+- se existir em outro workspace, ela pode servir como referencia externa, mas nao como autoridade local
 
 ## Leitura honesta do estado atual
 Este projeto nao esta em fase livre para “envolver todos”.
@@ -169,10 +174,10 @@ Se a frente ativa estiver bloqueada, o trabalho do sistema e:
 6. manter os agentes em rotacao util, nao em espera passiva
 
 ## Comandos praticos
-- `npm run agents:route -- "<pedido>"`: roteia uma demanda e recomenda agentes + skills do catalogo
-- `npm run agents:brief`: mostra o plano ativo atual dos agentes
+- `npm run agents:route -- "<pedido>"`: roteia uma demanda e recomenda agentes, skills e docs de autoridade
+- `npm run agents:brief`: mostra o plano ativo atual dos agentes e a cadeia documental canonica
 - `npm run agents:exec -- -- <comando>`: executa uma acao com briefing de agente na frente
 
 ## Conclusao
-Os agentes da `.ai-agents` fazem sentido aqui, mas apenas como cadeia de responsabilidade.
+Os agentes deste projeto fazem sentido aqui, mas apenas como cadeia de responsabilidade.
 Sem frente ativa clara, contexto valido e gate de continuidade, eles viram encenacao.

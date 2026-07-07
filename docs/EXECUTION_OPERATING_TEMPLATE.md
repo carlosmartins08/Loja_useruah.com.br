@@ -6,7 +6,7 @@ Data de revisao: 2026-06-09
 Executar com foco, sem tarefa incompleta, sem conflito entre documentacao e codigo, e sem patch iniciado por impulso.
 
 ## Como usar
-1. Escolher 1 dominio ativo da semana (WIP 1), conforme `docs/EXECUTION_CONSOLIDATED_MASTER.md`.
+1. Escolher 1 dominio ativo da semana (WIP 1), conforme `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`, `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` e `docs/DOCS_CLASSIFICATION.md`.
 2. Classificar a mudanca antes de qualquer patch usando a trava pre-patch abaixo.
 3. Planejar ate 10 itens pequenos (cada item com entrega verificavel em 1-2 dias).
 4. Executar um item por vez usando o cartao operacional abaixo.

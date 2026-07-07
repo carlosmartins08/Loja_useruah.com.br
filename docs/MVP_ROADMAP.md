@@ -142,6 +142,6 @@ Documento de apoio de catálogo e curadoria: docs/CATALOG_CURATION_DEFINITION_OF
 
 Documento de apoio de atendimento e tickets: docs/SUPPORT_TICKETS_DEFINITION_OF_DONE.md
 
-Governança de conflitos e fonte única: docs/EXECUTION_CONSOLIDATED_MASTER.md
+Governança de conflitos e fonte única: docs/DOCS_CLASSIFICATION.md
 
 Histórico de decisões arquiteturais: docs/CHANGELOG_GOVERNANCE.md

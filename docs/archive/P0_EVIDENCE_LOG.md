@@ -1,4 +1,4 @@
-﻿# P0 Evidence Log (Redirecionado)
+# P0 Evidence Log (Redirecionado)
 
 Data de revisao: 2026-05-23
 

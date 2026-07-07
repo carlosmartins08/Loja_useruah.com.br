@@ -38,13 +38,14 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 ### Proximos movimentos validos
 1. Tratar `affiliate-referral`, `catalogo-curadoria/artwork` e `superficies publicas` como recortes fechados neste ciclo.
 2. Nao reabrir pagina publica saneada sem evidencia nova de promessa falsa, CTA cenografico ou rota morta.
-3. Abrir `real-payments-cutover` somente quando a janela externa existir, com `p3:precheck` fora de `localhost`, seguido de `qa:stripe:smoke`, `qa:payments21`, `qa:provider:activate`, `qa:functional`, `qa:coreops` e `qa:matrix:audit`.
+3. Abrir `real-payments-cutover` somente quando a janela externa existir, com `p3:precheck` fora de `localhost`, seguido de `qa:stripe:smoke`, `qa:payments21:readiness`, `qa:provider:activate`, `qa:functional`, `qa:coreops` e `qa:matrix:audit`.
 4. Preservar namespaces canonicos por papel, login server-side real e gate serial `qa:base:roles` em qualquer mudanca de rota, jornada, RBAC ou superficie cross-role.
 
 ### KPIs minimos do ciclo
 - Base validada por `check`, `qa:routes`, `build`, `qa:functional`, `qa:role:journeys`, docs ativos sem alias morto, app tree sem shells legados e dashboard de `production_operator` sem CTA para namespace bloqueado.
 
 ## Bloco 3 - Evidencias P0 ativas
+- 2026-07-07: `npm run check`, `npm run build` e `npm run qa:payments21:readiness` -> `PASS`; gate forte validado com `ALLOW_HEADER_ACTOR_FALLBACK=false`, `ruah_session` real e webhook/idempotencia no recorte `Stripe/mysql`. `npm run qa:payments21` permanece como QA local/sandbox.
 - 2026-06-21: `scripts/release/p3-cutover-evidence.mjs` passou a bloquear explicitamente `HML_BASE_URL` em `localhost`; `npm run p3:precheck` agora devolve `BLOCKED_EXTERNAL_BASE_URL` nesse cenario e evita leitura falsa de cutover pronto.
 - 2026-06-21: `scripts/release/p3-plug-and-run.mjs`, `scripts/release/go-live-preflight.mjs` e `scripts/release/go-live-e2e-proof.mjs` passaram a bloquear `localhost` em dry-run; `npm run p3:plug`, `npm run go:preflight` e `npm run go:e2e:proof` deixaram de anunciar `READY_TO_EXECUTE` sem homolog final real.
 - 2026-06-21: `docs/FOLHA_OPERACIONAL_HOMOLOGACAO_GATEWAY_REAL.md`, `docs/GO_LIVE_E2E_PROOF_RUNBOOK.md`, `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md` e `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` passaram a separar explicitamente baseline local aprovada de janela externa real ainda bloqueada.

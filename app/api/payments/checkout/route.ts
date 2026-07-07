@@ -1,6 +1,8 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { getActorFromRequest } from '@/lib/access-control';
 import { createPaymentWithIdempotency, PaymentFlowError } from '@/lib/payment-service';
 import type { CheckoutPaymentPayload } from '@/lib/payments';
+import { getOrder } from '@/lib/order-store';
 import { getPaymentGateway } from '@/lib/payment-gateway-registry';
 
 function isValidPayload(payload: unknown): payload is CheckoutPaymentPayload {
@@ -37,6 +39,14 @@ function getIdempotencyKey(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const actor = getActorFromRequest(request);
+  if (!actor) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  if (actor.actorRole !== 'customer') {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
   const body = await request.json().catch(() => null);
 
   if (!isValidPayload(body)) {
@@ -46,6 +56,14 @@ export async function POST(request: Request) {
   const idempotencyKey = getIdempotencyKey(request);
   if (!idempotencyKey) {
     return NextResponse.json({ error: 'validation_error', detail: 'missing_x_idempotency_key' }, { status: 422 });
+  }
+
+  const order = await getOrder(body.orderId);
+  if (!order) {
+    return NextResponse.json({ error: 'order_not_found' }, { status: 404 });
+  }
+  if (order.customerId !== actor.actorId) {
+    return NextResponse.json({ error: 'forbidden', detail: 'order_customer_mismatch' }, { status: 403 });
   }
 
   try {

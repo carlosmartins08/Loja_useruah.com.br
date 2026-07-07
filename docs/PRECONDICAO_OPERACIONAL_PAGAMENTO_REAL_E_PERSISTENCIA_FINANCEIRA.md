@@ -1,6 +1,6 @@
 # Precondicao Operacional - Pagamento Real e Persistencia Financeira
 
-Data de revisao: 2026-06-08
+Data de revisao: 2026-07-07
 
 ## Objetivo
 Definir a trilha transversal de readiness que prepara pagamento real, persistencia financeira e cutover operacional sem redefinir a fase oficial de produto.
@@ -23,6 +23,17 @@ Definir a trilha transversal de readiness que prepara pagamento real, persistenc
 - `auth/session` deixou de ser impeditivo tecnico da Fase 1
 - o provider real inicial deixou de estar bloqueado por credencial ou integracao no recorte homologado
 - o aceite final de producao e o cutover real continuam pendentes
+
+## Evidencia operacional registrada
+- `npm run check`: `PASS`
+- `npm run build`: `PASS`
+- `npm run qa:payments21:readiness`: `PASS`
+- gate forte de payments/readiness: roda com `ALLOW_HEADER_ACTOR_FALLBACK=false`
+- prova tecnica: `ruah_session` real reconhecido em `auth/session`
+- recorte forte validado: `Stripe/mysql`
+- webhook e idempotencia: `payment.approved` processado e duplicado tratado
+- `npm run qa:payments21` permanece como QA local/sandbox e nao deve ser usado como prova forte de readiness
+- `Stripe/readiness` permanece `GO CONDICIONADO` ate a janela real de homologacao final
 
 ## Problema que resolve
 A Fase 1 provou venda local e homologacao controlada com `Stripe`, mas ainda nao fecha o risco de operacao real porque aceite final de producao, cutover e evidencias formais de operacao ainda nao foram concluídos.
@@ -439,5 +450,6 @@ Leitura objetiva:
 - `docs/MVP_ROADMAP.md`
 - `docs/PAYMENTS_DEFINITION_OF_DONE.md`
 - `docs/PAYMENTS_GATEWAY_REAL_CUTOVER_RUNBOOK.md`
-- `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+- `docs/DOCS_CLASSIFICATION.md`
+- `docs/README_DOCS_HIERARCHY.md`
 - `docs/CODEBASE_MAP.md`

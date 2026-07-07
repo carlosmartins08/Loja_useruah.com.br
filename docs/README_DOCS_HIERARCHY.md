@@ -16,13 +16,14 @@ Evitar retrabalho, duplicidade e conflito de interpretacao sobre qual documento 
 ## Ordem de consulta obrigatoria para retomada e execucao serial
 1. `docs/ACTIVE_FRONT.md`
 2. `docs/NEXT_SESSION_TRIGGER.md`
-3. `docs/EXECUTION_TRACKING.md`
-4. `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
-5. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
-6. documento de fase, readiness ou dominio que autoriza a mudanca
-7. `docs/ARCHITECTURE.md`
-8. `docs/CODEBASE_MAP.md`
-9. `docs/CHANGELOG_GOVERNANCE.md`
+3. `docs/DOCS_CLASSIFICATION.md`
+4. `docs/EXECUTION_TRACKING.md`
+5. `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+6. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+7. documento de fase, readiness ou dominio que autoriza a mudanca
+8. `docs/ARCHITECTURE.md`
+9. `docs/CODEBASE_MAP.md`
+10. `docs/CHANGELOG_GOVERNANCE.md`
 
 Leitura correta:
 - esta lista define a sequencia pratica de consulta
@@ -31,6 +32,7 @@ Leitura correta:
 Regra:
 - `ACTIVE_FRONT` define a frente ativa
 - `NEXT_SESSION_TRIGGER` define a ordem de retomada
+- `DOCS_CLASSIFICATION` define a autoridade entre documentos
 - `EXECUTION_TRACKING` mostra snapshot e evidencia recente
 - `PLANO_MESTRE_CONTINUIDADE_TECNICA` define continuidade macro e plano executavel consolidado
 - `PHASE_DOMAIN_IMPLEMENTATION_MATRIX` define maturidade real
@@ -46,9 +48,16 @@ Regra:
 
 ### Agentes e continuidade
 - Usar: `docs/AI_AGENTS_ROUTING_MATRIX.md`
-- Quando: precisar mapear os agentes da `.ai-agents` para o fluxo real do projeto sem quebrar a frente ativa.
+- Quando: precisar mapear os agentes do projeto para o fluxo real sem quebrar a frente ativa.
 - Usar em conjunto: `docs/ACTIVE_FRONT.md` e `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
 - Quando: o objetivo for continuar com a cadeia certa de responsabilidade, sem improviso.
+
+### Consolidado de navegacao
+- Usar: `docs/EXECUTION_CONSOLIDATED_MASTER.md`
+- Quando: precisar de um crosswalk amplo entre os documentos ativos.
+- Regra:
+  - nao usar este arquivo para decidir precedencia
+  - para conflito documental, usar `docs/DOCS_CLASSIFICATION.md`
 
 ### Frente ativa e continuidade
 - Usar: `docs/ACTIVE_FRONT.md`
@@ -101,7 +110,7 @@ Regra:
 ### Qualidade por rota e UX
 - Usar: `docs/ROUTE_DEFINITION_OF_DONE.md`
 - Quando: validar completude de rota e experiencia por pagina.
-- Usar em conjunto: `docs/FRONTEND_SCREEN_REVIEW_CHECKLIST.md`
+- Usar em conjunto: `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
 - Quando: a mudanca tocar layout, copy, navegacao, grid, tokens ou responsividade.
 
 ## Regra para criacao de novo documento

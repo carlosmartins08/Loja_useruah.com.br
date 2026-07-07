@@ -34,6 +34,70 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-07-07] Roteamento de agentes foi realinhado com a hierarquia documental ativa
+- ID: GOV-0118
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `documentacao`
+  - `governanca`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/AI_AGENTS_ROUTING_MATRIX.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `scripts/lib/agent-context.mjs`
+- Decisao:
+  - Remover a dependencia narrativa da pasta `.ai-agents` da camada ativa local e tratar o roteador do projeto como entrada canônica para orientar agentes, docs e comandos.
+  - Expor a cadeia documental de autoridade no briefing de agentes para reduzir ambiguidade entre roteamento, continuidade e execucao.
+  - Manter `docs/ACTIVE_FRONT.md`, `docs/NEXT_SESSION_TRIGGER.md`, `docs/DOCS_CLASSIFICATION.md` e `docs/README_DOCS_HIERARCHY.md` como base de leitura antes de qualquer acao serial.
+- Contexto:
+  - O projeto ja tinha comandos `agents:route`, `agents:brief` e `agents:exec`, mas a documentacao ainda misturava uma referencia externa `.ai-agents` com a camada ativa deste repositorio.
+  - Isso podia gerar leitura dupla de autoridade e tornar o roteamento menos pratico do que a disciplina documental exigia.
+- Impacto esperado:
+  - Menos confusao sobre onde a responsabilidade de roteamento vive.
+  - Melhor alinhamento entre briefing de agente, docs normativos e estado real da frente ativa.
+  - Saida mais util para continuar o trabalho sem improviso.
+- Riscos conhecidos:
+  - Se a camada de documentacao for alterada sem atualizar o roteador, a ambiguidade pode voltar.
+- Plano de rollback:
+  - Reverter a nota de roteamento e a inclusao de docs de autoridade no briefing, mantendo o restante da hierarquia documental se necessario.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/AI_AGENTS_ROUTING_MATRIX.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `scripts/lib/agent-context.mjs`
+
+### [2026-07-07] Evidencia operacional do gate forte de payments/readiness registrada
+- ID: GOV-0119
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `pagamentos`
+  - `qa`
+- Documento fonte afetado:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
+- Decisao:
+  - Registrar `npm run qa:payments21:readiness` como gate forte de payments/readiness.
+  - Registrar `npm run qa:payments21` apenas como QA local/sandbox, nao como prova forte de readiness.
+  - Manter `Stripe/readiness` em `GO CONDICIONADO` ate janela real de homologacao final.
+- Contexto:
+  - A validacao operacional passou com `ALLOW_HEADER_ACTOR_FALLBACK=false`, `ruah_session` real e webhook/idempotencia no recorte `Stripe/mysql`.
+- Impacto esperado:
+  - Menos ambiguidade entre QA local e gate forte de readiness.
+- Riscos conhecidos:
+  - Se o leitor usar `qa:payments21` como prova forte, volta a confundir sandbox com readiness.
+- Plano de rollback:
+  - Reverter apenas se a evidencia de readiness perder validade objetiva.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`
+  - `docs/EXECUTION_TRACKING.md`
+
 ### [2026-06-22] Matriz de papeis foi realinhada com o runtime e deixou de omitir `affiliate`
 - ID: GOV-0117
 - Status: `aprovada`

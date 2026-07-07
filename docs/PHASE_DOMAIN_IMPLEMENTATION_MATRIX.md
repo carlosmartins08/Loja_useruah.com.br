@@ -9,9 +9,10 @@ Criar uma visao unica de realidade entre fase, dominio, entidade, superficie e m
 - Este documento e `normativo` para leitura de maturidade e reconciliacao entre documento e runtime.
 - Ele nao substitui o escopo normativo de fase ou dominio, mas e a fonte obrigatoria para decidir o que pode ou nao ser tratado como base real de continuidade.
 - Em caso de conflito de regra, prevalecem:
-  1. `docs/EXECUTION_CONSOLIDATED_MASTER.md`
-  2. documento oficial da fase
-  3. documento oficial do dominio
+  1. `docs/DOCS_CLASSIFICATION.md`
+  2. `docs/README_DOCS_HIERARCHY.md`
+  3. documento oficial da fase
+  4. documento oficial do dominio
 - Em caso de conflito de maturidade, prevalece o runtime validado mais recente registrado em:
   - `docs/EXECUTION_TRACKING.md` como snapshot/evidencia recente
   - gates oficiais
