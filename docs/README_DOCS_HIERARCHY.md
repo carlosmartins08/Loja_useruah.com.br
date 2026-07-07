@@ -44,6 +44,12 @@ Regra:
 
 ## Qual documento usar por tipo de decisao
 
+### Agentes e continuidade
+- Usar: `docs/AI_AGENTS_ROUTING_MATRIX.md`
+- Quando: precisar mapear os agentes da `.ai-agents` para o fluxo real do projeto sem quebrar a frente ativa.
+- Usar em conjunto: `docs/ACTIVE_FRONT.md` e `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+- Quando: o objetivo for continuar com a cadeia certa de responsabilidade, sem improviso.
+
 ### Frente ativa e continuidade
 - Usar: `docs/ACTIVE_FRONT.md`
 - Quando: precisar saber exatamente qual frente esta aberta e qual passo pode ou nao pode ser executado.

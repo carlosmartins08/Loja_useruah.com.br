@@ -2,8 +2,10 @@
 import { spawnSync } from 'node:child_process';
 import process from 'node:process';
 import { ensureQaEnvLoaded } from '../lib/qa-env.mjs';
+import { ensureAgentPlanFile, formatAgentBrief } from '../lib/agent-context.mjs';
 
 ensureQaEnvLoaded();
+console.log(formatAgentBrief(ensureAgentPlanFile().plan));
 
 const COMMANDS_BY_PROVIDER = {
   gateway_real: 'npm run qa:gateway-real:smoke',

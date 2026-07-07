@@ -1,18 +1,18 @@
 # Campaign Public Daily Summary
 
-Generated at: 2026-06-18T19:26:56.941Z
+Generated at: 2026-07-07T11:33:17.437Z
 
 ## KPI Snapshot
-- Public campaign views: 20
-- Storefront opens: 11
-- Storefront unavailable redirects: 9
-- Context redirects: 20
-- Referral clicks into campaign/public flow: 21
-- Ignored stale campaign contexts: 4
+- Public campaign views: 25
+- Storefront opens: 15
+- Storefront unavailable redirects: 10
+- Context redirects: 25
+- Referral clicks into campaign/public flow: 26
+- Ignored stale campaign contexts: 5
 - Ignored stale referral contexts: 0
-- Attributed order items with campaign: 22
-- Attributed order items with referral: 22
-- Attributed order items with campaign + referral: 18
+- Attributed order items with campaign: 27
+- Attributed order items with referral: 27
+- Attributed order items with campaign + referral: 22
 
 ## Operational Risk
 - Overall status: ATTENTION
@@ -20,18 +20,18 @@ Generated at: 2026-06-18T19:26:56.941Z
 - Empty/unavailable storefront pressure: CONTROLLED
 
 ## Recent Events (Top 15)
-- 2026-06-18T19:26:50.856Z | campaign.context_ignored | Campaign:CMP-7128224b-6ff2-4603-9794-3b6be2cff38b | source:cookie|detail:status_closed
-- 2026-06-18T19:26:50.807Z | referral_click_recorded | ReferralLink:REF-170f20c0-727a-4348-a632-781da99b6930 | slug:qa-campaign-public-1781810810047|target:/c/CMP-7128224b-6ff2-4603-9794-3b6be2cff38b/shop
-- 2026-06-18T19:26:50.749Z | campaign.context_redirected | Campaign:CMP-7128224b-6ff2-4603-9794-3b6be2cff38b | source:/product/2|target:/shop?campaignId=CMP-7128224b-6ff2-4603-9794-3b6be2cff38b|detail:product_outside_campaign
-- 2026-06-18T19:26:50.670Z | campaign.storefront_unavailable | Campaign:CMP-114503d9-2c4b-45ad-a868-872b8d6c024c | status:draft|target:/shop
-- 2026-06-18T19:26:50.647Z | campaign.public_viewed | Campaign:CMP-114503d9-2c4b-45ad-a868-872b8d6c024c | state:inactive|products:0
-- 2026-06-18T19:26:50.614Z | campaign.context_redirected | Campaign:CMP-7128224b-6ff2-4603-9794-3b6be2cff38b | source:/c/CMP-7128224b-6ff2-4603-9794-3b6be2cff38b/shop|target:/shop?campaignId=CMP-7128224b-6ff2-4603-9794-3b6be2cff38b
-- 2026-06-18T19:26:50.603Z | campaign.storefront_opened | Campaign:CMP-7128224b-6ff2-4603-9794-3b6be2cff38b | target:/shop?campaignId=CMP-7128224b-6ff2-4603-9794-3b6be2cff38b
-- 2026-06-18T19:26:50.576Z | campaign.public_viewed | Campaign:CMP-7128224b-6ff2-4603-9794-3b6be2cff38b | state:active|products:1
-- 2026-06-18T19:26:12.245Z | campaign.context_ignored | Campaign:CMP-60a40405-7b71-45d9-95bd-7b4b9668e557 | source:cookie|detail:status_closed
-- 2026-06-18T19:26:12.193Z | referral_click_recorded | ReferralLink:REF-05bb1aed-0aea-4af2-a603-74b81ce28e17 | slug:qa-campaign-public-1781810771172|target:/c/CMP-60a40405-7b71-45d9-95bd-7b4b9668e557/shop
-- 2026-06-18T19:26:12.093Z | campaign.context_redirected | Campaign:CMP-60a40405-7b71-45d9-95bd-7b4b9668e557 | source:/product/2|target:/shop?campaignId=CMP-60a40405-7b71-45d9-95bd-7b4b9668e557|detail:product_outside_campaign
-- 2026-06-18T19:26:12.027Z | campaign.storefront_unavailable | Campaign:CMP-f6652575-bce8-4ac4-8f80-f926b03b5559 | status:draft|target:/shop
-- 2026-06-18T19:26:11.999Z | campaign.public_viewed | Campaign:CMP-f6652575-bce8-4ac4-8f80-f926b03b5559 | state:inactive|products:0
-- 2026-06-18T19:26:11.956Z | campaign.context_redirected | Campaign:CMP-60a40405-7b71-45d9-95bd-7b4b9668e557 | source:/c/CMP-60a40405-7b71-45d9-95bd-7b4b9668e557/shop|target:/shop?campaignId=CMP-60a40405-7b71-45d9-95bd-7b4b9668e557
-- 2026-06-18T19:26:11.946Z | campaign.storefront_opened | Campaign:CMP-60a40405-7b71-45d9-95bd-7b4b9668e557 | target:/shop?campaignId=CMP-60a40405-7b71-45d9-95bd-7b4b9668e557
+- 2026-06-21T10:38:08.463Z | referral_click_recorded | ReferralLink:REF-f800c2cb-d9d6-4d64-af8a-557a851b5970 | slug:role-close-1782038287735|target:/shop
+- 2026-06-21T10:38:08.446Z | campaign.context_redirected | Campaign:CMP-bb3ced20-a7ff-4ee0-a92d-8997933495e8 | source:/c/CMP-bb3ced20-a7ff-4ee0-a92d-8997933495e8/shop|target:/shop?campaignId=CMP-bb3ced20-a7ff-4ee0-a92d-8997933495e8
+- 2026-06-21T10:38:08.435Z | campaign.storefront_opened | Campaign:CMP-bb3ced20-a7ff-4ee0-a92d-8997933495e8 | target:/shop?campaignId=CMP-bb3ced20-a7ff-4ee0-a92d-8997933495e8
+- 2026-06-21T10:38:08.368Z | campaign.public_viewed | Campaign:CMP-bb3ced20-a7ff-4ee0-a92d-8997933495e8 | state:active|products:1
+- 2026-06-21T00:29:42.961Z | referral_click_recorded | ReferralLink:REF-7c2a1a50-18c2-4bed-b702-51ef88f82f3b | slug:role-close-1782001758309|target:/shop
+- 2026-06-21T00:29:41.662Z | campaign.context_redirected | Campaign:CMP-6aef3821-d4bb-4558-8408-e225ba65f5a9 | source:/c/CMP-6aef3821-d4bb-4558-8408-e225ba65f5a9/shop|target:/shop?campaignId=CMP-6aef3821-d4bb-4558-8408-e225ba65f5a9
+- 2026-06-21T00:29:41.651Z | campaign.storefront_opened | Campaign:CMP-6aef3821-d4bb-4558-8408-e225ba65f5a9 | target:/shop?campaignId=CMP-6aef3821-d4bb-4558-8408-e225ba65f5a9
+- 2026-06-21T00:29:39.739Z | campaign.public_viewed | Campaign:CMP-6aef3821-d4bb-4558-8408-e225ba65f5a9 | state:active|products:1
+- 2026-06-20T18:40:31.086Z | referral_click_recorded | ReferralLink:REF-cc5d8253-e40a-41ed-9be0-6e330eedb064 | slug:role-close-1781980801498|target:/shop
+- 2026-06-20T18:40:29.760Z | campaign.context_redirected | Campaign:CMP-e4aef55d-5490-4165-aa21-4e0cc72f455f | source:/c/CMP-e4aef55d-5490-4165-aa21-4e0cc72f455f/shop|target:/shop?campaignId=CMP-e4aef55d-5490-4165-aa21-4e0cc72f455f
+- 2026-06-20T18:40:29.747Z | campaign.storefront_opened | Campaign:CMP-e4aef55d-5490-4165-aa21-4e0cc72f455f | target:/shop?campaignId=CMP-e4aef55d-5490-4165-aa21-4e0cc72f455f
+- 2026-06-20T18:40:27.779Z | campaign.public_viewed | Campaign:CMP-e4aef55d-5490-4165-aa21-4e0cc72f455f | state:active|products:1
+- 2026-06-20T18:39:40.990Z | referral_click_recorded | ReferralLink:REF-8ec95fcf-2ba1-416c-bf6b-fdb644f63384 | slug:qa-aff-1781980773029|target:/shop?ref=qa-aff-1781980773029
+- 2026-06-18T19:40:12.792Z | campaign.context_ignored | Campaign:CMP-3da6c542-d32d-4f4e-b659-2fe08ed5cdcf | source:cookie|detail:status_closed
+- 2026-06-18T19:40:12.737Z | referral_click_recorded | ReferralLink:REF-a422a2d5-17ea-47ca-a522-bdc9f84fd114 | slug:qa-campaign-public-1781811610543|target:/c/CMP-3da6c542-d32d-4f4e-b659-2fe08ed5cdcf/shop

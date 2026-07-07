@@ -34,6 +34,40 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-06-22] Matriz de papeis foi realinhada com o runtime e deixou de omitir `affiliate`
+- ID: GOV-0117
+- Status: `aprovada`
+- Dono da decisao: Engenharia
+- PR/Commit de referencia: local workspace update
+- Dominio afetado:
+  - `rbac`
+  - `ui-rotas`
+  - `documentacao`
+- Documento fonte afetado:
+  - `docs/ROLES_MATRIX.md`
+  - `docs/ROUTES.md`
+  - `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`
+  - `docs/REGISTRATION_MATRIX_BY_ROLE.md`
+- Decisao:
+  - Reescrever `docs/ROLES_MATRIX.md` para refletir o runtime atual em vez de manter uma matriz CRUD desatualizada.
+  - Reconhecer `affiliate` como papel oficial do runtime ao lado dos demais ambientes canonicos ja presentes em sessao, rota e QA.
+  - Tratar `ROLES_MATRIX` como documento de leitura operacional de papeis, homes canonicas e restricoes, nao como tabela especulativa de entidades futuras.
+- Contexto:
+  - O runtime ja aceitava `affiliate` em sessao, namespace, dashboard e suites de QA, mas `docs/ROLES_MATRIX.md` ainda omitia esse papel dos perfis oficiais.
+  - Essa defasagem criava leitura errada sobre quais ambientes existiam de fato e aumentava o risco de decisao ruim em onboarding, navegacao e RBAC.
+- Impacto esperado:
+  - Menos ambiguidade para navegar o projeto por papel.
+  - Menos chance de reabrir discussao sobre ambientes que ja existem no runtime.
+  - Melhor alinhamento entre documentacao normativa, sessao, rotas e guardas.
+- Riscos conhecidos:
+  - Se novas roles forem adicionadas no codigo sem atualizar os documentos normativos, o drift volta.
+- Plano de rollback:
+  - Reverter apenas a reescrita documental se uma fonte unica superior absorver a definicao de papeis, rotas canonicas e restricoes sem perda de clareza.
+- Tipo de mudanca (COBIT/ITIL): `normal`
+- Documentos atualizados:
+  - `docs/CHANGELOG_GOVERNANCE.md`
+  - `docs/ROLES_MATRIX.md`
+
 ### [2026-06-21] Autoridade documental de continuidade foi consolidada e desduplicada
 - ID: GOV-0116
 - Status: `aprovada`

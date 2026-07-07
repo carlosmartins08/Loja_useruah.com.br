@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { ensureAgentPlanFile, formatAgentBrief } from '../lib/agent-context.mjs';
 
 const root = process.cwd();
 
@@ -12,6 +13,8 @@ function readJson(filePath, fallback) {
     return fallback;
   }
 }
+
+console.log(formatAgentBrief(ensureAgentPlanFile(root).plan));
 
 const auditLogs = readJson(path.join(root, '.tmp-store', 'audit-logs.json'), []);
 const ordersState = readJson(path.join(root, '.tmp-store', 'orders.json'), {});

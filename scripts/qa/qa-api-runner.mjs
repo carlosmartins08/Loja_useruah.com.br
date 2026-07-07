@@ -1,6 +1,7 @@
 import net from 'node:net';
 import { spawn } from 'node:child_process';
 import { existsSync, rmSync } from 'node:fs';
+import { ensureAgentPlanFile, formatAgentBrief } from '../lib/agent-context.mjs';
 
 const PORT = Number(process.env.QA_PORT ?? 3200);
 const QA_SCRIPT = process.env.QA_SCRIPT;
@@ -15,6 +16,9 @@ if (!QA_SCRIPT) {
 
 const BASE_URL = `http://localhost:${PORT}`;
 const NEXT_BIN = 'node_modules/next/dist/bin/next';
+const activeAgentPlan = ensureAgentPlanFile().plan;
+
+console.log(formatAgentBrief(activeAgentPlan));
 
 function hasNextBuildArtifacts() {
   return existsSync('.next/BUILD_ID');

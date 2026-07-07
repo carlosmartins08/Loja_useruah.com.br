@@ -1,6 +1,8 @@
 import { ShopPageView } from '@/components/shop/ShopPageView';
 import { getPublishedShopProducts } from '@/lib/shop-products';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ShopPage(props: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {

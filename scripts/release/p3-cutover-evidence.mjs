@@ -2,6 +2,7 @@
 import process from 'node:process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { ensureAgentPlanFile, formatAgentBrief } from '../lib/agent-context.mjs';
 
 function loadDotEnvFile() {
   const file = join(process.cwd(), '.env');
@@ -23,6 +24,7 @@ function loadDotEnvFile() {
 }
 
 loadDotEnvFile();
+console.log(formatAgentBrief(ensureAgentPlanFile().plan));
 
 const DIRECT_PROVIDERS = ['inter', 'infinitepay', 'mercadopago', 'pagarme', 'cielo', 'stripe'];
 

@@ -1,13 +1,30 @@
 {
   "name": "ai-studio-applet",
   "version": "0.1.0",
+  "engines": {
+    "node": ">=20 <25",
+    "npm": ">=9 <12"
+  },
   "private": true,
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.16"
+    },
+    "firebase-tools": {
+      "gaxios": "^7.1.4",
+      "@google-cloud/pubsub": {
+        "@opentelemetry/core": "^2.8.0"
+      },
+      "uuid": "^11.1.1"
+    }
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "npm run utf8:check && npm run qa:product:guardrails && next build",
+    "build": "set CI=1&& npm run utf8:check && npm run qa:product:guardrails && node --trace-uncaught node_modules/next/dist/bin/next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "ci:compat": "npm ci",
     "utf8:check": "node scripts/check-utf8.mjs",
     "check": "npm run lint && npm run typecheck",
     "check:strict": "npm run utf8:check && npm run check",
@@ -21,6 +38,10 @@
     "go:preflight": "node scripts/release/go-live-preflight.mjs",
     "go:preflight:run": "node scripts/release/go-live-preflight.mjs --execute",
     "qa:reconcile:ops": "node scripts/ops/reconcile-ops-view.mjs",
+    "agents:route": "node scripts/ops/agent-route.mjs",
+    "agents:exec": "node scripts/ops/with-agent-context.mjs",
+    "agents:active": "node scripts/ops/agent-activation-plan.mjs",
+    "agents:brief": "npm run agents:active && node scripts/ops/agent-brief.mjs",
     "ops:impact:daily": "node scripts/ops/impact-daily-summary.mjs",
     "ops:campaign:public": "node scripts/ops/campaign-public-daily-summary.mjs",
     "ops:impact:window": "node scripts/ops/impact-daily-window-runner.mjs",

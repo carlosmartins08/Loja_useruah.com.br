@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { ensureAgentPlanFile, formatAgentBrief } from '../lib/agent-context.mjs';
 
 const root = process.cwd();
+const agentPlanState = readJson(path.join(root, '.tmp-store', 'active-agent-plan.json'), null);
 
 function readJson(filePath, fallback) {
   try {
@@ -12,6 +14,8 @@ function readJson(filePath, fallback) {
     return fallback;
   }
 }
+
+console.log(formatAgentBrief(ensureAgentPlanFile(root).plan));
 
 const impactState = readJson(path.join(root, '.tmp-store', 'impact-reviews.json'), { reviews: {} });
 const integrationState = readJson(path.join(root, '.tmp-store', 'integration-logs.json'), { logs: [] });
@@ -37,6 +41,16 @@ const recentNotifications = notifications
   .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
   .slice(0, 10);
 
+const agentPlanSummary = agentPlanState
+  ? {
+      activeFront: agentPlanState.activeFront ?? null,
+      blocked: Boolean(agentPlanState.blocked),
+      currentMission: agentPlanState.currentMission ?? null,
+      requiredAgents: Array.isArray(agentPlanState.requiredAgents) ? agentPlanState.requiredAgents.length : 0,
+      supportOffices: Array.isArray(agentPlanState.supportOffices) ? agentPlanState.supportOffices.length : 0,
+    }
+  : null;
+
 const dateIso = new Date().toISOString();
 const report = `# Impact Review Daily Summary
 
@@ -53,6 +67,13 @@ Generated at: ${dateIso}
 ## Operational Risk
 - Overall status: ${overdue.length > 0 ? 'AT_RISK' : pending.length > 0 ? 'ATTENTION' : 'STABLE'}
 - Escalation trigger: ${overdue.length > 0 ? 'YES' : 'NO'}
+
+## Active Agent Plan
+- Active front: ${agentPlanSummary?.activeFront ?? 'n/a'}
+- Blocked: ${agentPlanSummary?.blocked === true ? 'YES' : agentPlanSummary?.blocked === false ? 'NO' : 'n/a'}
+- Mission: ${agentPlanSummary?.currentMission ?? 'n/a'}
+- Required agents: ${agentPlanSummary?.requiredAgents ?? 0}
+- Support offices: ${agentPlanSummary?.supportOffices ?? 0}
 
 ## Recent Reviews (Top 10)
 ${recentReviews.length === 0 ? '- none' : recentReviews.map((row) => `- ${row.reviewId} | ${row.status} | item=${row.entityId} | priority=${row.priority} | dueAt=${row.dueAt}`).join('\n')}
@@ -75,13 +96,13 @@ console.log(
         pending: pending.length,
         overdue: overdue.length,
         highPriorityPending: highPriorityPending.length,
-        approved: approved.length,
-        rejected: rejected.length,
-        notifications: notifications.length,
-      },
+      approved: approved.length,
+      rejected: rejected.length,
+      notifications: notifications.length,
+      agentPlan: agentPlanSummary,
+    },
     },
     null,
     2
   )
 );
-
