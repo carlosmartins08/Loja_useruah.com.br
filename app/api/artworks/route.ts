@@ -78,7 +78,12 @@ export async function GET(request: Request) {
   }
 
   const authorId = canReadFullQueue ? requestedAuthor ?? undefined : actor?.actorId;
-  const artworks = listArtworks({ status, authorId, submittedFrom, submittedTo });
+  let artworks;
+  try {
+    artworks = await listArtworks({ status, authorId, submittedFrom, submittedTo });
+  } catch {
+    return NextResponse.json({ error: 'artwork_persistence_unavailable' }, { status: 503 });
+  }
   return NextResponse.json({ ok: true, artworks });
 }
 
@@ -102,11 +107,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });
   }
 
-  const artwork = createArtwork({
-    authorId: actor?.actorId ?? 'anonymous-author',
-    sourceAsset: payload.sourceAsset,
-    metadata: payload.metadata,
-  });
+  let artwork;
+  try {
+    artwork = await createArtwork({
+      authorId: actor?.actorId ?? 'anonymous-author',
+      sourceAsset: payload.sourceAsset,
+      metadata: payload.metadata,
+    });
+  } catch {
+    return NextResponse.json({ error: 'artwork_persistence_unavailable' }, { status: 503 });
+  }
 
   appendAuditLog({
     actor_id: actor?.actorId ?? 'anonymous-author',

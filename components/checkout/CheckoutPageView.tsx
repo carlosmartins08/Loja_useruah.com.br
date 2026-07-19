@@ -16,18 +16,18 @@ import { renderContentMessage } from '@/lib/content-messages';
 import { readAddressBook, toShippingAddress } from '@/lib/address-book';
 
 export function CheckoutPageView() {
-  const { cart, total, subtotal, location, gifting, setGifting, clearCart } = useCart();
+  const { cart, total, subtotal, gifting, setGifting, clearCart } = useCart();
   const [step, setStep] = React.useState(1);
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [selectedAddress, setSelectedAddress] = React.useState('home');
   const [shippingAddress, setShippingAddress] = React.useState({
-    recipientName: 'Cliente UseRuah',
-    cep: '01000-000',
-    street: 'Rua Exemplo',
-    number: '100',
-    city: 'Sao Paulo',
-    state: 'SP',
-    country: 'BR',
+    recipientName: '',
+    cep: '',
+    street: '',
+    number: '',
+    city: '',
+    state: '',
+    country: '',
   });
   const [checkoutError, setCheckoutError] = React.useState<string | null>(null);
   const [paymentSummary, setPaymentSummary] = React.useState<PaymentRecord | null>(null);
@@ -57,9 +57,6 @@ export function CheckoutPageView() {
   }
 
   const maxProductionDays = cart.reduce((max, item) => Math.max(max, item.productionDays || 7), 0);
-  const composedDeadline = maxProductionDays + location.shippingDays;
-  const deliveryDateLabel = `em ${composedDeadline} dias úteis`;
-
   const handleFinish = async (method: PaymentMethod, provider: PaymentRecord['provider']) => {
     if (!isAuthenticated) {
       setCheckoutError(t('checkout_session_expired')?.body ?? 'Sua sessão expirou. Faça login novamente para concluir o pagamento.');
@@ -101,15 +98,6 @@ export function CheckoutPageView() {
           orderId: orderPayload.order.orderId,
           method,
           provider,
-          amount: total,
-          currency: 'BRL',
-          items: cart.map((item) => ({
-            id: item.id,
-            name: item.name,
-            quantity: item.quantity,
-            unitPrice: item.price,
-            spec: item.spec,
-          })),
         },
         { headers: { 'x-idempotency-key': requestKeyRef.current ?? '' } }
       );
@@ -162,11 +150,7 @@ export function CheckoutPageView() {
               <>
                 <CheckoutStepOneSection
                   isActive={step === 1}
-                  region={location.region}
-                  deliveryDateLabel={deliveryDateLabel}
                   maxProductionDays={maxProductionDays}
-                  shippingDays={location.shippingDays}
-                  composedDeadline={composedDeadline}
                   selectedAddress={selectedAddress}
                   onSelectAddress={setSelectedAddress}
                   shippingAddress={shippingAddress}
@@ -181,7 +165,7 @@ export function CheckoutPageView() {
                   onGiftMessageChange={(value) => setGifting({ ...gifting, message: value })}
                   onContinue={() => setStep(2)}
                 />
-                <CheckoutStepTwoSection isActive={step === 2} total={total} isProcessing={isProcessing} onFinish={handleFinish} />
+                <CheckoutStepTwoSection isActive={step === 2} isProcessing={isProcessing} onFinish={handleFinish} />
                 {checkoutError && <p role="alert" className="text-sm font-semibold text-red-600">{checkoutError}</p>}
               </>
             )}

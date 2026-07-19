@@ -1,6 +1,5 @@
 import 'server-only';
 
-import { findBrandProductMerchandising, findBrandProductSeed } from '@/lib/brand-assets';
 import { listCampaignCatalogItemIds } from '@/lib/campaign-product-store';
 import { getCampaign } from '@/lib/campaign-store';
 import { listCatalogItems, type CatalogItemRecord } from '@/lib/catalog-item-store';
@@ -45,16 +44,13 @@ function pickPrimaryPrice(item: CatalogItemRecord) {
 }
 
 function toPublicCampaignProduct(item: CatalogItemRecord, campaignId: string): PublicCampaignProduct {
-  const seed = findBrandProductSeed(item.catalogItemId);
-  const merchandising = findBrandProductMerchandising(item.catalogItemId);
-
   return {
     catalogItemId: item.catalogItemId,
-    name: seed?.name ?? item.name,
-    image: merchandising?.image ?? item.image,
+    name: item.name,
+    image: item.image,
     price: pickPrimaryPrice(item),
-    category: merchandising?.category ?? item.category ?? 'Autoral',
-    segment: merchandising?.segment ?? item.segment ?? 'Customizada',
+    category: item.category ?? 'Autoral',
+    segment: item.segment ?? 'Customizada',
     href: `/product/${item.catalogItemId}?campaignId=${encodeURIComponent(campaignId)}`,
   };
 }
@@ -62,7 +58,7 @@ function toPublicCampaignProduct(item: CatalogItemRecord, campaignId: string): P
 export async function getPublicCampaignDetail(campaignId: string): Promise<PublicCampaignDetail> {
   const normalizedCampaignId = campaignId.trim();
   const storefrontHref = `/c/${encodeURIComponent(normalizedCampaignId)}/shop`;
-  const campaign = getCampaign(normalizedCampaignId);
+  const campaign = await getCampaign(normalizedCampaignId);
 
   if (!campaign) {
     return {
@@ -101,7 +97,7 @@ export async function getPublicCampaignDetail(campaignId: string): Promise<Publi
     };
   }
 
-  const linkedCatalogItemIds = new Set(listCampaignCatalogItemIds(campaign.campaignId));
+  const linkedCatalogItemIds = new Set(await listCampaignCatalogItemIds(campaign.campaignId));
   const linkedPublishedProducts = (await listCatalogItems({ publicationStatus: 'published' }))
     .filter((item) => linkedCatalogItemIds.has(item.catalogItemId))
     .map((item) => toPublicCampaignProduct(item, campaign.campaignId));

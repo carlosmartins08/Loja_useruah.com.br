@@ -1,6 +1,6 @@
 ﻿# Payments Definition Of Done (Obrigatorio)
 
-Data de revisao: 2026-06-08
+Data de revisao: 2026-07-18
 
 ## Objetivo
 Garantir execução previsível do domínio de pagamentos sem retrabalho, com critérios objetivos para evoluir de sandbox para operação real.
@@ -68,7 +68,8 @@ Não repetir estados ou transições neste DoD. Qualquer alteração de fluxo de
 
 ## Fase C: Persistencia e reconciliacao
 ### Escopo
-- [x] Persistir transacoes em sqlite relacional local (`PAYMENT_PERSISTENCE=sqlite`) com fallback controlado.
+- [x] Persistir transacoes em MySQL relacional no runtime canonico (`PAYMENT_PERSISTENCE=mysql`).
+- [x] Manter SQLite apenas como modo explicito de desenvolvimento/QA, sem fallback silencioso quando MySQL estiver configurado.
 - [ ] Reconciliar por `providerReference` com idempotência.
 - [x] Trilhas auditáveis de mudança de status (`payment_events` + `AuditLog`).
 - [x] Política de retry para webhook/processamento assíncrono (tentativas controladas por `PAYMENT_WEBHOOK_MAX_RETRIES`).

@@ -29,9 +29,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [profilePhoto, setProfilePhoto] = React.useState<string | null>(null);
   const [userRole, setUserRole] = React.useState<UserRole>('customer');
   const [userRoles, setUserRoles] = React.useState<UserRole[]>(['customer']);
-  const [userName, setUserName] = React.useState('Carlos');
-  const [userEmail, setUserEmail] = React.useState('carlos@useruah.com.br');
-  const [userId, setUserId] = React.useState('usr:carlos@useruah.com.br');
+  const [userName, setUserName] = React.useState('');
+  const [userEmail, setUserEmail] = React.useState('');
+  const [userId, setUserId] = React.useState('');
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [isSessionReady, setIsSessionReady] = React.useState(false);
   const [registrationStatus, setRegistrationStatus] = React.useState<RegistrationStatus | null>(null);
@@ -40,10 +40,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false);
     setUserRole('customer');
     setUserRoles(['customer']);
-    setUserName('Carlos');
-    setUserEmail('carlos@useruah.com.br');
-    setUserId('usr:carlos@useruah.com.br');
+    setProfilePhoto(null);
+    setUserName('');
+    setUserEmail('');
+    setUserId('');
     setRegistrationStatus(null);
+    localStorage.removeItem('ruah_profile_photo');
     localStorage.removeItem('ruah_user_role');
   }, []);
 
@@ -132,12 +134,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     [isAuthenticated, refreshSession, userRoles]
   );
 
-  // Load from localStorage on mount
+  // A foto é uma preferência visual temporária, não um atributo persistido da conta.
   React.useEffect(() => {
-    const saved = localStorage.getItem('ruah_profile_photo');
-    if (saved) {
-      setTimeout(() => setProfilePhoto(saved), 0);
-    }
+    localStorage.removeItem('ruah_profile_photo');
     setTimeout(() => {
       void refreshSession();
     }, 0);
@@ -145,11 +144,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const handleSetProfilePhoto = (url: string | null) => {
     setProfilePhoto(url);
-    if (url) {
-      localStorage.setItem('ruah_profile_photo', url);
-    } else {
-      localStorage.removeItem('ruah_profile_photo');
-    }
   };
 
   const handleSetUserRole = (role: UserRole) => {

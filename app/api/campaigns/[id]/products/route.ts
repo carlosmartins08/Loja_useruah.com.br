@@ -18,7 +18,7 @@ function isValidPayload(payload: unknown): payload is CampaignProductPayload {
 
 async function toLinkResponse(campaignId: string) {
   const links = await Promise.all(
-    listCampaignProducts(campaignId).map(async (link) => {
+    (await listCampaignProducts(campaignId)).map(async (link) => {
       const item = await getCatalogItem(link.catalogItemId);
       return {
         ...link,
@@ -47,7 +47,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   }
 
   const { id } = await context.params;
-  const campaign = getCampaign(id);
+  const campaign = await getCampaign(id);
   if (!campaign) return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (isRbacActive() && !canReadCampaign(campaign, actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
@@ -64,7 +64,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const campaign = getCampaign(id);
+  const campaign = await getCampaign(id);
   if (!campaign) return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (isRbacActive() && !canManageCampaignProducts(campaign, actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
@@ -84,7 +84,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: 'invalid_transition', detail: 'catalog_item_must_be_published' }, { status: 409 });
   }
 
-  const result = linkCampaignProduct({
+  const result = await linkCampaignProduct({
     campaignId: id,
     catalogItemId: item.catalogItemId,
     linkedBy: actor?.actorId ?? 'unknown',
@@ -131,7 +131,7 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
   }
 
   const { id } = await context.params;
-  const campaign = getCampaign(id);
+  const campaign = await getCampaign(id);
   if (!campaign) return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (isRbacActive() && !canManageCampaignProducts(campaign, actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
@@ -145,7 +145,7 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });
   }
 
-  const result = unlinkCampaignProduct({ campaignId: id, catalogItemId: payload.catalogItemId.trim() });
+  const result = await unlinkCampaignProduct({ campaignId: id, catalogItemId: payload.catalogItemId.trim() });
   if (!result.removed || !result.link) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }

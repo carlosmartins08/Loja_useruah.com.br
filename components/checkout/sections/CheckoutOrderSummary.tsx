@@ -59,10 +59,10 @@ export function CheckoutOrderSummary({ cart, subtotal, total }: CheckoutOrderSum
           </div>
           <div className="flex justify-between items-center opacity-40 text-ruah-950 font-bold">
             <span className="text-xs font-semibold uppercase tracking-[0.1em] text-ruah-400">Frete</span>
-            <span className="text-xs font-mono font-semibold">GRÁTIS</span>
+            <span className="text-xs font-mono font-semibold">A CONFIRMAR</span>
           </div>
           <div className="flex justify-between items-center pt-6 mt-2 border-t border-ruah-100">
-            <span className="text-sm font-semibold uppercase tracking-[0.08em] text-ruah-950">Total do pedido</span>
+            <span className="text-sm font-semibold uppercase tracking-[0.08em] text-ruah-950">Total dos itens</span>
             <span className="text-3xl font-serif italic text-accent-gold font-bold">R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
           </div>
         </div>

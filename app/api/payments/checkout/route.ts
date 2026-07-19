@@ -1,35 +1,18 @@
 import { NextResponse } from 'next/server';
 import { getActorFromRequest } from '@/lib/access-control';
 import { createPaymentWithIdempotency, PaymentFlowError } from '@/lib/payment-service';
-import type { CheckoutPaymentPayload } from '@/lib/payments';
+import type { PaymentCheckoutRequest } from '@/lib/payments';
 import { getOrder } from '@/lib/order-store';
 import { getPaymentGateway } from '@/lib/payment-gateway-registry';
 
-function isValidPayload(payload: unknown): payload is CheckoutPaymentPayload {
+function isValidPayload(payload: unknown): payload is PaymentCheckoutRequest {
   if (!payload || typeof payload !== 'object') return false;
   const obj = payload as Record<string, unknown>;
   const methodValid = obj.method === 'card' || obj.method === 'pix' || obj.method === 'wallet';
   const providerValid = obj.provider === undefined || (typeof obj.provider === 'string' && Boolean(getPaymentGateway(obj.provider)));
   const orderValid = typeof obj.orderId === 'string' && obj.orderId.length > 0;
-  const amountValid = typeof obj.amount === 'number' && obj.amount > 0;
-  const currencyValid = obj.currency === 'BRL';
-  const itemsValid =
-    Array.isArray(obj.items) &&
-    obj.items.length > 0 &&
-    obj.items.every((item) => {
-      if (!item || typeof item !== 'object') return false;
-      const entry = item as Record<string, unknown>;
-      return (
-        typeof entry.id === 'string' &&
-        typeof entry.name === 'string' &&
-        typeof entry.quantity === 'number' &&
-        entry.quantity > 0 &&
-        typeof entry.unitPrice === 'number' &&
-        entry.unitPrice > 0
-      );
-    });
 
-  return orderValid && methodValid && providerValid && amountValid && currencyValid && itemsValid;
+  return orderValid && methodValid && providerValid;
 }
 
 function getIdempotencyKey(request: Request) {

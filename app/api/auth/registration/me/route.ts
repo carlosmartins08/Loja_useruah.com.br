@@ -6,7 +6,7 @@ import { getRegistrationByUserId, type RegistrationPersona, upsertRegistration }
 import { hasAcceptedTerms, registerTermsAcceptance } from '@/lib/terms-acceptance-store';
 import { normalizeTermVersion, PERSONA_ROLE, PERSONA_TERM, resolveRegistrationStatus } from '@/lib/registration-flow';
 import { appendAuditLog } from '@/lib/audit-log-store';
-import { isEmailRegistered } from '@/lib/auth-local-users';
+import { isEmailRegistered } from '@/lib/user-identity-store';
 
 interface RegistrationUpdatePayload {
   persona: RegistrationPersona;
@@ -78,7 +78,7 @@ export async function PATCH(request: Request) {
 
   const status = resolveRegistrationStatus(payload);
   const normalizedEmail = payload.email.trim().toLowerCase();
-  if (normalizedEmail !== session.userEmail.toLowerCase() && isEmailRegistered(normalizedEmail)) {
+  if (normalizedEmail !== session.userEmail.toLowerCase() && (await isEmailRegistered(normalizedEmail))) {
     return NextResponse.json({ error: 'email_already_exists' }, { status: 409 });
   }
   const previous = await getRegistrationByUserId(session.userId);

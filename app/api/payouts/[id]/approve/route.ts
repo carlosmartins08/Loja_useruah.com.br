@@ -28,11 +28,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     }
     throw error;
   }
-  const pendingReview = getPendingImpactReviewByEntity('Payout', id);
+  const pendingReview = await getPendingImpactReviewByEntity('Payout', id);
   if (pendingReview) {
     return NextResponse.json({ error: 'invalid_transition', detail: 'impact_review_pending', reviewId: pendingReview.reviewId }, { status: 409 });
   }
-  const latestReview = getLatestImpactReviewByEntity('Payout', id);
+  const latestReview = await getLatestImpactReviewByEntity('Payout', id);
   if (latestReview && latestReview.status === 'rejected') {
     return NextResponse.json({ error: 'invalid_transition', detail: 'impact_review_rejected', reviewId: latestReview.reviewId }, { status: 409 });
   }

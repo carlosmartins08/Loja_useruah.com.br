@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { encodeSessionToken } from '@/lib/session-token';
 import { isUserRole, type AuthSession, type UserRole } from '@/lib/auth-session';
-import { registerLocalUser } from '@/lib/auth-local-users';
+import { registerUser } from '@/lib/user-identity-store';
 import { registerTermsAcceptance } from '@/lib/terms-acceptance-store';
 import { upsertRegistration, type RegistrationPersona } from '@/lib/registration-store';
 import {
@@ -43,12 +43,17 @@ export async function POST(request: Request) {
   const status = resolveRegistrationStatus(payload);
   const completeness = evaluateRegistrationCompleteness(payload);
   const normalizedEmail = payload.email.trim().toLowerCase();
-  const registration = registerLocalUser({
-    email: normalizedEmail,
-    password: payload.password,
-    userName: payload.fullName.trim(),
-    userRole: personaRole,
-  });
+  let registration;
+  try {
+    registration = await registerUser({
+      email: normalizedEmail,
+      password: payload.password,
+      userName: payload.fullName.trim(),
+      userRole: personaRole,
+    });
+  } catch {
+    return NextResponse.json({ error: 'auth_persistence_unavailable' }, { status: 503 });
+  }
   if (!registration.created) {
     return NextResponse.json({ error: 'email_already_exists' }, { status: 409 });
   }

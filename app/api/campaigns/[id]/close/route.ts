@@ -11,7 +11,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const campaign = getCampaign(id);
+  const campaign = await getCampaign(id);
   if (!campaign) return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (isRbacActive() && !canMutateOwnedCampaign(campaign, actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });

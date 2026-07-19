@@ -332,3 +332,72 @@ CREATE INDEX idx_license_artist ON license_events(artist_id);
 CREATE INDEX idx_license_payment_status ON license_events(payment_status);
 CREATE INDEX idx_catalog_publication_status ON catalog_items(publication_status);
 CREATE INDEX idx_catalog_artwork_id ON catalog_items(artwork_id);
+
+CREATE TABLE IF NOT EXISTS users (
+  user_id VARCHAR(128) PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  user_name VARCHAR(255) NOT NULL,
+  user_role VARCHAR(32) NOT NULL,
+  status VARCHAR(24) NOT NULL DEFAULT 'active',
+  created_at DATETIME(3) NOT NULL,
+  updated_at DATETIME(3) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS registrations (
+  registration_id VARCHAR(128) PRIMARY KEY,
+  user_id VARCHAR(128) NOT NULL UNIQUE,
+  role VARCHAR(32) NOT NULL,
+  persona VARCHAR(16) NOT NULL,
+  status VARCHAR(32) NOT NULL,
+  full_name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  metadata_json JSON NOT NULL,
+  created_at DATETIME(3) NOT NULL,
+  updated_at DATETIME(3) NOT NULL,
+  CONSTRAINT fk_registrations_user
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    ON DELETE CASCADE
+);
+
+CREATE INDEX idx_users_role_status ON users(user_role, status);
+CREATE INDEX idx_registrations_status_updated ON registrations(status, updated_at);
+
+ALTER TABLE catalog_items ADD COLUMN pricing_policy_json JSON NULL;
+
+CREATE TABLE IF NOT EXISTS artworks (
+  artwork_id VARCHAR(128) PRIMARY KEY,
+  author_id VARCHAR(128) NOT NULL,
+  status VARCHAR(24) NOT NULL,
+  source_asset TEXT NOT NULL,
+  metadata_json JSON NOT NULL,
+  submitted_at DATETIME(3) NOT NULL,
+  reviewed_at DATETIME(3) NULL,
+  review_reason TEXT NULL,
+  created_at DATETIME(3) NOT NULL,
+  updated_at DATETIME(3) NOT NULL
+);
+
+CREATE INDEX idx_artworks_status_submitted ON artworks(status, submitted_at);
+CREATE INDEX idx_artworks_author_status ON artworks(author_id, status);
+
+CREATE TABLE IF NOT EXISTS impact_reviews (
+  review_id VARCHAR(128) PRIMARY KEY,
+  domain VARCHAR(32) NOT NULL,
+  entity_type VARCHAR(32) NOT NULL,
+  entity_id VARCHAR(128) NOT NULL,
+  sensitive_fields_json JSON NOT NULL,
+  status VARCHAR(24) NOT NULL,
+  priority VARCHAR(16) NOT NULL,
+  created_at DATETIME(3) NOT NULL,
+  updated_at DATETIME(3) NOT NULL,
+  due_at DATETIME(3) NOT NULL,
+  requested_by VARCHAR(128) NOT NULL,
+  approved_by VARCHAR(128) NULL,
+  rejected_by VARCHAR(128) NULL,
+  decision_reason TEXT NULL
+);
+
+CREATE INDEX idx_impact_reviews_status_due ON impact_reviews(status, due_at);
+CREATE INDEX idx_impact_reviews_entity_updated ON impact_reviews(entity_type, entity_id, updated_at);
+CREATE INDEX idx_impact_reviews_pending_entity ON impact_reviews(entity_type, entity_id, status);

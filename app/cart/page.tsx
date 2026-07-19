@@ -8,12 +8,9 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 
 export default function CartPage() {
-  const { cart, subtotal, total, discount, updateQuantity, removeFromCart, location } = useCart();
+  const { cart, subtotal, total, discount, updateQuantity, removeFromCart } = useCart();
   const [updatingItemId, setUpdatingItemId] = React.useState<string | null>(null);
   const [cartError, setCartError] = React.useState<string | null>(null);
-
-  const shippingFee = total >= 200 ? 0 : 24.9;
-  const grandTotal = total + shippingFee;
 
   const handleQuantityChange = (id: string, nextQuantity: number) => {
     if (nextQuantity < 1) return;
@@ -102,7 +99,7 @@ export default function CartPage() {
                         {item.productionDays ? (
                           <>
                             <span className="text-accent-gold">•</span>
-                            <span>{item.productionDays} dias uteis</span>
+                            <span>Produção estimada: {item.productionDays} dias úteis</span>
                           </>
                         ) : null}
                         {item.campaignName ? (
@@ -161,7 +158,7 @@ export default function CartPage() {
               <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-gold mb-2">Compromisso Ruah</h4>
               <p className="text-xs text-ruah-400 font-medium uppercase tracking-widest leading-loose">
                 Este item pode ser produzido sob demanda após a confirmação do pagamento.
-                O prazo cobre produção, acabamento e separação para envio.
+                O prazo de produção é uma estimativa. Frete e entrega dependem de confirmação operacional.
               </p>
             </div>
           </div>
@@ -180,9 +177,7 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between text-xs uppercase font-bold tracking-widest">
                 <span className="text-ruah-500">Frete</span>
-                <span className={`font-mono font-bold uppercase tracking-[0.2em] ${shippingFee === 0 ? 'text-green-600' : 'text-ruah-950'}`}>
-                  {shippingFee === 0 ? 'Grátis' : `R$ ${shippingFee.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-                </span>
+                <span className="font-mono font-bold uppercase tracking-[0.2em] text-ruah-950">A confirmar</span>
               </div>
               <div className="flex justify-between text-xs uppercase font-bold tracking-widest">
                 <span className="text-ruah-500">Descontos</span>
@@ -191,11 +186,11 @@ export default function CartPage() {
             </div>
 
             <div className="flex justify-between items-end mb-12 pt-8 border-t border-ruah-50">
-              <span className="font-black text-sm uppercase tracking-widest text-ruah-950">Total Final</span>
+              <span className="font-black text-sm uppercase tracking-widest text-ruah-950">Total dos itens</span>
               <div className="text-right">
-                <div className="text-4xl font-serif italic font-black text-accent-gold">R$ {grandTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                <div className="text-4xl font-serif italic font-black text-accent-gold">R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
                 <div className="text-[9px] text-ruah-400 font-bold uppercase tracking-[0.2em] mt-2">
-                  Ate 10x de R$ {(grandTotal / 10).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  Frete ainda não incluído
                 </div>
               </div>
             </div>
@@ -209,7 +204,7 @@ export default function CartPage() {
                 <ShieldCheck size={16} className="text-green-500" /> Compra protegida
               </div>
               <div className="mt-3 text-[9px] font-bold uppercase tracking-[0.12em] text-ruah-400">
-                Entrega estimada: {location.region} + {location.shippingDays}d uteis
+                Frete e prazo: confirmação operacional no fechamento do pedido
               </div>
             </div>
           </div>

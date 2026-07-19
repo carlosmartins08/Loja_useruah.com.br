@@ -26,7 +26,7 @@ function isValidCreatePayload(payload: unknown): payload is CreateReferralLinkPa
   );
 }
 
-function summarize(links: ReturnType<typeof listReferralLinksByOwner>) {
+function summarize(links: Awaited<ReturnType<typeof listReferralLinksByOwner>>) {
   const clicks = links.reduce((acc, row) => acc + row.clickCount, 0);
   const conversions = links.reduce((acc, row) => acc + row.conversionCount, 0);
   const revenueAmount = Number(links.reduce((acc, row) => acc + row.revenueAmount, 0).toFixed(2));
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  const links = listReferralLinksByOwner(ownerId);
+  const links = await listReferralLinksByOwner(ownerId);
   return NextResponse.json({ ok: true, ownerId, summary: summarize(links), links });
 }
 
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  const link = createReferralLink({
+  const link = await createReferralLink({
     ownerId,
     label: payload.label,
     channel: payload.channel,

@@ -46,9 +46,10 @@ Nota:
 ## Leitura honesta do estado atual
 Este projeto nao esta em fase livre para “envolver todos”.
 O estado local em `.agents/session-state.json` indica:
-- frente ativa bloqueada em `FRONT_5_REAL_PAYMENTS_CUTOVER`
+- frente ativa em `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`
+- W1-W8 tratados como historico processado; W7/W8 permanecem limitados as evidencias existentes
 - dependencia de janela externa objetiva de homolog final e cutover
-- proibicao de reabrir essa frente por atalho de ambiente
+- `FRONT_5_REAL_PAYMENTS_CUTOVER` nao e a frente ativa e nao pode ser reaberta por atalho de ambiente
 
 Conclusao pratica:
 - agentes devem ser usados para continuidade e organizacao
@@ -99,6 +100,69 @@ Se a resposta nao altera o estado do projeto, ela e decorativa.
 
 ### 3. Cada agente precisa devolver algo verificavel
 Se o retorno nao pode ser auditado, ele nao fechou a fase.
+
+## Auditoria 360 de fluxo critico
+
+Auditoria 360 e um tipo proprio de demanda e nao deve ser confundida com a frente ativa do projeto.
+
+Quando a solicitacao combinar auditoria com termos do fluxo comercial critico (`catalogo`, `checkout`, `pedido`, `pagamento`, `webhook` ou `producao`), `npm run agents:route` deve retornar:
+- `requestType= audit_360`;
+- `routingMode= request_first`;
+- `executionStatus= ROUTED_READ_ONLY`;
+- a frente ativa como restricao, quando estiver bloqueada, sem substituir a missao da auditoria.
+
+O resultado da auditoria deve separar:
+- fato observado;
+- hipotese;
+- risco e impacto de negocio;
+- recomendacao;
+- mudanca ainda nao autorizada.
+
+Cada achado precisa trazer evidencia de codigo/documentacao, severidade, confianca e proximo responsavel. Uma auditoria nao libera pagamento, nao muda contrato e nao abre frente nova por conta propria.
+
+## Auditoria de coerencia estrutural
+
+Auditoria de coerencia estrutural e um tipo proprio de demanda para organizar o projeto como sistema evolutivo. Ela nao substitui `audit_360` do fluxo comercial e nao deve ser roteada como continuidade comum.
+
+Quando a solicitacao combinar sinais de coerencia, inconsistencia, fonte de verdade, base evolutiva ou organizacao estrutural com escopo amplo de arquitetura, dominio, dados, contratos, estados, persistencia, ambientes ou documentacao, `npm run agents:route` deve retornar:
+- `requestType= coherence_audit`;
+- `routingMode= request_first`;
+- `executionStatus= ROUTED_READ_ONLY`;
+- a frente ativa como restricao, quando estiver bloqueada.
+
+O plano deve ser executado em fases:
+1. baseline de autoridade;
+2. runtime contra documentos;
+3. limites de dominio e dados;
+4. contratos e maquinas de estado;
+5. persistencia por ambiente;
+6. qualidade, operacao e documentacao.
+
+O resultado deve separar auditoria de implementacao. Cada divergencia precisa registrar autoridade esperada, evidencia observada, incoerencia, impacto, decisao e criterio de aceite. Correcoes posteriores entram em tarefas menores, com handoff para a frente ativa e sem abrir uma segunda autoridade documental.
+
+## Plano de execucao controlada
+
+Pedidos que falem em plano pratico, chegar a 100% da funcionalidade, nao quebrar o projeto, eliminar duplicidade ou seguir boas praticas devem ser roteados como `execution_plan`. Eles nao devem iniciar implementacao automaticamente.
+
+O retorno esperado e:
+- `requestType= execution_plan`;
+- `routingMode= request_first`;
+- `executionStatus= PLANNED_CONTROLLED_EXECUTION`;
+- a frente ativa e seus bloqueios preservados como restricao;
+- ondas sequenciais com gate, evidencias, handoff, criterio de aceite e rollback.
+
+Ordem oficial das ondas:
+1. `W0`: baseline, fontes de verdade e bloqueios;
+2. `W1`: identidade, sessao, acesso e ownership;
+3. `W2`: catalogo, cotacao e pedido;
+4. `W3`: pagamento, webhook e reconciliacao;
+5. `W4`: producao, envio e suporte;
+6. `W5`: admin, operacao e indicadores;
+7. `W6`: ambientes, QA, observabilidade e entrega;
+8. `W7`: classificacao diferencial do legado, sem reabrir W1-W6;
+9. `W8`: preparacao de promocao externa, sem afirmar homologacao PASS.
+
+Uma onda so pode ser encerrada quando houver, no minimo, contrato validado, persistencia explicita, maquina de estados alinhada ao runtime, regressao do risco principal e rollback conhecido. Auditoria, plano e implementacao continuam sendo fases diferentes.
 
 ## Estrutura de uso por tipo de demanda
 

@@ -115,7 +115,7 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
   - `app/api/auth/registration/me/route.ts`
   - `app/api/auth/elevations/**`
 - Dominio:
-  - `lib/auth-local-users.ts`
+  - `lib/user-identity-store.ts`
   - `lib/auth-session.ts`
   - `lib/session-token.ts`
   - `lib/access-control.ts`
@@ -171,6 +171,8 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
   - `scripts/qa/qa-catalog-lifecycle.mjs`
   - `scripts/qa/qa-catalog-curation-integration.mjs`
   - `scripts/qa/qa-catalog-persisted.mjs`
+  - `scripts/qa/qa-catalog-authority-restart.mjs`
+  - `scripts/qa/qa-governance-authority-restart.mjs`
   - `scripts/qa/qa-content-governance.mjs`
 
 ### Loja, carrinho e checkout
@@ -285,8 +287,11 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
   - `lib/campaign-access.ts`
   - `lib/campaign-product-store.ts`
   - `lib/campaign-store.ts`
+  - `lib/campaign-public.ts`
+  - `lib/shop-products.ts`
 - QA:
   - `scripts/qa/qa-campaign-impact.mjs`
+  - `scripts/qa/qa-campaign-authority-restart.mjs`
   - `scripts/qa/qa-community-curation.mjs`
   - `scripts/qa/qa-finance-impact.mjs`
   - `scripts/qa/qa-payout-ledger-paid.mjs`
@@ -303,8 +308,10 @@ Se uma mudanca precisar de autoridade de negocio, ela nao deve nascer em `hooks/
   - `app/api/affiliate/links/[id]/conversions/route.ts`
 - Dominio:
   - `lib/referral-store.ts`
+  - `lib/mysql-runtime.ts`
   - `lib/access-control.ts`
 - QA:
+  - `scripts/qa/qa-referral-authority-restart.mjs`
   - `scripts/qa/qa-affiliate-referral.mjs`
   - `scripts/qa/qa-role-closure.mjs`
 

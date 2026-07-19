@@ -19,6 +19,12 @@ export type PaymentStatus =
   | 'partially_refunded'
   | 'chargeback';
 
+export interface PaymentCheckoutRequest {
+  orderId: string;
+  method: PaymentMethod;
+  provider?: PaymentProviderKey;
+}
+
 export interface CheckoutPaymentPayload {
   orderId: string;
   method: PaymentMethod;

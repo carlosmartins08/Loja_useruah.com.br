@@ -1,5 +1,9 @@
 # API Contracts
 
+## Persistência e migrações
+
+As migrações MySQL são internas à operação e não alteram payloads, status HTTP ou semântica dos endpoints. O contrato público permanece congelado; qualquer mudança de resposta exige revisão própria neste documento e prova de compatibilidade.
+
 Data de revisao: 2026-05-19
 
 Este documento define os contratos mÃ­nimos de API para os fluxos crÃ­ticos do MVP.
@@ -30,6 +34,31 @@ Este documento nÃ£o deve recriar mÃ¡quinas de estado. Cada endpoint deve ape
 - `new_status`
 - `reason`
 - `created_at`
+
+---
+
+## Autenticacao e sessao
+
+### POST /api/auth/login
+
+- Objetivo: autenticar uma identidade existente e emitir o cookie `ruah_session`.
+- Payload: `{ "email": "string", "password": "string" }`.
+- Sucesso: `{ "ok": true, "session": AuthSession }` e cookie HTTP-only com validade de 7 dias.
+- Erros: `422 validation_error`, `401 invalid_credentials`, `503 auth_persistence_unavailable`.
+- Fonte de identidade: `lib/user-identity-store.ts`; MySQL quando `PAYMENT_PERSISTENCE=mysql`.
+
+### POST /api/auth/register
+
+- Objetivo: criar identidade, registro de persona, aceite de termos quando informado e emitir `ruah_session`.
+- Payload e resposta pública permanecem compatíveis com o fluxo atual.
+- Erros: `422 validation_error`, `409 email_already_exists`, `503 auth_persistence_unavailable`.
+- A senha é persistida somente como hash `scrypt`; fixtures demo não são válidas como persistência de produção.
+
+### GET/DELETE /api/auth/session
+
+- `GET` lê o cookie assinado e retorna `authenticated` e `session`.
+- `DELETE` remove o cookie.
+- O token continua sendo o contrato de sessão; ownership e RBAC são decididos no servidor a partir do ator autenticado.
 
 ---
 
@@ -286,10 +315,15 @@ Iniciar pagamento do pedido e abrir ciclo da machine `payment`.
 {
   "orderId": "string",
   "method": "card",
-  "amount": 100.5,
-  "currency": "BRL"
+  "provider": "stripe"
 }
 ```
+
+`amount`, `currency` e `items` não fazem parte da autoridade de entrada deste endpoint. Se enviados por clientes legados, são ignorados; o backend deriva valor, moeda e itens do pedido persistido antes de chamar o provider.
+
+### Regra de autoridade financeira
+
+O valor cobrado deve ser exatamente `order.totalAmount`; nenhum valor enviado pelo cliente pode substituir o snapshot do pedido.
 
 ### Resposta de sucesso
 ```json
@@ -1660,6 +1694,119 @@ Obrigatorio: sim
 
 ---
 
+## GET /api/artworks
+
+### Objetivo
+Listar obras do autor ou da fila de curadoria conforme o papel do ator.
+
+### Fonte de dados
+- `PAYMENT_PERSISTENCE=mysql`: tabela `artworks`;
+- SQLite/local: somente quando declarado explicitamente;
+- falha de persistência não usa arquivo local como fallback.
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 401 | `unauthorized` | RBAC ativo sem sessão/ator |
+| 403 | `forbidden` | ator fora do escopo |
+| 503 | `artwork_persistence_unavailable` | fonte configurada indisponível |
+
+---
+
+## POST /api/artworks
+
+### Objetivo
+Submeter uma obra para curadoria em `submitted`.
+
+### Fonte de dados
+- `artworks` é a autoridade da obra e de seu metadata de aplicabilidade.
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 401 | `unauthorized` | RBAC ativo sem sessão/ator |
+| 403 | `forbidden` | ator sem permissão ou termos não aceitos |
+| 422 | `validation_error` | payload inválido |
+| 503 | `artwork_persistence_unavailable` | fonte configurada indisponível |
+
+---
+
+## POST /api/artworks/:id/start-review, /approve, /reject
+
+### Objetivo
+Executar as transições `submitted -> under_review -> approved|rejected`.
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 401 | `unauthorized` | RBAC ativo sem sessão/ator |
+| 403 | `forbidden` | ator sem permissão |
+| 404 | `not_found` | obra inexistente |
+| 409 | `invalid_transition` | estado incompatível |
+| 422 | `validation_error` | motivo de rejeição ausente |
+| 503 | `artwork_persistence_unavailable` | fonte configurada indisponível |
+
+---
+
+## GET /api/admin/impact-reviews
+
+### Objetivo
+Ler a fila e o histórico de governança cross-role.
+
+### Fonte de dados
+- `PAYMENT_PERSISTENCE=mysql`: tabela `impact_reviews`;
+- SQLite/local: somente quando declarado explicitamente;
+- `entity_type/entity_id` preservam o vínculo lógico com o domínio consumidor.
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 403 | `forbidden` | ator sem acesso à governança |
+| 503 | `impact_review_persistence_unavailable` | fonte configurada indisponível |
+
+---
+
+## POST /api/admin/impact-reviews/:id/approve ou /reject
+
+### Objetivo
+Decidir uma revisão em `pending_review`, preservando actor, motivo e trilha de auditoria.
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 403 | `forbidden` | ator sem permissão |
+| 404 | `not_found` | revisão inexistente |
+| 409 | `invalid_transition` | revisão já decidida ou entidade incompatível |
+| 422 | `validation_error` | payload inválido ou motivo ausente |
+| 503 | `impact_review_persistence_unavailable` | fonte configurada indisponível |
+
+---
+
+## GET /api/catalog-items
+
+### Objetivo
+Ler o catálogo publicado para visitantes ou o recorte administrativo autorizado.
+
+### Fonte de dados
+- `PAYMENT_PERSISTENCE=mysql`: somente `catalog_items` no MySQL;
+- SQLite/local: somente quando o ambiente declarar explicitamente esse modo;
+- falha de persistência não usa `.tmp-store` como fallback.
+
+### Resposta de sucesso
+```json
+{
+  "ok": true,
+  "items": []
+}
+```
+
+### Erros esperados
+| Codigo | Erro | Quando ocorre |
+| --- | --- | --- |
+| 503 | `catalog_persistence_unavailable` | fonte configurada indisponível |
+
+---
+
 ## POST /api/catalog-items
 
 ### Objetivo
@@ -1841,6 +1988,33 @@ Obrigatorio: sim
 
 ---
 
+## Referral e atribuição
+
+### POST /api/affiliate/links
+- Cria `ReferralLink` para `affiliate` ou `platform_admin`.
+- `PAYMENT_PERSISTENCE=mysql`: tabela `referral_links`.
+- slug é único globalmente; o contrato de criação permanece `201`.
+
+### GET /api/affiliate/links
+- Lê links do owner e deriva métricas a partir de `referral_events`.
+- `clickCount`, `conversionCount`, `conversionRate` e `revenueAmount` não são armazenados como estado duplicado.
+
+### GET /af/:slug
+- Só links `active` registram `ReferralEvent` do tipo `click` e definem `ruah_referral_link_id`.
+- Link inexistente ou pausado redireciona para `/shop` sem atribuição.
+
+### POST /api/affiliate/links/:id/conversions
+- Apenas `platform_admin` registra conversão no contrato atual.
+- Conversão é idempotente por `referralLinkId + orderId`; repetição retorna `reused=true`.
+- `PAYMENT_PERSISTENCE=mysql`: tabela `referral_events`.
+
+### Persistência por ambiente
+- MySQL é a autoridade em ambientes integrados.
+- JSON/SQLite só são permitidos quando o modo local/QA é explicitamente declarado.
+- Não existe fallback silencioso para `.tmp-store` em modo MySQL.
+
+---
+
 ## POST /api/campaigns
 
 ### Objetivo
@@ -1860,6 +2034,11 @@ Criar campanha em `draft` e abrir review sensivel de growth (`campaign_growth`).
 
 ### AuditLog
 Obrigatorio: sim
+
+### Persistência
+- `PAYMENT_PERSISTENCE=mysql`: `campaigns` é a fonte oficial.
+- modo local/QA explicitamente declarado: usa o store local correspondente.
+- não existe fallback silencioso de MySQL para `.tmp-store`.
 
 ---
 
@@ -1881,6 +2060,41 @@ Submeter campanha para revisao.
 
 ### AuditLog
 Obrigatorio: sim
+
+### Autoridade de distribuição
+- `Campaign` guarda estado, owner, regra progressiva e janela da campanha.
+- `CampaignProduct` guarda somente o vínculo com `CatalogItem` e é único por `(campaignId, catalogItemId)`.
+- a vitrine pública exige `campaign.status=active`, vínculo existente e `CatalogItem.publicationStatus=published`.
+- o nome, preço, mídia, variantes e publicação do produto não são duplicados em campanha.
+
+---
+
+## POST /api/campaigns/:id/products
+
+### Objetivo
+Vincular um `CatalogItem` publicado à campanha ainda mutável.
+
+### Persistência
+- `PAYMENT_PERSISTENCE=mysql`: tabela `campaign_products`.
+- modo local/QA explicitamente declarado: store local correspondente.
+- vínculo repetido é idempotente e retorna `reused=true`.
+
+### Regras
+- item inexistente retorna `catalog_item_not_found`.
+- item não publicado ou campanha bloqueada retorna `invalid_transition`.
+- a operação emite `campaign.product_linked` quando cria vínculo novo.
+
+---
+
+## GET /api/campaigns/:id/public
+
+### Objetivo
+Resolver o estado público da campanha sem misturar catálogo editorial com estado de distribuição.
+
+### Estados
+- `active`: campanha ativa; produtos são filtrados por vínculo e publicação do catálogo.
+- `inactive`: campanha existe, mas não está ativa; não expõe produtos.
+- `not_found`: campanha inexistente; não expõe produtos.
 
 ---
 

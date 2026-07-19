@@ -1,6 +1,5 @@
 ﻿import 'server-only';
 
-import { findBrandProductMerchandising, findBrandProductSeed } from '@/lib/brand-assets';
 import { listCampaignCatalogItemIds } from '@/lib/campaign-product-store';
 import { getCampaign, type CampaignRecord } from '@/lib/campaign-store';
 import { listCatalogItems, type CatalogItemRecord } from '@/lib/catalog-item-store';
@@ -41,8 +40,8 @@ function toShopCampaignSummary(campaign: CampaignRecord): ShopCampaignSummary {
   };
 }
 
-function toShopCampaignContext(campaignId: string) {
-  const campaign = getCampaign(campaignId);
+async function toShopCampaignContext(campaignId: string) {
+  const campaign = await getCampaign(campaignId);
   if (!campaign || campaign.status !== 'active') return null;
   const summary = toShopCampaignSummary(campaign);
   return {
@@ -69,40 +68,40 @@ function pickHoverImage(item: CatalogItemRecord) {
 }
 
 function mapCatalogItemToShopProduct(item: CatalogItemRecord): ShopProduct {
-  const seed = findBrandProductSeed(item.catalogItemId);
-  const merchandising = findBrandProductMerchandising(item.catalogItemId);
   const primaryVariant = pickPrimaryVariant(item);
   const basePrice = primaryVariant?.price ?? item.price;
+  const category = item.category ?? 'Autoral';
+  const segment = item.segment ?? 'Customizada';
 
   return {
     id: item.catalogItemId,
-    name: seed?.name ?? item.name,
+    name: item.name,
     price: basePrice,
     basePrice,
-    category: merchandising?.category ?? item.category ?? 'Autoral',
-    segment: merchandising?.segment ?? item.segment ?? 'Customizada',
-    image: merchandising?.image ?? item.image,
-    hoverImage: merchandising?.hoverImage ?? pickHoverImage(item),
+    category,
+    segment,
+    image: item.image,
+    hoverImage: pickHoverImage(item),
     badge:
-      merchandising?.segment === 'Base'
+      segment === 'Base'
         ? 'Linha Base'
-        : merchandising?.category === 'Campanhas'
+        : category === 'Campanhas'
           ? 'Campanha'
           : undefined,
-    tags: merchandising?.tags ?? item.tags ?? [],
+    tags: item.tags ?? [],
     variantId: primaryVariant?.variantId ?? 'default',
     variantLabel: primaryVariant?.label ?? 'Padrão',
     pricingPolicyMinPrice: item.pricingPolicy?.minPrice,
   };
 }
 
-export function resolveShopCampaignContext(campaignId?: string) {
+export async function resolveShopCampaignContext(campaignId?: string) {
   const normalized = campaignId?.trim();
   if (!normalized) return null;
   return toShopCampaignContext(normalized);
 }
 
-export function resolveShopCampaign(input?: { campaignId?: string }): ShopCampaignResolution {
+export async function resolveShopCampaign(input?: { campaignId?: string }): Promise<ShopCampaignResolution> {
   const campaignId = input?.campaignId?.trim();
   if (!campaignId) {
     return {
@@ -113,7 +112,7 @@ export function resolveShopCampaign(input?: { campaignId?: string }): ShopCampai
     };
   }
 
-  const campaign = getCampaign(campaignId);
+  const campaign = await getCampaign(campaignId);
   if (!campaign) {
     return {
       requestedCampaignId: campaignId,
@@ -140,7 +139,7 @@ export function resolveShopCampaign(input?: { campaignId?: string }): ShopCampai
     storefrontState: 'active',
     message: null,
     campaignSummary,
-    campaignContext: toShopCampaignContext(campaignId),
+    campaignContext: await toShopCampaignContext(campaignId),
   };
 }
 
@@ -155,7 +154,7 @@ export async function getPublishedShopProducts(input?: {
   requestedCampaignId?: string;
 }> {
   const items = await listCatalogItems({ publicationStatus: 'published' });
-  const resolution = resolveShopCampaign(input);
+  const resolution = await resolveShopCampaign(input);
 
   if (resolution.storefrontState === 'default') {
     return {
@@ -171,7 +170,7 @@ export async function getPublishedShopProducts(input?: {
     };
   }
 
-  const linkedCatalogItemIds = new Set(listCampaignCatalogItemIds(resolution.campaignContext?.campaignId ?? ''));
+  const linkedCatalogItemIds = new Set(await listCampaignCatalogItemIds(resolution.campaignContext?.campaignId ?? ''));
   const filteredItems = items.filter((item) => linkedCatalogItemIds.has(item.catalogItemId));
   const storefrontState = filteredItems.length > 0 ? 'active' : 'empty';
   const message =

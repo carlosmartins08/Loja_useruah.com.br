@@ -132,18 +132,22 @@ function toPublicCatalogItem(item: Awaited<ReturnType<typeof listCatalogItems>>[
 }
 
 export async function GET(request: Request) {
-  const actor = getActorFromRequest(request);
-  const { searchParams } = new URL(request.url);
-  const requestedStatus = parseStatus(searchParams.get('publicationStatus'));
-  const artworkId = searchParams.get('artworkId') ?? undefined;
+  try {
+    const actor = getActorFromRequest(request);
+    const { searchParams } = new URL(request.url);
+    const requestedStatus = parseStatus(searchParams.get('publicationStatus'));
+    const artworkId = searchParams.get('artworkId') ?? undefined;
 
-  if (!canManageCatalog(actor)) {
-    const publicItems = await listCatalogItems({ publicationStatus: 'published' });
-    return NextResponse.json({ ok: true, items: publicItems.map(toPublicCatalogItem) });
+    if (!canManageCatalog(actor)) {
+      const publicItems = await listCatalogItems({ publicationStatus: 'published' });
+      return NextResponse.json({ ok: true, items: publicItems.map(toPublicCatalogItem) });
+    }
+
+    const items = await listCatalogItems({ publicationStatus: requestedStatus, artworkId });
+    return NextResponse.json({ ok: true, items });
+  } catch {
+    return NextResponse.json({ error: 'catalog_persistence_unavailable' }, { status: 503 });
   }
-
-  const items = await listCatalogItems({ publicationStatus: requestedStatus, artworkId });
-  return NextResponse.json({ ok: true, items });
 }
 
 export async function POST(request: Request) {
@@ -174,7 +178,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'validation_error', detail: 'catalog_business_rules_failed', issues: businessRuleIssues }, { status: 422 });
   }
 
-  const artwork = getArtwork(payload.artworkId);
+  const artwork = await getArtwork(payload.artworkId);
   if (!artwork) return NextResponse.json({ error: 'artwork_not_found' }, { status: 404 });
   if (artwork.status !== 'approved') {
     return NextResponse.json({ error: 'invalid_transition', detail: 'artwork_must_be_approved' }, { status: 409 });
@@ -217,10 +221,18 @@ export async function POST(request: Request) {
   const impactSensitive = detectImpactSensitiveFields('supplier', ['priceTable', 'materialSpec', 'productionLeadTime']);
 
   const initialStatus: CatalogItemStatus = impactSensitive.length > 0 ? 'pending_review' : 'draft';
-  const { item, created } = await createCatalogItem({ ...payload, pricingPolicy, initialStatus });
+  let item: Awaited<ReturnType<typeof createCatalogItem>>['item'];
+  let created: boolean;
+  try {
+    const result = await createCatalogItem({ ...payload, pricingPolicy, initialStatus });
+    item = result.item;
+    created = result.created;
+  } catch {
+    return NextResponse.json({ error: 'catalog_persistence_unavailable' }, { status: 503 });
+  }
   const impactReview =
     impactSensitive.length > 0
-      ? createImpactReview({
+      ? await createImpactReview({
           domain: 'supplier_catalog',
           entityType: 'CatalogItem',
           entityId: item.catalogItemId,

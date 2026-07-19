@@ -44,10 +44,6 @@ interface CartContextType {
     premiumPackage: boolean;
   };
   setGifting: (gifting: { isGift: boolean; message: string; premiumPackage: boolean }) => void;
-  location: {
-    region: string;
-    shippingDays: number;
-  };
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -130,7 +126,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isCartHydrated, setIsCartHydrated] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [gifting, setGifting] = useState({ isGift: false, message: '', premiumPackage: false });
-  const [location] = useState({ region: 'São Paulo', shippingDays: 2 });
 
   useEffect(() => {
     try {
@@ -204,7 +199,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         totalQuantity,
         gifting,
         setGifting,
-        location,
       }}
     >
       {children}

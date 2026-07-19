@@ -3,7 +3,6 @@ import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { ProductPageView } from '@/components/product/ProductPageView';
 import { buildProductJsonLd, mapCatalogItemToProductPageModel } from '@/components/product/product-data';
-import { findBrandProductMerchandising, findBrandProductSeed } from '@/lib/brand-assets';
 import { appendAuditLog } from '@/lib/audit-log-store';
 import { isCatalogItemLinkedToCampaign, listCampaignCatalogItemIds } from '@/lib/campaign-product-store';
 import { getCatalogItem, listCatalogItems } from '@/lib/catalog-item-store';
@@ -24,8 +23,8 @@ async function resolveProductCampaignContext(id: string, rawCampaignId?: string)
   const explicitCampaignId = rawCampaignId?.trim();
 
   if (explicitCampaignId) {
-    const explicitContext = resolveShopCampaignContext(explicitCampaignId);
-    if (!explicitContext || !isCatalogItemLinkedToCampaign(explicitContext.campaignId, id)) {
+    const explicitContext = await resolveShopCampaignContext(explicitCampaignId);
+    if (!explicitContext || !(await isCatalogItemLinkedToCampaign(explicitContext.campaignId, id))) {
       appendAuditLog({
         actor_id: 'public-visitor',
         actor_role: 'public',
@@ -39,9 +38,9 @@ async function resolveProductCampaignContext(id: string, rawCampaignId?: string)
     return explicitContext;
   }
 
-  const cookieContext = resolveShopCampaignContext(cookieCampaignId);
+  const cookieContext = await resolveShopCampaignContext(cookieCampaignId);
   if (!cookieContext) return null;
-  return isCatalogItemLinkedToCampaign(cookieContext.campaignId, id) ? cookieContext : null;
+  return (await isCatalogItemLinkedToCampaign(cookieContext.campaignId, id)) ? cookieContext : null;
 }
 
 export async function generateMetadata({ params }: { params: Promise<ProductPageParams> }): Promise<Metadata> {
@@ -76,18 +75,15 @@ export default async function ProductPage(props: {
 
   const { product } = current;
   const campaignContext = await resolveProductCampaignContext(id, campaignId);
-  const campaignCatalogIds = campaignContext ? new Set(listCampaignCatalogItemIds(campaignContext.campaignId)) : null;
+  const campaignCatalogIds = campaignContext ? new Set(await listCampaignCatalogItemIds(campaignContext.campaignId)) : null;
   const catalog = await listCatalogItems({ publicationStatus: 'published' });
   const visibleCatalog = campaignCatalogIds
     ? catalog.filter((item) => item.catalogItemId !== id && campaignCatalogIds.has(item.catalogItemId))
     : catalog.filter((item) => item.catalogItemId !== id);
   const scoreRecommendation = (item: Awaited<ReturnType<typeof listCatalogItems>>[number]) => {
-    const merchandising = findBrandProductMerchandising(item.catalogItemId);
-    const category = merchandising?.category ?? item.category;
-    const segment = merchandising?.segment ?? item.segment;
     let score = 0;
-    if (category === product.category) score += 2;
-    if (segment === product.segment) score += 1;
+    if (item.category === product.category) score += 2;
+    if (item.segment === product.segment) score += 1;
     return score;
   };
 
@@ -95,16 +91,14 @@ export default async function ProductPage(props: {
     .sort((left, right) => scoreRecommendation(right) - scoreRecommendation(left))
     .slice(0, 3)
     .map((item) => {
-      const seed = findBrandProductSeed(item.catalogItemId);
-      const merchandising = findBrandProductMerchandising(item.catalogItemId);
-      const category = merchandising?.category ?? item.category;
-      const segment = merchandising?.segment ?? item.segment;
+      const category = item.category ?? 'Autoral';
+      const segment = item.segment ?? 'Customizada';
 
       return {
         id: item.catalogItemId,
-        name: seed?.name ?? item.name,
+        name: item.name,
         price: item.variants.find((variant) => variant.inStock)?.price ?? item.price,
-        image: merchandising?.image ?? item.image,
+        image: item.image,
         href: campaignContext ? `/product/${item.catalogItemId}?campaignId=${campaignContext.campaignId}` : `/product/${item.catalogItemId}`,
         bundleHint:
           category === product.category

@@ -96,7 +96,9 @@ export function ProfilePhotoModal({ isOpen, onClose, onSave }: ProfilePhotoModal
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-2xl font-black font-serif italic uppercase text-ruah-950">Foto de Perfil</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-ruah-400">Personalize seu chamado na UseRuah</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-ruah-400">
+                    Prévia local para esta sessão; ainda não é sincronizada com um perfil de conta.
+                  </p>
                 </div>
 
                 <div

@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   for (const seed of BRAND_BOOTSTRAP_SEEDS) {
     const artworkId = `ART-SEED-${seed.id}`;
-    upsertApprovedArtwork({
+    await upsertApprovedArtwork({
       artworkId,
       authorId: 'seed-author',
       sourceAsset: seed.image,
@@ -59,15 +59,15 @@ export async function POST(request: Request) {
         promoPriceFloor: Number((seed.price * 0.95).toFixed(2)),
       },
     });
-    const pendingReview = getPendingImpactReviewByEntity('CatalogItem', item.catalogItemId);
+    const pendingReview = await getPendingImpactReviewByEntity('CatalogItem', item.catalogItemId);
     if (pendingReview) {
-      approveImpactReview({
+      await approveImpactReview({
         reviewId: pendingReview.reviewId,
         approvedBy: actor?.actorId ?? 'bootstrap-system',
         reason: 'bootstrap_auto_approve_for_seed',
       });
     }
-    const freshReview = createImpactReview({
+    const freshReview = await createImpactReview({
       domain: 'supplier_catalog',
       entityType: 'CatalogItem',
       entityId: item.catalogItemId,
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       priority: 'normal',
       slaHours: 2,
     });
-    approveImpactReview({
+    await approveImpactReview({
       reviewId: freshReview.review.reviewId,
       approvedBy: actor?.actorId ?? 'bootstrap-system',
       reason: 'bootstrap_latest_approved_review',

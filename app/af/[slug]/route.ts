@@ -5,7 +5,7 @@ import { getReferralLinkBySlug, recordReferralClick } from '@/lib/referral-store
 export async function GET(request: Request, context: { params: Promise<{ slug: string }> }) {
   const { slug } = await context.params;
   const origin = new URL(request.url).origin;
-  const link = getReferralLinkBySlug(slug);
+  const link = await getReferralLinkBySlug(slug);
   if (!link || link.status !== 'active') {
     const response = NextResponse.redirect(new URL('/shop', origin), { status: 307 });
     response.cookies.set('ruah_referral_link_id', '', {
@@ -16,7 +16,7 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
     return response;
   }
 
-  const click = recordReferralClick({ referralLinkId: link.referralLinkId });
+  const click = await recordReferralClick({ referralLinkId: link.referralLinkId });
   if (click.kind === 'created') {
     appendAuditLog({
       actor_id: 'public-visitor',

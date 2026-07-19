@@ -170,12 +170,12 @@ function buildReadiness(input: {
 }
 
 export async function getCampaignOperationalDetail(campaignId: string) {
-  const campaign = getCampaign(campaignId);
+  const campaign = await getCampaign(campaignId);
   if (!campaign) return null;
 
   const [links, campaignRevenue] = await Promise.all([
     Promise.all(
-      listCampaignProducts(campaignId).map(async (link) => {
+      (await listCampaignProducts(campaignId)).map(async (link) => {
         const item = await getCatalogItem(link.catalogItemId);
         return {
           ...link,
@@ -195,12 +195,12 @@ export async function getCampaignOperationalDetail(campaignId: string) {
     ),
     listCommunityCampaignRevenueByOwner(campaign.createdBy, { includeOrders: true }),
   ]);
-  const governanceHistory = listImpactReviewsByEntities('Campaign', [campaignId])
+  const governanceHistory = (await listImpactReviewsByEntities('Campaign', [campaignId]))
     .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
     .map((review, index, history) => toGovernanceSummary(review, history.length));
   const latestGovernance = governanceHistory[0] ?? null;
-  const pendingGovernance = getPendingImpactReviewByEntity('Campaign', campaignId);
-  const latestImpactReview = getLatestImpactReviewByEntity('Campaign', campaignId);
+  const pendingGovernance = await getPendingImpactReviewByEntity('Campaign', campaignId);
+  const latestImpactReview = await getLatestImpactReviewByEntity('Campaign', campaignId);
   const reviewIds = new Set(governanceHistory.map((review) => review.reviewId));
   const reviewsById = new Map(governanceHistory.map((review) => [review.reviewId, review]));
   const fallbackImpactEvents = new Set<string>();

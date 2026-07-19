@@ -13,7 +13,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const link = getReferralLinkById(id);
+  const link = await getReferralLinkById(id);
   if (!link) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
@@ -21,7 +21,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
 
-  const result = updateReferralLinkStatus({ referralLinkId: id, from: ['paused'], to: 'active' });
+  const result = await updateReferralLinkStatus({ referralLinkId: id, from: ['paused'], to: 'active' });
   if (result.kind === 'not_found') {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }

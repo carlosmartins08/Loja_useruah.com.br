@@ -1,11 +1,7 @@
 ﻿'use client';
 
 import React from 'react';
-import { RefreshCcw, FileText, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-react';
-
-const RETURN_HISTORY = [
-  { id: 'RTN-102', order: 'UR-8712', date: '20 Set 2026', type: 'Troca de tamanho', status: 'concluído' },
-];
+import { RefreshCcw, FileText, ChevronRight, AlertCircle } from 'lucide-react';
 
 export default function ReturnsPage() {
   const [step] = React.useState(1);
@@ -33,12 +29,11 @@ export default function ReturnsPage() {
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-4">
                 <span className="text-xs font-semibold text-ruah-400 uppercase tracking-[0.12em]">Selecione o pedido</span>
-                <div className="p-6 border border-accent-gold rounded-2xl flex justify-between items-center bg-accent-gold/5">
+                <div className="p-6 border border-dashed border-ruah-200 rounded-2xl bg-ruah-50">
                   <div className="flex flex-col gap-1">
-                    <span className="text-xs font-bold uppercase">Pedido UR-9482</span>
-                    <span className="text-xs font-semibold text-accent-gold italic">Disponível para troca até 10 nov</span>
+                    <span className="text-xs font-bold uppercase text-ruah-950">Nenhum pedido elegível carregado</span>
+                    <span className="text-xs font-semibold text-ruah-400 italic">A elegibilidade será confirmada a partir de um pedido real.</span>
                   </div>
-                  <CheckCircle2 size={18} className="text-accent-gold" />
                 </div>
               </div>
 
@@ -52,8 +47,8 @@ export default function ReturnsPage() {
                 </div>
               </div>
 
-              <button className="w-full bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.12em] hover:bg-accent-gold transition-all flex items-center justify-center gap-3">
-                Continuar solicitação <ChevronRight size={16} />
+              <button disabled className="w-full bg-ruah-100 text-ruah-400 py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.12em] cursor-not-allowed flex items-center justify-center gap-3">
+                Solicitação indisponível <ChevronRight size={16} />
               </button>
             </div>
           </div>
@@ -65,16 +60,8 @@ export default function ReturnsPage() {
               <FileText size={18} className="text-accent-gold" />
               <h4 className="text-sm font-semibold tracking-[0.3em]">Histórico</h4>
             </div>
-            <div className="flex flex-col gap-4">
-              {RETURN_HISTORY.map((rtn) => (
-                <div key={rtn.id} className="bg-white p-6 rounded-2xl border border-ruah-100 flex justify-between items-center">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-ruah-400 uppercase tracking-[0.1em]">{rtn.date}</span>
-                    <span className="text-sm font-semibold">{rtn.type}</span>
-                  </div>
-                  <span className="text-xs font-semibold uppercase text-green-600 bg-green-50 px-2 py-1 rounded-full">{rtn.status}</span>
-                </div>
-              ))}
+            <div className="rounded-2xl border border-dashed border-ruah-200 bg-white p-6 text-sm text-ruah-500">
+              Nenhuma solicitação real de troca ou devolução foi carregada para esta conta.
             </div>
           </div>
 

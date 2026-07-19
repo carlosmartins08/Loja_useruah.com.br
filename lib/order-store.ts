@@ -234,7 +234,7 @@ export async function createPlacedOrder(input: {
     input.items.map(async (item) => {
       const catalogItem = await getCatalogItem(item.catalogItemId);
       const variant = catalogItem?.variants.find((row) => row.variantId === item.variantId);
-      const artwork = catalogItem ? getArtwork(catalogItem.artworkId) : null;
+      const artwork = catalogItem ? await getArtwork(catalogItem.artworkId) : null;
       return {
         item,
         catalogItem,

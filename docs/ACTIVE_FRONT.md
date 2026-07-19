@@ -1,12 +1,12 @@
 # Active Front
 
-Data de revisao: 2026-06-21
+Data de revisao: 2026-07-19
 Branch: `feat/payments-gateway-cutover-checklist`
 Responsavel atual: `Codex + usuario`
-Status da frente: `FRONT_5_BLOCKED_EXTERNAL_WINDOW`
+Status da frente: `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`
 
 ## Objetivo atual
-Preservar a base validada sem reabrir frentes fechadas e manter `FRONT_5_REAL_PAYMENTS_CUTOVER` congelada ate existir janela externa objetiva de homolog final e cutover.
+Reconciliar a autoridade de continuidade com o historico W1-W8, sem reabrir pagamentos, alterar produto ou criar uma segunda fonte de verdade.
 
 ## Gatilho rapido de retomada
 Se a sessao cair ou for retomada depois:
@@ -16,15 +16,17 @@ Se a sessao cair ou for retomada depois:
 
 ## Frente unica aberta
 Frente atual selecionada:
-- `FRONT_5_REAL_PAYMENTS_CUTOVER`
+- `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`
 
 Motivo:
 - `FRONT_4_PUBLIC_SURFACES_HONESTY` fechou o recorte ativo com varredura final curta, patch isolado e gate revalidado.
 - `journal`, `register` e `footer` deixaram de sustentar promessa publica morta ou CTA sem destino real.
-- a proxima frente autorizada ja nao e interna: depende de janela externa objetiva para homolog final e cutover de pagamento real.
+- W1-W6 estao representadas por evidencias de implementacao e gates anteriores; W7/W8 foram detectadas com metadados suficientes apenas para classificacao diferencial, sem inventar detalhe adicional.
+- `FRONT_5_REAL_PAYMENTS_CUTOVER` continua bloqueada por dependencia externa, mas nao e a frente ativa desta sessao.
 
 Recorte atual em execucao:
-- nenhuma implementacao interna nova de pagamento real deve abrir antes da janela externa; o trabalho atual e manter a frente correta parada, e nao forcar feature para preencher o vazio.
+- auditoria diferencial de continuidade: alinhar `ACTIVE_FRONT`, `.agents/session-state.json`, `NEXT_SESSION_TRIGGER` e o roteador.
+- nenhuma implementacao de produto, pagamento, banco, contrato ou UI publica entra neste recorte.
 
 ## Plano serial de execucao
 1. `FRONT_1_COMMUNITY_CAMPAIGNS`
@@ -61,6 +63,13 @@ Usuarios/roles: `finance_admin`, `platform_admin`, `customer`.
 Fonte autoritativa: `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`, `docs/PAYMENTS_DEFINITION_OF_DONE.md`.
 Gate de saida: `npm run p3:precheck`, `npm run qa:stripe:smoke`, `npm run qa:payments21`, `npm run qa:provider:activate`, `npm run qa:functional`, `npm run qa:coreops`, `npm run qa:matrix:audit` e evidencia da janela real.
 Nao tocar: redesign de checkout, fase nova de produto, workaround de ambiente travestido de feature.
+
+6. `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`
+Problema real: a memoria operacional ainda aponta para pagamentos e o plano do agente ainda termina em W6, apesar de W1-W8 ja estarem registrados em evidencias existentes.
+Usuarios/roles: nenhum; esta e uma frente de governanca de continuidade.
+Fonte autoritativa: este arquivo, `.agents/session-state.json`, `docs/NEXT_SESSION_TRIGGER.md`, `docs/EXECUTION_TRACKING.md` e `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`.
+Gate de saida: `npm run test:agent-route`, `npm run check` e `git diff --check`.
+Nao tocar: produto, checkout, carrinho, pedido, pagamento, webhook, catalogo, banco, admin, account, IA de cliente, README ou componentes visuais.
 
 ## Regra de passagem entre frentes
 - So avancar para a proxima frente quando a atual terminar em `IMPLEMENTADO`, `PARCIAL` conscientemente limitado ou `BLOQUEADO` por dependencia externa objetiva.
@@ -100,17 +109,17 @@ Nao tocar: redesign de checkout, fase nova de produto, workaround de ambiente tr
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
-Endurecimento da cadeia de `FRONT_5_REAL_PAYMENTS_CUTOVER`: `p3:precheck`, `p3:plug`, `go:preflight` e `go:e2e:proof` agora bloqueiam explicitamente `HML_BASE_URL=http://localhost:3000`, para nao vender readiness local como janela real de homolog final.
+Auditoria de continuidade identificou W1-W8 no historico de execucao e corrigiu a autoridade operacional para uma auditoria diferencial, sem promover W8 a homologacao externa nem reabrir pagamentos.
 
 ## Bloqueio atual
-`FRONT_4_PUBLIC_SURFACES_HONESTY` nao tem mais bloqueio tecnico e saiu do estado ativo.
+`FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa.
 
-O risco real agora mudou:
-- reabrir `FRONT_4` sem evidencia nova
-- misturar pagamentos reais com inventario interno que nao depende da janela externa
-- contornar a falta de janela com workaround travestido de feature
-- promover pagamento real para `IMPLEMENTADO` sem evidencia operacional externa
-- tratar readiness local como se fosse homolog final fora de `localhost`
+O risco real agora e:
+- reabrir W1-W6 como se fossem frentes atuais;
+- ignorar W7/W8 por ausencia anterior no roteador;
+- misturar auditoria diferencial com mudanca de produto;
+- promover pagamento real para `IMPLEMENTADO` sem evidencia operacional externa;
+- tratar readiness local como homolog final fora de `localhost`.
 
 ## Evidencia
 - `npm run p3:precheck`: `BLOCKED_EXTERNAL_BASE_URL` em `2026-06-21` quando `HML_BASE_URL=http://localhost:3000`
@@ -129,6 +138,8 @@ O risco real agora mudou:
 - smoke local em `next dev`: `PASS` em `2026-06-20` para `/artista/lucas-santana`, `/category/autoral`, `/help-center` e `/quem-somos`
 - smoke local em `next start`: `PASS` em `2026-06-21` para `/`, `/journal` e `/register`
 - `docs/NEXT_SESSION_TRIGGER.md`: ciclo anterior fechado com regra clara de retomada
+- `artifacts/audits/2026-07-19-w7-backfill-classification.md`: W7 classificada diferencialmente sem reabrir W1-W6
+- `artifacts/audits/2026-07-19-w8-external-promotion-preflight.md`: W8 preparada para evidencia externa, sem afirmar homologacao PASS
 - `docs/EXECUTION_TRACKING.md`: snapshot ativo revalidado com o saneamento documental do ciclo
 - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`: `CampaignProduct` e snapshot contextualizado agora aparecem como `PARCIAL` tambem no status documental
 - `docs/PHASE_HANDOFF_FASE_1_PARA_FASE_2.md` e `docs/PHASE_HANDOFF_FASE_2_PARA_FASE_3.md`: handoffs atualizados para nao bloquear leitura do runtime parcial real
@@ -146,11 +157,11 @@ O risco real agora mudou:
 - `scripts/qa/qa-affiliate-referral.mjs`: suite preparada e aprovada para o recorte novo
 
 ## Proximo passo exato
-Executar `FRONT_5_REAL_PAYMENTS_CUTOVER` somente quando a dependencia externa existir:
-1. confirmar janela real de homolog final e cutover;
-2. confirmar que `HML_BASE_URL` saiu de `http://localhost:3000` e aponta para a homolog final real;
-3. rodar `npm run p3:precheck`, `npm run qa:stripe:smoke`, `npm run qa:payments21`, `npm run qa:provider:activate`, `npm run qa:functional`, `npm run qa:coreops` e `npm run qa:matrix:audit`;
-4. se a janela nao existir, nao abrir patch de pagamento real e nao forcar workaround de ambiente.
+Executar a auditoria diferencial de continuidade:
+1. reler este arquivo, `docs/NEXT_SESSION_TRIGGER.md`, `.agents/session-state.json`, `docs/EXECUTION_TRACKING.md` e `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`;
+2. confirmar que W1-W8 aparecem como historico e que a frente ativa e `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`;
+3. rodar `npm run test:agent-route`, `npm run check` e `git diff --check`;
+4. manter pagamentos fora da frente ativa ate existir janela externa objetiva e `HML_BASE_URL` deixar de ser `localhost`.
 
 ## Nao reabrir sem evidencia nova
 - `lib/access-control.ts` como autoridade canonica de permissao

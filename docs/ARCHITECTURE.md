@@ -1,9 +1,19 @@
 # Arquitetura Tecnica
 
-Data de revisao: 2026-06-09
+Data de revisao: 2026-07-19
 
 ## Objetivo
 Explicar como o sistema esta montado hoje, onde cada camada comeca e termina, e como um desenvolvedor deve seguir um fluxo sem adivinhar.
+
+## Decisao arquitetural oficial
+- A UseRuah e uma aplicacao **Next.js full-stack** usando App Router.
+- `app/**/page.tsx`, layouts e Server Components formam a camada de interface.
+- `app/api/**/route.ts` forma a API/backend HTTP da propria aplicacao.
+- `lib/**` concentra dominio, aplicacao, autenticacao, RBAC, persistencia e integracoes.
+- Nao existe backend HTTP paralelo em Express, Nest ou outro framework.
+- Jobs operacionais, QA e release continuam em `scripts/**`, fora do caminho sincrono de requisicao.
+
+Essa decisao define a fronteira da aplicacao. Ela nao autoriza misturar fontes de dados: cada ambiente deve declarar seu adapter de persistencia e seu grau de maturidade por dominio.
 
 ## Estado atual
 - App Next.js usando App Router.
@@ -20,10 +30,11 @@ Explicar como o sistema esta montado hoje, onde cada camada comeca e termina, e 
   - `scripts/catalog/` concentra reidratacao e geracao editorial
   - `scripts/lib/` concentra helpers compartilhados
 - `tests/` fica reservado para testes canonicos de framework e nao substitui a trilha operacional em `scripts/qa/`
-- O sistema usa persistencia hibrida:
-  - store local/fallback em `lib/dev-store.ts`
-  - adaptadores relacionais via `lib/mysql-runtime.ts`
-  - pagamentos ainda suportam `sqlite` quando `PAYMENT_PERSISTENCE=sqlite`
+- O runtime oficial do produto usa MySQL quando `PAYMENT_PERSISTENCE=mysql`.
+- O MySQL e a fonte de verdade para os stores relacionais que ja possuem adapter.
+- `lib/dev-store.ts` e o SQLite ficam restritos a desenvolvimento, seeds ou QA explicitamente configurado.
+- Quando MySQL esta configurado, falha de conexao ou schema nao pode cair silenciosamente para JSON.
+- Alguns dominios ainda possuem apenas persistencia local; eles devem ser tratados como capacidades parciais, nao como base de producao completa.
 
 ## Camadas canonicas
 
@@ -101,8 +112,25 @@ Responsabilidade:
 - adaptacao por provedor
 - idempotencia, reconciliacao e rastreabilidade
 
+Politica por ambiente:
+- desenvolvimento local integrado: MySQL Docker como fonte oficial do app;
+- QA isolado: store local ou SQLite apenas quando a suite declarar esse modo;
+- homologacao e producao: MySQL gerenciado, sem fallback para arquivo local;
+- seeds, fixtures e dados efemeros: nunca tratados como persistencia oficial.
+
+### Migrações e backfill
+- `infra/mysql/init/001_payments.sql` é o baseline de bootstrap local.
+- `infra/mysql/migrations/002_distribution_authority.sql` formaliza as tabelas de distribuição e referral.
+- `schema_migrations` registra versão, nome, checksum e data de aplicação.
+- `npm run db:migrate:mysql` é o caminho operacional para aplicar migrações; `npm run db:migrate:mysql:plan` permite inspeção sem conexão.
+- `npm run db:backfill:authority` faz plano sem escrita. A execução exige `--execute` e um ou mais `--allow-prefix=...`.
+- O `.tmp-store` atual é fonte de dados legada mista; não pode ser importado integralmente como se fosse verdade histórica.
+- `npm run db:readiness:mysql` valida tabelas, migrações e bloqueia HML/produção sem URL externa real.
+
 Risco estrutural atual:
+- Atualização W6: campanhas, campaign products e referral já possuem adapters MySQL e migração versionada. O backfill histórico segue escopado e não foi promovido automaticamente; artwork e impact-review ainda dependem de backfill e prova externa.
 - `lib/**` ja esta funcional e navegavel, mas ainda depende de disciplina para nao virar deposito generico.
+- alguns stores de campanhas e referral continuam locais e precisam ser promovidos ou explicitamente mantidos fora do escopo de produção; `artwork` e `impact-review` já têm adapter MySQL, mas ainda não possuem migração versionada/backfill formal.
 - a proxima organizacao tecnica deve priorizar subdominios internos de `lib/**`, nao criar novas raizes paralelas.
 
 ## Fluxos principais
@@ -114,6 +142,8 @@ Risco estrutural atual:
    - `lib/catalog-item-store.ts`
    - `lib/artwork-store.ts`
    - `lib/impact-review-store.ts`
+4. quando `PAYMENT_PERSISTENCE=mysql`, `catalog_items` e a autoridade única de nome, preço, mídia, variantes, categoria, segmento, tags e estado de publicação; `lib/brand-assets.ts` só fornece seeds/editorial e metadata ainda não modelada
+5. `artworks` e `impact_reviews` preservam as decisões editoriais e operacionais da cadeia sem depender do processo atual
 
 ### Pedido e checkout
 1. `app/checkout/page.tsx`
@@ -152,20 +182,29 @@ Pontos que importam de verdade:
 1. `app/community/campaigns/page.tsx`
 2. `app/api/campaigns/**`
 3. `lib/campaign-store.ts`
+4. `lib/campaign-product-store.ts`
+5. `lib/campaign-public.ts` e `lib/shop-products.ts`
 
 Regra de leitura:
 - tratar `MovementCampaign` como capacidade parcial real
-- nao presumir `Organization`, `CampaignProduct`, `Referral*` e `/@username` como dominio fechado
+- `Campaign` e `CampaignProduct` são autoridade relacional no MySQL quando `PAYMENT_PERSISTENCE=mysql`
+- produto, preço, mídia, variantes e publicação continuam vindo de `CatalogItem`; campanha guarda somente o vínculo e o contexto de distribuição
+- não presumir `Organization`, `Referral*` e `/@username` como domínio fechado
 
 ## Persistencia
 
-### Modo local/fallback
-- varios stores usam `lib/dev-store.ts`
-- util para desenvolvimento, prototipagem e trilhas ainda nao migradas
+### Modo local explícito
+- vários stores ainda usam `lib/dev-store.ts`
+- útil para desenvolvimento, prototipagem e trilhas ainda não migradas
+- não é fallback permitido quando `PAYMENT_PERSISTENCE=mysql`
 
 ### Modo relacional
 - varios stores ja suportam MySQL por `lib/mysql-runtime.ts`
 - `PAYMENT_PERSISTENCE` controla parte relevante da comutacao
+- o `catalog-item-store` não serve `.tmp-store` após falha ou ausência de registro no MySQL
+- `artwork-store` e `impact-review-store` seguem a mesma regra, sem fallback local em MySQL
+- `campaign-store` e `campaign-product-store` seguem a mesma regra, sem fallback local em MySQL
+- `referral-store` segue a mesma regra, com `referral_links` para links e `referral_events` para cliques/conversões
 
 ### Pagamentos
 - `lib/payment-store.ts` suporta `sqlite` e `mysql`
@@ -174,7 +213,8 @@ Regra de leitura:
 
 ## Autenticacao, sessao e RBAC
 - auth local e cadastro:
-  - `lib/auth-local-users.ts`
+  - `lib/user-identity-store.ts` como autoridade de identidade
+  - `infra/mysql/init/001_payments.sql` com as tabelas `users` e `registrations`
   - `lib/auth-session.ts`
   - `lib/session-token.ts`
 - escopo e acesso:
@@ -188,6 +228,9 @@ Regra de leitura:
 Regra de projeto:
 - permissao real deve ser validada no servidor
 - guard de tela ajuda UX, mas nao substitui verificacao em API
+- em `PAYMENT_PERSISTENCE=mysql`, identidade e cadastro usam MySQL; falha de persistencia responde indisponibilidade, sem fallback silencioso
+- usuarios demo e JSON local existem apenas para desenvolvimento/QA explicitamente configurado
+- o cookie `ruah_session` continua sendo o contrato de sessao; a persistencia duravel passa a ser a autoridade de identidade, nao o token isolado
 
 ## Assets e conteudo
 - assets publicos de marca em `public/brand/`

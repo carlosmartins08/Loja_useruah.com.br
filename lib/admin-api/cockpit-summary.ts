@@ -31,8 +31,10 @@ export async function handleAdminCockpitSummaryGet(request: Request) {
     listRegistrations({ limit: 500 }),
   ]);
 
-  const pendingImpacts = listImpactReviews({ status: 'pending_review' });
-  const overdueImpacts = listImpactReviews({ status: 'pending_review', onlyOverdue: true });
+  const [pendingImpacts, overdueImpacts] = await Promise.all([
+    listImpactReviews({ status: 'pending_review' }),
+    listImpactReviews({ status: 'pending_review', onlyOverdue: true }),
+  ]);
 
   const gmv = orders.reduce((acc, row) => acc + row.totalAmount, 0);
   const paidOrders = orders.filter(

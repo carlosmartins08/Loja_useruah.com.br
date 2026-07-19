@@ -5,10 +5,8 @@ import { motion } from 'motion/react';
 import { 
   TrendingUp, 
   Package, 
-  Truck, 
   Activity, 
   DollarSign, 
-  ShieldCheck, 
   Clock,
   ArrowRight
 } from 'lucide-react';
@@ -24,23 +22,8 @@ import {
   Pie
 } from 'recharts';
 
-// Dados simulados baseados na lógica ELIV
-const dataVendasProducao = [
-  { name: 'Seg', vendas: 400, producao: 380, qualidade: 375 },
-  { name: 'Ter', vendas: 300, producao: 310, qualidade: 300 },
-  { name: 'Qua', vendas: 600, producao: 580, qualidade: 560 },
-  { name: 'Qui', vendas: 800, producao: 750, qualidade: 740 },
-  { name: 'Sex', vendas: 500, producao: 520, qualidade: 510 },
-  { name: 'Sab', vendas: 900, producao: 850, qualidade: 830 },
-  { name: 'Dom', vendas: 1100, producao: 1000, qualidade: 980 },
-];
-
-const dataDistribuicaoCustos = [
-  { name: 'CVu (Matéria Prima)', value: 45, color: '#D4AF37' },
-  { name: 'Logística', value: 20, color: '#1A1A1A' },
-  { name: 'Marketing/CAC', value: 25, color: '#666666' },
-  { name: 'Margem Líquida', value: 10, color: '#22C55E' },
-];
+const dataVendasProducao: Array<{ name: string; vendas: number; producao: number; qualidade: number }> = [];
+const dataDistribuicaoCustos: Array<{ name: string; value: number; color: string }> = [];
 
 const StatCard = ({ title, value, subValue, icon: Icon, color, delay }: any) => (
   <motion.div 
@@ -53,7 +36,7 @@ const StatCard = ({ title, value, subValue, icon: Icon, color, delay }: any) => 
       <div className={`p-3 rounded-2xl ${color} bg-opacity-10 text-${color.replace('bg-', '')}`}>
         <Icon size={24} />
       </div>
-      <span className="text-[10px] font-bold uppercase tracking-widest text-ruah-400">KPI Ativo</span>
+      <span className="text-[10px] font-bold uppercase tracking-widest text-ruah-400">Sem fonte conectada</span>
     </div>
     <h3 className="text-sm font-medium text-ruah-500 mb-1">{title}</h3>
     <div className="flex items-baseline gap-2">
@@ -70,23 +53,22 @@ export default function ElivDashboardPage() {
       <div className="max-w-7xl mx-auto mb-10 border-b border-ruah-100 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] bg-accent-gold text-white px-2 py-1 rounded">Módulo 5</span>
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-ruah-400">Análise Preditiva</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] bg-amber-100 text-amber-800 px-2 py-1 rounded">Legado</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-ruah-400">Experimental</span>
           </div>
           <h1 className="text-4xl font-serif font-black text-ruah-950 uppercase tracking-tighter">
-            Dashboard Estratégico <span className="text-accent-gold italic">ELIV</span>
+            ELIV <span className="text-accent-gold italic">(laboratório)</span>
           </h1>
           <p className="text-ruah-500 mt-2 max-w-xl">
-            Monitoramento em tempo real do ecossistema Dropshipping Marca Própria. 
-            Equilíbrio entre Marketing (Consumidor) e Fulfillment (Parceiro).
+            Esta área não é uma fonte operacional. Os indicadores, previsões e integrações ELIV aguardam dados persistidos e validação de produto.
           </p>
         </div>
         <div className="flex gap-3">
-          <button className="px-6 py-3 bg-white border border-ruah-100 rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:border-accent-gold transition-all">
-            Exportar Relatório
+          <button disabled className="px-6 py-3 bg-white border border-ruah-100 rounded-2xl text-[11px] font-bold uppercase tracking-widest cursor-not-allowed opacity-60">
+            Relatório indisponível
           </button>
-          <button className="px-6 py-3 bg-ruah-950 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest hover:bg-accent-gold transition-all shadow-lg shadow-ruah-950/20">
-            Ajustar CVu
+          <button disabled className="px-6 py-3 bg-ruah-300 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest cursor-not-allowed">
+            Ajuste indisponível
           </button>
         </div>
       </div>
@@ -95,33 +77,33 @@ export default function ElivDashboardPage() {
         {/* Top Stats - Os 3 Pilares Fundamentais */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard 
-            title="Receita Líquida (Vendas)" 
-            value="R$ 124.500" 
-            subValue="+12%" 
+            title="Receita líquida"
+            value="—"
+            subValue="fonte indisponível"
             icon={DollarSign} 
             color="bg-accent-gold" 
             delay={0.1}
           />
           <StatCard 
-            title="Eficiência de Produção" 
-            value="94.2%" 
-            subValue="+2.4%" 
+            title="Eficiência de produção"
+            value="—"
+            subValue="fonte indisponível"
             icon={Activity} 
             color="bg-green-500" 
             delay={0.2}
           />
           <StatCard 
-            title="CVu Médio Estabilizado" 
-            value="R$ 42,90" 
-            subValue="-4.1%" 
+            title="Custo variável unitário"
+            value="—"
+            subValue="não calculado"
             icon={TrendingUp} 
             color="bg-blue-500" 
             delay={0.3}
           />
           <StatCard 
-            title="Pedidos em Fulfillment" 
-            value="182" 
-            subValue="+8" 
+            title="Pedidos em fulfillment"
+            value="—"
+            subValue="fonte indisponível"
             icon={Package} 
             color="bg-ruah-950" 
             delay={0.4}
@@ -134,17 +116,17 @@ export default function ElivDashboardPage() {
           <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-ruah-50 shadow-sm relative overflow-hidden">
             <div className="flex justify-between items-center mb-10">
               <div>
-                <h2 className="text-xl font-black text-ruah-950 uppercase tracking-tight">Ponto de Fusão Crítico</h2>
-                <p className="text-xs text-ruah-400 font-medium tracking-widest uppercase mt-1">Correlação: Vendas vs Produção vs Qualidade</p>
+                <h2 className="text-xl font-black text-ruah-950 uppercase tracking-tight">Série operacional</h2>
+                <p className="text-xs text-ruah-400 font-medium tracking-widest uppercase mt-1">Dados de vendas, produção e qualidade não conectados</p>
               </div>
               <div className="flex gap-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-accent-gold"></div>
-                  <span className="text-[10px] font-bold text-ruah-500 uppercase">Vendas</span>
+                  <span className="text-[10px] font-bold text-ruah-500 uppercase">Sem dados</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-ruah-950"></div>
-                  <span className="text-[10px] font-bold text-ruah-500 uppercase">Produção</span>
+                  <span className="text-[10px] font-bold text-ruah-500 uppercase">Sem dados</span>
                 </div>
               </div>
             </div>
@@ -176,8 +158,8 @@ export default function ElivDashboardPage() {
 
           {/* Cost Distribution Chart */}
           <div className="bg-white p-8 rounded-[2.5rem] border border-ruah-50 shadow-sm">
-            <h2 className="text-xl font-black text-ruah-950 uppercase tracking-tight mb-2">Composição de Custo</h2>
-            <p className="text-xs text-ruah-400 font-medium tracking-widest uppercase mb-8">Pilar II: Sustentabilidade Financeira</p>
+            <h2 className="text-xl font-black text-ruah-950 uppercase tracking-tight mb-2">Composição de custo</h2>
+            <p className="text-xs text-ruah-400 font-medium tracking-widest uppercase mb-8">Não calculada nesta área experimental</p>
             
             <div className="h-[250px] w-full relative overflow-x-auto">
               <PieChart width={320} height={250}>
@@ -197,8 +179,8 @@ export default function ElivDashboardPage() {
                 <Tooltip />
               </PieChart>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-[10px] font-bold text-ruah-400 uppercase tracking-widest">Lucro</span>
-                <span className="text-xl font-black text-green-500">10%</span>
+                <span className="text-[10px] font-bold text-ruah-400 uppercase tracking-widest">Margem</span>
+                <span className="text-xl font-black text-ruah-400">—</span>
               </div>
             </div>
 
@@ -219,27 +201,12 @@ export default function ElivDashboardPage() {
         {/* Operational Timeline & Tracking */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-white p-8 rounded-[2.5rem] border border-ruah-50 shadow-sm">
-            <h2 className="text-xl font-black text-ruah-950 uppercase tracking-tight mb-6">Módulo 4: Monitor de Produção</h2>
-            <div className="space-y-6">
-              {[
-                { status: 'Processando', label: 'Validação de Especificações', icon: ShieldCheck, color: 'text-blue-500' },
-                { status: 'Em Produção', label: 'Fulfillment Ativo (Parceiro)', icon: Activity, color: 'text-accent-gold' },
-                { status: 'Controle de Qualidade', label: 'Inspeção Final do Lote', icon: TrendingUp, color: 'text-purple-500' },
-                { status: 'Aguardando Despacho', label: 'Pronto para Logística', icon: Truck, color: 'text-green-500' }
-              ].map((step, idx) => (
-                <div key={idx} className="flex items-center gap-6 p-4 hover:bg-ruah-25 rounded-2xl transition-colors group">
-                  <div className={`w-12 h-12 rounded-xl bg-opacity-10 flex items-center justify-center ${step.color.replace('text-', 'bg-')} ${step.color}`}>
-                    <step.icon size={20} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-ruah-400 mb-1">{step.status}</p>
-                    <p className="text-sm font-bold text-ruah-950">{step.label}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs font-black text-ruah-950">{Math.floor(dataVendasProducao.length * 5)}</span>
-                  </div>
-                </div>
-              ))}
+            <h2 className="text-xl font-black text-ruah-950 uppercase tracking-tight mb-6">Monitor de produção</h2>
+            <div className="rounded-2xl border border-dashed border-ruah-200 bg-ruah-25 p-6">
+              <p className="text-sm font-bold text-ruah-950">Fonte operacional não conectada</p>
+              <p className="mt-2 text-xs leading-relaxed text-ruah-500">
+                Esta área não exibe lotes, qualidade, produção ou expedição como fatos operacionais.
+              </p>
             </div>
           </div>
 
@@ -249,18 +216,18 @@ export default function ElivDashboardPage() {
             <div>
               <div className="flex items-center gap-2 mb-6">
                 <Clock className="text-accent-gold" size={20} />
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent-gold">Insights Preditivos</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent-gold">Escopo experimental</span>
               </div>
               <h2 className="text-3xl font-serif italic font-black mb-6">
-                Redução de 15% no lead time detectada.
+                Nenhum insight operacional disponível.
               </h2>
               <p className="text-ruah-400 text-sm leading-relaxed mb-8">
-                A integração entre o Módulo 1 e o Módulo 4 permitiu antecipar a demanda em 24h. O parceiro já iniciou o pré-aquecimento da produção.
+                O ELIV permanece isolado como conceito de laboratório até existir integração validada com pedidos, produção, custos e qualidade.
               </p>
             </div>
 
-            <button className="w-full flex items-center justify-between p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all">
-              <span className="text-xs font-black uppercase tracking-widest">Otimizar Escala</span>
+            <button disabled className="w-full flex items-center justify-between p-6 bg-white/5 border border-white/10 rounded-2xl cursor-not-allowed opacity-60">
+              <span className="text-xs font-black uppercase tracking-widest">Ação indisponível</span>
               <ArrowRight size={20} />
             </button>
           </div>

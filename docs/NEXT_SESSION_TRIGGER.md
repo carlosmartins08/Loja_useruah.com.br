@@ -1,9 +1,9 @@
 # Next Session Trigger
 
-Data de revisao: 2026-06-21
+Data de revisao: 2026-07-19
 
 ## Objetivo
-Retomar a execucao exatamente pela mesma logica de saneamento e evolucao validada neste ciclo, sem reabrir decisoes fechadas e sem misturar escopo novo com base ja consolidada.
+Retomar a continuidade pela auditoria diferencial `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`, reconhecendo W1-W8 como historico e sem reabrir pagamentos ou qualquer frente de produto.
 
 ## Gatilho canonico de retomada
 Toda nova sessao deve comecar por este gatilho, nesta ordem:
@@ -16,13 +16,14 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
    - o que ja foi provado;
    - qual e a frente unica ativa;
    - qual e o proximo passo exato;
-   - qual e a condicao de pivot para evitar loop.
+   - qual e a condicao de pivot para evitar loop;
+   - se W7 e W8 estao sendo tratados como historico com metadados suficientes, sem inventar detalhes.
 6. So depois executar.
 
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Retome a execucao a partir de docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/EXECUTION_TRACKING.md e docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md. Preserve a logica ja validada: seguranca antes de UI, namespace canonico como verdade interna, RBAC em lib/access-control.ts como autoridade, smoke autenticado por papel como prova real, e qa:base:roles como gate obrigatorio antes de liberar mudanca. Nao crie documento novo; execute apenas a frente serial atual e me avise se algum passo violar essa disciplina.`
+`Retome a auditoria diferencial a partir de docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/EXECUTION_TRACKING.md, docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md e .agents/session-state.json. Reconheca W1-W8 como historico, nao reabra pagamentos e corrija somente a autoridade de continuidade. Nao crie documento novo nem altere produto.`
 
 ## Checklist anti-retrabalho
 Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
@@ -46,6 +47,7 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
    - `docs/NEXT_SESSION_TRIGGER.md`
    - `docs/EXECUTION_TRACKING.md`
    - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
+   - `.agents/session-state.json`
    - `docs/ROUTES.md`
    - `docs/JOURNEY_MATRIX_BY_ROLE.md`
    - `docs/CODEBASE_MAP.md`
@@ -106,8 +108,8 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 
 ## Contrato minimo da proxima sessao
 A proxima sessao so esta autorizada a:
-1. continuar a frente ativa atual; ou
-2. promover explicitamente a frente seguinte quando a atual estiver saneada e isso for registrado nos docs ativos.
+1. continuar a auditoria diferencial ativa; ou
+2. manter o trabalho parado se a solicitacao tentar reabrir W1-W6, ignorar W7/W8 ou iniciar pagamento real sem dependencia externa comprovada.
 
 Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do primeiro patch.
 
@@ -136,18 +138,15 @@ Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-Seguir apenas a ordem serial abaixo, uma por vez:
-1. `community-campaigns`
-2. `affiliate-referral`
-3. `catalogo-curadoria/artwork` em modo hardening, sem abrir Fase 3 autonoma
-4. `superficies publicas`
-5. `real-payments-cutover` quando a janela externa existir
+Seguir somente a continuidade diferencial enquanto houver divergencia entre memoria operacional, estado da sessao e roteador. Depois disso, `real-payments-cutover` continua condicionado a janela externa objetiva.
 
 Leitura operacional deste momento:
 - `affiliate-referral` fechou o recorte novo.
 - `catalogo-curadoria/artwork` fechou o recorte validado nesta sessao.
 - `superficies publicas` fechou o recorte ativo com saneamento de `artista`, `category`, `help-center`, `quem-somos`, `journal`, `register` e `footer`.
-- a frente ativa agora e `real-payments-cutover`, mas em estado `BLOQUEADO` ate existir janela externa objetiva e `HML_BASE_URL` sair de `localhost`.
+- W1-W8 sao historico processado para fins de continuidade; W7/W8 nao autorizam afirmar homologacao externa.
+- a frente ativa agora e `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`.
+- `real-payments-cutover` permanece dependencia externa bloqueada e nao deve ser reaberta como frente atual.
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:

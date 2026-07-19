@@ -29,12 +29,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const link = getReferralLinkById(id);
+  const link = await getReferralLinkById(id);
   if (!link) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
 
-  const result = recordReferralConversion({
+  const result = await recordReferralConversion({
     referralLinkId: id,
     orderId: payload.orderId.trim(),
     revenueAmount: payload.revenueAmount,

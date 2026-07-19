@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Bell, CalendarDays, Search, TrendingDown, TrendingUp } from 'lucide-react';
+import { Bell, Search } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 
 type CockpitSummary = {
@@ -21,31 +21,28 @@ type CockpitSummary = {
   chargebacks: number;
 };
 
-const TREND_POINTS = [28, 44, 36, 52, 40, 58, 48, 66, 53, 61, 47, 70];
-
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value);
+}
+
+function displayValue(value: number | undefined) {
+  return value === undefined ? '—' : String(value);
 }
 
 function KpiCard({
   label,
   value,
   delta,
-  positive = true,
 }: {
   label: string;
   value: string;
   delta: string;
-  positive?: boolean;
 }) {
   return (
     <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
       <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#7d8197]">{label}</p>
       <p className="mt-2 text-3xl font-black text-[#1d2033]">{value}</p>
-      <p className={`mt-2 inline-flex items-center gap-1 text-xs font-bold ${positive ? 'text-emerald-600' : 'text-rose-600'}`}>
-        {positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-        {delta}
-      </p>
+      <p className="mt-2 text-xs font-semibold text-[#7d8197]">{delta}</p>
     </div>
   );
 }
@@ -54,21 +51,13 @@ function TrendChart() {
   return (
     <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-bold text-[#1d2033]">Tendencia operacional (12 ciclos)</p>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#7d8197]">tempo real</span>
+        <p className="text-sm font-bold text-[#1d2033]">Histórico operacional</p>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#7d8197]">indisponível</span>
       </div>
-      <div className="mt-4 h-44 w-full">
-        <div className="grid h-full grid-cols-12 items-end gap-2">
-          {TREND_POINTS.map((point, index) => (
-            <div key={index} className="flex h-full flex-col justify-end">
-              <div
-                className="rounded-t-md bg-gradient-to-t from-[#5f67f8] to-[#7fa6ff]"
-                style={{ height: `${point}%` }}
-                aria-label={`ponto-${index + 1}`}
-              />
-            </div>
-          ))}
-        </div>
+      <div className="mt-4 flex min-h-44 items-center justify-center rounded-xl border border-dashed border-[#dfe2f0] bg-[#fafbff] p-6 text-center">
+        <p className="max-w-md text-xs font-semibold leading-relaxed text-[#6d7289]">
+          A série histórica ainda não está conectada a uma fonte persistida. Os indicadores abaixo representam somente o resumo atual recebido da operação.
+        </p>
       </div>
     </div>
   );
@@ -79,6 +68,14 @@ function ActionQueue({
 }: {
   summary: CockpitSummary | null;
 }) {
+  if (!summary) {
+    return (
+      <div className="rounded-2xl border border-dashed border-[#dfe2f0] bg-white p-4 text-xs font-semibold text-[#7d8197]">
+        Carregando dados da fila de decisao...
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
       <p className="text-sm font-bold text-[#1d2033]">Fila de decisao</p>
@@ -86,7 +83,7 @@ function ActionQueue({
         <Link href="/admin/impact-reviews?scope=campaigns" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
           <div>
             <p className="text-xs font-bold text-[#1d2033]">Moderar campanhas em revisao</p>
-            <p className="text-[11px] text-[#6d7289]">{summary?.campaignsAtRisk ?? 0} campanhas exigem decisao ou acompanhamento</p>
+            <p className="text-[11px] text-[#6d7289]">{displayValue(summary?.campaignsAtRisk)} campanhas exigem decisao ou acompanhamento</p>
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
@@ -100,14 +97,14 @@ function ActionQueue({
         <Link href="/support" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
           <div>
             <p className="text-xs font-bold text-[#1d2033]">Priorizar tickets criticos</p>
-            <p className="text-[11px] text-[#6d7289]">{summary?.criticalTickets ?? 0} tickets sem resolucao</p>
+            <p className="text-[11px] text-[#6d7289]">{displayValue(summary?.criticalTickets)} tickets sem resolucao</p>
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
         <Link href="/production/jobs" className="flex items-center justify-between rounded-xl border border-[#eef0fb] p-3 hover:bg-[#f8f9ff]">
           <div>
             <p className="text-xs font-bold text-[#1d2033]">Fechar ciclo de envio</p>
-            <p className="text-[11px] text-[#6d7289]">{summary?.shippedOrders ?? 0} pedidos enviados no ciclo atual</p>
+            <p className="text-[11px] text-[#6d7289]">{displayValue(summary?.shippedOrders)} pedidos enviados no ciclo atual</p>
           </div>
           <span className="text-xs font-bold text-[#4f57e8]">abrir</span>
         </Link>
@@ -161,10 +158,10 @@ export default function AdminHubPage() {
       <section className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
         <div className="xl:col-span-9 space-y-4">
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <KpiCard label="Receita bruta" value={formatCurrency(summary?.gmv ?? 0)} delta="ciclo atual" />
-            <KpiCard label="Pedidos pagos" value={String(summary?.paidOrders ?? 0)} delta="+1.4%" />
-            <KpiCard label="Pagamentos com falha" value={String(summary?.refunds ?? 0)} delta="monitorar" positive={false} />
-            <KpiCard label="Pedidos enviados" value={String(summary?.shippedOrders ?? 0)} delta="+1.0%" />
+            <KpiCard label="Receita bruta" value={summary ? formatCurrency(summary.gmv) : '—'} delta="ciclo atual" />
+            <KpiCard label="Pedidos pagos" value={displayValue(summary?.paidOrders)} delta="sem comparação histórica" />
+            <KpiCard label="Pagamentos com falha" value={displayValue(summary?.refunds)} delta="leitura atual" />
+            <KpiCard label="Pedidos enviados" value={displayValue(summary?.shippedOrders)} delta="sem comparação histórica" />
           </div>
 
           <TrendChart />
@@ -175,19 +172,19 @@ export default function AdminHubPage() {
               <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-xl border border-[#eef0fb] p-3">
                   <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Pedidos atrasados</p>
-                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.delayedOrders ?? 0}</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{displayValue(summary?.delayedOrders)}</p>
                 </div>
                 <div className="rounded-xl border border-[#eef0fb] p-3">
                   <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Fornecedores em alerta</p>
-                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.supplierAlerts ?? 0}</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{displayValue(summary?.supplierAlerts)}</p>
                 </div>
                 <div className="rounded-xl border border-[#eef0fb] p-3">
                   <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Tickets criticos</p>
-                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.criticalTickets ?? 0}</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{displayValue(summary?.criticalTickets)}</p>
                 </div>
                 <div className="rounded-xl border border-[#eef0fb] p-3">
                   <p className="text-[11px] uppercase tracking-[0.08em] text-[#7d8197]">Checkout</p>
-                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary?.checkoutConversionPct ?? 0}%</p>
+                  <p className="mt-1 text-xl font-black text-[#1d2033]">{summary ? `${summary.checkoutConversionPct}%` : '—'}</p>
                 </div>
               </div>
             </div>
@@ -198,22 +195,13 @@ export default function AdminHubPage() {
         <aside className="xl:col-span-3 space-y-3">
           <div className="rounded-2xl border border-[#ececf6] bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-[#1d2033]">Agenda de hoje</p>
-              <CalendarDays size={16} className="text-[#7d8197]" />
+              <p className="text-sm font-bold text-[#1d2033]">Agenda operacional</p>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#7d8197]">não conectada</span>
             </div>
-            <div className="mt-3 space-y-2">
-              <div className="rounded-xl border border-[#eef0fb] p-3">
-                <p className="text-xs font-bold text-[#1d2033]">09:00 - Revisao de pedidos</p>
-                <p className="text-[11px] text-[#6d7289]">Fila de envio e pendencias logisticas.</p>
-              </div>
-              <div className="rounded-xl border border-[#eef0fb] p-3">
-                <p className="text-xs font-bold text-[#1d2033]">11:30 - Publicacao de catalogo</p>
-                <p className="text-[11px] text-[#6d7289]">Revisar itens prontos antes de publicar.</p>
-              </div>
-              <div className="rounded-xl border border-[#eef0fb] p-3">
-                <p className="text-xs font-bold text-[#1d2033]">15:00 - Envio e rastreio</p>
-                <p className="text-[11px] text-[#6d7289]">Atualizar producao, transportadora e rastreio.</p>
-              </div>
+            <div className="mt-3 rounded-xl border border-dashed border-[#dfe2f0] bg-[#fafbff] p-4">
+              <p className="text-xs font-semibold leading-relaxed text-[#6d7289]">
+                Não há agenda sincronizada nesta área. As rotinas devem ser acompanhadas pelos módulos operacionais correspondentes.
+              </p>
             </div>
           </div>
 
@@ -221,13 +209,13 @@ export default function AdminHubPage() {
             <p className="text-sm font-bold text-[#1d2033]">Alertas imediatos</p>
             <div className="mt-3 space-y-2">
               <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">
-                {summary?.criticalTickets ?? 0} tickets exigem resposta
+                {displayValue(summary?.criticalTickets)} tickets exigem resposta
               </p>
               <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
-                {summary?.delayedOrders ?? 0} pedidos atrasados no ciclo
+                {displayValue(summary?.delayedOrders)} pedidos atrasados no ciclo
               </p>
               <p className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700">
-                {summary?.pendingImpactAlerts ?? 0} itens aguardando publicacao ou ajuste
+                {displayValue(summary?.pendingImpactAlerts)} itens aguardando publicacao ou ajuste
               </p>
             </div>
           </div>

@@ -95,7 +95,7 @@ export async function requestRefund(input: {
   });
 
   if (result.created) {
-    const impactReview = createImpactReview({
+    const impactReview = await createImpactReview({
       domain: 'payout_finance',
       entityType: 'Refund',
       entityId: result.refund.refundId,
@@ -206,7 +206,7 @@ export async function processChargeback(input: {
     return { alreadyProcessed: true, payment };
   }
 
-  const impactReview = createImpactReview({
+  const impactReview = await createImpactReview({
     domain: 'payout_finance',
     entityType: 'Chargeback',
     entityId: created.chargeback.eventId,

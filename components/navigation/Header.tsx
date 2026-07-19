@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Search, ShoppingBag, User, Menu, ChevronDown, ArrowRight, Compass, Globe } from 'lucide-react';
+import { Search, ShoppingBag, User, Menu, ChevronDown, ArrowRight, Compass } from 'lucide-react';
 import Link from 'next/link';
 import { AppImage } from '@/components/shared/AppImage';
 import { useCart } from '@/context/CartContext';
@@ -21,9 +21,9 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isGuideOpen, setIsGuideOpen] = React.useState(false);
   const [isProfilePhotoModalOpen, setIsProfilePhotoModalOpen] = React.useState(false);
-  const { setIsCartOpen, cart, location } = useCart();
+  const { setIsCartOpen, cart } = useCart();
   const { profilePhoto, setProfilePhoto, userRole, userRoles, switchActiveRole, isAuthenticated } = useUser();
-  const accountHref = resolveHomeByRole(userRole);
+  const accountHref = isAuthenticated ? resolveHomeByRole(userRole) : '/login';
   const sortedRoles = React.useMemo(() => sortRolesForUi(userRoles), [userRoles]);
   
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -43,17 +43,12 @@ export function Header() {
          <div className="section-container flex justify-between items-center h-full">
             <div className="flex items-center gap-6">
                <span className="text-xs font-semibold uppercase tracking-[0.08em] opacity-60">UseRuah / Brasil</span>
-               <span className="text-xs font-semibold uppercase tracking-[0.08em] text-accent-gold">Frete Grátis acima de R$ 200</span>
+               <span className="text-xs font-semibold uppercase tracking-[0.08em] text-accent-gold">Prazo e frete sob confirmação</span>
             </div>
             <div className="flex items-center gap-6">
                <Link href="/quem-somos" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Quem Somos</Link>
                <Link href="/help-center" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Ajuda</Link>
                <Link href="/policies" className="text-xs font-semibold uppercase tracking-[0.08em] opacity-70 hover:opacity-100 transition-opacity">Logística</Link>
-               <div className="h-3 w-px bg-white/10" />
-               <div className="flex items-center gap-2 opacity-60">
-                  <Globe size={10} />
-                  <span className="text-[8px] font-bold uppercase tracking-widest">{location.region}</span>
-               </div>
             </div>
          </div>
       </div>
@@ -201,9 +196,14 @@ export function Header() {
                >
                  <Search size={18} className="text-ruah-800" />
                </button>
-               <Link href={accountHref} className="p-1 hover:bg-ruah-50 rounded-full transition-colors relative group/user" id="btn-account">
+               <Link
+                 href={accountHref}
+                 aria-label={isAuthenticated ? 'Abrir minha conta' : 'Entrar na conta'}
+                 className="p-1 hover:bg-ruah-50 rounded-full transition-colors relative group/user"
+                 id="btn-account"
+               >
                  <div className="w-8 h-8 rounded-full overflow-hidden relative border border-ruah-100 group-hover/user:border-accent-gold transition-colors">
-                    {profilePhoto ? (
+                    {isAuthenticated && profilePhoto ? (
                       <AppImage context="content-banner" src={profilePhoto} alt="User Profile" fill className="object-cover" />
                     ) : (
                       <div className="w-full h-full bg-ruah-50 flex items-center justify-center">
@@ -211,7 +211,7 @@ export function Header() {
                       </div>
                     )}
                  </div>
-                 <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full ring-2 ring-white" />
+                 {isAuthenticated ? <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full ring-2 ring-white" /> : null}
                </Link>
                <Link href="/register" className="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-ruah-950 text-white rounded-full group hover:bg-accent-gold transition-all ml-2 shadow-fancy border border-transparent">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent-gold animate-pulse group-hover:bg-white" />

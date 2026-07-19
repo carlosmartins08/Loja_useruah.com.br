@@ -28,7 +28,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const result = updateArtworkReview({ artworkId: id, action: 'reject', reason: payload.reason });
+  let result;
+  try {
+    result = await updateArtworkReview({ artworkId: id, action: 'reject', reason: payload.reason });
+  } catch {
+    return NextResponse.json({ error: 'artwork_persistence_unavailable' }, { status: 503 });
+  }
 
   if (result.kind === 'not_found') {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });

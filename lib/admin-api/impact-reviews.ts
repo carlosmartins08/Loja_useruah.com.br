@@ -72,8 +72,8 @@ async function serializeImpactReviews(reviews: ImpactReviewRecord[]) {
     campaignIds.length > 0
       ? await listCampaigns().then((rows) => rows.filter((campaign) => campaignIds.includes(campaign.campaignId)))
       : [];
-  const campaignsById = new Map(
-    campaigns.map((campaign) => [
+  const campaignRows = await Promise.all(
+    campaigns.map(async (campaign) => [
       campaign.campaignId,
       {
         campaignId: campaign.campaignId,
@@ -85,10 +85,11 @@ async function serializeImpactReviews(reviews: ImpactReviewRecord[]) {
         endsAt: campaign.endsAt,
         createdBy: campaign.createdBy,
         updatedAt: campaign.updatedAt,
-        productCount: countCampaignProducts(campaign.campaignId),
+        productCount: await countCampaignProducts(campaign.campaignId),
       },
-    ])
+    ] as const)
   );
+  const campaignsById = new Map(campaignRows);
 
   return reviews.map((review) => ({
     ...review,
@@ -106,7 +107,13 @@ export async function handleAdminImpactReviewsGet(request: Request) {
   const status =
     statusInput === 'pending_review' || statusInput === 'approved' || statusInput === 'rejected' ? statusInput : undefined;
   const onlyOverdue = searchParams.get('onlyOverdue') === 'true';
-  const reviews = (await serializeImpactReviews(listImpactReviews({ status, onlyOverdue })))
+  let persistedReviews;
+  try {
+    persistedReviews = await listImpactReviews({ status, onlyOverdue });
+  } catch {
+    return NextResponse.json({ error: 'impact_review_persistence_unavailable' }, { status: 503 });
+  }
+  const reviews = (await serializeImpactReviews(persistedReviews))
     .filter((row) => (entityType ? row.entityType === entityType : true))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   return NextResponse.json({ ok: true, reviews });
@@ -133,11 +140,16 @@ export async function handleAdminImpactReviewApprovePost(request: Request, conte
   }
 
   const { id } = await context.params;
-  const result = approveImpactReview({
-    reviewId: id,
-    approvedBy: actor?.actorId ?? 'unknown',
-    reason: payload.reason,
-  });
+  let result;
+  try {
+    result = await approveImpactReview({
+      reviewId: id,
+      approvedBy: actor?.actorId ?? 'unknown',
+      reason: payload.reason,
+    });
+  } catch {
+    return NextResponse.json({ error: 'impact_review_persistence_unavailable' }, { status: 503 });
+  }
   if (result.kind === 'not_found') return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (result.kind === 'invalid_transition') return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });
 
@@ -173,11 +185,16 @@ export async function handleAdminImpactReviewRejectPost(request: Request, contex
   }
 
   const { id } = await context.params;
-  const currentReview = getImpactReview(id);
+  let currentReview;
+  try {
+    currentReview = await getImpactReview(id);
+  } catch {
+    return NextResponse.json({ error: 'impact_review_persistence_unavailable' }, { status: 503 });
+  }
   if (!currentReview) return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
   if (currentReview.entityType === 'Campaign') {
-    const campaign = getCampaign(currentReview.entityId);
+    const campaign = await getCampaign(currentReview.entityId);
     if (!campaign) {
       return NextResponse.json({ error: 'campaign_not_found_for_review' }, { status: 409 });
     }
@@ -190,11 +207,16 @@ export async function handleAdminImpactReviewRejectPost(request: Request, contex
     }
   }
 
-  const result = rejectImpactReview({
-    reviewId: id,
-    rejectedBy: actor?.actorId ?? 'unknown',
-    reason: payload.reason,
-  });
+  let result;
+  try {
+    result = await rejectImpactReview({
+      reviewId: id,
+      rejectedBy: actor?.actorId ?? 'unknown',
+      reason: payload.reason,
+    });
+  } catch {
+    return NextResponse.json({ error: 'impact_review_persistence_unavailable' }, { status: 503 });
+  }
   if (result.kind === 'not_found') return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (result.kind === 'missing_reason') return NextResponse.json({ error: 'validation_error' }, { status: 422 });
   if (result.kind === 'invalid_transition') return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });

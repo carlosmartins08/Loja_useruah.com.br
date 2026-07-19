@@ -3,17 +3,35 @@ import { isUserRole } from '@/lib/auth-session';
 import type { OrderRecord } from '@/lib/order-store';
 import { decodeSessionToken, extractCookieValue } from '@/lib/session-token';
 import { normalizeAuthSession } from '@/lib/auth-session';
+import { isProductionLikeEnvironment } from '@/lib/mysql-runtime';
 
 export interface AccessActor {
   actorId: string;
   actorRole: UserRole;
 }
 
+export function isRbacConfigured() {
+  return process.env.RBAC_ACTIVE?.trim().toLowerCase() === 'true';
+}
+
+function isAdminApiRequest(request: Request) {
+  try {
+    return new URL(request.url).pathname.startsWith('/api/admin');
+  } catch {
+    return false;
+  }
+}
+
 export function isRbacActive() {
-  return process.env.RBAC_ACTIVE === 'true';
+  return isProductionLikeEnvironment() || isRbacConfigured();
 }
 
 export function getActorFromRequest(request: Request): AccessActor | null {
+  const productionLike = isProductionLikeEnvironment();
+  if (isAdminApiRequest(request) && !isRbacConfigured()) {
+    throw new Error(productionLike ? 'rbac_required_in_public_environment' : 'rbac_required_for_admin_environment');
+  }
+
   const cookieHeader = request.headers.get('cookie');
   const sessionToken = extractCookieValue(cookieHeader, 'ruah_session');
 
@@ -25,7 +43,7 @@ export function getActorFromRequest(request: Request): AccessActor | null {
     };
   }
 
-  const allowHeaderFallback = process.env.NODE_ENV !== 'production' || process.env.ALLOW_HEADER_ACTOR_FALLBACK === 'true';
+  const allowHeaderFallback = !productionLike && (process.env.NODE_ENV !== 'production' || process.env.ALLOW_HEADER_ACTOR_FALLBACK === 'true');
   if (!allowHeaderFallback) {
     return null;
   }

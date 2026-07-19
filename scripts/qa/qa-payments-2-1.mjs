@@ -173,15 +173,21 @@ async function run() {
       orderId,
       method: checkoutMethod,
       provider: selectedProvider,
-      amount: seeded.variant.price,
+      // Campos legados adulterados: o servidor deve ignorá-los e cobrar o snapshot do pedido.
+      amount: 0.01,
       currency: 'BRL',
-      items: [{ id: seeded.item.catalogItemId, name: seeded.item.name, quantity: 1, unitPrice: seeded.variant.price }],
+      items: [{ id: seeded.item.catalogItemId, name: seeded.item.name, quantity: 1, unitPrice: 0.01 }],
     },
     { cookie: customer.cookie, 'x-idempotency-key': key }
   );
   assert(checkout.status === 200, `checkout expected 200, got ${checkout.status}`);
   const paymentId = checkout.data?.payment?.paymentId;
   const providerReference = checkout.data?.payment?.providerReference;
+  assert(
+    checkout.data?.payment?.amount === order.data?.order?.totalAmount,
+    `payment amount must come from persisted order total: payment=${checkout.data?.payment?.amount}, order=${order.data?.order?.totalAmount}`
+  );
+  assert(checkout.data?.payment?.amount !== 0.01, `payment amount accepted client tampering: ${checkout.data?.payment?.amount}`);
   assert(typeof paymentId === 'string', 'paymentId missing');
   assert(typeof providerReference === 'string', 'providerReference missing');
   report.push(`P0-PAY21-02 checkout processing via ${selectedProvider}`);

@@ -2,6 +2,10 @@
 
 Aplicacao Next.js da loja UseRuah com foco em catalogo, checkout, pagamentos, pedidos, operacao e suporte.
 
+Arquitetura oficial: Next.js full-stack com App Router. As telas vivem em `app/**`, o backend HTTP vive em `app/api/**`, e dominio, RBAC, persistencia e integracoes vivem em `lib/**`. Nao existe backend HTTP separado para os dominios atuais.
+
+Nos ambientes integrados, MySQL e a fonte oficial dos stores relacionais. JSON/SQLite sao recursos de desenvolvimento, seed ou QA explicitamente configurado; nao devem funcionar como fallback silencioso em homologacao ou producao.
+
 ## Leitura honesta do estado atual
 - Fase 1 funcional: fechada no runtime atual.
 - Fase 1 producao: ainda depende da homologacao final real.

@@ -1,6 +1,6 @@
 # Execution Tracking (Snapshot Ativo + Ponte para Historico)
 
-Data de revisao: 2026-06-21
+Data de revisao: 2026-07-19
 
 ## Objetivo
 Manter uma leitura curta do estado operacional atual, das evidencias revalidadas no ciclo e dos riscos que ainda impedem confundir homologacao com producao real.
@@ -26,25 +26,37 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 | RBAC, namespaces canonicos e dashboards por papel | `IMPLEMENTADO` | `docs/ROUTES.md`, `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md` | `npm run qa:routes`, `npm run qa:role:journeys` |
 | Fechamento operacional de `artist`, `community_manager` e `affiliate` | `IMPLEMENTADO` | `docs/JOURNEY_MATRIX_BY_ROLE.md`, `docs/USER_360_ROLE_ALIGNMENT.md` | `npm run qa:role:closure` |
 | Producao com escopo estrito para `supplier` | `IMPLEMENTADO` | `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`, `docs/ROLES_MATRIX.md` | `npm run qa:coreops` |
-| Comunidade, campanhas e curadoria operacional | `PARCIAL` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` | `npm run qa:community-curation` |
-| Afiliacao e referral operacional | `PARCIAL` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` | `npm run qa:affiliate:referral` |
+| Comunidade, campanhas e curadoria operacional | `PARCIAL` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` | `npm run qa:campaign:authority`, `npm run qa:campaign:public`, `npm run qa:campaign:detail` |
+| Afiliacao e referral operacional | `PARCIAL` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` | `npm run qa:referral:authority`, `npm run qa:affiliate:referral` |
 | Financeiro operacional e payouts internos | `IMPLEMENTADO` | `docs/PAYMENTS_DEFINITION_OF_DONE.md` | `npm run build`, `npm run qa:functional` |
 | Pagamento real em producao | `PARCIAL` | `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` | `GO CONDICIONADO` |
+| Migração e readiness de persistência | `IMPLEMENTADO LOCAL / PENDENTE EXTERNO` | `artifacts/audits/2026-07-19-w6-migration-backfill-readiness.md` | `npm run db:readiness:mysql` |
+| Classificação do backfill legado | `BLOQUEADO POR ORIGEM NÃO COMPROVADA` | `artifacts/audits/2026-07-19-w7-backfill-classification.md` | `npm run db:backfill:authority:audit` |
+| Preflight de promoção externa | `PRONTO PARA EVIDÊNCIA EXTERNA` | `artifacts/audits/2026-07-19-w8-external-promotion-preflight.md` | `npm run db:backfill:promotion:preflight` |
 
 ## Bloco 2 - Snapshot semanal ativo
 ### Dominio ativo do ciclo
-- `planejamento de execucao serial` com `superficies publicas` encerrada e `real-payments-cutover` promovida apenas como proxima frente autorizada, ainda dependente de janela externa
+- `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` para reconciliar a autoridade de continuidade e reconhecer W1-W8 como historico processado
 
 ### Proximos movimentos validos
-1. Tratar `affiliate-referral`, `catalogo-curadoria/artwork` e `superficies publicas` como recortes fechados neste ciclo.
+1. Executar a auditoria diferencial de continuidade sem reabrir W1-W6 e sem ignorar W7/W8.
 2. Nao reabrir pagina publica saneada sem evidencia nova de promessa falsa, CTA cenografico ou rota morta.
-3. Abrir `real-payments-cutover` somente quando a janela externa existir, com `p3:precheck` fora de `localhost`, seguido de `qa:stripe:smoke`, `qa:payments21:readiness`, `qa:provider:activate`, `qa:functional`, `qa:coreops` e `qa:matrix:audit`.
+3. Manter `real-payments-cutover` como dependencia externa; so abrir quando a janela existir, com `p3:precheck` fora de `localhost`, seguido de `qa:stripe:smoke`, `qa:payments21:readiness`, `qa:provider:activate`, `qa:functional`, `qa:coreops` e `qa:matrix:audit`.
 4. Preservar namespaces canonicos por papel, login server-side real e gate serial `qa:base:roles` em qualquer mudanca de rota, jornada, RBAC ou superficie cross-role.
 
 ### KPIs minimos do ciclo
 - Base validada por `check`, `qa:routes`, `build`, `qa:functional`, `qa:role:journeys`, docs ativos sem alias morto, app tree sem shells legados e dashboard de `production_operator` sem CTA para namespace bloqueado.
 
 ## Bloco 3 - Evidencias P0 ativas
+- 2026-07-18: W1 de identidade durável registrada em `artifacts/audits/2026-07-18-w1-identidade-duravel.md`; build, login, cadastro, `registration/me`, cookie, ownership de pedido e login posterior passaram no MySQL local controlado, incluindo reinício do processo. HML e produção permanecem sem prova nesta rodada.
+- 2026-07-18: W2 de autoridade única do catálogo registrada em `artifacts/audits/2026-07-18-w2-catalog-authority.md`; `catalog-item-store` deixou de usar `.tmp-store` como fallback em MySQL, superfícies públicas passaram a respeitar `CatalogItem`, e a prova de reinício com dado local obsoleto passou.
+- 2026-07-18: W3 de autoridade relacional de `Artwork` e `ImpactReview` registrada em `artifacts/audits/2026-07-18-w3-artwork-impact-authority.md`; schema MySQL, adapters assíncronos, curadoria completa e prova de reinício sem fallback local passaram.
+- 2026-07-18: W0 de baseline estrutural registrada em `artifacts/audits/2026-07-18-w0-baseline-autoridade-e-bloqueios.md`, confirmando 85 rotas de API, 29 stores locais, 18 adapters MySQL, fallback silencioso do catálogo, seleção implícita de SQLite e identidade não durável. A fila derivada prioriza fonte de verdade, sem abrir patch paralelo ou reabrir o cutover bloqueado.
+- 2026-07-18: W4 de autoridade relacional de `Campaign` e `CampaignProduct` registrada em `artifacts/audits/2026-07-18-w4-campaign-distribution-authority.md`; vitrine pública, checkout, detalhe operacional e prova de reinício sem fallback local passaram.
+- 2026-07-19: W5 de autoridade relacional de `ReferralLink` e `ReferralEvent` registrada em `artifacts/audits/2026-07-19-w5-referral-authority.md`; restart, clique, conversão idempotente, afiliado e atribuição combinada passaram.
+- 2026-07-19: W6 de migração, backfill e readiness registrada em `artifacts/audits/2026-07-19-w6-migration-backfill-readiness.md`; migração `001`/`002` idempotente, ledger com checksum, readiness local e provas pós-build passaram. Backfill histórico não foi executado porque `.tmp-store` está misto e HML/produção não foram fornecidos.
+- 2026-07-19: W7 de classificação registrada em `artifacts/audits/2026-07-19-w7-backfill-classification.md`; todos os 231 registros avaliados têm sinal de QA/teste, sem órfãos, duplicidades ou conflitos. Nenhum candidato foi aprovado para promoção.
+- 2026-07-19: W8 preparou manifesto, checksum, escopo, backup/rollback e preflight externo; o template foi bloqueado por checksum placeholder, confirmando que a trava funciona sem conexão ou escrita.
 - 2026-07-07: `npm run check`, `npm run build` e `npm run qa:payments21:readiness` -> `PASS`; gate forte validado com `ALLOW_HEADER_ACTOR_FALLBACK=false`, `ruah_session` real e webhook/idempotencia no recorte `Stripe/mysql`. `npm run qa:payments21` permanece como QA local/sandbox.
 - 2026-06-21: `scripts/release/p3-cutover-evidence.mjs` passou a bloquear explicitamente `HML_BASE_URL` em `localhost`; `npm run p3:precheck` agora devolve `BLOCKED_EXTERNAL_BASE_URL` nesse cenario e evita leitura falsa de cutover pronto.
 - 2026-06-21: `scripts/release/p3-plug-and-run.mjs`, `scripts/release/go-live-preflight.mjs` e `scripts/release/go-live-e2e-proof.mjs` passaram a bloquear `localhost` em dry-run; `npm run p3:plug`, `npm run go:preflight` e `npm run go:e2e:proof` deixaram de anunciar `READY_TO_EXECUTE` sem homolog final real.
@@ -70,6 +82,8 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 - 2026-06-18: `qa:campaign:impact`, `qa:campaign:detail`, `qa:community:revenue` e `qa:campaign:public` -> `PASS`, provando campanha ativa, governanca, atribuicao publica e receita por campanha.
 - 2026-06-18: `qa:community-curation`, `qa:catalog:curation`, `qa:affiliate:referral` e `qa:role:closure` -> `PASS`, consolidando a cadeia `artwork -> catalogo -> campaignProduct -> campanha ativa -> storefront -> order snapshot -> conversao do affiliate`.
 - 2026-06-18: `home`, `category`, `returns`, `policies` e `login` deixaram de prometer lookup publico, portal autonomo, login social inexistente ou vitrine paralela ao catalogo publicado.
+
+Evidência W4: `artifacts/audits/2026-07-18-w4-campaign-distribution-authority.md` registra a autoridade MySQL local controlada de `Campaign` e `CampaignProduct`, com restart, vitrine pública, checkout e detalhe operacional aprovados.
 
 ## Risco residual real
 - O runtime atual esta coerente com as rotas canonicas, mas varios documentos historicos ainda citam aliases antigos por contexto.

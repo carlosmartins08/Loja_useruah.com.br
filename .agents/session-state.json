@@ -1,9 +1,9 @@
 {
-  "reviewedAt": "2026-06-21",
+  "reviewedAt": "2026-07-19",
   "branch": "feat/payments-gateway-cutover-checklist",
-  "status": "FRONT_5_BLOCKED_EXTERNAL_WINDOW",
-  "objective": "Preservar a base validada sem reabrir frentes fechadas e manter a frente de pagamento real congelada ate existir janela externa objetiva de homolog final e cutover.",
-  "activeFront": "FRONT_5_REAL_PAYMENTS_CUTOVER",
+  "status": "FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT",
+  "objective": "Reconciliar a autoridade de continuidade com o historico W1-W8 sem reabrir pagamentos, alterar produto ou criar uma segunda fonte de verdade.",
+  "activeFront": "FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT",
   "resumeTrigger": {
     "entrypoint": "docs/NEXT_SESSION_TRIGGER.md",
     "mustRead": [
@@ -20,7 +20,8 @@
       "o que ja foi provado",
       "qual e a frente unica ativa",
       "qual e o proximo passo exato",
-      "qual e a condicao de pivot para evitar loop"
+      "qual e a condicao de pivot para evitar loop",
+      "se W1-W8 estao no historico e W7/W8 possuem apenas os metadados comprovados"
     ],
     "antiRetrabalho": [
       "nao reabrir frente ja provada sem evidencia nova",
@@ -55,14 +56,16 @@
     "P3_ENV_READY_TO_FILL e RUNBOOK_GO_LIVE passaram a explicitar que BLOCKED_EXTERNAL_BASE_URL em localhost e o comportamento correto antes da janela real.",
     "P3_HOMOLOG_CUTOVER_EVIDENCE_TEMPLATE e CHECKLIST_RELEASE_PAGAMENTOS passaram a exigir leitura coerente do gate fora de localhost.",
     "PLANO_MESTRE_CONTINUIDADE_TECNICA passou a concentrar um plano executavel para os pontos identificados, sem criar documento novo nem quebrar a serializacao.",
-    "DOCS_CLASSIFICATION, README_DOCS_HIERARCHY e EXECUTION_CONSOLIDATED_MASTER foram realinhados para separar ordem de consulta, autoridade normativa e governanca referencial."
+    "DOCS_CLASSIFICATION, README_DOCS_HIERARCHY e EXECUTION_CONSOLIDATED_MASTER foram realinhados para separar ordem de consulta, autoridade normativa e governanca referencial.",
+    "W1-W6 permanecem historico processado e nao devem ser reabertas como frente ativa.",
+    "W7 foi detectada com classificacao diferencial de legado registrada em artifacts/audits/2026-07-19-w7-backfill-classification.md.",
+    "W8 foi detectada com preflight de promocao externa registrado em artifacts/audits/2026-07-19-w8-external-promotion-preflight.md, sem afirmar homologacao externa PASS."
   ],
-  "lastStep": "A governanca documental ativa foi consolidada: PLANO_MESTRE concentra o plano executavel, enquanto hierarquia de autoridade e ordem de consulta ficaram explicitamente separadas.",
-  "blocked": true,
-  "blockers": [
-    "FRONT_5_REAL_PAYMENTS_CUTOVER depende de janela externa objetiva de homolog final e cutover.",
-    "Sem essa janela, qualquer patch novo de pagamento real vira workaround de ambiente travestido de feature.",
-    "p3:precheck e os dry-runs de cutover em localhost devem bloquear; readiness local nao substitui homolog final fora de localhost."
+  "lastStep": "A auditoria diferencial identificou W1-W8 no historico e reposicionou a frente ativa para continuidade, mantendo pagamentos como dependencia externa separada.",
+  "blocked": false,
+  "blockers": [],
+  "externalDependencies": [
+    "FRONT_5_REAL_PAYMENTS_CUTOVER depende de janela externa objetiva de homologacao final e cutover; essa frente nao e a frente ativa."
   ],
   "evidence": [
     "docs/ACTIVE_FRONT.md",
@@ -111,16 +114,19 @@
     "Ler docs/ROUTES.md",
     "Ler docs/JOURNEY_MATRIX_BY_ROLE.md",
     "Ler docs/CODEBASE_MAP.md",
-    "Confirmar se existe janela externa objetiva para FRONT_5_REAL_PAYMENTS_CUTOVER",
-    "Confirmar que HML_BASE_URL saiu de http://localhost:3000 e aponta para a homolog final real",
-    "Se existir, rodar p3:precheck, qa:stripe:smoke, qa:payments21, qa:provider:activate, qa:functional, qa:coreops e qa:matrix:audit",
-    "Se nao existir, nao abrir patch de pagamento real e manter a frente bloqueada sem workaround"
+    "Confirmar que W1-W8 aparecem como historico processado e que a frente ativa e FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT",
+    "Comparar docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, .agents/session-state.json e o roteador",
+    "Rodar npm run test:agent-route, npm run check e git diff --check",
+    "Se houver tentativa de reabrir W1-W6, ignorar W7/W8 ou alterar produto, parar e registrar a divergencia",
+    "Manter FRONT_5_REAL_PAYMENTS_CUTOVER fora da frente ativa ate existir janela externa objetiva e HML_BASE_URL deixar de ser localhost"
   ],
   "doNotReopen": [
     "lib/access-control.ts como autoridade canonica de permissao",
     "namespaces canonicos por papel como unica referencia interna",
     "qa:base:roles como gate obrigatorio",
     "campanha publica, referral e leitura por campanha como provas fechadas do recorte atual",
-    "spawn EPERM/EINVAL em sandbox Windows como ruido ambiental quando a malha serial ja passou fora do sandbox"
+    "spawn EPERM/EINVAL em sandbox Windows como ruido ambiental quando a malha serial ja passou fora do sandbox",
+    "W1-W8 como historico processado, sem reabrir W1-W6",
+    "FRONT_5_REAL_PAYMENTS_CUTOVER como dependencia externa, nao como frente ativa"
   ]
 }

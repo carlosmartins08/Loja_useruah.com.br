@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { authenticateLocalUser } from '@/lib/auth-local-users';
+import { authenticateUser } from '@/lib/user-identity-store';
 import { encodeSessionToken } from '@/lib/session-token';
 
 interface LoginPayload {
@@ -24,7 +24,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });
   }
 
-  const session = authenticateLocalUser(payload.email, payload.password);
+  let session;
+  try {
+    session = await authenticateUser(payload.email, payload.password);
+  } catch {
+    return NextResponse.json({ error: 'auth_persistence_unavailable' }, { status: 503 });
+  }
   if (!session) {
     return NextResponse.json({ error: 'invalid_credentials' }, { status: 401 });
   }

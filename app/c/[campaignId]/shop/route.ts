@@ -5,7 +5,7 @@ import { getCampaign } from '@/lib/campaign-store';
 export async function GET(request: Request, context: { params: Promise<{ campaignId: string }> }) {
   const { campaignId } = await context.params;
   const origin = new URL(request.url).origin;
-  const campaign = getCampaign(campaignId);
+  const campaign = await getCampaign(campaignId);
   const fallbackUrl = new URL('/shop', origin);
   const storefrontUrl = new URL(`/shop?campaignId=${encodeURIComponent(campaignId)}`, origin);
 

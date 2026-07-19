@@ -73,7 +73,7 @@ export async function POST(request: Request) {
   });
 
   if (result.created) {
-    const impactReview = createImpactReview({
+  const impactReview = await createImpactReview({
       domain: 'payout_finance',
       entityType: 'Payout',
       entityId: result.payout.payoutId,

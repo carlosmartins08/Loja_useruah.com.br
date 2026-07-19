@@ -65,11 +65,13 @@ async function get(pathname, headers = {}) {
 }
 
 async function registerCustomer() {
+  const email = `qa-cookie-${Date.now()}@useruah.com.br`;
+  const password = 'qaCookie123';
   const response = await post('/api/auth/register', {
     persona: 'ALMA',
     fullName: `QA Cookie ${Date.now()}`,
-    email: `qa-cookie-${Date.now()}@useruah.com.br`,
-    password: 'qaCookie123',
+    email,
+    password,
     termsAccepted: true,
     draft: {
       cpf: '12345678901',
@@ -77,7 +79,7 @@ async function registerCustomer() {
     },
   });
   const cookie = response.headers.get('set-cookie')?.split(';')[0] ?? null;
-  return { ...response, cookie };
+  return { ...response, cookie, email, password };
 }
 
 function buildOrderPayload(customerId, seeded) {
@@ -121,6 +123,16 @@ async function run() {
   const customerId = customer.data?.session?.userId;
   assert(typeof customerId === 'string' && customerId.length > 0, 'customer session userId missing');
   report.push('AUTH-03 customer session created');
+
+  const registration = await get('/api/auth/registration/me', { cookie: customer.cookie });
+  assert(registration.status === 200, `registration/me expected 200, got ${registration.status}`);
+  assert(registration.data?.registration?.registrationId && registration.data?.registration?.role === 'customer', 'registration/me returned wrong registration');
+  report.push('AUTH-03A registration/me resolves the durable registration contract');
+
+  const login = await post('/api/auth/login', { email: customer.email, password: customer.password });
+  assert(login.status === 200, `login after registration expected 200, got ${login.status}`);
+  assert(login.data?.session?.userId === customerId, 'login after registration returned mismatched user');
+  report.push('AUTH-03C login resolves the same identity after registration');
 
   const canonicalCookieValue = extractCookieValue(customer.cookie);
   assert(typeof canonicalCookieValue === 'string' && canonicalCookieValue.length > 0, 'canonical cookie value missing');

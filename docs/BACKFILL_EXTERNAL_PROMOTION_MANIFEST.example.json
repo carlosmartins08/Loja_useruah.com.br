@@ -1,0 +1,27 @@
+{
+  "changeId": "W8-BACKFILL-YYYYMMDD",
+  "source": {
+    "environment": "hml_source_or_production",
+    "snapshotId": "snapshot-provider-id",
+    "snapshotPath": "path/to/frozen-export.json",
+    "snapshotSha256": "sha256-64-hex-characters",
+    "capturedAt": "2026-07-19T00:00:00Z",
+    "operator": "responsible-person"
+  },
+  "target": {
+    "environment": "hml",
+    "baseUrl": "https://hml.example.com",
+    "databaseUrlEnv": "DATABASE_URL_HML"
+  },
+  "scope": {
+    "campaignPrefixes": ["ORG-APPROVED-"],
+    "referralOwnerPrefixes": ["affiliate-approved-"]
+  },
+  "approval": {
+    "approvedBy": "responsible-person",
+    "approvedAt": "2026-07-19T00:00:00Z",
+    "changeReference": "ticket-or-change-id",
+    "backupId": "backup-provider-id",
+    "rollbackPlan": "restore-backup-and-remove-imported-ids"
+  }
+}

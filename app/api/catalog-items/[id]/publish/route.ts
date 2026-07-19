@@ -28,14 +28,14 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const pendingReview = getPendingImpactReviewByEntity('CatalogItem', id);
+  const pendingReview = await getPendingImpactReviewByEntity('CatalogItem', id);
   if (pendingReview) {
     return NextResponse.json(
       { error: 'invalid_transition', detail: 'impact_review_pending', reviewId: pendingReview.reviewId, dueAt: pendingReview.dueAt },
       { status: 409 }
     );
   }
-  const latestReview = getLatestImpactReviewByEntity('CatalogItem', id);
+  const latestReview = await getLatestImpactReviewByEntity('CatalogItem', id);
   if (latestReview && latestReview.status === 'rejected') {
     return NextResponse.json(
       { error: 'invalid_transition', detail: 'impact_review_rejected', reviewId: latestReview.reviewId },
@@ -49,7 +49,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ ok: true, item: current, reused: true });
   }
 
-  const artwork = getArtwork(current.artworkId);
+  const artwork = await getArtwork(current.artworkId);
   if (!artwork) return NextResponse.json({ error: 'artwork_not_found' }, { status: 404 });
   if (artwork.status === 'rejected') {
     return NextResponse.json({ error: 'invalid_transition', detail: 'rejected_artwork_cannot_be_published' }, { status: 409 });

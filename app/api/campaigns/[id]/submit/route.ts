@@ -13,7 +13,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const campaign = getCampaign(id);
+  const campaign = await getCampaign(id);
   if (!campaign) return NextResponse.json({ error: 'not_found' }, { status: 404 });
   if (isRbacActive() && !canMutateOwnedCampaign(campaign, actor)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
@@ -23,7 +23,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   if (result.kind === 'invalid_transition') return NextResponse.json({ error: 'invalid_transition' }, { status: 409 });
   if (result.kind !== 'updated') return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
-  const impactReview = createImpactReview({
+  const impactReview = await createImpactReview({
     domain: 'campaign_growth',
     entityType: 'Campaign',
     entityId: result.campaign.campaignId,

@@ -59,12 +59,12 @@ Definir quais papeis existem de fato no runtime atual, qual e a home canonica de
 - Acesso por namespace: `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md`
 - Cadastro e escopo por papel: `docs/REGISTRATION_MATRIX_BY_ROLE.md`
 - Runtime de sessao e papeis aceitos: `lib/auth-session.ts`
-- Usuarios locais de desenvolvimento e QA: `lib/auth-local-users.ts`
+- Identidade durável e fixtures locais de desenvolvimento/QA: `lib/user-identity-store.ts`
 - Roteamento por papel: `lib/role-routing/role-namespaces.ts`
 - Validacao backend de acesso: `lib/access-control.ts`
 
 ## Regras para nao reabrir o mesmo problema
-1. Mudanca de role exige alinhar `lib/auth-session.ts`, `lib/auth-local-users.ts`, `lib/role-routing/role-namespaces.ts`, guards/layouts, dashboard e documentos de rota.
+1. Mudanca de role exige alinhar `lib/auth-session.ts`, `lib/user-identity-store.ts`, `lib/role-routing/role-namespaces.ts`, guards/layouts, dashboard e documentos de rota.
 2. Dashboard nao pode apontar para rota que o proprio guard bloqueia.
 3. Documento de papel nao pode declarar como oficial um ambiente que o runtime nao autentica nem roteia.
 4. Documento de papel tambem nao pode omitir um papel que ja existe em sessao, rota e QA operacional.

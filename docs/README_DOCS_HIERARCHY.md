@@ -19,11 +19,14 @@ Evitar retrabalho, duplicidade e conflito de interpretacao sobre qual documento 
 3. `docs/DOCS_CLASSIFICATION.md`
 4. `docs/EXECUTION_TRACKING.md`
 5. `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
-6. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
-7. documento de fase, readiness ou dominio que autoriza a mudanca
-8. `docs/ARCHITECTURE.md`
-9. `docs/CODEBASE_MAP.md`
-10. `docs/CHANGELOG_GOVERNANCE.md`
+6. `docs/PLANO_DESENVOLVIMENTO.md`
+7. `docs/PLANO_DESENVOLVIMENTO_FRONTEND.md`
+8. `docs/PLANO_DESENVOLVIMENTO_BACKEND.md`
+9. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
+10. documento de fase, readiness ou dominio que autoriza a mudanca
+11. `docs/ARCHITECTURE.md`
+12. `docs/CODEBASE_MAP.md`
+13. `docs/CHANGELOG_GOVERNANCE.md`
 
 Leitura correta:
 - esta lista define a sequencia pratica de consulta
@@ -35,6 +38,8 @@ Regra:
 - `DOCS_CLASSIFICATION` define a autoridade entre documentos
 - `EXECUTION_TRACKING` mostra snapshot e evidencia recente
 - `PLANO_MESTRE_CONTINUIDADE_TECNICA` define continuidade macro e plano executavel consolidado
+- `PLANO_DESENVOLVIMENTO` organiza o planejamento por superficie sem competir com a base executiva
+- `PLANO_DESENVOLVIMENTO_FRONTEND` e `PLANO_DESENVOLVIMENTO_BACKEND` detalham o plano por area
 - `PHASE_DOMAIN_IMPLEMENTATION_MATRIX` define maturidade real
 
 ## Ordem de consulta para onboarding tecnico
@@ -64,6 +69,12 @@ Regra:
 - Quando: precisar saber exatamente qual frente esta aberta e qual passo pode ou nao pode ser executado.
 - Usar em conjunto: `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
 - Quando: precisar transformar levantamento em plano de execucao sem abrir documento paralelo.
+
+### Planejamento de desenvolvimento
+- Usar: `docs/PLANO_DESENVOLVIMENTO.md`
+- Quando: precisar de uma porta de entrada para planejar o trabalho por superficie.
+- Usar em conjunto: `docs/PLANO_DESENVOLVIMENTO_FRONTEND.md` e `docs/PLANO_DESENVOLVIMENTO_BACKEND.md`
+- Quando: quiser detalhar o proximo recorte sem competir com a base executiva.
 
 ### Snapshot e prova recente
 - Usar: `docs/EXECUTION_TRACKING.md`

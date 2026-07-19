@@ -10,10 +10,8 @@ import { useFocusTrap } from '@/hooks/use-focus-trap';
 import { BRAND_PRODUCT_SEEDS } from '@/lib/brand-assets';
 
 export function CartDrawer() {
-  const { isCartOpen, setIsCartOpen, cart, removeFromCart, updateQuantity, total, subtotal, discount, location } = useCart();
+  const { isCartOpen, setIsCartOpen, cart, removeFromCart, updateQuantity, total, subtotal, discount } = useCart();
   const drawerRef = React.useRef<HTMLDivElement>(null);
-  const freeShippingThreshold = 3000;
-  const progress = Math.min((total / freeShippingThreshold) * 100, 100);
   const cartUpsellItems = [
     {
       id: BRAND_PRODUCT_SEEDS[4].id,
@@ -77,27 +75,14 @@ export function CartDrawer() {
               </button>
             </div>
 
-            {/* Free Shipping Progress */}
+            {/* Shipping status */}
             <div className="px-8 py-6 bg-ruah-50/50 border-b border-ruah-100">
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-2">
-                   <Truck size={12} className={total >= 3000 ? 'text-green-500' : 'text-accent-gold'} />
-                   <span className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-400">
-                     {total >= 3000 ? 'Frete Grátis Liberado!' : `Faltam R$ ${(3000 - total).toLocaleString('pt-BR')} para frete grátis`}
-                   </span>
-                </div>
-                <span className="text-xs font-mono font-bold text-ruah-300">{Math.round(Math.min((total/3000)*100, 100))}%</span>
+              <div className="flex items-center gap-2">
+                <Truck size={12} className="text-accent-gold" />
+                <span className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-400">Prazo e frete sujeitos à confirmação</span>
               </div>
-              <div className="h-1 w-full bg-ruah-100 rounded-full overflow-hidden">
-                <motion.div 
-                   initial={{ width: 0 }}
-                   animate={{ width: `${Math.min((total/3000)*100, 100)}%` }}
-                   className={`h-full transition-all duration-500 ${total >= 3000 ? 'bg-green-500' : 'bg-accent-gold shadow-[0_0_10px_rgba(212,175,55,0.5)]'}`}
-                />
-              </div>
-              <p className="text-xs text-ruah-300 uppercase tracking-[0.1em] mt-3 flex items-center gap-2 italic">
-                 <span className="w-1 h-1 bg-ruah-300 rounded-full" />
-                 Handover Logístico: {location.region} (+{location.shippingDays}d úteis)
+              <p className="text-xs text-ruah-300 uppercase tracking-[0.1em] mt-3 italic">
+                A estimativa depende do endereço, da produção e da operação de envio.
               </p>
             </div>
 
@@ -149,7 +134,7 @@ export function CartDrawer() {
                            )}
                            {item.productionDays && (
                              <span className="text-xs font-bold text-ruah-400 uppercase tracking-[0.1em] italic">
-                                Sopro Criativo: {item.productionDays} dias úteis
+                                Produção estimada: {item.productionDays} dias úteis
                              </span>
                            )}
                         </div>
@@ -225,7 +210,7 @@ export function CartDrawer() {
                     </div>
                   )}
                   <div className="flex justify-between items-center pt-4 border-t border-ruah-50 text-ruah-950 font-bold">
-                    <span className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-400">Total do Investimento</span>
+                    <span className="text-xs font-bold uppercase tracking-[0.1em] text-ruah-400">Total dos itens</span>
                     <span className="text-2xl font-serif italic tracking-tighter text-ruah-950">
                       R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>

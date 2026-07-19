@@ -56,7 +56,7 @@ export async function GET(request: Request) {
   const campaigns = (await listCampaigns({ status, organizationId, createdBy })).filter((campaign) => canReadCampaign(campaign, actor));
   const governanceByCampaignId = new Map<string, ImpactReviewRecord>();
 
-  for (const review of listImpactReviewsByEntities(
+  for (const review of await listImpactReviewsByEntities(
     'Campaign',
     campaigns.map((campaign) => campaign.campaignId)
   )) {
@@ -66,11 +66,10 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({
-    ok: true,
-    campaigns: campaigns.map((campaign) => ({
+  const campaignRows = await Promise.all(
+    campaigns.map(async (campaign) => ({
       ...campaign,
-      productCount: countCampaignProducts(campaign.campaignId),
+      productCount: await countCampaignProducts(campaign.campaignId),
       governance: (() => {
         const review = governanceByCampaignId.get(campaign.campaignId);
         if (!review) return null;
@@ -82,7 +81,12 @@ export async function GET(request: Request) {
           decisionReason: review.decisionReason ?? null,
         };
       })(),
-    })),
+    }))
+  );
+
+  return NextResponse.json({
+    ok: true,
+    campaigns: campaignRows,
   });
 }
 
@@ -111,7 +115,7 @@ export async function POST(request: Request) {
     createdBy: actor?.actorId ?? 'unknown',
   });
 
-  const impactReview = createImpactReview({
+  const impactReview = await createImpactReview({
     domain: 'campaign_growth',
     entityType: 'Campaign',
     entityId: campaign.campaignId,

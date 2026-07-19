@@ -8,20 +8,20 @@ import { getJson } from '@/lib/http-client';
 
 interface CheckoutStepTwoSectionProps {
   isActive: boolean;
-  total: number;
   isProcessing: boolean;
   onFinish: (method: PaymentMethod, provider: PaymentProviderKey) => void;
 }
 
-export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish }: CheckoutStepTwoSectionProps) {
+export function CheckoutStepTwoSection({ isActive, isProcessing, onFinish }: CheckoutStepTwoSectionProps) {
   const searchParams = useSearchParams();
   const instantMethod = searchParams.get('instant');
   const [manualPaymentMethod, setManualPaymentMethod] = React.useState<PaymentMethod | null>(null);
   const [provider, setProvider] = React.useState<PaymentProviderKey>('sandbox');
   const [defaultProvider, setDefaultProvider] = React.useState<PaymentProviderKey | null>(null);
   const [providers, setProviders] = React.useState<Array<{ key: PaymentProviderKey; label: string; methods: PaymentMethod[]; enabled: boolean; isDefault?: boolean }>>([]);
+  const cardPaymentUiEnabled = false;
   const paymentMethod: PaymentMethod =
-    manualPaymentMethod ?? (instantMethod === 'pix' ? 'pix' : instantMethod === 'wallet' ? 'wallet' : 'card');
+    manualPaymentMethod ?? (instantMethod === 'wallet' ? 'wallet' : 'pix');
   const availableProviders = React.useMemo(
     () => providers.filter((item) => item.enabled && item.methods.includes(paymentMethod)),
     [providers, paymentMethod]
@@ -57,11 +57,13 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
           <button
             type="button"
             aria-pressed={paymentMethod === 'card'}
-            onClick={() => setManualPaymentMethod('card')}
-            className={`border-2 p-6 rounded-2xl flex flex-col items-center gap-3 transition-all ${paymentMethod === 'card' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-50'}`}
+            disabled={!cardPaymentUiEnabled}
+            onClick={() => cardPaymentUiEnabled && setManualPaymentMethod('card')}
+            className={`border-2 p-6 rounded-2xl flex flex-col items-center gap-3 transition-all ${paymentMethod === 'card' ? 'border-accent-gold bg-accent-gold/5' : 'border-ruah-50'} disabled:cursor-not-allowed disabled:opacity-50`}
           >
             <CreditCard className={paymentMethod === 'card' ? 'text-accent-gold' : 'text-ruah-300'} />
             <span className="text-xs font-semibold uppercase tracking-[0.12em]">Cartão de crédito</span>
+            <span className="text-[10px] font-medium text-ruah-400">Indisponível até a integração segura com o provedor.</span>
           </button>
           <button
             type="button"
@@ -84,28 +86,11 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
         </div>
 
         {paymentMethod === 'card' ? (
-          <div className="grid grid-cols-1 gap-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Número do cartão</label>
-              <input type="text" inputMode="numeric" autoComplete="cc-number" placeholder="0000 0000 0000 0000" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
-            </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Validade</label>
-                <input type="text" inputMode="numeric" autoComplete="cc-exp" placeholder="MM/AA" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">CVV</label>
-                <input type="password" inputMode="numeric" autoComplete="cc-csc" placeholder="123" className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.12em] text-ruah-400">Parcelamento</label>
-              <select className="bg-ruah-50 border border-ruah-100 rounded-xl px-6 py-4 text-xs font-bold focus:border-accent-gold outline-none transition-all appearance-none cursor-pointer">
-                <option>10x de R$ {(total / 10).toLocaleString('pt-BR')} sem juros</option>
-                <option>À vista com 5% de desconto</option>
-              </select>
-            </div>
+          <div className="rounded-2xl border border-ruah-200 bg-ruah-50 p-6">
+            <p className="text-sm font-semibold text-ruah-950">Pagamento com cartão temporariamente indisponível.</p>
+            <p className="text-xs font-medium text-ruah-500 mt-2">
+              Não coletamos dados de cartão neste momento. Selecione Pix ou carteira digital para continuar.
+            </p>
           </div>
         ) : (
           <div className="rounded-2xl border border-accent-gold/40 bg-accent-gold/5 p-6">
@@ -121,7 +106,7 @@ export function CheckoutStepTwoSection({ isActive, total, isProcessing, onFinish
         )}
       </div>
 
-      <button type="button" onClick={() => onFinish(paymentMethod, effectiveProvider)} disabled={isProcessing} aria-busy={isProcessing} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-gold transition-all relative overflow-hidden">
+      <button type="button" onClick={() => onFinish(paymentMethod, effectiveProvider)} disabled={isProcessing || paymentMethod === 'card'} aria-busy={isProcessing} className="bg-ruah-950 text-white py-6 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] hover:bg-accent-gold transition-all relative overflow-hidden disabled:cursor-not-allowed disabled:opacity-50">
         {isProcessing
           ? 'Processando...'
           : paymentMethod === 'card'

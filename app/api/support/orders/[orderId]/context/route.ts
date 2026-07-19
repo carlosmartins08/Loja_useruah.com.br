@@ -16,7 +16,7 @@ export async function GET(request: Request, context: { params: Promise<{ orderId
   }
 
   const catalogItemIds = Array.from(new Set(view.order.items.map((item) => item.catalogItemId)));
-  const relatedReviews = listImpactReviewsByEntities('CatalogItem', catalogItemIds).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const relatedReviews = (await listImpactReviewsByEntities('CatalogItem', catalogItemIds)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   const pending = relatedReviews.filter((row) => row.status === 'pending_review');
   const rejected = relatedReviews.filter((row) => row.status === 'rejected');
   const approved = relatedReviews.filter((row) => row.status === 'approved');

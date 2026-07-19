@@ -107,7 +107,7 @@ async function resolveValidatedOrderItems(
     if (!variant.inStock) {
       return { ok: false as const, error: 'variant_out_of_stock', detail: item.variantId };
     }
-    if (attribution.campaignId && !isCatalogItemLinkedToCampaign(attribution.campaignId, item.catalogItemId)) {
+    if (attribution.campaignId && !(await isCatalogItemLinkedToCampaign(attribution.campaignId, item.catalogItemId))) {
       return {
         ok: false as const,
         error: 'catalog_item_not_in_campaign',
@@ -164,7 +164,7 @@ async function resolveAttributionContext(request: Request, body: OrderCreatePayl
   }> = [];
 
   if (campaignId) {
-    const campaign = getCampaign(campaignId);
+    const campaign = await getCampaign(campaignId);
     if (campaign && campaign.status === 'active') {
       context.campaignId = campaign.campaignId;
       context.campaignName = campaign.name;
@@ -184,7 +184,7 @@ async function resolveAttributionContext(request: Request, body: OrderCreatePayl
   }
 
   if (referralLinkId) {
-    const referralLink = getReferralLinkById(referralLinkId);
+    const referralLink = await getReferralLinkById(referralLinkId);
     if (referralLink && referralLink.status === 'active') {
       context.referralLinkId = referralLink.referralLinkId;
       context.affiliateUserId = referralLink.ownerId;

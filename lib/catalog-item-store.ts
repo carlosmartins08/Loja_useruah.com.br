@@ -110,6 +110,18 @@ function mysqlDatetimeToIso(value: unknown) {
   return withT.endsWith('Z') ? withT : `${withT}Z`;
 }
 
+function parseMysqlJson<T>(value: unknown, fallback: T): T {
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as T;
+    } catch {
+      return fallback;
+    }
+  }
+  if (value !== null && typeof value === 'object') return value as T;
+  return fallback;
+}
+
 function rowToCatalogItem(row: MysqlRow): CatalogItemRecord {
   return normalizeCatalogItemRecord({
     catalogItemId: String(row.catalog_item_id),
@@ -118,19 +130,19 @@ function rowToCatalogItem(row: MysqlRow): CatalogItemRecord {
     name: String(row.name),
     price: Number(row.price),
     image: String(row.image),
-    colorImages: typeof row.color_images_json === 'string' ? JSON.parse(row.color_images_json) : {},
+    colorImages: parseMysqlJson(row.color_images_json, {}),
     fit: row.fit as CatalogItemRecord['fit'],
     fabric: String(row.fabric),
     printTypeDescription: String(row.print_type_description),
     washGuide: String(row.wash_guide),
     installmentCount: Number(row.installment_count),
-    detailImages: typeof row.detail_images_json === 'string' ? JSON.parse(row.detail_images_json) : [],
-    modelMockups: typeof row.model_mockups_json === 'string' ? JSON.parse(row.model_mockups_json) : [],
-    variants: typeof row.variants_json === 'string' ? JSON.parse(row.variants_json) : [],
+    detailImages: parseMysqlJson(row.detail_images_json, []),
+    modelMockups: parseMysqlJson(row.model_mockups_json, []),
+    variants: parseMysqlJson(row.variants_json, []),
     category: row.category ? (String(row.category) as CatalogItemRecord['category']) : undefined,
     segment: row.segment ? (String(row.segment) as CatalogItemRecord['segment']) : undefined,
-    tags: typeof row.tags_json === 'string' ? JSON.parse(row.tags_json) : undefined,
-    pricingPolicy: typeof row.pricing_policy_json === 'string' ? JSON.parse(row.pricing_policy_json) : undefined,
+    tags: parseMysqlJson(row.tags_json, undefined),
+    pricingPolicy: parseMysqlJson(row.pricing_policy_json, undefined),
     publicationStatus: row.publication_status as CatalogItemStatus,
     createdAt: mysqlDatetimeToIso(row.created_at) ?? new Date().toISOString(),
     updatedAt: mysqlDatetimeToIso(row.updated_at) ?? new Date().toISOString(),
@@ -339,24 +351,21 @@ export async function createCatalogItem(
 export async function listCatalogItems(filters?: { publicationStatus?: CatalogItemStatus; artworkId?: string }) {
   const mysql = await getMysqlPool();
   if (mysql && shouldUseMysql()) {
-    try {
-      const conditions: string[] = [];
-      const params: string[] = [];
-      if (filters?.publicationStatus) {
-        conditions.push('publication_status = ?');
-        params.push(filters.publicationStatus);
-      }
-      if (filters?.artworkId) {
-        conditions.push('artwork_id = ?');
-        params.push(filters.artworkId);
-      }
-
-      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-      const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items ${whereClause} ORDER BY created_at DESC`, params);
-      return rows.map(rowToCatalogItem);
-    } catch {
-      return listCatalogItemsFromStore(filters);
+    const conditions: string[] = [];
+    const params: string[] = [];
+    if (filters?.publicationStatus) {
+      conditions.push('publication_status = ?');
+      params.push(filters.publicationStatus);
     }
+
+    if (filters?.artworkId) {
+      conditions.push('artwork_id = ?');
+      params.push(filters.artworkId);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items ${whereClause} ORDER BY created_at DESC`, params);
+    return rows.map(rowToCatalogItem);
   }
 
   return listCatalogItemsFromStore(filters);
@@ -365,18 +374,8 @@ export async function listCatalogItems(filters?: { publicationStatus?: CatalogIt
 export async function getCatalogItem(catalogItemId: string) {
   const mysql = await getMysqlPool();
   if (mysql && shouldUseMysql()) {
-    try {
-      const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items WHERE catalog_item_id = ?`, [catalogItemId]);
-      if (rows[0]) {
-        return rowToCatalogItem(rows[0]);
-      }
-
-      const state = readCatalog();
-      return state[catalogItemId] ?? null;
-    } catch {
-      const state = readCatalog();
-      return state[catalogItemId] ?? null;
-    }
+    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM catalog_items WHERE catalog_item_id = ?`, [catalogItemId]);
+    return rows[0] ? rowToCatalogItem(rows[0]) : null;
   }
 
   const state = readCatalog();

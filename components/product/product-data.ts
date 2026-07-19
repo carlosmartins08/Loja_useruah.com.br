@@ -1,6 +1,5 @@
 import {
   findBrandProductMerchandising,
-  findBrandProductSeed,
   type BrandPackagingOption,
 } from '@/lib/brand-assets';
 import type { CatalogItemRecord } from '@/lib/catalog-item-store';
@@ -32,37 +31,36 @@ export interface ProductPageModel {
 }
 
 export function mapCatalogItemToProductPageModel(item: CatalogItemRecord): ProductPageModel {
-  const seed = findBrandProductSeed(item.catalogItemId);
   const merchandising = findBrandProductMerchandising(item.catalogItemId);
   const primaryVariant = item.variants.find((variant) => variant.inStock) ?? item.variants[0] ?? null;
   const basePrice = primaryVariant?.price ?? item.price;
 
   return {
     id: item.catalogItemId,
-    name: seed?.name ?? item.name,
+    name: item.name,
     price: basePrice,
     basePrice,
-    image: merchandising?.image ?? item.image,
-    category: merchandising?.category ?? item.category ?? 'Autoral',
-    segment: merchandising?.segment ?? item.segment ?? 'Customizada',
-    tags: merchandising?.tags ?? item.tags ?? [],
+    image: item.image,
+    category: item.category ?? 'Autoral',
+    segment: item.segment ?? 'Customizada',
+    tags: item.tags ?? [],
     variantId: primaryVariant?.variantId ?? 'default',
     variantLabel: primaryVariant?.label ?? 'Padrão',
     pricingPolicyMinPrice: item.pricingPolicy?.minPrice,
-    colorImages: merchandising?.colorImages ?? item.colorImages,
-    fit: merchandising?.fit ?? item.fit,
-    fabric: merchandising?.fabric ?? item.fabric,
-    printTypeDescription: merchandising?.printTypeDescription ?? item.printTypeDescription,
-    washGuide: merchandising?.washGuide ?? item.washGuide,
-    installmentCount: merchandising?.installmentCount ?? item.installmentCount,
+    colorImages: item.colorImages,
+    fit: item.fit,
+    fabric: item.fabric,
+    printTypeDescription: item.printTypeDescription,
+    washGuide: item.washGuide,
+    installmentCount: item.installmentCount,
     productionDays: merchandising?.productionDays ?? 7,
     sizeOptions: merchandising?.sizeOptions ?? ['P', 'M', 'G', 'GG'],
     printOptions: merchandising?.printOptions ?? ['Serigrafia premium'],
     packagingOptions: merchandising?.packagingOptions ?? [
       { name: 'Pack UseRuah', description: 'Proteção essencial com apresentação limpa.' },
     ],
-    detailImages: merchandising?.detailImages ?? item.detailImages,
-    modelMockups: merchandising?.modelMockups ?? item.modelMockups,
+    detailImages: item.detailImages,
+    modelMockups: item.modelMockups,
   };
 }
 

@@ -71,7 +71,7 @@ export async function listCommunityCampaignRevenueByOwner(
     const orderItem = order.items.find((item) => item.orderItemId === parsedSource.orderItemId);
     if (!orderItem || orderItem.communityOwnerId !== ownerId || !orderItem.campaignId) continue;
 
-    const campaign = getCampaign(orderItem.campaignId);
+    const campaign = await getCampaign(orderItem.campaignId);
     const latestOrderAt = order.paidAt ?? order.createdAt;
     const current =
       campaigns.get(orderItem.campaignId) ??

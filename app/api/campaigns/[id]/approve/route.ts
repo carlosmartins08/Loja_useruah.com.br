@@ -15,11 +15,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
 
   const { id } = await context.params;
-  const pendingReview = getPendingImpactReviewByEntity('Campaign', id);
+  const pendingReview = await getPendingImpactReviewByEntity('Campaign', id);
   if (pendingReview) {
     return NextResponse.json({ error: 'invalid_transition', detail: 'impact_review_pending', reviewId: pendingReview.reviewId }, { status: 409 });
   }
-  const latestReview = getLatestImpactReviewByEntity('Campaign', id);
+  const latestReview = await getLatestImpactReviewByEntity('Campaign', id);
   if (latestReview && latestReview.status === 'rejected') {
     return NextResponse.json({ error: 'invalid_transition', detail: 'impact_review_rejected', reviewId: latestReview.reviewId }, { status: 409 });
   }

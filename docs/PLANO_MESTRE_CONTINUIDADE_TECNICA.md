@@ -12,13 +12,16 @@ Definir um quadro unico de continuidade para o projeto evoluir sem reabrir fase,
 - Maturidade real continua em `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`.
 - `docs/EXECUTION_TRACKING.md` entra apenas como snapshot ativo e evidencia recente do ciclo.
 - Pagamento real continua na trilha transversal `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`.
+- Planejamento por superficie continua em `docs/PLANO_DESENVOLVIMENTO.md`, `docs/PLANO_DESENVOLVIMENTO_FRONTEND.md` e `docs/PLANO_DESENVOLVIMENTO_BACKEND.md`.
 
 ## Quadro unico de continuidade
 
 ### Agora
 - Fase 1 comercial: `IMPLEMENTADO` em ambiente controlado.
 - Fase 1 funcional: fechada.
-- `auth/session`: liberado com `qa:auth:cookie: PASS`.
+- `auth/session`: contrato preservado e identidade durável implementada em W1; `qa:auth:cookie` e `qa:auth:restart` passaram no MySQL local controlado. HML e produção ainda dependem de prova no ambiente-alvo.
+- `catalogo`: W2 fechou `catalog_items` como autoridade única no MySQL local controlado; fallback para `.tmp-store` foi removido e a prova de reinício passou. HML e produção ainda dependem de prova no ambiente-alvo.
+- `artwork/impact-review`: W3 fechou autoridade MySQL local controlada, adaptou os consumidores assíncronos e provou curadoria e reinício. Campanhas, referral e HML/produção continuam pendentes.
 - Pagamento real Stripe: `GO CONDICIONADO`.
 - Condicionante atual da Stripe:
   - nao e auth
@@ -108,6 +111,7 @@ Objetivo:
 - transformar o levantamento honesto do estado atual em plano executavel sem perder memoria operacional
 - separar o que e bloqueio externo, o que e dominio parcial e o que e apenas proibicao de promessa
 - impedir que a equipe trate estabilidade de nucleo como fechamento total do produto
+- usar os planos de desenvolvimento por superficie para detalhar a sequencia sem competir com a base executiva
 
 Regra deste plano:
 - este bloco nao autoriza abrir varias frentes ao mesmo tempo
@@ -139,11 +143,15 @@ Regra deste plano:
 ### Bloco B - Dominios parciais com prova real
 
 2. `community-campaigns`
+- Evidência nova: W4 promoveu `Campaign` e `CampaignProduct` para autoridade MySQL controlada e provou restart, vitrine, checkout e detalhe operacional.
+- O recorte segue parcial: referral, backfill formal e HML/produção continuam fora desta prova.
 - Estado: `PARCIAL`
 - O que falta resolver:
   - nao vender governanca de campanha como dominio maduro
   - endurecer o recorte sem abrir `Organization` ou movimento amplo
 - Gate:
+  - `npm run qa:campaign:authority`
+  - `npm run qa:campaign:public`
   - `npm run qa:campaign:impact`
   - `npm run qa:campaign:detail`
   - `npm run qa:community:revenue`
@@ -154,11 +162,14 @@ Regra deste plano:
   - nenhuma promessa de maturidade acima do runtime atual
 
 3. `affiliate-referral`
+- Atualização W6: a migração formal e o readiness local foram fechados; permanece pendente somente o backfill histórico classificado e a prova em HML/produção real. Ver `artifacts/audits/2026-07-19-w6-migration-backfill-readiness.md`.
+- Evidência nova: W5 promoveu `ReferralLink` e `ReferralEvent` para autoridade MySQL controlada e provou restart, clique e conversão idempotente.
 - Estado: `PARCIAL`
 - O que falta resolver:
   - manter atribuicao, link, clique e conversao como escopo real
   - impedir leitura de payout, reward ou saldo proprio como se ja existissem
 - Gate:
+  - `npm run qa:referral:authority`
   - `npm run qa:affiliate:referral`
   - `npm run qa:role:closure`
 - Criterio de fechamento:
@@ -178,9 +189,59 @@ Regra deste plano:
   - fluxo continua honesto, provado e acoplado ao runtime atual
   - nenhuma abertura de produto paralelo ou checkout paralelo
 
+5. `persistencia-migracoes-backfill`
+- Evidência nova: W6 formalizou baseline, migração versionada, ledger com checksum, plano de backfill e readiness MySQL.
+- Estado: `IMPLEMENTADO LOCAL / PENDENTE EXTERNO`
+- O que falta resolver:
+  - congelar o baseline antes da primeira promoção para HML
+  - classificar os registros legados por ambiente e domínio
+  - executar e validar backfill em banco externo restaurável
+- Gate:
+  - `npm run db:migrate:mysql:plan`
+  - `npm run db:migrate:mysql`
+  - `npm run db:backfill:authority`
+  - `npm run db:readiness:mysql`
+- Criterio de fechamento:
+  - migrações aplicadas com checksum coerente
+  - contagens de backfill reconciliadas
+  - restart e fluxos críticos repetidos em HML real
+
+6. `classificacao-backfill-legado`
+- Evidência nova: W7 auditou 231 registros, identificou sinal de QA/teste em todos e não encontrou órfãos, duplicidades ou conflitos no MySQL.
+- Estado: `BLOQUEADO POR ORIGEM NÃO COMPROVADA`
+- O que falta resolver:
+  - obter snapshot de fonte comercial real ou classificação humana formal
+  - aprovar IDs/prefixos com ambiente de origem e destino identificados
+  - repetir auditoria e backfill em banco externo restaurável
+- Gate:
+  - `npm run db:backfill:authority:audit`
+  - `npm run db:backfill:authority`
+  - `npm run db:readiness:mysql`
+- Criterio de fechamento:
+  - nenhum registro promovido sem origem comprovada
+  - contagens e integridade reconciliadas
+  - HML externo disponível para prova de restart
+
+7. `promocao-externa-backfill`
+- Evidência nova: W8 criou manifesto verificável e preflight sem exposição de segredo ou conexão prematura.
+- Estado: `PRONTO PARA EVIDÊNCIA EXTERNA`
+- O que falta resolver:
+  - preencher snapshot e checksum reais
+  - fornecer URL e segredo de HML externo
+  - executar readiness, plano e aprovação antes da escrita
+- Gate:
+  - `npm run db:backfill:promotion:preflight -- --manifest=...`
+  - `npm run db:readiness:mysql`
+  - `npm run db:backfill:authority:audit`
+  - `npm run db:backfill:authority`
+- Criterio de fechamento:
+  - preflight PASS com evidência externa
+  - contagens reconciliadas e rollback testado
+  - restart e fluxos críticos aprovados em HML
+
 ### Bloco C - Lacunas que nao podem ser vendidas como prontas
 
-5. `cobertura exaustiva de UX`
+8. `cobertura exaustiva de UX`
 - Estado: `NAO PROVADO EXAUSTIVAMENTE`
 - Inclui:
   - cada tela
@@ -195,7 +256,7 @@ Regra deste plano:
 - Acao permitida:
   - so abrir revisao especifica quando houver evidencia nova, risco objetivo ou prioridade explicita
 
-6. `cobertura total de ambientes`
+9. `cobertura total de ambientes`
 - Estado: `NAO PROVADO EXAUSTIVAMENTE`
 - Inclui:
   - equivalencia total entre local, homolog final e producao real

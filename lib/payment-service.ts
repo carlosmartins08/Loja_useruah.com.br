@@ -9,7 +9,7 @@ import {
   updatePaymentStatus,
 } from '@/lib/payment-store';
 import { getPaymentProvider } from '@/lib/payment-provider';
-import type { CheckoutPaymentPayload, PaymentRecord, PaymentStatus } from '@/lib/payments';
+import type { CheckoutPaymentPayload, PaymentCheckoutRequest, PaymentRecord, PaymentStatus } from '@/lib/payments';
 import { getPaymentGateway } from '@/lib/payment-gateway-registry';
 import { getPaymentConnectorConfigPlain, resolveDefaultPaymentProvider } from '@/lib/payment-connector-store';
 import { appendAuditLog } from '@/lib/audit-log-store';
@@ -37,7 +37,7 @@ export class PaymentFlowError extends Error {
 }
 
 export async function createPaymentWithIdempotency(
-  payload: CheckoutPaymentPayload,
+  payload: PaymentCheckoutRequest,
   idempotencyKey: string
 ): Promise<{ payment: PaymentRecord; nextAction: 'none' | 'await_pix_confirmation' | 'await_wallet_confirmation'; reused: boolean }> {
   const existing = await getPaymentByIdempotencyKey(idempotencyKey);
@@ -79,17 +79,32 @@ export async function createPaymentWithIdempotency(
     throw new PaymentFlowError(422, 'provider_method_not_supported');
   }
 
+  const chargePayload: CheckoutPaymentPayload = {
+    orderId: order.orderId,
+    method: payload.method,
+    provider: selectedProvider,
+    amount: order.totalAmount,
+    currency: 'BRL',
+    items: order.items.map((item) => ({
+      id: item.orderItemId,
+      name: item.productName,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      spec: item.variantLabel,
+    })),
+  };
+
   const provider = getPaymentProvider(selectedProvider);
-  const charge = await provider.createCharge(payload);
+  const charge = await provider.createCharge(chargePayload);
   await appendIntegrationLog({
     provider: selectedProvider,
     action: 'create_charge',
     requestPayload: {
-      orderId: payload.orderId,
-      method: payload.method,
-      amount: payload.amount,
-      currency: payload.currency,
-      itemsCount: payload.items.length,
+      orderId: chargePayload.orderId,
+      method: chargePayload.method,
+      amount: chargePayload.amount,
+      currency: chargePayload.currency,
+      itemsCount: chargePayload.items.length,
     },
     responsePayload: {
       providerReference: charge.providerReference,
@@ -101,7 +116,7 @@ export async function createPaymentWithIdempotency(
   });
 
   const payment = await createPaymentRecord({
-    payload,
+    payload: chargePayload,
     orderId: order.orderId,
     provider: selectedProvider,
     providerReference: charge.providerReference,
@@ -305,7 +320,7 @@ export async function applyWebhookEvent(input: {
 
     const licenseRows = await Promise.all(paidOrder.items.map(async (item) => {
       const catalog = await getCatalogItem(item.catalogItemId);
-      const artwork = catalog ? getArtwork(catalog.artworkId) : null;
+      const artwork = catalog ? await getArtwork(catalog.artworkId) : null;
       const gross = item.grossItemAmount || Number((item.unitPrice * item.quantity).toFixed(2));
       const artistLicenseAmount = item.artistLicenseAmount ?? round2(gross * artistPct);
       const platformCommissionAmount = item.platformCommissionAmount ?? round2(gross * platformPct);
@@ -396,7 +411,7 @@ export async function applyWebhookEvent(input: {
       )
     );
     if (uniqueReferralLinkIds.length === 1) {
-      const referralResult = recordReferralConversion({
+      const referralResult = await recordReferralConversion({
         referralLinkId: uniqueReferralLinkIds[0],
         orderId: order.orderId,
         revenueAmount: Number(updatedPayment.amount.toFixed(2)),

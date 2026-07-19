@@ -43,6 +43,8 @@ type RegistrationDraft = {
 
 type DraftErrors = Partial<Record<keyof RegistrationDraft, string>>;
 
+type StoredRegistrationDraft = Omit<RegistrationDraft, 'password'>;
+
 const STORAGE_KEY = 'ruah_register_draft_v2';
 
 const DEFAULT_DRAFT: RegistrationDraft = {
@@ -70,6 +72,12 @@ const REQUIRED_FIELDS: Record<PersonaKey, (keyof RegistrationDraft)[]> = {
   SOPRO: ['artisticName', 'creativeEmail', 'portfolioUrl', 'password', 'termsAccepted'],
 };
 
+function withoutPassword<T extends object>(value: T): Omit<T, 'password'> {
+  const sanitized = { ...value } as T & { password?: unknown };
+  delete sanitized.password;
+  return sanitized as Omit<T, 'password'>;
+}
+
 function readStoredRegistrationDraft(): { step: number; persona: Persona; draft: RegistrationDraft } {
   if (typeof window === 'undefined') {
     return { step: 1, persona: null, draft: DEFAULT_DRAFT };
@@ -77,13 +85,19 @@ function readStoredRegistrationDraft(): { step: number; persona: Persona; draft:
   const raw = window.localStorage.getItem(STORAGE_KEY);
   if (!raw) return { step: 1, persona: null, draft: DEFAULT_DRAFT };
   try {
-    const parsed = JSON.parse(raw) as { step?: number; persona?: Persona; draft?: RegistrationDraft };
+    const parsed = JSON.parse(raw) as { step?: number; persona?: Persona; draft?: Partial<RegistrationDraft> };
+    const persistedDraft = withoutPassword(parsed.draft ?? {}) as Partial<StoredRegistrationDraft>;
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ step: parsed.step === 2 ? 2 : 1, persona: parsed.persona ?? null, draft: persistedDraft })
+    );
     return {
       step: parsed.step === 2 ? 2 : 1,
       persona: parsed.persona ?? null,
-      draft: { ...DEFAULT_DRAFT, ...(parsed.draft ?? {}) },
+      draft: { ...DEFAULT_DRAFT, ...persistedDraft },
     };
   } catch {
+    window.localStorage.removeItem(STORAGE_KEY);
     return { step: 1, persona: null, draft: DEFAULT_DRAFT };
   }
 }
@@ -160,7 +174,8 @@ export default function RegisterPage() {
   ];
 
   React.useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ persona, draft, step }));
+    const persistedDraft = withoutPassword(draft);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ persona, draft: persistedDraft, step }));
   }, [persona, draft, step]);
 
   React.useEffect(() => {
@@ -182,11 +197,12 @@ export default function RegisterPage() {
         if (!payload.authenticated || !payload.registration) return;
         const registration = payload.registration;
         const apiPersona = registration.persona;
+        const persistedMetadata = withoutPassword(registration.metadata ?? {});
         setPersona(apiPersona);
         setStep(registration.status === 'active' ? 1 : 2);
         setDraft((prev) => ({
           ...prev,
-          ...(registration.metadata ?? {}),
+          ...persistedMetadata,
           fullName: registration.fullName || prev.fullName,
           email: registration.email || prev.email,
         }));
@@ -261,7 +277,7 @@ export default function RegisterPage() {
         email: (persona === 'SOPRO' ? draft.creativeEmail : draft.email).trim(),
         password: draft.password,
         termsAccepted: draft.termsAccepted,
-        draft,
+        draft: withoutPassword(draft),
       };
       if (isAuthenticated) {
         await patchJson<{ ok: true; registration: { status: string } }>('/api/auth/registration/me', payload);
@@ -532,21 +548,19 @@ export default function RegisterPage() {
                 </div>
                 
                 <div className="flex flex-col gap-4">
-                  <h2 className="text-4xl md:text-5xl font-serif italic text-ruah-950">Seja Bem-vindo ao Sopro.</h2>
+                  <h2 className="text-4xl md:text-5xl font-serif italic text-ruah-950">Cadastro recebido.</h2>
                   <p className="text-sm font-medium uppercase tracking-[0.2em] text-ruah-400 max-w-sm">
-                    Seu cadastro como <span className="text-ruah-950 font-bold">{persona === 'ALMA' ? 'Cliente Alma Ruah' : persona === 'FAROL' ? 'Conexão Farol' : 'Curadoria Sopro'}</span> foi processado com sucesso.
+                    Seus dados como <span className="text-ruah-950 font-bold">{persona === 'ALMA' ? 'Cliente Alma Ruah' : persona === 'FAROL' ? 'Conexão Farol' : 'Curadoria Sopro'}</span> foram registrados.
                   </p>
                 </div>
 
                 <div className="bg-ruah-50 p-8 rounded-3xl border border-ruah-100 flex flex-col gap-4 w-full">
                    <div className="flex items-center gap-3 justify-center text-accent-gold">
                       <ShieldCheck size={18} />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Verificação em Curso</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Status do cadastro</span>
                    </div>
                    <p className="text-[10px] text-ruah-400 font-medium uppercase leading-relaxed tracking-widest">
-                      {persona === 'ALMA' 
-                        ? 'Seu acesso está liberado. Comece sua busca pela peça que respira sua verdade.'
-                        : 'Nossa equipe revisará os dados enviados para liberar o próximo passo compatível com esse perfil.'}
+                      O status de acesso depende da validação dos dados obrigatórios. As próximas etapas mostrarão apenas o que estiver disponível para este cadastro.
                    </p>
                 </div>
 

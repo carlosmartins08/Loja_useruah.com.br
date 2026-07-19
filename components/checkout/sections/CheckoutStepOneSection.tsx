@@ -2,11 +2,7 @@ import { Gift } from 'lucide-react';
 
 interface CheckoutStepOneSectionProps {
   isActive: boolean;
-  region: string;
-  deliveryDateLabel: string;
   maxProductionDays: number;
-  shippingDays: number;
-  composedDeadline: number;
   selectedAddress: string;
   onSelectAddress: (value: string) => void;
   shippingAddress: {
@@ -34,11 +30,7 @@ interface CheckoutStepOneSectionProps {
 
 export function CheckoutStepOneSection({
   isActive,
-  region,
-  deliveryDateLabel,
   maxProductionDays,
-  shippingDays,
-  composedDeadline,
   selectedAddress,
   onSelectAddress,
   shippingAddress,
@@ -58,13 +50,13 @@ export function CheckoutStepOneSection({
       <div className="bg-ruah-950 text-white p-8 rounded-3xl flex justify-between items-center relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-full bg-accent-gold/10 blur-3xl" />
         <div className="flex flex-col gap-2 relative z-10">
-          <span className="text-xs font-bold text-accent-gold uppercase tracking-[0.2em]">Logística: {region}</span>
-          <h3 className="text-xl font-serif italic">Previsão para {deliveryDateLabel}</h3>
-          <p className="text-xs text-white/70 font-medium leading-relaxed">Prazo composto: {maxProductionDays} dias de produção + {shippingDays} dias de logística.</p>
+          <span className="text-xs font-bold text-accent-gold uppercase tracking-[0.2em]">Produção sob demanda</span>
+          <h3 className="text-xl font-serif italic">Estimativa de produção</h3>
+          <p className="text-xs text-white/70 font-medium leading-relaxed">A produção leva cerca de {maxProductionDays} dias úteis. Frete e entrega dependem de confirmação operacional.</p>
         </div>
         <div className="text-right shrink-0">
-          <div className="text-3xl font-serif italic text-accent-gold">{composedDeadline}</div>
-          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-white/70">Dias úteis</div>
+          <div className="text-3xl font-serif italic text-accent-gold">{maxProductionDays}</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-white/70">Produção</div>
         </div>
       </div>
 

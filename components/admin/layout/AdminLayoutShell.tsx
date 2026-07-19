@@ -104,11 +104,11 @@ export default function AdminLayoutShell({ children }: { children: React.ReactNo
       </div>
       <footer className="mt-10 border-t border-ruah-100 bg-white">
         <div className="section-container flex flex-wrap items-center justify-between gap-3 py-4">
-          <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-400">Useruah Plataforma - Operacao Governada</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-ruah-400">UseRuah Plataforma - Area administrativa</div>
           <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.08em] text-ruah-500">
             <Link href="/policies">Politicas</Link>
             <Link href="/help-center">Suporte</Link>
-            <span>Status: online</span>
+            <span>Status: interface carregada</span>
           </div>
         </div>
       </footer>

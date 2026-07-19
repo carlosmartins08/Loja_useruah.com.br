@@ -1,63 +1,24 @@
 ﻿'use client';
 
 import React from 'react';
-import { Heart, ShoppingBag, Trash2 } from 'lucide-react';
-import { AppImage } from '@/components/shared/AppImage';
-import { BRAND_PRODUCT_SEEDS } from '@/lib/brand-assets';
-
-const WISHLIST = [
-  {
-    id: BRAND_PRODUCT_SEEDS[1].id,
-    name: BRAND_PRODUCT_SEEDS[1].name,
-    price: BRAND_PRODUCT_SEEDS[1].price,
-    image: BRAND_PRODUCT_SEEDS[1].image,
-    stock: 'restam 2',
-  },
-  {
-    id: BRAND_PRODUCT_SEEDS[3].id,
-    name: BRAND_PRODUCT_SEEDS[3].name,
-    price: BRAND_PRODUCT_SEEDS[3].price,
-    image: BRAND_PRODUCT_SEEDS[3].image,
-    stock: 'em estoque',
-  },
-];
+import { Heart } from 'lucide-react';
 
 export default function Wishlist() {
   return (
     <div className="flex flex-col gap-12">
       <div>
         <h2 className="text-4xl font-serif italic uppercase leading-none">Favoritos</h2>
-        <p className="text-sm font-medium text-ruah-500 mt-4">Sua curadoria pessoal UseRuah. Itens prontos para seu próximo pedido.</p>
+        <p className="text-sm font-medium text-ruah-500 mt-4">Sua curadoria pessoal será exibida quando houver favoritos reais vinculados à conta.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {WISHLIST.map((item) => (
-          <div key={item.id} className="group flex flex-col gap-6">
-            <div className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden bg-ruah-50 border border-ruah-100 group-hover:shadow-2xl transition-all duration-700">
-              <AppImage context="content-banner" src={item.image} alt={item.name} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
-              <div className="absolute top-6 right-6">
-                <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg text-red-500 hover:bg-red-50 transition-colors">
-                  <Trash2 size={18} />
-                </button>
-              </div>
-              <div className="absolute bottom-6 left-6">
-                <span className={`px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-[0.1em] ${item.stock.includes('restam') ? 'text-red-500' : 'text-green-600'}`}>
-                  {item.stock}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-start">
-                <h3 className="text-sm font-bold uppercase tracking-tight">{item.name}</h3>
-                <span className="text-sm font-mono text-accent-gold font-bold">R$ {item.price.toLocaleString('pt-BR')}</span>
-              </div>
-              <button className="w-full bg-ruah-950 text-white py-5 rounded-2xl font-bold uppercase text-xs tracking-[0.1em] flex items-center justify-center gap-3 hover:bg-accent-gold transition-all active:scale-95">
-                <ShoppingBag size={14} /> Mover para o carrinho
-              </button>
-            </div>
-          </div>
-        ))}
+      <div className="rounded-[2.5rem] border border-dashed border-ruah-200 bg-white p-12 text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-ruah-50 text-accent-gold">
+          <Heart size={28} />
+        </div>
+        <h3 className="mt-6 text-2xl font-serif italic text-ruah-950">Nenhum favorito carregado</h3>
+        <p className="mx-auto mt-4 max-w-xl text-sm text-ruah-500">
+          Os favoritos aparecerão aqui quando houver uma fonte persistente de preferências da conta.
+        </p>
       </div>
     </div>
   );
