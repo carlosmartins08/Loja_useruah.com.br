@@ -1,17 +1,45 @@
-import { existsSync, readFileSync } from 'node:fs';
 import mysql from 'mysql2/promise';
 
-function envValue(name) {
-  if (process.env[name]) return process.env[name];
-  const envPath = '.env';
-  if (!existsSync(envPath)) return undefined;
-  const line = readFileSync(envPath, 'utf8').split(/\r?\n/).find((entry) => new RegExp(`^${name}\\s*=`).test(entry));
-  return line?.replace(new RegExp(`^${name}\\s*=\\s*`), '').trim().replace(/^['"]|['"]$/g, '');
+function resolveQaDatabaseUrl() {
+  const qaDatabaseUrl = String(process.env.QA_DATABASE_URL ?? '').trim();
+  if (!qaDatabaseUrl) throw new Error('QA_DATABASE_URL_REQUIRED');
+
+  let parsed;
+  try {
+    parsed = new URL(qaDatabaseUrl);
+  } catch {
+    throw new Error('QA_DATABASE_URL_MUST_BE_MYSQL');
+  }
+
+  if (parsed.protocol !== 'mysql:' && parsed.protocol !== 'mysql2:') {
+    throw new Error('QA_DATABASE_URL_MUST_BE_MYSQL');
+  }
+
+  const database = decodeURIComponent(parsed.pathname.replace(/^\//, ''));
+  if (!database || !/(qa|test|disposable|ephemeral)/i.test(database)) {
+    throw new Error('QA_DATABASE_URL_MUST_TARGET_QA_DATABASE');
+  }
+
+  const inheritedDatabaseUrl = String(process.env.DATABASE_URL ?? '').trim();
+  if (inheritedDatabaseUrl) {
+    try {
+      if (new URL(inheritedDatabaseUrl).toString() === parsed.toString()) {
+        throw new Error('QA_DATABASE_URL_MUST_DIFFER_FROM_DATABASE_URL');
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'QA_DATABASE_URL_MUST_DIFFER_FROM_DATABASE_URL') {
+        throw error;
+      }
+      if (inheritedDatabaseUrl === qaDatabaseUrl) {
+        throw new Error('QA_DATABASE_URL_MUST_DIFFER_FROM_DATABASE_URL');
+      }
+    }
+  }
+
+  return { qaDatabaseUrl, parsed };
 }
 
-function parseMysqlUrl(raw) {
-  if (!raw || !raw.startsWith('mysql://')) throw new Error('DATABASE_URL_mysql_required');
-  const parsed = new URL(raw);
+function parseMysqlUrl(parsed) {
   return {
     host: parsed.hostname,
     port: Number(parsed.port || 3306),
@@ -21,7 +49,9 @@ function parseMysqlUrl(raw) {
   };
 }
 
-const db = await mysql.createConnection(parseMysqlUrl(envValue('DATABASE_URL')));
+const { qaDatabaseUrl, parsed: qaDatabase } = resolveQaDatabaseUrl();
+process.env.DATABASE_URL = qaDatabaseUrl;
+const db = await mysql.createConnection(parseMysqlUrl(qaDatabase));
 try {
   await db.beginTransaction();
   const [referralEvents] = await db.execute(

@@ -9,6 +9,47 @@ const tmpStore = join(process.cwd(), '.tmp-store');
 const campaignStorePath = join(tmpStore, 'campaigns.json');
 const campaignProductsStorePath = join(tmpStore, 'campaign-products.json');
 
+function resolveQaDatabaseUrl() {
+  const qaDatabaseUrl = String(process.env.QA_DATABASE_URL ?? '').trim();
+  if (!qaDatabaseUrl) throw new Error('QA_DATABASE_URL_REQUIRED');
+
+  let parsed;
+  try {
+    parsed = new URL(qaDatabaseUrl);
+  } catch {
+    throw new Error('QA_DATABASE_URL_MUST_BE_MYSQL');
+  }
+
+  if (parsed.protocol !== 'mysql:' && parsed.protocol !== 'mysql2:') {
+    throw new Error('QA_DATABASE_URL_MUST_BE_MYSQL');
+  }
+
+  const database = decodeURIComponent(parsed.pathname.replace(/^\//, ''));
+  if (!database || !/(qa|test|disposable|ephemeral)/i.test(database)) {
+    throw new Error('QA_DATABASE_URL_MUST_TARGET_QA_DATABASE');
+  }
+
+  const inheritedDatabaseUrl = String(process.env.DATABASE_URL ?? '').trim();
+  if (inheritedDatabaseUrl) {
+    try {
+      if (new URL(inheritedDatabaseUrl).toString() === parsed.toString()) {
+        throw new Error('QA_DATABASE_URL_MUST_DIFFER_FROM_DATABASE_URL');
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'QA_DATABASE_URL_MUST_DIFFER_FROM_DATABASE_URL') {
+        throw error;
+      }
+      if (inheritedDatabaseUrl === qaDatabaseUrl) {
+        throw new Error('QA_DATABASE_URL_MUST_DIFFER_FROM_DATABASE_URL');
+      }
+    }
+  }
+
+  return qaDatabaseUrl;
+}
+
+const qaDatabaseUrl = resolveQaDatabaseUrl();
+
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -32,6 +73,7 @@ function startServer() {
   const child = spawn(process.execPath, [nextBin, 'start', '-p', String(port)], {
     env: {
       ...process.env,
+      DATABASE_URL: qaDatabaseUrl,
       PAYMENT_PERSISTENCE: 'mysql',
       QA_SCRIPT: process.env.QA_SCRIPT ?? 'scripts/qa/qa-campaign-authority-restart.mjs',
       RBAC_ACTIVE: 'true',
