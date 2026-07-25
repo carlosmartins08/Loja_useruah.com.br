@@ -60,9 +60,10 @@
     "W1-W6 permanecem historico processado e nao devem ser reabertas como frente ativa.",
     "W7 foi detectada com classificacao diferencial de legado registrada em artifacts/audits/2026-07-19-w7-backfill-classification.md.",
     "W8 foi detectada com preflight de promocao externa registrado em artifacts/audits/2026-07-19-w8-external-promotion-preflight.md, sem afirmar homologacao externa PASS.",
-    "FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT foi concluida em 2026-07-25: ACTIVE_FRONT, NEXT_SESSION_TRIGGER, session-state e agent-route foram reconciliados; ACTIVE_FRONT vence qualquer espelho divergente."
+    "FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT foi concluida em 2026-07-25: ACTIVE_FRONT, NEXT_SESSION_TRIGGER, session-state e agent-route foram reconciliados; ACTIVE_FRONT vence qualquer espelho divergente.",
+    "qa:campaign:authority passou em MySQL QA local isolado com migrations 001/002, provando persistencia de Campaign e CampaignProduct apos reinicio sem fallback local; a evidencia mantem ambos PARCIAL, nao autoriza CAMPAIGN_*_REPAIR e nao iniciou T1."
   ],
-  "lastStep": "FRONT_6 foi concluida como IMPLEMENTADO e a frente serial foi transferida para FRONT_1_COMMUNITY_CAMPAIGNS, mantendo pagamentos como dependencia externa separada.",
+  "lastStep": "qa:campaign:authority passou em MySQL QA local isolado; a proxima decisao e preparar isolamento equivalente para qa:campaign:impact, mantendo FRONT_1 PARCIAL e pagamentos como dependencia externa separada.",
   "blocked": false,
   "blockers": [],
   "externalDependencies": [
@@ -108,7 +109,8 @@
     "smoke next start: /register",
     "e0df063",
     "npm run test:agent-route (6/6) em 2026-07-25",
-    "npm run check em 2026-07-25"
+    "npm run check em 2026-07-25",
+    "npm run qa:campaign:authority em MySQL QA local isolado com migrations 001/002 em 2026-07-25"
   ],
   "nextExactStep": [
     "Ler docs/ACTIVE_FRONT.md",
@@ -116,7 +118,8 @@
     "Ler docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md",
     "Ler docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md",
     "Ler docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md",
-    "Definir um unico problema comprovado de Campaign ou CampaignProduct com gate e criterio de aceite antes de qualquer patch",
+    "Preparar somente o recorte de isolamento de qa-api-runner para QA_DATABASE_URL exclusivo e cache derivado isolado antes de autorizar qa:campaign:impact",
+    "Manter qa:campaign:impact como proximo gate candidato, sem executa-lo antes do isolamento comprovado",
     "Manter Organization, membership madura, reward financeiro proprio, rota paralela e pagamentos fora do recorte",
     "Manter FRONT_5_REAL_PAYMENTS_CUTOVER fora da frente ativa ate existir janela externa objetiva e HML_BASE_URL deixar de ser localhost"
   ],

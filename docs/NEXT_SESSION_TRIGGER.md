@@ -148,6 +148,9 @@ Leitura operacional deste momento:
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` foi concluida: documentos, espelho operacional e roteador concordam, e caches locais nao participam da autoridade.
 - a frente ativa agora e `FRONT_1_COMMUNITY_CAMPAIGNS`.
 - `real-payments-cutover` permanece dependencia externa bloqueada e nao deve ser reaberta como frente atual.
+- `npm run qa:campaign:authority` passou em MySQL QA local isolado, com schema `001`/`002`, provando persistencia de `Campaign` e `CampaignProduct` apos reinicio sem fallback dos dados locais obsoletos; os caches locais de campanha foram restaurados ao fim do gate.
+- Essa evidencia cobre autoridade e persistencia, nao promove `Campaign` ou `CampaignProduct` alem de `PARCIAL` nem autoriza `CAMPAIGN_*_REPAIR`; T1 nao foi iniciado.
+- Proximo gate candidato: `npm run qa:campaign:impact`, por cobrir apenas o ciclo de governanca de campanha sem pedido, checkout, pagamento ou webhook. Ele permanece bloqueado ate que `qa-api-runner` receba isolamento equivalente de `QA_DATABASE_URL` e do cache derivado.
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:
