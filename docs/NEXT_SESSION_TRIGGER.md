@@ -1,9 +1,9 @@
 # Next Session Trigger
 
-Data de revisao: 2026-07-19
+Data de revisao: 2026-07-25
 
 ## Objetivo
-Retomar a continuidade pela auditoria diferencial `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`, reconhecendo W1-W8 como historico e sem reabrir pagamentos ou qualquer frente de produto.
+Retomar por `FRONT_1_COMMUNITY_CAMPAIGNS`, mantendo W1-W8 como historico processado e sem reabrir pagamentos ou expandir campanhas alem do runtime `PARCIAL` provado.
 
 ## Gatilho canonico de retomada
 Toda nova sessao deve comecar por este gatilho, nesta ordem:
@@ -23,7 +23,7 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Retome a auditoria diferencial a partir de docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/EXECUTION_TRACKING.md, docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md e .agents/session-state.json. Reconheca W1-W8 como historico, nao reabra pagamentos e corrija somente a autoridade de continuidade. Nao crie documento novo nem altere produto.`
+`Retome FRONT_1_COMMUNITY_CAMPAIGNS a partir de docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md, docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md e .agents/session-state.json. Trate campanhas como PARCIAL, nao reabra pagamentos e nao inicie Organization, reward financeiro proprio ou rota paralela.`
 
 ## Checklist anti-retrabalho
 Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
@@ -108,8 +108,8 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 
 ## Contrato minimo da proxima sessao
 A proxima sessao so esta autorizada a:
-1. continuar a auditoria diferencial ativa; ou
-2. manter o trabalho parado se a solicitacao tentar reabrir W1-W6, ignorar W7/W8 ou iniciar pagamento real sem dependencia externa comprovada.
+1. preparar ou executar somente `FRONT_1_COMMUNITY_CAMPAIGNS` dentro do perimetro `PARCIAL` e dos gates documentados; ou
+2. manter o trabalho parado se a solicitacao tentar reabrir W1-W8, iniciar pagamento real sem dependencia externa comprovada ou expandir campanhas para Organization, membership madura, reward financeiro proprio ou rota paralela.
 
 Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do primeiro patch.
 
@@ -138,14 +138,15 @@ Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-Seguir somente a continuidade diferencial enquanto houver divergencia entre memoria operacional, estado da sessao e roteador. Depois disso, `real-payments-cutover` continua condicionado a janela externa objetiva.
+`FRONT_1_COMMUNITY_CAMPAIGNS` e a frente serial ativa. `real-payments-cutover` continua condicionado a janela externa objetiva e nao pode ser retomado por esta transicao.
 
 Leitura operacional deste momento:
 - `affiliate-referral` fechou o recorte novo.
 - `catalogo-curadoria/artwork` fechou o recorte validado nesta sessao.
 - `superficies publicas` fechou o recorte ativo com saneamento de `artista`, `category`, `help-center`, `quem-somos`, `journal`, `register` e `footer`.
 - W1-W8 sao historico processado para fins de continuidade; W7/W8 nao autorizam afirmar homologacao externa.
-- a frente ativa agora e `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`.
+- `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` foi concluida: documentos, espelho operacional e roteador concordam, e caches locais nao participam da autoridade.
+- a frente ativa agora e `FRONT_1_COMMUNITY_CAMPAIGNS`.
 - `real-payments-cutover` permanece dependencia externa bloqueada e nao deve ser reaberta como frente atual.
 
 ## Sinais de desvio

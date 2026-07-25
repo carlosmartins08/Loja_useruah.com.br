@@ -1,9 +1,9 @@
 {
-  "reviewedAt": "2026-07-19",
+  "reviewedAt": "2026-07-25",
   "branch": "feat/payments-gateway-cutover-checklist",
-  "status": "FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT",
-  "objective": "Reconciliar a autoridade de continuidade com o historico W1-W8 sem reabrir pagamentos, alterar produto ou criar uma segunda fonte de verdade.",
-  "activeFront": "FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT",
+  "status": "FRONT_1_COMMUNITY_CAMPAIGNS",
+  "objective": "Endurecer campanhas e governanca dentro da capacidade PARCIAL provada, sem abrir Organization, reward financeiro proprio, rota paralela ou pagamentos.",
+  "activeFront": "FRONT_1_COMMUNITY_CAMPAIGNS",
   "resumeTrigger": {
     "entrypoint": "docs/NEXT_SESSION_TRIGGER.md",
     "mustRead": [
@@ -59,9 +59,10 @@
     "DOCS_CLASSIFICATION, README_DOCS_HIERARCHY e EXECUTION_CONSOLIDATED_MASTER foram realinhados para separar ordem de consulta, autoridade normativa e governanca referencial.",
     "W1-W6 permanecem historico processado e nao devem ser reabertas como frente ativa.",
     "W7 foi detectada com classificacao diferencial de legado registrada em artifacts/audits/2026-07-19-w7-backfill-classification.md.",
-    "W8 foi detectada com preflight de promocao externa registrado em artifacts/audits/2026-07-19-w8-external-promotion-preflight.md, sem afirmar homologacao externa PASS."
+    "W8 foi detectada com preflight de promocao externa registrado em artifacts/audits/2026-07-19-w8-external-promotion-preflight.md, sem afirmar homologacao externa PASS.",
+    "FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT foi concluida em 2026-07-25: ACTIVE_FRONT, NEXT_SESSION_TRIGGER, session-state e agent-route foram reconciliados; ACTIVE_FRONT vence qualquer espelho divergente."
   ],
-  "lastStep": "A auditoria diferencial identificou W1-W8 no historico e reposicionou a frente ativa para continuidade, mantendo pagamentos como dependencia externa separada.",
+  "lastStep": "FRONT_6 foi concluida como IMPLEMENTADO e a frente serial foi transferida para FRONT_1_COMMUNITY_CAMPAIGNS, mantendo pagamentos como dependencia externa separada.",
   "blocked": false,
   "blockers": [],
   "externalDependencies": [
@@ -104,20 +105,19 @@
     "smoke next dev: /quem-somos",
     "smoke next start: /",
     "smoke next start: /journal",
-    "smoke next start: /register"
+    "smoke next start: /register",
+    "e0df063",
+    "npm run test:agent-route (6/6) em 2026-07-25",
+    "npm run check em 2026-07-25"
   ],
   "nextExactStep": [
     "Ler docs/ACTIVE_FRONT.md",
     "Ler docs/NEXT_SESSION_TRIGGER.md",
-    "Ler docs/EXECUTION_TRACKING.md",
-    "Ler docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md",
-    "Ler docs/ROUTES.md",
-    "Ler docs/JOURNEY_MATRIX_BY_ROLE.md",
-    "Ler docs/CODEBASE_MAP.md",
-    "Confirmar que W1-W8 aparecem como historico processado e que a frente ativa e FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT",
-    "Comparar docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, .agents/session-state.json e o roteador",
-    "Rodar npm run test:agent-route, npm run check e git diff --check",
-    "Se houver tentativa de reabrir W1-W6, ignorar W7/W8 ou alterar produto, parar e registrar a divergencia",
+    "Ler docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md",
+    "Ler docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md",
+    "Ler docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md",
+    "Definir um unico problema comprovado de Campaign ou CampaignProduct com gate e criterio de aceite antes de qualquer patch",
+    "Manter Organization, membership madura, reward financeiro proprio, rota paralela e pagamentos fora do recorte",
     "Manter FRONT_5_REAL_PAYMENTS_CUTOVER fora da frente ativa ate existir janela externa objetiva e HML_BASE_URL deixar de ser localhost"
   ],
   "doNotReopen": [
@@ -126,7 +126,7 @@
     "qa:base:roles como gate obrigatorio",
     "campanha publica, referral e leitura por campanha como provas fechadas do recorte atual",
     "spawn EPERM/EINVAL em sandbox Windows como ruido ambiental quando a malha serial ja passou fora do sandbox",
-    "W1-W8 como historico processado, sem reabrir W1-W6",
+    "W1-W8 como historico processado, sem reabrir qualquer uma dessas ondas",
     "FRONT_5_REAL_PAYMENTS_CUTOVER como dependencia externa, nao como frente ativa"
   ]
 }

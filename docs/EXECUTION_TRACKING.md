@@ -1,6 +1,6 @@
 # Execution Tracking (Snapshot Ativo + Ponte para Historico)
 
-Data de revisao: 2026-07-19
+Data de revisao: 2026-07-25
 
 ## Objetivo
 Manter uma leitura curta do estado operacional atual, das evidencias revalidadas no ciclo e dos riscos que ainda impedem confundir homologacao com producao real.
@@ -36,11 +36,11 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 
 ## Bloco 2 - Snapshot semanal ativo
 ### Dominio ativo do ciclo
-- `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` para reconciliar a autoridade de continuidade e reconhecer W1-W8 como historico processado
+- `FRONT_1_COMMUNITY_CAMPAIGNS` para endurecer campanhas e governanca dentro da capacidade `PARCIAL` provada, sem promover Organization ou movimento amplo.
 
 ### Proximos movimentos validos
-1. Executar a auditoria diferencial de continuidade sem reabrir W1-W6 e sem ignorar W7/W8.
-2. Nao reabrir pagina publica saneada sem evidencia nova de promessa falsa, CTA cenografico ou rota morta.
+1. Definir um unico recorte de endurecimento para `Campaign` ou `CampaignProduct`, com evidencia atual, gate e criterio de aceite antes do primeiro patch.
+2. Manter campanhas como `PARCIAL`; nao abrir `Organization`, membership madura, reward financeiro proprio ou rota paralela.
 3. Manter `real-payments-cutover` como dependencia externa; so abrir quando a janela existir, com `p3:precheck` fora de `localhost`, seguido de `qa:stripe:smoke`, `qa:payments21:readiness`, `qa:provider:activate`, `qa:functional`, `qa:coreops` e `qa:matrix:audit`.
 4. Preservar namespaces canonicos por papel, login server-side real e gate serial `qa:base:roles` em qualquer mudanca de rota, jornada, RBAC ou superficie cross-role.
 
@@ -48,6 +48,7 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 - Base validada por `check`, `qa:routes`, `build`, `qa:functional`, `qa:role:journeys`, docs ativos sem alias morto, app tree sem shells legados e dashboard de `production_operator` sem CTA para namespace bloqueado.
 
 ## Bloco 3 - Evidencias P0 ativas
+- 2026-07-25: FRONT_6 de continuidade diferencial concluida; `ACTIVE_FRONT`, `NEXT_SESSION_TRIGGER`, `.agents/session-state.json` e `agent-route` foram reconciliados. `e0df063` protege `ACTIVE_FRONT` contra espelho divergente e os caches derivados continuam sem autoridade.
 - 2026-07-18: W1 de identidade durável registrada em `artifacts/audits/2026-07-18-w1-identidade-duravel.md`; build, login, cadastro, `registration/me`, cookie, ownership de pedido e login posterior passaram no MySQL local controlado, incluindo reinício do processo. HML e produção permanecem sem prova nesta rodada.
 - 2026-07-18: W2 de autoridade única do catálogo registrada em `artifacts/audits/2026-07-18-w2-catalog-authority.md`; `catalog-item-store` deixou de usar `.tmp-store` como fallback em MySQL, superfícies públicas passaram a respeitar `CatalogItem`, e a prova de reinício com dado local obsoleto passou.
 - 2026-07-18: W3 de autoridade relacional de `Artwork` e `ImpactReview` registrada em `artifacts/audits/2026-07-18-w3-artwork-impact-authority.md`; schema MySQL, adapters assíncronos, curadoria completa e prova de reinício sem fallback local passaram.

@@ -28,7 +28,7 @@ test('keeps ordinary routing tied to the active front', () => {
   assert.equal(route.requestType, 'continuity');
   assert.equal(route.routingMode, 'active_front');
   assert.equal(route.auditPlan, null);
-  assert.equal(route.activeFront, 'FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT');
+  assert.equal(route.activeFront, 'FRONT_1_COMMUNITY_CAMPAIGNS');
 });
 
 test('keeps ACTIVE_FRONT ahead of a divergent session-state mirror', (t) => {
