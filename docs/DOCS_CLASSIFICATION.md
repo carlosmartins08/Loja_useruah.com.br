@@ -13,6 +13,8 @@ Eliminar ambiguidade documental, deixando explicito:
 - `referencial ativo`: precisa ser lido para contexto, snapshot, localizacao ou historico recente, mas nao autoriza mudanca sozinho.
 - `redirecionador legado`: permanece em `docs/` apenas para apontar explicitamente a fonte atual correta e evitar consulta em arquivo superado.
 - `arquivo morto`: vive em `docs/archive/` e nao participa da camada ativa de decisao.
+- `.tmp-store/**` e runtime local descartavel. Seus JSON, SQLite, logs e saidas de scripts nao sao documentos de autoridade e nao podem definir frente ativa, bloqueio, objetivo ou ordem de retomada.
+- `active-agent-plan.json` e `agent-route.json`, quando gerados em `.tmp-store/`, sao apenas caches derivados. Eles podem ser recriados por comando explicito, mas nunca prevalecem sobre `ACTIVE_FRONT`, `NEXT_SESSION_TRIGGER` ou `session-state`.
 
 ## Hierarquia pratica de autoridade
 1. `docs/ACTIVE_FRONT.md`
@@ -89,6 +91,8 @@ Leitura correta:
 ## Regras anti-dupla autoridade
 - `docs/ACTIVE_FRONT.md` define a frente serial ativa.
 - `docs/NEXT_SESSION_TRIGGER.md` define a ordem obrigatoria de retomada.
+- `.agents/session-state.json` e espelho operacional da frente documental: serve para continuidade estruturada, mas nao vence `ACTIVE_FRONT.md` quando houver divergencia.
+- Nenhum arquivo em `.tmp-store/**` participa da resolucao de conflito documental ou da escolha da frente ativa.
 - `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md` define a continuidade macro e o plano executavel consolidado.
 - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` define maturidade real do runtime.
 - `docs/EXECUTION_TRACKING.md` registra snapshot e evidencia recente, mas nao autoriza mudanca sozinho.

@@ -373,9 +373,11 @@ export function buildAgentPlan(root = process.cwd(), contextText = '') {
   const sessionState = readJson(path.join(root, '.agents', 'session-state.json'), {});
   const activeFrontText = readText(path.join(root, 'docs', 'ACTIVE_FRONT.md'));
   const activeFront = parseActiveFront(activeFrontText);
-  const front = String(sessionState.activeFront || activeFront.status || '').trim();
+  // ACTIVE_FRONT is the primary authority. session-state is an operational
+  // mirror and only fills gaps when the document is unavailable.
+  const front = String(activeFront.status || sessionState.activeFront || '').trim();
   const blocked = Boolean(sessionState.blocked);
-  const objective = String(sessionState.objective || activeFront.objective || '').trim();
+  const objective = String(activeFront.objective || sessionState.objective || '').trim();
   const requestType = classifyRequestType(contextText);
   const requestPlan = requestType === 'audit_360' ? AUDIT_360_PLAN : requestType === 'coherence_audit' ? COHERENCE_AUDIT_PLAN : null;
   const executionPlan = requestType === 'execution_plan' ? EXECUTION_PLAN : null;
@@ -413,7 +415,7 @@ export function buildAgentPlan(root = process.cwd(), contextText = '') {
     blocked,
     blockedReasons: blocked ? sessionState.blockers ?? [] : [],
     objective,
-    branch: sessionState.branch || activeFront.branch || null,
+    branch: activeFront.branch || sessionState.branch || null,
     generatedAt: new Date().toISOString(),
     authorityDocs: AUTHORITY_DOCS,
     canonicalCommands: CANONICAL_COMMANDS,

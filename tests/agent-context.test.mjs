@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { buildAgentRoute } from '../scripts/lib/agent-context.mjs';
 
@@ -27,6 +29,35 @@ test('keeps ordinary routing tied to the active front', () => {
   assert.equal(route.routingMode, 'active_front');
   assert.equal(route.auditPlan, null);
   assert.equal(route.activeFront, 'FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT');
+});
+
+test('keeps ACTIVE_FRONT ahead of a divergent session-state mirror', (t) => {
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'useruah-agent-context-'));
+  t.after(() => fs.rmSync(fixtureRoot, { recursive: true, force: true }));
+
+  fs.mkdirSync(path.join(fixtureRoot, 'docs'), { recursive: true });
+  fs.mkdirSync(path.join(fixtureRoot, '.agents'), { recursive: true });
+  fs.mkdirSync(path.join(fixtureRoot, 'skills'), { recursive: true });
+  fs.writeFileSync(path.join(fixtureRoot, 'skills', 'CATALOGO.md'), '');
+  fs.writeFileSync(
+    path.join(fixtureRoot, 'docs', 'ACTIVE_FRONT.md'),
+    '# Active Front\nBranch: `docs-branch`\nStatus da frente: `FRONT_DOCUMENTARY_AUTHORITY`\n\n## Objetivo atual\nDocumento vence o espelho.\n\n## Proximo passo\nContinuar.\n'
+  );
+  fs.writeFileSync(
+    path.join(fixtureRoot, '.agents', 'session-state.json'),
+    JSON.stringify({
+      activeFront: 'FRONT_STALE_CACHE_VALUE',
+      objective: 'Espelho divergente.',
+      branch: 'session-branch',
+      blocked: false,
+    })
+  );
+
+  const route = buildAgentRoute(fixtureRoot, 'mostrar o briefing operacional atual');
+
+  assert.equal(route.activeFront, 'FRONT_DOCUMENTARY_AUTHORITY');
+  assert.equal(route.objective, 'Documento vence o espelho.');
+  assert.equal(route.branch, 'docs-branch');
 });
 
 test('preserves W7 and W8 in the controlled execution history', () => {

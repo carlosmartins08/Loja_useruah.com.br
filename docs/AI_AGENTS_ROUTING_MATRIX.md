@@ -39,6 +39,11 @@ Ordem de precedencia para este projeto:
 
 Se houver conflito, a frente ativa e o plano mestre do projeto mandam no curto prazo.
 
+Regra para estado derivado:
+- `.agents/session-state.json` e um espelho operacional e nao pode vencer `docs/ACTIVE_FRONT.md`.
+- `scripts/lib/agent-context.mjs` deriva o roteiro a partir das fontes acima; nao le cache para decidir a frente ativa.
+- `.tmp-store/**`, inclusive `active-agent-plan.json` e `agent-route.json`, e runtime local descartavel. `agent-route` so grava com `--write-state`; outros relatorios podem gerar caches locais, que nunca sao fonte de autoridade.
+
 Nota:
 - a pasta `.ai-agents` nao faz parte da camada ativa deste repositorio
 - se existir em outro workspace, ela pode servir como referencia externa, mas nao como autoridade local

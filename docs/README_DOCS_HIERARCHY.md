@@ -36,6 +36,8 @@ Regra:
 - `ACTIVE_FRONT` define a frente ativa
 - `NEXT_SESSION_TRIGGER` define a ordem de retomada
 - `DOCS_CLASSIFICATION` define a autoridade entre documentos
+- `.agents/session-state.json` espelha a continuidade operacional, sem substituir a frente definida em `ACTIVE_FRONT`
+- `.tmp-store/**` e runtime local descartavel; caches de agente sao derivados e nunca entram na hierarquia de autoridade
 - `EXECUTION_TRACKING` mostra snapshot e evidencia recente
 - `PLANO_MESTRE_CONTINUIDADE_TECNICA` define continuidade macro e plano executavel consolidado
 - `PLANO_DESENVOLVIMENTO` organiza o planejamento por superficie sem competir com a base executiva
