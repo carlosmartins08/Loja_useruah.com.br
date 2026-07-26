@@ -1,12 +1,13 @@
 import net from 'node:net';
 import { spawn } from 'node:child_process';
 import { existsSync, rmSync } from 'node:fs';
-import { ensureAgentPlanFile, formatAgentBrief } from '../lib/agent-context.mjs';
+import { buildAgentPlan, ensureAgentPlanFile, formatAgentBrief } from '../lib/agent-context.mjs';
 
 const PORT = Number(process.env.QA_PORT ?? 3200);
 const QA_SCRIPT = process.env.QA_SCRIPT;
 const QA_SERVER_MODE = (process.env.QA_SERVER_MODE ?? 'dev').toLowerCase();
 const QA_REUSE_EXISTING = String(process.env.QA_REUSE_EXISTING ?? 'false').toLowerCase() === 'true';
+const QA_REQUIRE_ISOLATED_DATABASE = String(process.env.QA_REQUIRE_ISOLATED_DATABASE ?? 'false').toLowerCase() === 'true';
 const IS_CODEX_WINDOWS_SANDBOX = process.platform === 'win32' && process.env.CODEX_SANDBOX_NETWORK_DISABLED === '1';
 
 if (!QA_SCRIPT) {
@@ -16,7 +17,49 @@ if (!QA_SCRIPT) {
 
 const BASE_URL = `http://localhost:${PORT}`;
 const NEXT_BIN = 'node_modules/next/dist/bin/next';
-const activeAgentPlan = ensureAgentPlanFile().plan;
+
+function resolveQaDatabaseUrl() {
+  const qaDatabaseUrl = String(process.env.QA_DATABASE_URL ?? '').trim();
+  if (!qaDatabaseUrl) throw new Error('QA_DATABASE_URL_REQUIRED');
+
+  let parsed;
+  try {
+    parsed = new URL(qaDatabaseUrl);
+  } catch {
+    throw new Error('QA_DATABASE_URL_MUST_BE_MYSQL');
+  }
+
+  if (parsed.protocol !== 'mysql:' && parsed.protocol !== 'mysql2:') {
+    throw new Error('QA_DATABASE_URL_MUST_BE_MYSQL');
+  }
+
+  const database = decodeURIComponent(parsed.pathname.replace(/^\//, ''));
+  if (!database || !/(qa|test|disposable|ephemeral)/i.test(database)) {
+    throw new Error('QA_DATABASE_URL_MUST_TARGET_QA_DATABASE');
+  }
+
+  const inheritedDatabaseUrl = String(process.env.DATABASE_URL ?? '').trim();
+  if (inheritedDatabaseUrl) {
+    try {
+      if (new URL(inheritedDatabaseUrl).toString() === parsed.toString()) {
+        throw new Error('QA_DATABASE_URL_MUST_DIFFER_FROM_DATABASE_URL');
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === 'QA_DATABASE_URL_MUST_DIFFER_FROM_DATABASE_URL') {
+        throw error;
+      }
+      if (inheritedDatabaseUrl === qaDatabaseUrl) {
+        throw new Error('QA_DATABASE_URL_MUST_DIFFER_FROM_DATABASE_URL');
+      }
+    }
+  }
+
+  return qaDatabaseUrl;
+}
+
+const qaDatabaseUrl = QA_REQUIRE_ISOLATED_DATABASE ? resolveQaDatabaseUrl() : null;
+const effectiveEnv = qaDatabaseUrl ? { ...process.env, DATABASE_URL: qaDatabaseUrl } : process.env;
+const activeAgentPlan = QA_REQUIRE_ISOLATED_DATABASE ? buildAgentPlan() : ensureAgentPlanFile().plan;
 
 console.log(formatAgentBrief(activeAgentPlan));
 
@@ -97,13 +140,14 @@ function killProcessTree(child) {
   });
 }
 
-function spawnNpm(args) {
+function spawnNpm(args, env = process.env) {
   if (process.platform === 'win32') {
     const command = ['npm', ...args].map(quoteWindowsCmdArg).join(' ');
     return spawn(process.env.ComSpec || 'C:\\Windows\\System32\\cmd.exe', ['/d', '/s', '/c', command], {
       stdio: 'inherit',
       windowsHide: true,
       detached: false,
+      env,
     });
   }
 
@@ -113,6 +157,7 @@ function spawnNpm(args) {
       stdio: 'inherit',
       windowsHide: process.platform === 'win32',
       detached: process.platform !== 'win32',
+      env,
     });
   }
 
@@ -120,6 +165,7 @@ function spawnNpm(args) {
     stdio: 'inherit',
     windowsHide: false,
     detached: true,
+    env,
   });
 }
 
@@ -129,7 +175,7 @@ function quoteWindowsCmdArg(value) {
   return `"${value.replace(/"/g, '\\"')}"`;
 }
 
-function spawnNext(args) {
+function spawnNext(args, env = process.env) {
   if (!existsSync(NEXT_BIN)) {
     throw new Error(`QA runner could not find Next.js CLI at ${NEXT_BIN}. Run npm install before QA.`);
   }
@@ -138,6 +184,7 @@ function spawnNext(args) {
     stdio: 'inherit',
     windowsHide: process.platform === 'win32',
     detached: process.platform !== 'win32',
+    env,
   });
 }
 
@@ -229,7 +276,7 @@ async function main() {
   if (!portAlreadyOpen && effectiveServerMode === 'start') {
     if (!IS_CODEX_WINDOWS_SANDBOX) {
       cleanNextBuildArtifacts();
-      const build = spawnNpm(['run', 'build']);
+      const build = spawnNpm(['run', 'build'], effectiveEnv);
       const buildExit = await waitForExit(build);
       if (buildExit !== 0) {
         console.error('QA runner aborted: production build failed before start mode.');
@@ -244,14 +291,14 @@ async function main() {
     portAlreadyOpen
       ? null
       : IS_CODEX_WINDOWS_SANDBOX
-        ? spawnNext(startArgs)
-        : spawnNpm(['run', ...startArgs.slice(0, 1), '--', ...startArgs.slice(1)]);
+        ? spawnNext(startArgs, effectiveEnv)
+        : spawnNpm(['run', ...startArgs.slice(0, 1), '--', ...startArgs.slice(1)], effectiveEnv);
 
   try {
     await waitForServerReady(server, PORT);
     const qa = spawn(process.execPath, [QA_SCRIPT], {
       stdio: 'inherit',
-      env: { ...process.env, QA_BASE_URL: BASE_URL },
+      env: { ...effectiveEnv, QA_BASE_URL: BASE_URL },
       windowsHide: process.platform === 'win32',
     });
 
