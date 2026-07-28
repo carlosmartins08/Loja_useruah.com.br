@@ -1,6 +1,6 @@
 import net from 'node:net';
 import { spawn } from 'node:child_process';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { buildAgentPlan, ensureAgentPlanFile, formatAgentBrief } from '../lib/agent-context.mjs';
 
@@ -18,6 +18,7 @@ if (!QA_SCRIPT) {
 
 const BASE_URL = `http://localhost:${PORT}`;
 const NEXT_BIN = 'node_modules/next/dist/bin/next';
+const QA_VERSIONED_FILES = ['next-env.d.ts', 'tsconfig.json'];
 
 function resolveQaNextDistDir() {
   const rawValue = process.env.QA_NEXT_DIST_DIR;
@@ -156,7 +157,7 @@ function waitForPort(port, timeoutMs = 60000) {
 }
 
 function killProcessTree(child) {
-  if (!child?.pid) return Promise.resolve();
+  if (!child?.pid || child.exitCode !== null || child.signalCode) return Promise.resolve();
   if (process.platform === 'win32') {
     return new Promise((resolve) => {
       const killer = spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
@@ -232,6 +233,40 @@ function cleanNextBuildArtifacts() {
   }
 }
 
+function snapshotVersionedFiles() {
+  return QA_VERSIONED_FILES.map((relativePath) => {
+    const filePath = path.resolve(relativePath);
+    const existed = existsSync(filePath);
+
+    return {
+      filePath,
+      existed,
+      content: existed ? readFileSync(filePath) : null,
+    };
+  });
+}
+
+function restoreVersionedFiles(snapshots) {
+  for (const snapshot of snapshots) {
+    if (snapshot.existed) {
+      const currentContent = existsSync(snapshot.filePath) ? readFileSync(snapshot.filePath) : null;
+      if (!currentContent || !currentContent.equals(snapshot.content)) {
+        writeFileSync(snapshot.filePath, snapshot.content);
+      }
+      continue;
+    }
+
+    if (existsSync(snapshot.filePath)) {
+      rmSync(snapshot.filePath, { force: true });
+    }
+  }
+}
+
+function cleanIsolatedNextArtifacts() {
+  if (!qaNextDistDir || !existsSync(qaNextDistDir)) return;
+  rmSync(qaNextDistDir, { recursive: true, force: true });
+}
+
 function waitForExit(child) {
   return new Promise((resolve, reject) => {
     child.on('error', reject);
@@ -279,76 +314,136 @@ function waitForServerReady(server, port, timeoutMs = 60000) {
 async function main() {
   const portAlreadyOpen = await isPortOpen(PORT);
   if (portAlreadyOpen && !QA_REUSE_EXISTING) {
-    console.error(
+    throw new Error(
       [
         `QA runner aborted: localhost:${PORT} is already in use.`,
         'Use a dedicated free port (QA_PORT) or set QA_REUSE_EXISTING=true if you explicitly want to reuse an existing server.',
       ].join('\n')
     );
-    process.exit(1);
   }
 
-  let effectiveServerMode = QA_SERVER_MODE;
+  const versionedFileSnapshots = qaNextDistDir ? snapshotVersionedFiles() : null;
+  let build = null;
+  let server = null;
+  let qa = null;
+  let receivedSignal = null;
+  let lifecycleError = null;
 
-  if (!portAlreadyOpen && QA_SERVER_MODE === 'start' && IS_CODEX_WINDOWS_SANDBOX) {
-    if (hasNextBuildArtifacts()) {
-      console.warn(
-        'QA runner warning: Windows Codex sandbox detected. Reusing the existing production build with next start because next build is unstable with spawn EPERM in this environment.'
-      );
-      effectiveServerMode = 'start';
-    } else {
-      console.error(
-        [
-          'QA runner aborted: Windows Codex sandbox cannot compile a fresh Next.js production build reliably in start mode.',
-          'Run `npm run build` outside the sandbox first, or start the app manually and rerun with QA_REUSE_EXISTING=true.',
-        ].join('\n')
-      );
-      process.exit(1);
+  const handleSignal = (signal) => {
+    if (receivedSignal) return;
+    receivedSignal = signal;
+    for (const child of [qa, server, build]) {
+      void killProcessTree(child);
     }
-  }
+  };
 
-  if (!portAlreadyOpen && effectiveServerMode === 'start') {
-    if (!IS_CODEX_WINDOWS_SANDBOX) {
-      cleanNextBuildArtifacts();
-      const build = spawnNpm(['run', 'build'], effectiveEnv);
-      const buildExit = await waitForExit(build);
-      if (buildExit !== 0) {
-        console.error('QA runner aborted: production build failed before start mode.');
-        process.exit(buildExit);
-      }
-    }
-  }
-
-  const startArgs = effectiveServerMode === 'start' ? ['start', '-p', String(PORT)] : ['dev', '-p', String(PORT)];
-
-  const server =
-    portAlreadyOpen
-      ? null
-      : IS_CODEX_WINDOWS_SANDBOX
-        ? spawnNext(startArgs, effectiveEnv)
-        : spawnNpm(['run', ...startArgs.slice(0, 1), '--', ...startArgs.slice(1)], effectiveEnv);
+  const onSigint = () => handleSignal('SIGINT');
+  const onSigterm = () => handleSignal('SIGTERM');
+  process.once('SIGINT', onSigint);
+  process.once('SIGTERM', onSigterm);
 
   try {
+    let effectiveServerMode = QA_SERVER_MODE;
+
+    if (!portAlreadyOpen && QA_SERVER_MODE === 'start' && IS_CODEX_WINDOWS_SANDBOX) {
+      if (hasNextBuildArtifacts()) {
+        console.warn(
+          'QA runner warning: Windows Codex sandbox detected. Reusing the existing production build with next start because next build is unstable with spawn EPERM in this environment.'
+        );
+      } else {
+        throw new Error(
+          [
+            'QA runner aborted: Windows Codex sandbox cannot compile a fresh Next.js production build reliably in start mode.',
+            'Run `npm run build` outside the sandbox first, or start the app manually and rerun with QA_REUSE_EXISTING=true.',
+          ].join('\n')
+        );
+      }
+    }
+
+    if (!portAlreadyOpen && effectiveServerMode === 'start' && !IS_CODEX_WINDOWS_SANDBOX) {
+      cleanNextBuildArtifacts();
+      build = spawnNpm(['run', 'build'], effectiveEnv);
+      const buildExit = await waitForExit(build);
+      build = null;
+
+      if (receivedSignal) {
+        throw new Error(`QA runner interrupted by ${receivedSignal}.`);
+      }
+      if (buildExit !== 0) {
+        const error = new Error('QA runner aborted: production build failed before start mode.');
+        error.exitCode = buildExit;
+        throw error;
+      }
+    }
+
+    const startArgs = effectiveServerMode === 'start' ? ['start', '-p', String(PORT)] : ['dev', '-p', String(PORT)];
+    server =
+      portAlreadyOpen
+        ? null
+        : IS_CODEX_WINDOWS_SANDBOX
+          ? spawnNext(startArgs, effectiveEnv)
+          : spawnNpm(['run', ...startArgs.slice(0, 1), '--', ...startArgs.slice(1)], effectiveEnv);
+
     await waitForServerReady(server, PORT);
-    const qa = spawn(process.execPath, [QA_SCRIPT], {
+    if (receivedSignal) {
+      throw new Error(`QA runner interrupted by ${receivedSignal}.`);
+    }
+
+    qa = spawn(process.execPath, [QA_SCRIPT], {
       stdio: 'inherit',
       env: { ...effectiveEnv, QA_BASE_URL: BASE_URL },
       windowsHide: process.platform === 'win32',
     });
 
     const exitCode = await waitForExit(qa);
+    qa = null;
 
-    if (exitCode !== 0) {
-      process.exit(exitCode);
+    if (receivedSignal) {
+      throw new Error(`QA runner interrupted by ${receivedSignal}.`);
     }
+    if (exitCode !== 0) {
+      const error = new Error(`QA runner aborted: QA script exited with code ${exitCode}.`);
+      error.exitCode = exitCode;
+      throw error;
+    }
+  } catch (error) {
+    lifecycleError = error;
+    throw error;
   } finally {
-    if (server) {
-      await killProcessTree(server);
+    process.off('SIGINT', onSigint);
+    process.off('SIGTERM', onSigterm);
+
+    for (const child of [qa, server, build]) {
+      await killProcessTree(child);
+    }
+
+    const cleanupErrors = [];
+    if (versionedFileSnapshots) {
+      try {
+        restoreVersionedFiles(versionedFileSnapshots);
+      } catch (error) {
+        cleanupErrors.push(`failed to restore versioned files: ${String(error)}`);
+      }
+    }
+
+    try {
+      cleanIsolatedNextArtifacts();
+    } catch (error) {
+      cleanupErrors.push(`failed to clean isolated Next artifacts: ${String(error)}`);
+    }
+
+    if (cleanupErrors.length > 0) {
+      const cleanupError = new Error(`QA runner cleanup failed: ${cleanupErrors.join('; ')}`);
+      if (lifecycleError) {
+        console.warn(cleanupError);
+      } else {
+        throw cleanupError;
+      }
     }
   }
 }
 
 main().catch((error) => {
   console.error(error);
-  process.exit(1);
+  process.exitCode = Number.isInteger(error?.exitCode) ? error.exitCode : 1;
 });
