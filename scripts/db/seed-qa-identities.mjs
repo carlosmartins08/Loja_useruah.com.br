@@ -6,6 +6,7 @@ const scrypt = promisify(scryptCallback);
 const QA_IDENTITY_PASSWORD = String(process.env.QA_IDENTITY_PASSWORD ?? '');
 const QA_IDENTITIES = [
   { email: 'qa-community-manager@useruah.local', userName: 'QA Community Manager', userRole: 'community_manager' },
+  { email: 'qa-foreign-community-manager@useruah.local', userName: 'QA Foreign Community Manager', userRole: 'community_manager' },
   { email: 'qa-curator@useruah.local', userName: 'QA Curator', userRole: 'curator' },
   { email: 'qa-platform-admin@useruah.local', userName: 'QA Platform Admin', userRole: 'platform_admin' },
 ];

@@ -7,6 +7,7 @@ const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3337';
 const qaIdentityPassword = String(process.env.QA_IDENTITY_PASSWORD ?? '');
 const QA_USERS = {
   community: { email: 'qa-community-manager@useruah.local', expectedRole: 'community_manager' },
+  foreignCommunity: { email: 'qa-foreign-community-manager@useruah.local', expectedRole: 'community_manager' },
   curator: { email: 'qa-curator@useruah.local', expectedRole: 'curator' },
   admin: { email: 'qa-platform-admin@useruah.local', expectedRole: 'platform_admin' },
 };
@@ -59,10 +60,11 @@ async function loginQaUser(user) {
 async function run() {
   const report = [];
   const communitySession = await loginQaUser(QA_USERS.community);
+  const foreignCommunitySession = await loginQaUser(QA_USERS.foreignCommunity);
   const curatorSession = await loginQaUser(QA_USERS.curator);
   const adminSession = await loginQaUser(QA_USERS.admin);
   const ownerHeaders = { cookie: communitySession.cookie };
-  const foreignHeaders = { 'x-actor-id': 'qa-community-detail-foreign', 'x-actor-role': 'community_manager' };
+  const foreignHeaders = { cookie: foreignCommunitySession.cookie };
   const curatorHeaders = { cookie: curatorSession.cookie };
   const adminHeaders = { cookie: adminSession.cookie };
 
