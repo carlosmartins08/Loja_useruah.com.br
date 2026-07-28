@@ -1,7 +1,10 @@
 ﻿import path from 'path';
 import type {NextConfig} from 'next';
 
+const qaNextDistDir = process.env.QA_NEXT_DIST_DIR?.trim();
+
 const nextConfig: NextConfig = {
+  ...(qaNextDistDir ? { distDir: qaNextDistDir } : {}),
   outputFileTracingRoot: path.join(__dirname),
   reactStrictMode: true,
   allowedDevOrigins: ['127.0.0.1', '::1'],

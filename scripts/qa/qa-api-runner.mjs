@@ -1,6 +1,7 @@
 import net from 'node:net';
 import { spawn } from 'node:child_process';
 import { existsSync, rmSync } from 'node:fs';
+import path from 'node:path';
 import { buildAgentPlan, ensureAgentPlanFile, formatAgentBrief } from '../lib/agent-context.mjs';
 
 const PORT = Number(process.env.QA_PORT ?? 3200);
@@ -17,6 +18,38 @@ if (!QA_SCRIPT) {
 
 const BASE_URL = `http://localhost:${PORT}`;
 const NEXT_BIN = 'node_modules/next/dist/bin/next';
+
+function resolveQaNextDistDir() {
+  const rawValue = process.env.QA_NEXT_DIST_DIR;
+  if (rawValue === undefined) return null;
+
+  const configuredPath = String(rawValue).trim();
+  if (!configuredPath || configuredPath === '.' || configuredPath === '/' || configuredPath === '\\') {
+    throw new Error('QA_NEXT_DIST_DIR_MUST_BE_UNDER_TMP_STORE');
+  }
+
+  const rootDir = path.resolve(process.cwd());
+  const sharedNextDir = path.resolve(rootDir, '.next');
+  const tmpStoreDir = path.resolve(rootDir, '.tmp-store');
+  const resolvedPath = path.resolve(rootDir, configuredPath);
+
+  if (resolvedPath === sharedNextDir) {
+    throw new Error('QA_NEXT_DIST_DIR_MUST_NOT_BE_SHARED_NEXT');
+  }
+
+  const relativePath = path.relative(tmpStoreDir, resolvedPath);
+  const isInsideTmpStore =
+    Boolean(relativePath) &&
+    relativePath !== '..' &&
+    !relativePath.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(relativePath);
+
+  if (!isInsideTmpStore) {
+    throw new Error('QA_NEXT_DIST_DIR_MUST_BE_UNDER_TMP_STORE');
+  }
+
+  return resolvedPath;
+}
 
 function resolveQaDatabaseUrl() {
   const qaDatabaseUrl = String(process.env.QA_DATABASE_URL ?? '').trim();
@@ -57,6 +90,7 @@ function resolveQaDatabaseUrl() {
   return qaDatabaseUrl;
 }
 
+const qaNextDistDir = resolveQaNextDistDir();
 const qaDatabaseUrl = QA_REQUIRE_ISOLATED_DATABASE ? resolveQaDatabaseUrl() : null;
 const effectiveEnv = qaDatabaseUrl ? { ...process.env, DATABASE_URL: qaDatabaseUrl } : process.env;
 const activeAgentPlan = QA_REQUIRE_ISOLATED_DATABASE ? buildAgentPlan() : ensureAgentPlanFile().plan;
@@ -64,7 +98,7 @@ const activeAgentPlan = QA_REQUIRE_ISOLATED_DATABASE ? buildAgentPlan() : ensure
 console.log(formatAgentBrief(activeAgentPlan));
 
 function hasNextBuildArtifacts() {
-  return existsSync('.next/BUILD_ID');
+  return existsSync(path.join(qaNextDistDir ?? path.resolve('.next'), 'BUILD_ID'));
 }
 
 function isPortOpen(port) {
@@ -189,7 +223,7 @@ function spawnNext(args, env = process.env) {
 }
 
 function cleanNextBuildArtifacts() {
-  const nextDir = '.next';
+  const nextDir = qaNextDistDir ?? path.resolve('.next');
   if (!existsSync(nextDir)) return;
   try {
     rmSync(nextDir, { recursive: true, force: true });
