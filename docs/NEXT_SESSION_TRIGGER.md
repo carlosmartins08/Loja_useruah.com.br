@@ -74,7 +74,7 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - `qa:role:journeys`: `PASS`
 - `qa:base:roles`: `PASS`
 - `qa:campaign:impact`: `PASS`
-- `qa:campaign:detail`: `PASS`
+- `qa:campaign:detail`: `HISTORICAL_REFERENCE` de ciclo anterior; nao e evidencia vigente e nao foi executado nesta sequencia atual.
 - `qa:community:revenue`: `PASS`
 - `qa:campaign:public`: `PASS`
 - `p3:precheck`: `BLOCKED_EXTERNAL_BASE_URL` quando `HML_BASE_URL=http://localhost:3000`
@@ -86,7 +86,7 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - `qa:routes`: `PASS`
 - `qa:blindspots`: `PASS`
 - `qa:campaign:impact`: `PASS`
-- `qa:campaign:detail`: `PASS`
+- `qa:campaign:detail`: `HISTORICAL_REFERENCE` de ciclo anterior; o proximo passo vigente continua sendo sua preparacao como candidato, sem execucao nesta sequencia atual.
 - `qa:community-curation`: `PASS`
 - `qa:community:revenue`: `PASS`
 - `qa:catalog:curation`: `PASS`

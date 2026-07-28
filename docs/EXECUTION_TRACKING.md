@@ -26,7 +26,7 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 | RBAC, namespaces canonicos e dashboards por papel | `IMPLEMENTADO` | `docs/ROUTES.md`, `docs/WORKFLOW_RBAC_ACCESS_MATRIX.md` | `npm run qa:routes`, `npm run qa:role:journeys` |
 | Fechamento operacional de `artist`, `community_manager` e `affiliate` | `IMPLEMENTADO` | `docs/JOURNEY_MATRIX_BY_ROLE.md`, `docs/USER_360_ROLE_ALIGNMENT.md` | `npm run qa:role:closure` |
 | Producao com escopo estrito para `supplier` | `IMPLEMENTADO` | `docs/ORDERS_LOGISTICS_DEFINITION_OF_DONE.md`, `docs/ROLES_MATRIX.md` | `npm run qa:coreops` |
-| Comunidade, campanhas e curadoria operacional | `PARCIAL` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` | `npm run qa:campaign:authority`, `npm run qa:campaign:public`, `npm run qa:campaign:detail` |
+| Comunidade, campanhas e curadoria operacional | `PARCIAL` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` | `npm run qa:campaign:authority`, `npm run qa:campaign:impact`; proximo candidato: `npm run qa:campaign:detail` |
 | Afiliacao e referral operacional | `PARCIAL` | `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` | `npm run qa:referral:authority`, `npm run qa:affiliate:referral` |
 | Financeiro operacional e payouts internos | `IMPLEMENTADO` | `docs/PAYMENTS_DEFINITION_OF_DONE.md` | `npm run build`, `npm run qa:functional` |
 | Pagamento real em producao | `PARCIAL` | `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md` | `GO CONDICIONADO` |
@@ -83,7 +83,7 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 - 2026-06-20: smoke local em `next dev` -> `PASS` para `/artista/lucas-santana`, `/category/autoral`, `/help-center` e `/quem-somos`.
 - 2026-06-20: `npm run check` -> `PASS`.
 - 2026-06-18: `qa:routes`, `qa:blindspots`, `build` e `qa:base:roles` -> `PASS` no saneamento estrutural anterior.
-- 2026-06-18: `qa:campaign:impact`, `qa:campaign:detail`, `qa:community:revenue` e `qa:campaign:public` -> `PASS`, provando campanha ativa, governanca, atribuicao publica e receita por campanha.
+- 2026-06-18: `HISTORICAL_REFERENCE` — `qa:campaign:impact`, `qa:campaign:detail`, `qa:community:revenue` e `qa:campaign:public` -> `PASS` naquele ciclo. Esta entrada nao e evidencia vigente nem autoriza executar `qa:campaign:detail` na sequencia atual.
 - 2026-06-18: `qa:community-curation`, `qa:catalog:curation`, `qa:affiliate:referral` e `qa:role:closure` -> `PASS`, consolidando a cadeia `artwork -> catalogo -> campaignProduct -> campanha ativa -> storefront -> order snapshot -> conversao do affiliate`.
 - 2026-06-18: `home`, `category`, `returns`, `policies` e `login` deixaram de prometer lookup publico, portal autonomo, login social inexistente ou vitrine paralela ao catalogo publicado.
 
