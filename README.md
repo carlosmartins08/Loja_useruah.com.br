@@ -15,12 +15,12 @@ Nos ambientes integrados, MySQL e a fonte oficial dos stores relacionais. JSON/S
 Esse repositorio ja tem bastante capacidade implementada. O problema principal nao e falta de codigo; e falta de navegacao rapida para entender onde cada responsabilidade vive.
 
 ## Start Here
-Leia nesta ordem antes de mexer em algo importante:
-1. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
-2. `docs/EXECUTION_OPERATING_TEMPLATE.md`
-3. `docs/ARCHITECTURE.md`
-4. `docs/CODEBASE_MAP.md`
-5. documento de dominio que autoriza a mudanca
+Antes de mexer em algo importante:
+1. `CONTRIBUTING.md` para escolher a trilha pela missao, preparar a branch e entender o fluxo de revisao.
+2. `docs/README_DOCS_HIERARCHY.md` e `docs/DOCS_CLASSIFICATION.md` para saber quais fontes prevalecem.
+3. `docs/ACTIVE_FRONT.md` e `docs/NEXT_SESSION_TRIGGER.md` quando o trabalho for continuidade serial ou frente ativa.
+4. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`, `docs/ARCHITECTURE.md` e `docs/CODEBASE_MAP.md` para estado real, fronteiras e localizacao tecnica.
+5. documento de dominio que autoriza a mudanca.
 
 ## Estrutura do repositorio
 
@@ -227,6 +227,7 @@ Taxonomia rapida de `lib/`:
   - `.gitattributes`
   - `docker-compose.yml`
   - `README.md`
+  - `CONTRIBUTING.md`
 - manifestos de tooling que precisem ficar na raiz por contrato externo:
   - `metadata.json`
     - tratar como manifesto externo de tooling, nao como fonte de config interna do produto
@@ -252,6 +253,8 @@ Taxonomia rapida de `lib/`:
 - antes de adicionar algo na raiz, a pergunta correta e: isso e fonte canonica do repositorio ou apenas saida/local tooling?
 
 ## Documentos que um desenvolvedor realmente usa
+- `CONTRIBUTING.md`
+  - entrada por missao, fluxo de branch, validacao e revisao
 - `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
   - estado real por fase e dominio
 - `docs/EXECUTION_OPERATING_TEMPLATE.md`

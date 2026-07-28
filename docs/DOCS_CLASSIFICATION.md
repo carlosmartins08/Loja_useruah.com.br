@@ -1,6 +1,6 @@
 # Document Classification (Normativo x Referencial)
 
-Data de revisao: 2026-06-21
+Data de revisao: 2026-07-28
 
 ## Objetivo
 Eliminar ambiguidade documental, deixando explicito:
@@ -57,6 +57,7 @@ Leitura correta:
 - `docs/PR_TEMPLATE_EXECUTION_GOVERNANCE.md`
 
 ### Referenciais ativos
+- `CONTRIBUTING.md` como entrada de trabalho humano; nao autoriza mudanca sozinho e deve redirecionar para documentos normativos.
 - `docs/EXECUTION_TRACKING.md`
 - `docs/AI_AGENTS_ROUTING_MATRIX.md`
 - `docs/README_DOCS_HIERARCHY.md`

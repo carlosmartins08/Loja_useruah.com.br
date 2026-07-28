@@ -34,6 +34,43 @@ Objetivo: registrar decisoes que alteram fluxo, estado, contrato, permissao ou g
 
 ## Entradas
 
+### [2026-07-28] Entrada unica de contribuicao e revisao foi definida
+- ID: GOV-0120
+- Status: `aprovada`
+- Dono da decisao: Engenharia + Governanca
+- PR/Commit de referencia: pendente de versionamento
+- Dominio afetado:
+  - `governanca`
+  - `qa`
+- Documento fonte afetado:
+  - `CONTRIBUTING.md`
+  - `README.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+- Decisao:
+  - Tornar `CONTRIBUTING.md` a entrada humana por missao, sem disputar autoridade com os documentos normativos.
+  - Fornecer template automatico de pull request que registra escopo, autoridade, validacao, risco e rollback.
+  - Manter `main` como base compartilhada e deixar protecoes de branch como configuracao obrigatoria da plataforma GitHub.
+- Contexto:
+  - A arquitetura, a hierarquia documental e os gates ja existiam, mas faltava uma trilha curta que conectasse desenvolvedor, missao, local correto, validacao e revisao.
+- Impacto esperado:
+  - Menos dependencia de explicacao humana para iniciar trabalho correto.
+  - Menos branches longas e menos mudancas em camada ou documento inadequado.
+- Riscos conhecidos:
+  - Os arquivos nao ativam protecao de branch nem definem responsaveis automaticamente; administradores devem configurar regras no GitHub e aprovar ownership real.
+- Plano de rollback:
+  - Remover a entrada referencial e o template de PR, preservando a hierarquia normativa existente.
+- Tipo de mudanca (COBIT/ITIL): `standard`
+- Documentos atualizados:
+  - `CONTRIBUTING.md`
+  - `.github/PULL_REQUEST_TEMPLATE.md`
+  - `README.md`
+  - `docs/README_DOCS_HIERARCHY.md`
+  - `docs/DOCS_CLASSIFICATION.md`
+  - `docs/CHANGELOG_GOVERNANCE.md`
+
+---
+
 ### [2026-07-07] Roteamento de agentes foi realinhado com a hierarquia documental ativa
 - ID: GOV-0118
 - Status: `aprovada`

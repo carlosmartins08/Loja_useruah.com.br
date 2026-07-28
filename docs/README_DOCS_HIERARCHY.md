@@ -1,6 +1,6 @@
 # Docs Hierarchy (Fonte Unica de Navegacao)
 
-Data de revisao: 2026-06-21
+Data de revisao: 2026-07-28
 
 ## Objetivo
 Evitar retrabalho, duplicidade e conflito de interpretacao sobre qual documento usar em cada decisao de produto, engenharia e operacao.
@@ -46,10 +46,13 @@ Regra:
 
 ## Ordem de consulta para onboarding tecnico
 1. `README.md`
-2. `docs/ARCHITECTURE.md`
-3. `docs/CODEBASE_MAP.md`
-4. `docs/README_DOCS_HIERARCHY.md`
-5. documento do dominio em que vai atuar
+2. `CONTRIBUTING.md`
+3. `docs/ARCHITECTURE.md`
+4. `docs/CODEBASE_MAP.md`
+5. `docs/README_DOCS_HIERARCHY.md`
+6. documento do dominio em que vai atuar
+
+`CONTRIBUTING.md` e uma entrada referencial para trabalho humano: orienta missao, branch, validacao e revisao, mas nao substitui fonte normativa de escopo, frente ativa ou maturidade.
 
 ## Qual documento usar por tipo de decisao
 
