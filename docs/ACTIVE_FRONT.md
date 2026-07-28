@@ -1,7 +1,7 @@
 # Active Front
 
 Data de revisao: 2026-07-25
-Branch: `feat/payments-gateway-cutover-checklist`
+Branch: `main`
 Responsavel atual: `Codex + usuario`
 Status da frente: `FRONT_1_COMMUNITY_CAMPAIGNS`
 
