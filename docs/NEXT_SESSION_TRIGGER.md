@@ -1,6 +1,6 @@
 # Next Session Trigger
 
-Data de revisao: 2026-07-25
+Data de revisao: 2026-07-28
 
 ## Objetivo
 Retomar por `FRONT_1_COMMUNITY_CAMPAIGNS`, mantendo W1-W8 como historico processado e sem reabrir pagamentos ou expandir campanhas alem do runtime `PARCIAL` provado.
@@ -149,8 +149,8 @@ Leitura operacional deste momento:
 - a frente ativa agora e `FRONT_1_COMMUNITY_CAMPAIGNS`.
 - `real-payments-cutover` permanece dependencia externa bloqueada e nao deve ser reaberta como frente atual.
 - `npm run qa:campaign:authority` passou em MySQL QA local isolado, com schema `001`/`002`, provando persistencia de `Campaign` e `CampaignProduct` apos reinicio sem fallback dos dados locais obsoletos; os caches locais de campanha foram restaurados ao fim do gate.
-- Essa evidencia cobre autoridade e persistencia, nao promove `Campaign` ou `CampaignProduct` alem de `PARCIAL` nem autoriza `CAMPAIGN_*_REPAIR`; T1 nao foi iniciado.
-- Proximo gate candidato: `npm run qa:campaign:impact`, por cobrir apenas o ciclo de governanca de campanha sem pedido, checkout, pagamento ou webhook. Ele permanece bloqueado ate que `qa-api-runner` receba isolamento equivalente de `QA_DATABASE_URL` e do cache derivado.
+- Em 2026-07-28, `npm run qa:campaign:impact` passou em `useruah_qa_campaign_impact` no host `localhost`, usando somente `QA_DATABASE_URL`, distinta de `DATABASE_URL`, com schemas `001_payments.sql` e `002_distribution_authority.sql`. A base principal `useruah` foi preservada: a campanha criada existe uma vez na QA e zero vezes nela. O gate provou criacao, submissao, bloqueio por revisao pendente, aprovacao da revisao, ativacao, pausa e reativacao; chamou somente endpoints de campanhas e revisoes de impacto. `.tmp-store/active-agent-plan.json` permaneceu ausente. Nao houve pedido, checkout, pagamento, webhook, falha funcional reproduzivel, `CAMPAIGN_*_REPAIR` ou inicio de T1. `Campaign` e `CampaignProduct` seguem `PARCIAL`.
+- Proximo gate candidato: `npm run qa:campaign:detail`, por permanecer no dominio de campanha e ser menor que receita comunitaria ou `qa:base:roles`. Ele nao deve ser executado ate ter isolamento equivalente de `QA_DATABASE_URL` e do cache derivado; seu runner atual usa `start`, portanto o risco de artefato `.next` tambem deve ser contido antes da execucao.
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:

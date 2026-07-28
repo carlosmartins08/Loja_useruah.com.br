@@ -1,6 +1,6 @@
 # Execution Tracking (Snapshot Ativo + Ponte para Historico)
 
-Data de revisao: 2026-07-25
+Data de revisao: 2026-07-28
 
 ## Objetivo
 Manter uma leitura curta do estado operacional atual, das evidencias revalidadas no ciclo e dos riscos que ainda impedem confundir homologacao com producao real.
@@ -39,8 +39,8 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 - `FRONT_1_COMMUNITY_CAMPAIGNS` para endurecer campanhas e governanca dentro da capacidade `PARCIAL` provada, sem promover Organization ou movimento amplo.
 
 ### Proximos movimentos validos
-1. Registrar `qa:campaign:authority` como prova de autoridade e persistencia MySQL isolada de `Campaign` e `CampaignProduct`, sem promover os dominios alem de `PARCIAL` ou autorizar `CAMPAIGN_*_REPAIR`.
-2. Preparar um unico recorte de isolamento para `qa-api-runner` antes de autorizar `npm run qa:campaign:impact`: `QA_DATABASE_URL` exclusivo e cache derivado isolado, sem executar o gate nesta etapa.
+1. Manter `qa:campaign:authority` como prova de autoridade e persistencia MySQL isolada de `Campaign` e `CampaignProduct`, sem promover os dominios alem de `PARCIAL` ou autorizar `CAMPAIGN_*_REPAIR`.
+2. Registrar `qa:campaign:impact` como prova isolada do ciclo de governanca de campanha; o proximo candidato e `qa:campaign:detail`, somente apos isolamento equivalente de `QA_DATABASE_URL`, cache derivado e artefatos `.next`.
 3. Manter campanhas como `PARCIAL`; nao abrir `Organization`, membership madura, reward financeiro proprio ou rota paralela.
 4. Manter `real-payments-cutover` como dependencia externa; so abrir quando a janela existir, com `p3:precheck` fora de `localhost`, seguido de `qa:stripe:smoke`, `qa:payments21:readiness`, `qa:provider:activate`, `qa:functional`, `qa:coreops` e `qa:matrix:audit`.
 5. Preservar namespaces canonicos por papel, login server-side real e gate serial `qa:base:roles` em qualquer mudanca de rota, jornada, RBAC ou superficie cross-role.
@@ -49,6 +49,7 @@ Manter uma leitura curta do estado operacional atual, das evidencias revalidadas
 - Base validada por `check`, `qa:routes`, `build`, `qa:functional`, `qa:role:journeys`, docs ativos sem alias morto, app tree sem shells legados e dashboard de `production_operator` sem CTA para namespace bloqueado.
 
 ## Bloco 3 - Evidencias P0 ativas
+- 2026-07-28: `npm run qa:campaign:impact` passou contra MySQL QA local isolado em `useruah_qa_campaign_impact` (`localhost`), com schemas `001_payments.sql` e `002_distribution_authority.sql`. Usou somente `QA_DATABASE_URL`, distinta da base principal `useruah`; a campanha de prova existe uma vez na QA e zero vezes na principal. O ciclo provado foi criacao, submissao, bloqueio por revisao pendente, aprovacao da revisao, ativacao, pausa e reativacao, somente por endpoints de campanhas e revisoes de impacto. `.tmp-store/active-agent-plan.json` permaneceu ausente. A evidencia nao promove `Campaign` ou `CampaignProduct` alem de `PARCIAL`, nao autoriza `CAMPAIGN_*_REPAIR`, nao tocou pedido, checkout, pagamento ou webhook e nao iniciou T1.
 - 2026-07-25: `npm run qa:campaign:authority` passou contra MySQL QA local isolado, com migrations `001`/`002` e `QA_DATABASE_URL` distinta da base ambiente. A prova confirmou `Campaign` e `CampaignProduct` apos reinicio sem fallback local; `campaigns.json` e `campaign-products.json` foram restaurados. Isso nao promove os dominios alem de `PARCIAL`, nao autoriza `CAMPAIGN_*_REPAIR` e nao iniciou T1.
 - 2026-07-25: FRONT_6 de continuidade diferencial concluida; `ACTIVE_FRONT`, `NEXT_SESSION_TRIGGER`, `.agents/session-state.json` e `agent-route` foram reconciliados. `e0df063` protege `ACTIVE_FRONT` contra espelho divergente e os caches derivados continuam sem autoridade.
 - 2026-07-18: W1 de identidade durável registrada em `artifacts/audits/2026-07-18-w1-identidade-duravel.md`; build, login, cadastro, `registration/me`, cookie, ownership de pedido e login posterior passaram no MySQL local controlado, incluindo reinício do processo. HML e produção permanecem sem prova nesta rodada.
