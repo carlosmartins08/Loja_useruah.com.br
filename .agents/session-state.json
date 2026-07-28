@@ -62,9 +62,10 @@
     "W8 foi detectada com preflight de promocao externa registrado em artifacts/audits/2026-07-19-w8-external-promotion-preflight.md, sem afirmar homologacao externa PASS.",
     "FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT foi concluida em 2026-07-25: ACTIVE_FRONT, NEXT_SESSION_TRIGGER, session-state e agent-route foram reconciliados; ACTIVE_FRONT vence qualquer espelho divergente.",
     "qa:campaign:authority passou em MySQL QA local isolado com migrations 001/002, provando persistencia de Campaign e CampaignProduct apos reinicio sem fallback local; a evidencia mantem ambos PARCIAL, nao autoriza CAMPAIGN_*_REPAIR e nao iniciou T1.",
-    "qa:campaign:impact passou em MySQL QA local isolado em useruah_qa_campaign_impact, provando criacao, submissao, bloqueio por revisao pendente, aprovacao, ativacao, pausa e reativacao sem tocar a base principal; Campaign e CampaignProduct seguem PARCIAL, nenhum CAMPAIGN_*_REPAIR foi autorizado e T1 nao foi iniciado."
+    "qa:campaign:impact passou em MySQL QA local isolado em useruah_qa_campaign_impact, provando criacao, submissao, bloqueio por revisao pendente, aprovacao, ativacao, pausa e reativacao sem tocar a base principal; Campaign e CampaignProduct seguem PARCIAL, nenhum CAMPAIGN_*_REPAIR foi autorizado e T1 nao foi iniciado.",
+    "qa:campaign:detail passou em MySQL QA local isolado em useruah_qa_campaign_detail com identidades QA, login real por /api/auth/login e cookie ruah_session; bootstrap de catalogo, campanha, CampaignProduct, submissao, revisao e leituras autenticadas passaram, e um segundo community_manager sem ownership recebeu 403 sem header fallback funcional. Campaign e CampaignProduct seguem PARCIAL, nenhum reparo de dominio foi autorizado e T1 nao foi iniciado."
   ],
-  "lastStep": "qa:campaign:impact passou em MySQL QA local isolado; o proximo candidato e qa:campaign:detail, condicionado a isolamento equivalente de QA_DATABASE_URL, cache derivado e artefatos .next, mantendo FRONT_1 PARCIAL e pagamentos como dependencia externa separada.",
+  "lastStep": "qa:campaign:detail passou em MySQL QA local isolado com sessao real e ownership 403; o proximo candidato e qa:campaign:public, condicionado a investigacao e isolamento proprio, mantendo FRONT_1 PARCIAL e pagamentos como dependencia externa separada.",
   "blocked": false,
   "blockers": [],
   "externalDependencies": [
@@ -112,7 +113,8 @@
     "npm run test:agent-route (6/6) em 2026-07-25",
     "npm run check em 2026-07-25",
     "npm run qa:campaign:authority em MySQL QA local isolado com migrations 001/002 em 2026-07-25",
-    "npm run qa:campaign:impact em MySQL QA local isolado useruah_qa_campaign_impact com schemas 001/002 em 2026-07-28"
+    "npm run qa:campaign:impact em MySQL QA local isolado useruah_qa_campaign_impact com schemas 001/002 em 2026-07-28",
+    "npm run qa:campaign:detail em MySQL QA local isolado useruah_qa_campaign_detail com login por cookie ruah_session e ownership 403 em 2026-07-28"
   ],
   "nextExactStep": [
     "Ler docs/ACTIVE_FRONT.md",
@@ -120,8 +122,8 @@
     "Ler docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md",
     "Ler docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md",
     "Ler docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md",
-    "Avaliar somente o recorte de isolamento equivalente para qa:campaign:detail: QA_DATABASE_URL exclusivo, cache derivado isolado e artefatos .next contidos",
-    "Manter qa:campaign:detail como proximo gate candidato, sem executa-lo antes do isolamento comprovado",
+    "Investigar somente o recorte de isolamento proprio para qa:campaign:public: banco QA exclusivo, cache derivado isolado e artefatos contidos",
+    "Manter qa:campaign:public como proximo gate candidato, sem executa-lo antes do isolamento comprovado",
     "Manter Organization, membership madura, reward financeiro proprio, rota paralela e pagamentos fora do recorte",
     "Manter FRONT_5_REAL_PAYMENTS_CUTOVER fora da frente ativa ate existir janela externa objetiva e HML_BASE_URL deixar de ser localhost"
   ],

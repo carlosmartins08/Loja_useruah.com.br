@@ -74,9 +74,9 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - `qa:role:journeys`: `PASS`
 - `qa:base:roles`: `PASS`
 - `qa:campaign:impact`: `PASS`
-- `qa:campaign:detail`: `HISTORICAL_REFERENCE` de ciclo anterior; nao e evidencia vigente e nao foi executado nesta sequencia atual.
-- `qa:community:revenue`: `PASS`
-- `qa:campaign:public`: `PASS`
+- `qa:campaign:detail`: `PASS` em MySQL QA isolado; a evidencia vigente esta registrada abaixo e nao promove maturidade.
+- `qa:community:revenue`: `HISTORICAL_REFERENCE` de ciclo anterior; nao e evidencia vigente desta sequencia.
+- `qa:campaign:public`: `NEXT_CANDIDATE`; ainda nao foi executado nesta sequencia atual.
 - `p3:precheck`: `BLOCKED_EXTERNAL_BASE_URL` quando `HML_BASE_URL=http://localhost:3000`
 - `p3:plug`: `BLOCKED_EXTERNAL_BASE_URL` em dry-run quando a base ainda e local
 - `go:preflight`: `BLOCKED_EXTERNAL_BASE_URL` em dry-run quando a base ainda e local
@@ -86,9 +86,7 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - `qa:routes`: `PASS`
 - `qa:blindspots`: `PASS`
 - `qa:campaign:impact`: `PASS`
-- `qa:campaign:detail`: `HISTORICAL_REFERENCE` de ciclo anterior; o proximo passo vigente continua sendo sua preparacao como candidato, sem execucao nesta sequencia atual.
 - `qa:community-curation`: `PASS`
-- `qa:community:revenue`: `PASS`
 - `qa:catalog:curation`: `PASS`
 - `qa:affiliate:referral`: `PASS`
 - `ops:campaign:public`: `PASS`
@@ -150,7 +148,8 @@ Leitura operacional deste momento:
 - `real-payments-cutover` permanece dependencia externa bloqueada e nao deve ser reaberta como frente atual.
 - `npm run qa:campaign:authority` passou em MySQL QA local isolado, com schema `001`/`002`, provando persistencia de `Campaign` e `CampaignProduct` apos reinicio sem fallback dos dados locais obsoletos; os caches locais de campanha foram restaurados ao fim do gate.
 - Em 2026-07-28, `npm run qa:campaign:impact` passou em `useruah_qa_campaign_impact` no host `localhost`, usando somente `QA_DATABASE_URL`, distinta de `DATABASE_URL`, com schemas `001_payments.sql` e `002_distribution_authority.sql`. A base principal `useruah` foi preservada: a campanha criada existe uma vez na QA e zero vezes nela. O gate provou criacao, submissao, bloqueio por revisao pendente, aprovacao da revisao, ativacao, pausa e reativacao; chamou somente endpoints de campanhas e revisoes de impacto. `.tmp-store/active-agent-plan.json` permaneceu ausente. Nao houve pedido, checkout, pagamento, webhook, falha funcional reproduzivel, `CAMPAIGN_*_REPAIR` ou inicio de T1. `Campaign` e `CampaignProduct` seguem `PARCIAL`.
-- Proximo gate candidato: `npm run qa:campaign:detail`, por permanecer no dominio de campanha e ser menor que receita comunitaria ou `qa:base:roles`. Ele nao deve ser executado ate ter isolamento equivalente de `QA_DATABASE_URL` e do cache derivado; seu runner atual usa `start`, portanto o risco de artefato `.next` tambem deve ser contido antes da execucao.
+- Em 2026-07-28, `npm run qa:campaign:detail` passou em MySQL QA local isolado em `useruah_qa_campaign_detail`, usando somente `QA_DATABASE_URL`, distinta de `DATABASE_URL`. O gate semeou identidades QA, autenticou `community_manager`, `curator`, `platform_admin` e um segundo `community_manager` por `/api/auth/login` com cookie real `ruah_session`, fez bootstrap de catalogo, criacao de campanha, vinculo `CampaignProduct`, submissao, revisao de impacto e leituras autenticadas. O segundo `community_manager`, sem ownership, recebeu `403`; header fallback nao foi usado como autorizacao funcional. Nao houve pedido, checkout, pagamento ou webhook; `.tmp-store/active-agent-plan.json` permaneceu ausente, `.next` compartilhado foi preservado, `next-env.d.ts` e `tsconfig.json` foram restaurados e `qa-next-campaign-detail` foi removido. A evidencia nao autoriza `CAMPAIGN_MODEL_REPAIR`, `CAMPAIGN_PRODUCT_LINK_REPAIR` ou `CAMPAIGN_ROUTING_REPAIR`, nao inicia T1 e mantem `Campaign` e `CampaignProduct` como `PARCIAL`.
+- Proximo gate candidato: `npm run qa:campaign:public`, por ser o menor recorte restante de campanhas antes de `qa:community:revenue` e `qa:base:roles`. Ele exige investigacao e isolamento proprio antes de qualquer execucao, sem abrir checkout, pedido, pagamento ou webhook.
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:
