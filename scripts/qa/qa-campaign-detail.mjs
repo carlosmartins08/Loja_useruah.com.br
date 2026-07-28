@@ -1,9 +1,15 @@
 import { ensureQaEnvLoaded } from '../lib/qa-env.mjs';
-import { postBootstrap, resolveSeededCatalogVariant } from '../lib/catalog-seed-helpers.mjs';
+import { resolveSeededCatalogVariant } from '../lib/catalog-seed-helpers.mjs';
 
 ensureQaEnvLoaded();
 
 const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3337';
+const qaIdentityPassword = String(process.env.QA_IDENTITY_PASSWORD ?? '');
+const QA_USERS = {
+  community: { email: 'qa-community-manager@useruah.local', expectedRole: 'community_manager' },
+  curator: { email: 'qa-curator@useruah.local', expectedRole: 'curator' },
+  admin: { email: 'qa-platform-admin@useruah.local', expectedRole: 'platform_admin' },
+};
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -35,14 +41,32 @@ async function post(pathname, body, headers = {}) {
   return { status: response.status, data };
 }
 
+async function loginQaUser(user) {
+  assert(qaIdentityPassword, 'QA_IDENTITY_PASSWORD_REQUIRED');
+  const response = await fetch(`${baseUrl}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: user.email, password: qaIdentityPassword }),
+  });
+  const data = await response.json().catch(() => null);
+  assert(response.status === 200, `${user.expectedRole} login expected 200, got ${response.status}`);
+  const match = (response.headers.get('set-cookie') ?? '').match(/ruah_session=([^;]+)/);
+  assert(match?.[1], `${user.expectedRole} ruah_session cookie missing after login`);
+  assert(data?.session?.activeRole === user.expectedRole, `${user.expectedRole} activeRole mismatch`);
+  return { cookie: `ruah_session=${match[1]}` };
+}
+
 async function run() {
   const report = [];
-  const ownerHeaders = { 'x-actor-id': 'qa-community-detail-owner', 'x-actor-role': 'community_manager' };
+  const communitySession = await loginQaUser(QA_USERS.community);
+  const curatorSession = await loginQaUser(QA_USERS.curator);
+  const adminSession = await loginQaUser(QA_USERS.admin);
+  const ownerHeaders = { cookie: communitySession.cookie };
   const foreignHeaders = { 'x-actor-id': 'qa-community-detail-foreign', 'x-actor-role': 'community_manager' };
-  const curatorHeaders = { 'x-actor-id': 'qa-curator-detail', 'x-actor-role': 'curator' };
-  const adminHeaders = { 'x-actor-id': 'qa-admin-detail', 'x-actor-role': 'platform_admin' };
+  const curatorHeaders = { cookie: curatorSession.cookie };
+  const adminHeaders = { cookie: adminSession.cookie };
 
-  const seed = await postBootstrap(baseUrl);
+  const seed = await post('/api/catalog-items/bootstrap', {}, curatorHeaders);
   assert(seed.status === 200 || seed.status === 201, `catalog bootstrap expected 200|201, got ${seed.status}`);
   const seeded = await resolveSeededCatalogVariant(baseUrl);
   report.push(`QA-CAMPAIGN-DETAIL-00 catalog item resolved (${seeded.item.catalogItemId})`);
