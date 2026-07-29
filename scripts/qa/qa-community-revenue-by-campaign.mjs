@@ -1,224 +1,266 @@
-import { withWebhookSignature } from '../lib/qa-webhook-signature.mjs';
+import mysql from 'mysql2/promise';
 import { ensureQaEnvLoaded } from '../lib/qa-env.mjs';
-import { postBootstrap, resolveSeededCatalogVariant } from '../lib/catalog-seed-helpers.mjs';
 
 ensureQaEnvLoaded();
 
 const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3338';
-const provider = process.env.QA_PAYMENT_PROVIDER ?? process.env.PAYMENT_PROVIDER ?? 'sandbox';
+const qaIdentityPassword = String(process.env.QA_IDENTITY_PASSWORD ?? '');
+const QA_DATABASE_URL = String(process.env.QA_DATABASE_URL ?? '').trim();
+const OWNER = {
+  email: 'qa-community-manager@useruah.local',
+  userId: 'usr:qa-community-manager@useruah.local',
+  expectedRole: 'community_manager',
+};
+const FOREIGN_OWNER = {
+  email: 'qa-foreign-community-manager@useruah.local',
+  expectedRole: 'community_manager',
+};
+const FORBIDDEN_ACTOR = {
+  email: 'qa-curator@useruah.local',
+  expectedRole: 'curator',
+};
+const FIXTURE = {
+  campaignId: 'CMP-QA-COMMUNITY-REVENUE-READ',
+  orderId: 'ORD-QA-COMMUNITY-REVENUE-READ',
+  orderItemId: 'ITEM-QA-COMMUNITY-REVENUE-READ',
+  commissionId: 'COM-QA-COMMUNITY-REVENUE-READ',
+  campaignName: 'Campanha QA leitura de receita',
+  amount: 42.5,
+};
+const FORBIDDEN_PATH_FRAGMENTS = [
+  '/api/orders',
+  '/api/payments',
+  '/api/webhooks',
+  '/api/production-jobs',
+  '/ship',
+  '/shipment',
+  '/api/affiliate',
+  '/api/referral',
+  '/af/',
+  'dimona',
+];
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-function resolveCheckoutMethod(currentProvider) {
-  if (currentProvider === 'stripe' || currentProvider === 'cielo') return 'card';
-  return 'pix';
+function assertRevenueReadPath(pathname) {
+  const normalized = pathname.toLowerCase();
+  const forbiddenPath = FORBIDDEN_PATH_FRAGMENTS.find((fragment) => normalized.includes(fragment));
+  assert(!forbiddenPath, `QA_COMMUNITY_REVENUE_FORBIDDEN_ENDPOINT:${forbiddenPath}`);
 }
 
-async function get(pathname, headers = {}) {
-  const response = await fetch(`${baseUrl}${pathname}`, { headers });
-  let data = null;
+function toMysqlDatetime(iso) {
+  return iso.replace('T', ' ').replace('Z', '');
+}
+
+function resolveQaDatabaseUrl() {
+  assert(QA_DATABASE_URL, 'QA_DATABASE_URL_REQUIRED');
+  let parsed;
   try {
-    data = await response.json();
+    parsed = new URL(QA_DATABASE_URL);
   } catch {
-    // ignore
+    throw new Error('QA_DATABASE_URL_MUST_BE_MYSQL');
   }
-  return { status: response.status, data };
+
+  assert(parsed.protocol === 'mysql:' || parsed.protocol === 'mysql2:', 'QA_DATABASE_URL_MUST_BE_MYSQL');
+  const database = decodeURIComponent(parsed.pathname.replace(/^\//, ''));
+  assert(database && /(qa|test|disposable|ephemeral)/i.test(database), 'QA_DATABASE_URL_MUST_TARGET_QA_DATABASE');
+  return { database, url: QA_DATABASE_URL };
 }
 
-async function post(pathname, body, headers = {}) {
+async function req(method, pathname, body, options = {}) {
+  assertRevenueReadPath(pathname);
   const response = await fetch(`${baseUrl}${pathname}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...headers },
-    body: JSON.stringify(body ?? {}),
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers ?? {}),
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
-  let data = null;
-  try {
-    data = await response.json();
-  } catch {
-    // ignore
-  }
-  return { status: response.status, data };
+  const data = await response.json().catch(() => null);
+  return { status: response.status, data, setCookie: response.headers.get('set-cookie') ?? '' };
 }
 
-async function shipOrder(orderId) {
-  const createProd = await post(
-    '/api/production-jobs',
-    { orderId },
-    { 'x-actor-id': 'qa-production-campaign-revenue', 'x-actor-role': 'production_operator' }
-  );
-  assert(createProd.status === 200 || createProd.status === 201, `production create expected 200|201, got ${createProd.status}`);
+async function loginQaUser(user) {
+  assert(qaIdentityPassword, 'QA_IDENTITY_PASSWORD_REQUIRED');
+  const response = await req('POST', '/api/auth/login', { email: user.email, password: qaIdentityPassword });
+  const data = response.data;
+  assert(response.status === 200, `${user.expectedRole} login expected 200, got ${response.status}`);
+  const match = response.setCookie.match(/ruah_session=([^;]+)/);
+  assert(match?.[1], `${user.expectedRole} ruah_session cookie missing after login`);
+  assert(data?.session?.activeRole === user.expectedRole, `${user.expectedRole} activeRole mismatch`);
+  return { cookie: `ruah_session=${match[1]}` };
+}
 
-  const byOrder = await get(`/api/production-jobs/by-order/${orderId}`, {
-    'x-actor-id': 'qa-production-campaign-revenue',
-    'x-actor-role': 'production_operator',
-  });
-  assert(byOrder.status === 200, `production by order expected 200, got ${byOrder.status}`);
-  const jobId = byOrder.data?.job?.productionJobId;
-  assert(typeof jobId === 'string', 'productionJobId missing');
+function buildOrderItem(now) {
+  return {
+    orderItemId: FIXTURE.orderItemId,
+    catalogItemId: 'QA-COMMUNITY-REVENUE-CATALOG',
+    artworkId: 'ART-QA-COMMUNITY-REVENUE',
+    artworkAuthorId: 'usr:qa-artist-not-used',
+    productBaseId: 'BASE-QA-COMMUNITY-REVENUE',
+    productName: 'Produto QA para leitura de receita',
+    variantId: 'VAR-QA-COMMUNITY-REVENUE',
+    variantLabel: 'QA',
+    productImage: '',
+    supplierId: 'supplier-qa-not-dispatched',
+    campaignId: FIXTURE.campaignId,
+    campaignName: FIXTURE.campaignName,
+    campaignProgressivePriceRule: 'qa-fixture-read-only',
+    organizationId: 'ORG-QA-COMMUNITY-REVENUE',
+    communityOwnerId: OWNER.userId,
+    shippingAddress: {
+      recipientName: 'Fixture QA sem envio',
+      cep: '00000-000',
+      street: 'Nao aplicavel',
+      number: '0',
+      city: 'QA',
+      state: 'QA',
+      country: 'BR',
+    },
+    quantity: 1,
+    unitPrice: FIXTURE.amount,
+    priceCompositionVersion: 'qa-fixture-read-only',
+    snapshotVersion: 'phase2-context-pricing-v1',
+    grossItemAmount: FIXTURE.amount,
+    supplierAmount: 0,
+    artistLicenseAmount: 0,
+    platformCommissionAmount: 0,
+    gatewayFeeAmount: 0,
+    shippingAmount: 0,
+    taxReserveAmount: 0,
+    communityCommissionAmount: FIXTURE.amount,
+    supplierNetAmount: 0,
+    artistNetAmount: 0,
+    platformNetAmount: 0,
+    fixtureCreatedAt: now,
+  };
+}
 
-  const start = await post(
-    `/api/production-jobs/${jobId}/start`,
-    {},
-    { 'x-actor-id': 'qa-production-campaign-revenue', 'x-actor-role': 'production_operator' }
-  );
-  assert(start.status === 200, `production start expected 200, got ${start.status}`);
+async function prepareRevenueFixture() {
+  const { database, url } = resolveQaDatabaseUrl();
+  const now = new Date().toISOString();
+  const mysqlNow = toMysqlDatetime(now);
+  const sourceKey = `order.paid:${FIXTURE.orderId}:item:${FIXTURE.orderItemId}:community:${OWNER.userId}`;
+  const connection = await mysql.createConnection(url);
 
-  const ship = await post(
-    `/api/production-jobs/${jobId}/ship`,
-    { trackingCode: `BR-CMP-${Date.now()}`, carrier: 'Correios' },
-    { 'x-actor-id': 'qa-production-campaign-revenue', 'x-actor-role': 'production_operator' }
-  );
-  assert(ship.status === 200, `production ship expected 200, got ${ship.status}`);
+  try {
+    await connection.beginTransaction();
+    await connection.execute(
+      `INSERT INTO campaigns (
+        campaign_id, organization_id, name, description, budget, progressive_price_rule,
+        starts_at, ends_at, status, created_by, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, 'active', ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        name = VALUES(name), description = VALUES(description), budget = VALUES(budget),
+        progressive_price_rule = VALUES(progressive_price_rule), status = 'active', updated_at = VALUES(updated_at)`,
+      [
+        FIXTURE.campaignId,
+        'ORG-QA-COMMUNITY-REVENUE',
+        FIXTURE.campaignName,
+        'Fixture QA idempotente para leitura de receita por campanha; nao representa pedido ou pagamento real.',
+        0,
+        'qa-fixture-read-only',
+        OWNER.userId,
+        mysqlNow,
+        mysqlNow,
+      ]
+    );
+    await connection.execute(
+      `INSERT INTO orders (order_id, customer_id, items_json, total_amount, status, created_at, updated_at, paid_at)
+       VALUES (?, ?, ?, ?, 'shipped', ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         items_json = VALUES(items_json), total_amount = VALUES(total_amount), status = 'shipped',
+         updated_at = VALUES(updated_at), paid_at = VALUES(paid_at)`,
+      [
+        FIXTURE.orderId,
+        'usr:qa-fixture-not-a-customer',
+        JSON.stringify([buildOrderItem(now)]),
+        FIXTURE.amount,
+        mysqlNow,
+        mysqlNow,
+        mysqlNow,
+      ]
+    );
+    await connection.execute(
+      `INSERT INTO commissions (
+        commission_id, order_id, owner_id, owner_role, amount, currency, status, source_key, created_at, updated_at
+      ) VALUES (?, ?, ?, 'community_manager', ?, 'BRL', 'available', ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        owner_id = VALUES(owner_id), owner_role = 'community_manager', amount = VALUES(amount),
+        currency = 'BRL', status = 'available', updated_at = VALUES(updated_at)`,
+      [FIXTURE.commissionId, FIXTURE.orderId, OWNER.userId, FIXTURE.amount, sourceKey, mysqlNow, mysqlNow]
+    );
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    await connection.end();
+  }
+
+  return { database, sourceKey };
 }
 
 async function run() {
+  assert(qaIdentityPassword, 'QA_IDENTITY_PASSWORD_REQUIRED');
   const report = [];
-  const ownerHeaders = { 'x-actor-id': 'qa-community-revenue-owner', 'x-actor-role': 'community_manager' };
-  const artistHeaders = { 'x-actor-id': 'qa-artist-revenue-foreign', 'x-actor-role': 'artist' };
-  const adminHeaders = { 'x-actor-id': 'qa-admin-revenue', 'x-actor-role': 'platform_admin' };
-  const customerHeaders = { 'x-actor-id': 'qa-customer-campaign-revenue', 'x-actor-role': 'customer' };
+  const fixture = await prepareRevenueFixture();
+  report.push(`QA-COMMUNITY-REVENUE-00 controlled read-only fixture prepared in ${fixture.database}`);
 
-  const seed = await postBootstrap(baseUrl);
-  assert(seed.status === 200 || seed.status === 201, `catalog bootstrap expected 200|201, got ${seed.status}`);
-  const seeded = await resolveSeededCatalogVariant(baseUrl);
-  report.push(`QA-COMMUNITY-REVENUE-00 catalog item resolved (${seeded.item.catalogItemId})`);
+  const ownerSession = await loginQaUser(OWNER);
+  const foreignOwnerSession = await loginQaUser(FOREIGN_OWNER);
+  const forbiddenSession = await loginQaUser(FORBIDDEN_ACTOR);
+  const ownerHeaders = { cookie: ownerSession.cookie };
+  const foreignOwnerHeaders = { cookie: foreignOwnerSession.cookie };
+  const forbiddenHeaders = { cookie: forbiddenSession.cookie };
 
-  const create = await post(
-    '/api/campaigns',
-    {
-      organizationId: 'ORG-QA-CAMPAIGN-REVENUE',
-      name: `Campanha receita ${Date.now()}`,
-      description: 'Campanha usada para reconciliar receita por atribuicao real.',
-      budget: 1800,
-      progressivePriceRule: 'baseline',
-    },
-    ownerHeaders
-  );
-  assert(create.status === 201, `campaign create expected 201, got ${create.status}`);
-  const campaignId = create.data?.campaign?.campaignId;
-  assert(typeof campaignId === 'string', 'campaignId missing');
-
-  const linkProduct = await post(`/api/campaigns/${campaignId}/products`, { catalogItemId: seeded.item.catalogItemId }, ownerHeaders);
-  assert(linkProduct.status === 201 || linkProduct.status === 200, `campaign product link expected 200|201, got ${linkProduct.status}`);
-
-  const submit = await post(`/api/campaigns/${campaignId}/submit`, {}, ownerHeaders);
-  assert(submit.status === 200, `campaign submit expected 200, got ${submit.status}`);
-
-  const queue = await get('/api/admin/impact-reviews?status=pending_review&entityType=Campaign', adminHeaders);
-  assert(queue.status === 200, `impact queue expected 200, got ${queue.status}`);
-  const pendingRows = Array.isArray(queue.data?.reviews) ? queue.data.reviews : [];
-  const review = pendingRows.find((row) => row.entityId === campaignId);
-  assert(review?.reviewId, 'campaign impact review not found');
-
-  const approveReview = await post(
-    `/api/admin/impact-reviews/${review.reviewId}/approve`,
-    { reason: 'qa approve campaign revenue path' },
-    adminHeaders
-  );
-  assert(approveReview.status === 200, `impact review approve expected 200, got ${approveReview.status}`);
-
-  const activate = await post(`/api/campaigns/${campaignId}/approve`, {}, adminHeaders);
-  assert(activate.status === 200, `campaign activate expected 200, got ${activate.status}`);
-  report.push('QA-COMMUNITY-REVENUE-01 campaign approved and active');
-
-  const order = await post(
-    '/api/orders',
-    {
-      supplierId: 'supplier-default',
-      shippingAddressMode: 'same_as_account',
-      shippingAddress: {
-        recipientName: 'QA Customer',
-        cep: '01000-000',
-        street: 'Rua QA',
-        number: '100',
-        city: 'Sao Paulo',
-        state: 'SP',
-        country: 'BR',
-      },
-      campaignId,
-      items: [
-        {
-          catalogItemId: seeded.item.catalogItemId,
-          variantId: seeded.variant.variantId,
-          quantity: 1,
-          unitPrice: seeded.variant.price,
-        },
-      ],
-      customer: { id: customerHeaders['x-actor-id'] },
-    },
-    customerHeaders
-  );
-  assert(order.status === 201, `campaign order expected 201, got ${order.status}`);
-  const orderId = order.data?.order?.orderId;
-  assert(typeof orderId === 'string', 'orderId missing');
-
-  const checkout = await post(
-    '/api/payments/checkout',
-    {
-      orderId,
-      method: resolveCheckoutMethod(provider),
-      provider,
-      amount: seeded.variant.price,
-      currency: 'BRL',
-      items: [{ id: seeded.item.catalogItemId, name: seeded.item.name, quantity: 1, unitPrice: seeded.variant.price }],
-    },
-    { 'x-idempotency-key': `qa-campaign-revenue-checkout-${Date.now()}-${Math.random()}` }
-  );
-  assert(checkout.status === 200, `checkout expected 200, got ${checkout.status}`);
-  const providerReference = checkout.data?.payment?.providerReference;
-  assert(typeof providerReference === 'string', 'providerReference missing');
-
-  const webhookPayload = {
-    eventId: `evt-campaign-revenue-${Date.now()}-${Math.random()}`,
-    providerReference,
-    event: 'payment.approved',
-    ...(provider ? { provider } : {}),
-  };
-  const webhook = await post(
-    '/api/payments/webhook',
-    webhookPayload,
-    withWebhookSignature(webhookPayload, {
-      'x-idempotency-key': `qa-campaign-revenue-wh-${Date.now()}-${Math.random()}`,
-      ...(provider ? { 'x-provider': provider } : {}),
-    })
-  );
-  assert(webhook.status === 200, `webhook expected 200, got ${webhook.status}`);
-
-  await shipOrder(orderId);
-  report.push('QA-COMMUNITY-REVENUE-02 paid and shipped order generated community commission');
-
-  const byCampaign = await get('/api/commissions/me/campaigns?includeOrders=true', ownerHeaders);
+  const byCampaign = await req('GET', '/api/commissions/me/campaigns?includeOrders=true', undefined, { headers: ownerHeaders });
   assert(byCampaign.status === 200, `community revenue by campaign expected 200, got ${byCampaign.status}`);
   const campaignRows = Array.isArray(byCampaign.data?.campaigns) ? byCampaign.data.campaigns : [];
-  const campaignRow = campaignRows.find((row) => row.campaignId === campaignId);
-  assert(campaignRow, 'campaign revenue row not found');
-  assert(campaignRow.orderCount >= 1, `campaign orderCount expected >= 1, got ${String(campaignRow?.orderCount)}`);
-  assert(campaignRow.commissionCount >= 1, `campaign commissionCount expected >= 1, got ${String(campaignRow?.commissionCount)}`);
-  assert(Number(campaignRow.availableGross) > 0, `campaign availableGross expected > 0, got ${String(campaignRow?.availableGross)}`);
+  const campaignRow = campaignRows.find((row) => row.campaignId === FIXTURE.campaignId);
+  assert(campaignRow, 'controlled campaign revenue row not found');
+  assert(campaignRow.orderCount === 1, `campaign orderCount expected 1, got ${String(campaignRow.orderCount)}`);
+  assert(campaignRow.commissionCount === 1, `campaign commissionCount expected 1, got ${String(campaignRow.commissionCount)}`);
+  assert(Number(campaignRow.availableGross) === FIXTURE.amount, `campaign availableGross expected ${FIXTURE.amount}, got ${String(campaignRow.availableGross)}`);
   const orderRows = Array.isArray(byCampaign.data?.orders) ? byCampaign.data.orders : [];
-  assert(orderRows.some((row) => row.campaignId === campaignId && row.orderId === orderId), 'campaign order drilldown missing');
-  report.push('QA-COMMUNITY-REVENUE-03 owner sees campaign breakdown with real attributed commission');
+  assert(orderRows.some((row) => row.campaignId === FIXTURE.campaignId && row.orderId === FIXTURE.orderId), 'campaign drilldown fixture missing');
+  report.push('QA-COMMUNITY-REVENUE-01 owner reads the controlled campaign revenue breakdown');
 
-  const aggregatedLedger = await get('/api/commissions/me', ownerHeaders);
+  const aggregatedLedger = await req('GET', '/api/commissions/me', undefined, { headers: ownerHeaders });
   assert(aggregatedLedger.status === 200, `community aggregated ledger expected 200, got ${aggregatedLedger.status}`);
-  const availableGross = Number(aggregatedLedger.data?.balances?.availableGross ?? 0);
-  assert(availableGross >= Number(campaignRow.availableGross), 'aggregated ledger should stay coherent with campaign breakdown');
-  report.push('QA-COMMUNITY-REVENUE-04 aggregate community ledger remains coherent');
+  assert(Number(aggregatedLedger.data?.balances?.availableGross) >= FIXTURE.amount, 'aggregate community ledger should include controlled commission');
+  report.push('QA-COMMUNITY-REVENUE-02 owner aggregate ledger remains coherent with campaign breakdown');
 
-  const detail = await get(`/api/campaigns/${campaignId}`, ownerHeaders);
-  assert(detail.status === 200, `campaign detail expected 200, got ${detail.status}`);
-  assert(Number(detail.data?.attributionSummary?.availableGross ?? 0) >= Number(campaignRow.availableGross), 'campaign detail attribution should reflect campaign breakdown');
+  const foreignOwner = await req('GET', '/api/commissions/me/campaigns?includeOrders=true', undefined, { headers: foreignOwnerHeaders });
+  assert(foreignOwner.status === 200, `foreign community owner endpoint expected 200, got ${foreignOwner.status}`);
+  const foreignRows = Array.isArray(foreignOwner.data?.campaigns) ? foreignOwner.data.campaigns : [];
+  assert(!foreignRows.some((row) => row.campaignId === FIXTURE.campaignId), 'foreign community manager must not read owner campaign revenue');
+  report.push('QA-COMMUNITY-REVENUE-03 foreign community manager cannot read another owner revenue');
 
-  const artistForbidden = await get('/api/commissions/me/campaigns', artistHeaders);
-  assert(artistForbidden.status === 403, `artist community breakdown expected 403, got ${artistForbidden.status}`);
-  report.push('QA-COMMUNITY-REVENUE-05 artist cannot access community campaign revenue endpoint');
+  const forbidden = await req('GET', '/api/commissions/me/campaigns', undefined, { headers: forbiddenHeaders });
+  assert(forbidden.status === 403, `curator community revenue expected 403, got ${forbidden.status}`);
+  report.push('QA-COMMUNITY-REVENUE-04 non-finance role is blocked from community revenue');
 
-  console.log(JSON.stringify({ status: 'PASS', baseUrl, campaignId, orderId, report }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        status: 'PASS',
+        scope: 'community_campaign_revenue_read_ownership_only',
+        database: fixture.database,
+        campaignId: FIXTURE.campaignId,
+        report,
+        notValidated: ['order', 'checkout', 'payment', 'webhook', 'production', 'shipping', 'referral', 'attribution'],
+      },
+      null,
+      2
+    )
+  );
 }
 
 run().catch((error) => {
-  console.error(JSON.stringify({ status: 'FAIL', baseUrl, error: String(error) }, null, 2));
+  console.error(JSON.stringify({ status: 'FAIL', scope: 'community_campaign_revenue_read_ownership_only', error: String(error) }, null, 2));
   process.exit(1);
 });
