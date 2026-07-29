@@ -2,7 +2,8 @@
   "reviewedAt": "2026-07-29",
   "branch": "main",
   "status": "FRONT_1_COMMUNITY_CAMPAIGNS",
-  "objective": "Endurecer campanhas e governanca dentro da capacidade PARCIAL provada, sem abrir Organization, reward financeiro proprio, rota paralela ou pagamentos.",
+  "frontLifecycle": "PARTIAL_PAUSED",
+  "objective": "FRONT_1 pausada no limite seguro: preservar campanhas e governanca como PARCIAL, sem abrir Organization, reward financeiro proprio, rota paralela ou pagamentos.",
   "activeFront": "FRONT_1_COMMUNITY_CAMPAIGNS",
   "resumeTrigger": {
     "entrypoint": "docs/NEXT_SESSION_TRIGGER.md",
@@ -65,11 +66,14 @@
     "qa:campaign:impact passou em MySQL QA local isolado em useruah_qa_campaign_impact, provando criacao, submissao, bloqueio por revisao pendente, aprovacao, ativacao, pausa e reativacao sem tocar a base principal; Campaign e CampaignProduct seguem PARCIAL, nenhum CAMPAIGN_*_REPAIR foi autorizado e T1 nao foi iniciado.",
     "qa:campaign:detail passou em MySQL QA local isolado em useruah_qa_campaign_detail com identidades QA, login real por /api/auth/login e cookie ruah_session; bootstrap de catalogo, campanha, CampaignProduct, submissao, revisao e leituras autenticadas passaram, e um segundo community_manager sem ownership recebeu 403 sem header fallback funcional. Campaign e CampaignProduct seguem PARCIAL, nenhum reparo de dominio foi autorizado e T1 nao foi iniciado.",
     "qa:campaign:public passou em MySQL QA local isolado em useruah_qa_campaign_detail; a base preferida useruah_qa_campaign_public nao estava acessivel pela credencial local. O gate usou seed QA, login por cookie ruah_session para setup/governanca, visitante anonimo e superficie publica, vitrine e PDP contextualizados sem pedido, checkout, pagamento, webhook, afiliado, termos ou /af/. Campaign e CampaignProduct seguem PARCIAL, nenhum reparo de superficie ou dominio foi autorizado e T1 nao foi iniciado.",
-    "Commit 44bca23 registrou qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only em useruah_qa_community_revenue: fixture controlado, leitura por campanha do owner, agregado coerente, ownership negativo e bloqueio de papel nao financeiro. Não valida order, checkout, payment, webhook, production, shipping, referral ou attribution. Campaign/CampaignProduct permanecem PARCIAL, agora com evidência adicional de leitura/ownership de receita por campanha; nao autoriza maturidade financeira, payout real, reparo de dominio ou T1."
+    "Commit 44bca23 registrou qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only em useruah_qa_community_revenue: fixture controlado, leitura por campanha do owner, agregado coerente, ownership negativo e bloqueio de papel nao financeiro. Não valida order, checkout, payment, webhook, production, shipping, referral ou attribution. Campaign/CampaignProduct permanecem PARCIAL, agora com evidência adicional de leitura/ownership de receita por campanha; nao autoriza maturidade financeira, payout real, reparo de dominio ou T1.",
+    "FRONT_1_COMMUNITY_CAMPAIGNS encerrada/pausada como PARCIAL conscientemente limitado por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE. Não há autorização para avançar para financeiro completo, qa:base:roles, payout, checkout, payment ou nova frente sem decisão explícita posterior."
   ],
-  "lastStep": "Commit 44bca23 confirmou qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only em MySQL QA isolado; Campaign/CampaignProduct permanecem PARCIAL e nenhum proximo gate e autorizado sem decisao documental propria.",
-  "blocked": false,
-  "blockers": [],
+  "lastStep": "FRONT_1_COMMUNITY_CAMPAIGNS encerrada/pausada como PARCIAL conscientemente limitado por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE; Campaign/CampaignProduct permanecem PARCIAL e nao ha nova frente definida.",
+  "blocked": true,
+  "blockers": [
+    "BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE: nao ha autorizacao para financeiro completo, qa:base:roles, payout, checkout, payment ou nova frente sem decisao explicita posterior."
+  ],
   "externalDependencies": [
     "FRONT_5_REAL_PAYMENTS_CUTOVER depende de janela externa objetiva de homologacao final e cutover; essa frente nao e a frente ativa."
   ],
@@ -127,7 +131,7 @@
     "Ler docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md",
     "Ler docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md",
     "Manter qa:community:revenue como evidencia vigente limitada a community_campaign_revenue_read_ownership_only",
-    "Definir qualquer proximo gate somente por decisao documental propria, sem inferir maturidade financeira",
+    "Aguardar decisao explicita posterior antes de abrir qualquer proximo gate ou nova frente",
     "Manter Organization, membership madura, reward financeiro proprio, rota paralela e pagamentos fora do recorte",
     "Manter FRONT_5_REAL_PAYMENTS_CUTOVER fora da frente ativa ate existir janela externa objetiva e HML_BASE_URL deixar de ser localhost"
   ],

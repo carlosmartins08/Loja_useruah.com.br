@@ -1,12 +1,12 @@
 # Active Front
 
-Data de revisao: 2026-07-25
+Data de revisao: 2026-07-29
 Branch: `main`
 Responsavel atual: `Codex + usuario`
-Status da frente: `FRONT_1_COMMUNITY_CAMPAIGNS`
+Status da frente: `FRONT_1_COMMUNITY_CAMPAIGNS` — `PARCIAL/PAUSADA`
 
 ## Objetivo atual
-Endurecer o recorte parcial de campanhas e governanca sem promover o dominio a maturidade que o runtime ainda nao provou.
+Preservar o recorte parcial de campanhas e governanca sem promover o dominio a maturidade que o runtime ainda nao provou. A frente esta pausada no limite seguro autorizado.
 
 ## Gatilho rapido de retomada
 Se a sessao cair ou for retomada depois:
@@ -17,6 +17,11 @@ Se a sessao cair ou for retomada depois:
 ## Frente unica aberta
 Frente atual selecionada:
 - `FRONT_1_COMMUNITY_CAMPAIGNS`
+
+Estado operacional:
+- FRONT_1_COMMUNITY_CAMPAIGNS encerrada/pausada como PARCIAL conscientemente limitado por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE.
+- Campaign/CampaignProduct permanecem PARCIAL.
+- Nao ha nova frente definida por esta pausa.
 
 Motivo:
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` concluiu a reconciliacao entre `ACTIVE_FRONT`, `NEXT_SESSION_TRIGGER`, `.agents/session-state.json` e o roteador.
@@ -109,7 +114,7 @@ Nao tocar: produto, checkout, carrinho, pedido, pagamento, webhook, catalogo, ba
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
-FRONT_6 foi encerrada como `IMPLEMENTADO`: a auditoria confirmou W1-W8 como historico, alinhou a autoridade operacional e validou que o roteador deriva a frente documental sem usar cache local como fonte.
+FRONT_1_COMMUNITY_CAMPAIGNS foi pausada como `PARCIAL` conscientemente limitado por `BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE`, preservando as evidencias vigentes sem abrir frente nova ou iniciar T1.
 
 ## Bloqueio atual
 `FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa.
@@ -158,11 +163,7 @@ O risco real agora e:
 - `e0df063`: `ACTIVE_FRONT` passou a vencer o espelho operacional para frente, objetivo e branch; `npm run test:agent-route` passou 6/6 em 2026-07-25.
 
 ## Proximo passo exato
-Preparar somente o primeiro recorte documental de `FRONT_1_COMMUNITY_CAMPAIGNS`:
-1. reler `docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md`, `docs/BACKEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` e `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`;
-2. definir um unico problema comprovado de campanhas dentro do perimetro `PARCIAL`, com gate e criterio de aceite antes de qualquer patch;
-3. manter `Organization`, membership madura, reward financeiro proprio, rotas paralelas e pagamentos fora do recorte;
-4. manter `FRONT_5_REAL_PAYMENTS_CUTOVER` bloqueada ate existir janela externa objetiva e `HML_BASE_URL` deixar de ser `localhost`.
+Aguardar decisao explicita posterior antes de abrir qualquer gate, recorte tecnico ou nova frente. qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only. Não valida order, checkout, payment, webhook, production, shipping, referral ou attribution. Não há autorização para avançar para financeiro completo, qa:base:roles, payout, checkout, payment ou nova frente sem decisão explícita posterior.
 
 ## Nao reabrir sem evidencia nova
 - `lib/access-control.ts` como autoridade canonica de permissao
