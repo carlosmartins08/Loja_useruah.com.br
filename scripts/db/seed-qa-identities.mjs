@@ -5,6 +5,7 @@ import mysql from 'mysql2/promise';
 const scrypt = promisify(scryptCallback);
 const QA_IDENTITY_PASSWORD = String(process.env.QA_IDENTITY_PASSWORD ?? '');
 const QA_IDENTITIES = [
+  { email: 'qa-artist@useruah.local', userName: 'QA Artist', userRole: 'artist' },
   { email: 'qa-community-manager@useruah.local', userName: 'QA Community Manager', userRole: 'community_manager' },
   { email: 'qa-foreign-community-manager@useruah.local', userName: 'QA Foreign Community Manager', userRole: 'community_manager' },
   { email: 'qa-curator@useruah.local', userName: 'QA Curator', userRole: 'curator' },
