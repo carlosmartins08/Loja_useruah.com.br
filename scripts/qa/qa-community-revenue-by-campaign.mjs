@@ -177,7 +177,7 @@ async function prepareRevenueFixture() {
       [
         FIXTURE.orderId,
         'usr:qa-fixture-not-a-customer',
-        JSON.stringify([buildOrderItem(now)]),
+        JSON.stringify(JSON.stringify([buildOrderItem(now)])),
         FIXTURE.amount,
         mysqlNow,
         mysqlNow,
