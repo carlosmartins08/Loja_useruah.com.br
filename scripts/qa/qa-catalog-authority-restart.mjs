@@ -1,75 +1,79 @@
 import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
-import { spawn } from 'node:child_process';
 import { join } from 'node:path';
 
-const port = Number(process.env.QA_PORT ?? 3345);
-const baseUrl = `http://localhost:${port}`;
-const nextBin = join(process.cwd(), 'node_modules', 'next', 'dist', 'bin', 'next');
+const baseUrl = process.env.QA_BASE_URL ?? 'http://localhost:3345';
+const qaIdentityPassword = String(process.env.QA_IDENTITY_PASSWORD ?? '');
+const restartUrl = String(process.env.QA_CONTROLLED_RESTART_URL ?? '');
+const restartToken = String(process.env.QA_CONTROLLED_RESTART_TOKEN ?? '');
 const catalogStorePath = join(process.cwd(), '.tmp-store', 'catalog-items.json');
-
-function resolvePersistence() {
-  const fromProcess = process.env.PAYMENT_PERSISTENCE?.trim();
-  if (fromProcess) return fromProcess.toLowerCase();
-  const envPath = join(process.cwd(), '.env');
-  if (!existsSync(envPath)) return 'sqlite';
-  const line = readFileSync(envPath, 'utf8').split(/\r?\n/).find((entry) => /^PAYMENT_PERSISTENCE\s*=/.test(entry));
-  return line ? line.replace(/^PAYMENT_PERSISTENCE\s*=\s*/, '').trim().replace(/^['"]|['"]$/g, '').toLowerCase() : 'sqlite';
-}
-
-const persistence = resolvePersistence();
+const QA_CURATOR = { email: 'qa-curator@useruah.local', expectedRole: 'curator' };
+const FORBIDDEN_PATH_TOKENS = [
+  '/api/orders',
+  '/api/payments',
+  '/api/payment',
+  '/api/webhook',
+  '/webhook',
+  '/api/production-jobs',
+  '/production',
+  '/ship',
+  '/shipment',
+  '/api/affiliate',
+  '/api/referral',
+  '/af/',
+  'attribution',
+  'payout',
+  'dimona',
+  'checkout',
+  'cart',
+];
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-async function waitForServer(child) {
-  const startedAt = Date.now();
-  while (Date.now() - startedAt < 60000) {
-    if (child.exitCode !== null) throw new Error(`server exited before readiness: ${child.exitCode}`);
-    try {
-      const response = await fetch(`${baseUrl}/api/catalog-items`);
-      if (response.ok) return;
-    } catch {
-      // keep polling until the timeout
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-  throw new Error(`server readiness timeout at ${baseUrl}`);
+function assertGatePath(pathname) {
+  const normalizedPath = pathname.toLowerCase();
+  const forbiddenPath = FORBIDDEN_PATH_TOKENS.find((token) => normalizedPath.includes(token));
+  assert(!forbiddenPath, `QA_CATALOG_AUTHORITY_FORBIDDEN_ENDPOINT:${forbiddenPath}`);
+
+  const isAllowed =
+    pathname === '/api/auth/login' ||
+    pathname === '/api/auth/session' ||
+    pathname === '/api/catalog-items' ||
+    pathname === '/api/catalog-items/bootstrap' ||
+    /^\/api\/catalog-items\/[^/]+\/(ready|publish|unpublish|reopen)$/.test(pathname) ||
+    pathname === '/shop' ||
+    /^\/product\/[^/]+$/.test(pathname) ||
+    /^\/category\/[^/]+$/.test(pathname);
+
+  assert(isAllowed, `QA_CATALOG_AUTHORITY_ENDPOINT_NOT_ALLOWED:${pathname}`);
 }
 
-function startServer() {
-  const child = spawn(process.execPath, [nextBin, 'start', '-p', String(port)], {
-    env: { ...process.env, QA_SCRIPT: process.env.QA_SCRIPT ?? 'scripts/qa/qa-catalog-authority-restart.mjs' },
-    stdio: 'inherit',
-    windowsHide: process.platform === 'win32',
-  });
-  return { child, ready: waitForServer(child) };
-}
-
-async function stopServer(child) {
-  if (child.exitCode !== null) return;
-  await new Promise((resolve) => {
-    const timer = setTimeout(resolve, 5000);
-    child.once('exit', () => {
-      clearTimeout(timer);
-      resolve();
-    });
-    child.kill();
-  });
-}
-
-async function request(pathname, options = {}) {
+async function request(method, pathname, body, options = {}) {
+  assertGatePath(pathname);
   const response = await fetch(`${baseUrl}${pathname}`, {
-    ...options,
+    method,
     headers: { 'Content-Type': 'application/json', ...(options.headers ?? {}) },
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
-  let data = null;
-  try {
-    data = await response.json();
-  } catch {
-    // ignore non-json responses
-  }
-  return { response, data };
+  const contentType = response.headers.get('content-type') ?? '';
+  const data = contentType.includes('application/json') ? await response.json().catch(() => null) : await response.text().catch(() => null);
+  return { status: response.status, data, setCookie: response.headers.get('set-cookie') ?? '' };
+}
+
+async function loginQaCurator() {
+  assert(qaIdentityPassword, 'QA_IDENTITY_PASSWORD_REQUIRED');
+  const login = await request('POST', '/api/auth/login', { email: QA_CURATOR.email, password: qaIdentityPassword });
+  assert(login.status === 200, `curator login expected 200, got ${login.status}`);
+  assert(login.data?.session?.activeRole === QA_CURATOR.expectedRole, 'curator activeRole mismatch');
+  const match = login.setCookie.match(/ruah_session=([^;]+)/);
+  assert(match?.[1], 'curator ruah_session cookie missing after login');
+
+  const cookie = `ruah_session=${match[1]}`;
+  const session = await request('GET', '/api/auth/session', undefined, { headers: { cookie } });
+  assert(session.status === 200 && session.data?.authenticated === true, 'curator session expected authenticated response');
+  assert(session.data?.session?.activeRole === QA_CURATOR.expectedRole, 'curator session role mismatch');
+  return { cookie };
 }
 
 function readLocalCatalogSnapshot() {
@@ -87,65 +91,63 @@ function writeStaleLocalCatalog() {
 
 function restoreLocalCatalog(snapshot) {
   if (snapshot === null) {
-    if (existsSync(catalogStorePath)) {
-      unlinkSync(catalogStorePath);
-    }
+    if (existsSync(catalogStorePath)) unlinkSync(catalogStorePath);
     return;
   }
   writeFileSync(catalogStorePath, snapshot);
 }
 
+async function requestControlledRestart() {
+  assert(restartUrl && restartToken, 'QA_CONTROLLED_RESTART_NOT_AVAILABLE');
+  const parsedRestartUrl = new URL(restartUrl);
+  assert(parsedRestartUrl.protocol === 'http:' && parsedRestartUrl.hostname === '127.0.0.1', 'QA_CONTROLLED_RESTART_MUST_BE_LOCAL');
+  const response = await fetch(restartUrl, {
+    method: 'POST',
+    headers: { 'x-qa-controlled-restart-token': restartToken },
+  });
+  assert(response.status === 200, `controlled restart expected 200, got ${response.status}`);
+  const data = await response.json().catch(() => null);
+  assert(data?.ok === true, 'controlled restart did not confirm success');
+}
+
 async function run() {
   const report = [];
   let localSnapshot = null;
-  let first = null;
-  let second = null;
 
   try {
-    first = startServer();
-    await first.ready;
+    const curator = await loginQaCurator();
+    report.push('CAT-AUTH-01 curator authenticated by ruah_session');
 
-    const bootstrap = await request('/api/catalog-items/bootstrap', {
-      method: 'POST',
-      headers: { 'x-actor-id': 'qa-curator', 'x-actor-role': 'curator' },
-    });
-    assert(bootstrap.response.status === 200, `bootstrap expected 200, got ${bootstrap.response.status}`);
+    const bootstrap = await request('POST', '/api/catalog-items/bootstrap', {}, { headers: { cookie: curator.cookie } });
+    assert(bootstrap.status === 200, `bootstrap expected 200, got ${bootstrap.status}`);
+    const catalogItemId = bootstrap.data?.results?.[0]?.catalogItemId;
+    assert(typeof catalogItemId === 'string', 'bootstrap catalogItemId missing');
 
-    const catalogBeforeRestart = await request('/api/catalog-items');
-    assert(catalogBeforeRestart.response.status === 200, `catalog before restart expected 200, got ${catalogBeforeRestart.response.status}`);
-    const canonicalItem = catalogBeforeRestart.data?.items?.find((item) => item.catalogItemId === '1');
-    assert(canonicalItem?.name, 'canonical catalog item 1 missing before restart');
-    await stopServer(first.child);
-    first = null;
-    report.push('CAT-AUTH-01 catalog bootstrap and public read completed before process restart');
+    const catalogBeforeRestart = await request('GET', '/api/catalog-items');
+    assert(catalogBeforeRestart.status === 200, `catalog before restart expected 200, got ${catalogBeforeRestart.status}`);
+    const canonicalItem = catalogBeforeRestart.data?.items?.find((item) => item.catalogItemId === catalogItemId);
+    assert(canonicalItem?.name, 'canonical catalog item missing before restart');
+    report.push('CAT-AUTH-02 MySQL QA catalog bootstrap and public read completed before restart');
 
-    if (persistence === 'mysql') {
-      localSnapshot = readLocalCatalogSnapshot();
-      writeStaleLocalCatalog();
-    }
+    localSnapshot = readLocalCatalogSnapshot();
+    writeStaleLocalCatalog();
+    await requestControlledRestart();
+    report.push('CAT-AUTH-03 runner completed controlled Next restart over the same isolated build');
 
-    second = startServer();
-    await second.ready;
-    const catalogAfterRestart = await request('/api/catalog-items');
-    assert(catalogAfterRestart.response.status === 200, `catalog after restart expected 200, got ${catalogAfterRestart.response.status}`);
-    const itemAfterRestart = catalogAfterRestart.data?.items?.find((item) => item.catalogItemId === '1');
-    assert(itemAfterRestart?.name === canonicalItem.name, 'catalog item changed after process restart');
-    report.push('CAT-AUTH-02 catalog item persisted across process restart');
+    const catalogAfterRestart = await request('GET', '/api/catalog-items');
+    assert(catalogAfterRestart.status === 200, `catalog after restart expected 200, got ${catalogAfterRestart.status}`);
+    const itemAfterRestart = catalogAfterRestart.data?.items?.find((item) => item.catalogItemId === catalogItemId);
+    assert(itemAfterRestart?.name === canonicalItem.name, 'catalog item changed after restart');
+    assert(itemAfterRestart.name !== 'STALE_LOCAL_ONLY_CATALOG', 'MySQL catalog read fell back to stale local cache');
+    report.push('CAT-AUTH-04 MySQL QA catalog persisted across restart and defeated stale local cache');
 
-    if (persistence === 'mysql') {
-      assert(itemAfterRestart.name !== 'STALE_LOCAL_ONLY_CATALOG', 'MySQL catalog read fell back to stale local store');
-      report.push('CAT-AUTH-03 MySQL remained the catalog authority despite stale local store data');
-    }
+    console.log(JSON.stringify({ status: 'PASS', baseUrl, catalogItemId, report }, null, 2));
   } finally {
-    if (first) await stopServer(first.child);
-    if (second) await stopServer(second.child);
-    if (persistence === 'mysql') restoreLocalCatalog(localSnapshot);
+    restoreLocalCatalog(localSnapshot);
   }
-
-  console.log(JSON.stringify({ status: 'PASS', baseUrl, persistence, report }, null, 2));
 }
 
 run().catch((error) => {
-  console.error(JSON.stringify({ status: 'FAIL', baseUrl, persistence, error: String(error) }, null, 2));
+  console.error(JSON.stringify({ status: 'FAIL', baseUrl, error: String(error) }, null, 2));
   process.exit(1);
 });

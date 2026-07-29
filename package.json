@@ -62,7 +62,7 @@
     "qa:functional": "set QA_PORT=3310&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-functional.mjs&& node scripts/qa/qa-api-runner.mjs",
     "qa:role:journeys": "node scripts/qa/qa-role-journeys-runner.mjs",
     "qa:catalog": "set QA_PORT=3200&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa/qa-catalog-lifecycle.mjs&& node scripts/qa/qa-api-runner.mjs",
-    "qa:catalog:authority": "set QA_PORT=3345&& set QA_SCRIPT=scripts/qa/qa-catalog-authority-restart.mjs&& node scripts/qa/qa-catalog-authority-restart.mjs",
+    "qa:catalog:authority": "set QA_PORT=3345&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-catalog-authority-restart.mjs&& set QA_REQUIRE_ISOLATED_DATABASE=true&& set PAYMENT_PERSISTENCE=mysql&& set QA_NEXT_DIST_DIR=.tmp-store/qa-next-catalog-authority&& set RBAC_ACTIVE=true&& set AUTH_SESSION_SECRET=qa-local-session-secret&& set QA_ENABLE_CONTROLLED_RESTART=true&& node scripts/db/seed-qa-identities.mjs&& node scripts/qa/qa-api-runner.mjs",
       "qa:governance:authority": "set QA_PORT=3346&& set QA_SCRIPT=scripts/qa/qa-governance-authority-restart.mjs&& node scripts/qa/qa-governance-authority-restart.mjs",
       "qa:campaign:authority": "set QA_PORT=3347&& set QA_SCRIPT=scripts/qa/qa-campaign-authority-restart.mjs&& node scripts/qa/qa-campaign-authority-restart.mjs",
       "qa:referral:authority": "set QA_PORT=3348&& set QA_SCRIPT=scripts/qa/qa-referral-authority-restart.mjs&& node scripts/qa/qa-referral-authority-restart.mjs",

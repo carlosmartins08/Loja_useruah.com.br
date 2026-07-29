@@ -1,4 +1,6 @@
 import net from 'node:net';
+import http from 'node:http';
+import { randomBytes } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -9,6 +11,7 @@ const QA_SCRIPT = process.env.QA_SCRIPT;
 const QA_SERVER_MODE = (process.env.QA_SERVER_MODE ?? 'dev').toLowerCase();
 const QA_REUSE_EXISTING = String(process.env.QA_REUSE_EXISTING ?? 'false').toLowerCase() === 'true';
 const QA_REQUIRE_ISOLATED_DATABASE = String(process.env.QA_REQUIRE_ISOLATED_DATABASE ?? 'false').toLowerCase() === 'true';
+const QA_ENABLE_CONTROLLED_RESTART = String(process.env.QA_ENABLE_CONTROLLED_RESTART ?? 'false').toLowerCase() === 'true';
 const IS_CODEX_WINDOWS_SANDBOX = process.platform === 'win32' && process.env.CODEX_SANDBOX_NETWORK_DISABLED === '1';
 
 if (!QA_SCRIPT) {
@@ -233,6 +236,62 @@ function cleanNextBuildArtifacts() {
   }
 }
 
+async function waitForPortToClose(port, timeoutMs = 10000) {
+  const startedAt = Date.now();
+  while (await isPortOpen(port)) {
+    if (Date.now() - startedAt > timeoutMs) {
+      throw new Error(`Timed out waiting for localhost:${port} to close before controlled restart.`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+}
+
+async function closeControlServer(controlServer) {
+  if (!controlServer) return;
+  await new Promise((resolve) => controlServer.close(resolve));
+}
+
+function startControlledRestartServer(restart) {
+  const token = randomBytes(32).toString('base64url');
+  const controlServer = http.createServer(async (request, response) => {
+    const requestUrl = new URL(request.url ?? '/', 'http://127.0.0.1');
+    if (request.method !== 'POST' || requestUrl.pathname !== '/restart') {
+      response.writeHead(404).end();
+      return;
+    }
+
+    if (request.headers['x-qa-controlled-restart-token'] !== token) {
+      response.writeHead(403).end();
+      return;
+    }
+
+    try {
+      await restart();
+      response.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify({ ok: true }));
+    } catch (error) {
+      response.writeHead(500, { 'Content-Type': 'application/json' }).end(JSON.stringify({ ok: false, error: String(error) }));
+    }
+  });
+
+  return new Promise((resolve, reject) => {
+    controlServer.once('error', reject);
+    controlServer.listen(0, '127.0.0.1', () => {
+      controlServer.off('error', reject);
+      const address = controlServer.address();
+      if (!address || typeof address === 'string') {
+        controlServer.close();
+        reject(new Error('QA controlled restart server did not expose a local TCP address.'));
+        return;
+      }
+      resolve({
+        controlServer,
+        url: `http://127.0.0.1:${address.port}/restart`,
+        token,
+      });
+    });
+  });
+}
+
 function snapshotVersionedFiles() {
   return QA_VERSIONED_FILES.map((relativePath) => {
     const filePath = path.resolve(relativePath);
@@ -321,11 +380,16 @@ async function main() {
       ].join('\n')
     );
   }
+  if (QA_ENABLE_CONTROLLED_RESTART && portAlreadyOpen) {
+    throw new Error('QA controlled restart requires a server started by this runner; QA_REUSE_EXISTING is not supported.');
+  }
 
   const versionedFileSnapshots = qaNextDistDir ? snapshotVersionedFiles() : null;
   let build = null;
   let server = null;
   let qa = null;
+  let controlledRestart = null;
+  let restartInFlight = null;
   let receivedSignal = null;
   let lifecycleError = null;
 
@@ -377,21 +441,57 @@ async function main() {
     }
 
     const startArgs = effectiveServerMode === 'start' ? ['start', '-p', String(PORT)] : ['dev', '-p', String(PORT)];
-    server =
-      portAlreadyOpen
-        ? null
-        : IS_CODEX_WINDOWS_SANDBOX
-          ? spawnNext(startArgs, effectiveEnv)
-          : spawnNpm(['run', ...startArgs.slice(0, 1), '--', ...startArgs.slice(1)], effectiveEnv);
+    const startQaServer = () =>
+      IS_CODEX_WINDOWS_SANDBOX
+        ? spawnNext(startArgs, effectiveEnv)
+        : spawnNpm(['run', ...startArgs.slice(0, 1), '--', ...startArgs.slice(1)], effectiveEnv);
+    const restartQaServer = async () => {
+      if (!QA_ENABLE_CONTROLLED_RESTART) {
+        throw new Error('QA_CONTROLLED_RESTART_NOT_ENABLED');
+      }
+      if (restartInFlight) return restartInFlight;
+
+      restartInFlight = (async () => {
+        if (!server) throw new Error('QA_CONTROLLED_RESTART_SERVER_NOT_OWNED');
+        await killProcessTree(server);
+        server = null;
+        await waitForPortToClose(PORT);
+        server = startQaServer();
+        await waitForServerReady(server, PORT);
+      })();
+
+      try {
+        await restartInFlight;
+      } finally {
+        restartInFlight = null;
+      }
+    };
+
+    server = portAlreadyOpen ? null : startQaServer();
 
     await waitForServerReady(server, PORT);
     if (receivedSignal) {
       throw new Error(`QA runner interrupted by ${receivedSignal}.`);
     }
 
+    if (QA_ENABLE_CONTROLLED_RESTART) {
+      controlledRestart = await startControlledRestartServer(restartQaServer);
+    }
+
+    const qaEnv = {
+      ...effectiveEnv,
+      QA_BASE_URL: BASE_URL,
+      ...(controlledRestart
+        ? {
+            QA_CONTROLLED_RESTART_URL: controlledRestart.url,
+            QA_CONTROLLED_RESTART_TOKEN: controlledRestart.token,
+          }
+        : {}),
+    };
+
     qa = spawn(process.execPath, [QA_SCRIPT], {
       stdio: 'inherit',
-      env: { ...effectiveEnv, QA_BASE_URL: BASE_URL },
+      env: qaEnv,
       windowsHide: process.platform === 'win32',
     });
 
@@ -413,11 +513,17 @@ async function main() {
     process.off('SIGINT', onSigint);
     process.off('SIGTERM', onSigterm);
 
+    const cleanupErrors = [];
+    try {
+      await closeControlServer(controlledRestart?.controlServer);
+    } catch (error) {
+      cleanupErrors.push(`failed to close controlled restart server: ${String(error)}`);
+    }
+
     for (const child of [qa, server, build]) {
       await killProcessTree(child);
     }
 
-    const cleanupErrors = [];
     if (versionedFileSnapshots) {
       try {
         restoreVersionedFiles(versionedFileSnapshots);
