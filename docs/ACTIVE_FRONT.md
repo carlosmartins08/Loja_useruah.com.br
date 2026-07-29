@@ -3,10 +3,10 @@
 Data de revisao: 2026-07-29
 Branch: `main`
 Responsavel atual: `Codex + usuario`
-Status da frente: `FRONT_1_COMMUNITY_CAMPAIGNS` — `PARCIAL/PAUSADA`
+Status da frente: `FRONT_3_CATALOG_CURATION_HARDENING` — `ATIVA`
 
 ## Objetivo atual
-Preservar o recorte parcial de campanhas e governanca sem promover o dominio a maturidade que o runtime ainda nao provou. A frente esta pausada no limite seguro autorizado.
+Iniciar somente a leitura e o recorte tecnico de catalogo e curadoria, sem implementacao direta e sem promover capacidades parciais a maturidade.
 
 ## Gatilho rapido de retomada
 Se a sessao cair ou for retomada depois:
@@ -16,22 +16,24 @@ Se a sessao cair ou for retomada depois:
 
 ## Frente unica aberta
 Frente atual selecionada:
-- `FRONT_1_COMMUNITY_CAMPAIGNS`
+- `FRONT_3_CATALOG_CURATION_HARDENING`
 
 Estado operacional:
-- FRONT_1_COMMUNITY_CAMPAIGNS encerrada/pausada como PARCIAL conscientemente limitado por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE.
+- FRONT_1_COMMUNITY_CAMPAIGNS permanece PARCIAL/PAUSADA, conscientemente limitada por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE, e nao esta DONE.
 - Campaign/CampaignProduct permanecem PARCIAL.
-- Nao ha nova frente definida por esta pausa.
+- qa:community:revenue permanece limitado a community_campaign_revenue_read_ownership_only; nao valida order, checkout, payment, webhook, production, shipping, referral ou attribution.
+- FRONT_3_CATALOG_CURATION_HARDENING e a nova frente ativa por autorizacao humana explicita.
 
 Motivo:
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` concluiu a reconciliacao entre `ACTIVE_FRONT`, `NEXT_SESSION_TRIGGER`, `.agents/session-state.json` e o roteador.
 - W1-W8 permanecem historico processado; W7/W8 continuam limitados as evidencias existentes e nao afirmam homologacao externa.
-- `FRONT_1_COMMUNITY_CAMPAIGNS` e a primeira frente da sequencia serial e o proximo recorte explicitamente indicado pelo plano mestre para uma capacidade `PARCIAL` ja provada.
+- A autorizacao humana escolheu `FRONT_3_CATALOG_CURATION_HARDENING` como o menor proximo recorte seguro para fortalecer catalogo, curadoria e produto publicavel antes de qualquer expansao financeira, de referral ou de superficies mais amplas.
 - `FRONT_5_REAL_PAYMENTS_CUTOVER` continua bloqueada por dependencia externa e nao e a frente ativa.
 
 Recorte atual em execucao:
-- campanhas e governanca no perimetro ja provado de `Campaign` e `CampaignProduct`.
-- nenhuma expansao para `Organization`, membership madura, reward financeiro proprio, rota paralela ou pagamento entra neste recorte.
+- `Artwork`, catalogo-curadoria e `CatalogItem` no perimetro parcial ja documentado.
+- o proximo passo e leitura e recorte tecnico da FRONT_3, nao implementacao direta.
+- financeiro, checkout, pagamento, webhook, producao/envio, referral e attribution nao entram neste recorte.
 
 ## Plano serial de execucao
 1. `FRONT_1_COMMUNITY_CAMPAIGNS`
@@ -114,10 +116,10 @@ Nao tocar: produto, checkout, carrinho, pedido, pagamento, webhook, catalogo, ba
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
-FRONT_1_COMMUNITY_CAMPAIGNS foi pausada como `PARCIAL` conscientemente limitado por `BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE`, preservando as evidencias vigentes sem abrir frente nova ou iniciar T1.
+FRONT_3_CATALOG_CURATION_HARDENING foi aberta como frente ativa por autorizacao humana explicita, preservando FRONT_1_COMMUNITY_CAMPAIGNS como PARCIAL/PAUSADA e sem iniciar implementacao, gates ou T1.
 
 ## Bloqueio atual
-`FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa.
+`FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa. FRONT_3 nao autoriza financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.
 
 O risco real agora e:
 - promover campanhas de `PARCIAL` para dominio maduro sem evidencia nova;
@@ -163,7 +165,7 @@ O risco real agora e:
 - `e0df063`: `ACTIVE_FRONT` passou a vencer o espelho operacional para frente, objetivo e branch; `npm run test:agent-route` passou 6/6 em 2026-07-25.
 
 ## Proximo passo exato
-Aguardar decisao explicita posterior antes de abrir qualquer gate, recorte tecnico ou nova frente. qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only. Não valida order, checkout, payment, webhook, production, shipping, referral ou attribution. Não há autorização para avançar para financeiro completo, qa:base:roles, payout, checkout, payment ou nova frente sem decisão explícita posterior.
+Ler as fontes autoritativas de catalogo e curadoria e desenhar o primeiro recorte tecnico da FRONT_3, sem implementar diretamente nem executar gate funcional. FRONT_1 permanece PARCIAL/PAUSADA; qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only e nao valida order, checkout, payment, webhook, production, shipping, referral ou attribution. FRONT_3 nao autoriza financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.
 
 ## Nao reabrir sem evidencia nova
 - `lib/access-control.ts` como autoridade canonica de permissao

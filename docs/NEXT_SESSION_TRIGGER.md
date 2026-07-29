@@ -3,7 +3,7 @@
 Data de revisao: 2026-07-29
 
 ## Objetivo
-Retomar por `FRONT_1_COMMUNITY_CAMPAIGNS`, mantendo W1-W8 como historico processado e sem reabrir pagamentos ou expandir campanhas alem do runtime `PARCIAL` provado.
+Retomar por `FRONT_3_CATALOG_CURATION_HARDENING`, mantendo W1-W8 como historico processado, FRONT_1_COMMUNITY_CAMPAIGNS como PARCIAL/PAUSADA e sem reabrir pagamentos ou expandir campanhas alem do runtime `PARCIAL` provado.
 
 ## Gatilho canonico de retomada
 Toda nova sessao deve comecar por este gatilho, nesta ordem:
@@ -23,7 +23,7 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Retome FRONT_1_COMMUNITY_CAMPAIGNS a partir de docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md, docs/FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md e .agents/session-state.json. Trate campanhas como PARCIAL, nao reabra pagamentos e nao inicie Organization, reward financeiro proprio ou rota paralela.`
+`Retome FRONT_3_CATALOG_CURATION_HARDENING a partir de docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md, docs/CATALOG_CURATION_DEFINITION_OF_DONE.md e .agents/session-state.json. Faca apenas leitura e recorte tecnico de catalogo e curadoria; nao reabra pagamentos, checkout, referral, producao/envio ou implementacao direta.`
 
 ## Checklist anti-retrabalho
 Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
@@ -106,8 +106,8 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 
 ## Contrato minimo da proxima sessao
 A proxima sessao so esta autorizada a:
-1. preparar ou executar somente `FRONT_1_COMMUNITY_CAMPAIGNS` dentro do perimetro `PARCIAL` e dos gates documentados; ou
-2. manter o trabalho parado se a solicitacao tentar reabrir W1-W8, iniciar pagamento real sem dependencia externa comprovada ou expandir campanhas para Organization, membership madura, reward financeiro proprio ou rota paralela.
+1. preparar somente a leitura e o recorte tecnico de `FRONT_3_CATALOG_CURATION_HARDENING`, sem implementacao direta ou gate funcional; ou
+2. manter o trabalho parado se a solicitacao tentar reabrir W1-W8, FRONT_1, iniciar pagamento real sem dependencia externa comprovada ou expandir FRONT_3 para financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.
 
 Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do primeiro patch.
 
@@ -136,7 +136,7 @@ Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-`FRONT_1_COMMUNITY_CAMPAIGNS` e a frente serial ativa. `real-payments-cutover` continua condicionado a janela externa objetiva e nao pode ser retomado por esta transicao.
+`FRONT_3_CATALOG_CURATION_HARDENING` e a frente serial ativa por autorizacao humana explicita. `FRONT_1_COMMUNITY_CAMPAIGNS` permanece PARCIAL/PAUSADA, e `real-payments-cutover` continua condicionado a janela externa objetiva e nao pode ser retomado por esta transicao.
 
 Leitura operacional deste momento:
 - `affiliate-referral` fechou o recorte novo.
@@ -144,7 +144,7 @@ Leitura operacional deste momento:
 - `superficies publicas` fechou o recorte ativo com saneamento de `artista`, `category`, `help-center`, `quem-somos`, `journal`, `register` e `footer`.
 - W1-W8 sao historico processado para fins de continuidade; W7/W8 nao autorizam afirmar homologacao externa.
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` foi concluida: documentos, espelho operacional e roteador concordam, e caches locais nao participam da autoridade.
-- a frente ativa agora e `FRONT_1_COMMUNITY_CAMPAIGNS`.
+- a frente ativa agora e `FRONT_3_CATALOG_CURATION_HARDENING`.
 - `real-payments-cutover` permanece dependencia externa bloqueada e nao deve ser reaberta como frente atual.
 - `npm run qa:campaign:authority` passou em MySQL QA local isolado, com schema `001`/`002`, provando persistencia de `Campaign` e `CampaignProduct` apos reinicio sem fallback dos dados locais obsoletos; os caches locais de campanha foram restaurados ao fim do gate.
 - Em 2026-07-28, `npm run qa:campaign:impact` passou em `useruah_qa_campaign_impact` no host `localhost`, usando somente `QA_DATABASE_URL`, distinta de `DATABASE_URL`, com schemas `001_payments.sql` e `002_distribution_authority.sql`. A base principal `useruah` foi preservada: a campanha criada existe uma vez na QA e zero vezes nela. O gate provou criacao, submissao, bloqueio por revisao pendente, aprovacao da revisao, ativacao, pausa e reativacao; chamou somente endpoints de campanhas e revisoes de impacto. `.tmp-store/active-agent-plan.json` permaneceu ausente. Nao houve pedido, checkout, pagamento, webhook, falha funcional reproduzivel, `CAMPAIGN_*_REPAIR` ou inicio de T1. `Campaign` e `CampaignProduct` seguem `PARCIAL`.
@@ -152,6 +152,7 @@ Leitura operacional deste momento:
 - Em 2026-07-29, `npm run qa:campaign:public` passou em MySQL QA local isolado em `useruah_qa_campaign_detail`, usada temporariamente porque a base preferida `useruah_qa_campaign_public` nao estava acessivel pela credencial local. A base e QA, local e distinta da principal `useruah`. O gate semeou identidades QA, usou login real por `/api/auth/login` e cookie `ruah_session` para `curator`, `community_manager` e `platform_admin`, mantendo visitante anonimo. Provou setup e governanca de campanha, superficie publica `/api/campaigns/[id]/public` e `/c/[id]`, vitrine contextual `/c/[id]/shop` e `/shop`, PDP contextual `/product/[id]` e estados inexistente, inativo e sem produtos. Header fallback nao foi autorizacao funcional; nao houve chamadas a pedido, checkout, pagamento, webhook, afiliado, termos ou `/af/`. `.tmp-store/active-agent-plan.json` permaneceu ausente, `.next` compartilhado foi preservado, `next-env.d.ts` e `tsconfig.json` foram restaurados, `qa-next-campaign-public` foi removido e a porta 3340 fechou. A evidencia nao autoriza `CAMPAIGN_PUBLIC_SURFACE_REPAIR`, `CAMPAIGN_PUBLIC_SHOP_CONTEXT_REPAIR`, `CAMPAIGN_PUBLIC_PDP_CONTEXT_REPAIR` ou reparo de dominio, nao inicia T1 e mantem `Campaign` e `CampaignProduct` como `PARCIAL`.
 - Em 2026-07-29, o commit `44bca23` registrou o fixture que permitiu `npm run qa:community:revenue` passar em `useruah_qa_community_revenue`. qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only. O fixture controlado foi lido pelo owner no breakdown por campanha, o agregado permaneceu coerente, outro `community_manager` nao leu a receita e papel nao financeiro recebeu bloqueio. Não valida order, checkout, payment, webhook, production, shipping, referral ou attribution. Campaign/CampaignProduct permanecem PARCIAL, agora com evidência adicional de leitura/ownership de receita por campanha. Esta prova nao autoriza maturidade financeira, payout real, reparo de dominio ou inicio de T1.
 - FRONT_1_COMMUNITY_CAMPAIGNS encerrada/pausada como PARCIAL conscientemente limitado por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE. Campaign/CampaignProduct permanecem PARCIAL. Não há autorização para avançar para financeiro completo, qa:base:roles, payout, checkout, payment ou nova frente sem decisão explícita posterior.
+- Por autorizacao humana explicita, FRONT_3_CATALOG_CURATION_HARDENING foi aberta como nova frente ativa. O proximo passo e leitura e recorte tecnico de catalogo e curadoria, sem implementacao direta ou gate funcional. FRONT_3 nao autoriza financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution; T1 nao foi iniciado.
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:
