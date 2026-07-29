@@ -194,11 +194,11 @@ async function run() {
 
   const invalidShop = await req('GET', '/shop?campaignId=CMP-NOT-FOUND');
   assert(invalidShop.status === 200, `invalid campaign shop expected 200, got ${invalidShop.status}`);
-  assert(typeof invalidShop.data === 'string' && invalidShop.data.includes('Campanha nao encontrada.'), 'invalid campaign shop should show unavailable state');
+  assert(typeof invalidShop.data === 'string' && invalidShop.data.includes('Campanha não encontrada.'), 'invalid campaign shop should show unavailable state');
   assert(!invalidShop.data.includes(seeded.item.name), 'invalid campaign shop should not fall back silently to catalog preview');
   const inactiveShop = await req('GET', `/shop?campaignId=${inactiveCampaignId}`);
   assert(inactiveShop.status === 200, `inactive campaign shop expected 200, got ${inactiveShop.status}`);
-  assert(typeof inactiveShop.data === 'string' && inactiveShop.data.includes('Campanha indisponivel.'), 'inactive campaign shop should show inactive state');
+  assert(typeof inactiveShop.data === 'string' && inactiveShop.data.includes('Campanha indisponível.'), 'inactive campaign shop should show inactive state');
   const emptyShop = await req('GET', `/shop?campaignId=${emptyCampaignId}`);
   assert(emptyShop.status === 200, `empty campaign shop expected 200, got ${emptyShop.status}`);
   assert(typeof emptyShop.data === 'string' && emptyShop.data.includes('Nenhum produto encontrado.'), 'empty campaign shop should show empty state');
