@@ -1,9 +1,9 @@
 {
-  "reviewedAt": "2026-07-29",
+  "reviewedAt": "2026-07-30",
   "branch": "main",
   "status": "FRONT_3_CATALOG_CURATION_HARDENING",
   "frontLifecycle": "ACTIVE_QA_EVIDENCE_RECORDED",
-  "objective": "FRONT_3 ativa com evidencia limitada de QA_CATALOG_CURATION_ISOLATION; decidir documentalmente o proximo recorte sem promover Artwork/CatalogItem alem de PARCIAL e sem abrir financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.",
+  "objective": "FRONT_3 ativa com evidencias limitadas de QA_CATALOG_CURATION_ISOLATION e QA_CATALOG_AUTHORITY_RESTART_ISOLATION; decidir documentalmente o proximo recorte sem promover Artwork/CatalogItem alem de PARCIAL e sem abrir financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.",
   "activeFront": "FRONT_3_CATALOG_CURATION_HARDENING",
   "resumeTrigger": {
     "entrypoint": "docs/NEXT_SESSION_TRIGGER.md",
@@ -69,7 +69,7 @@
     "Commit 44bca23 registrou qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only em useruah_qa_community_revenue: fixture controlado, leitura por campanha do owner, agregado coerente, ownership negativo e bloqueio de papel nao financeiro. Não valida order, checkout, payment, webhook, production, shipping, referral ou attribution. Campaign/CampaignProduct permanecem PARCIAL, agora com evidência adicional de leitura/ownership de receita por campanha; nao autoriza maturidade financeira, payout real, reparo de dominio ou T1.",
     "FRONT_1_COMMUNITY_CAMPAIGNS encerrada/pausada como PARCIAL conscientemente limitado por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE. Não há autorização para avançar para financeiro completo, qa:base:roles, payout, checkout, payment ou nova frente sem decisão explícita posterior."
   ],
-  "lastStep": "qa:catalog:curation PASS vigente foi comprovado em QA isolada e registrado como QA_CATALOG_CURATION_ISOLATION; FRONT_3 permanece ativa e Artwork/CatalogItem permanecem PARCIAL.",
+  "lastStep": "qa:catalog:authority PASS vigente foi comprovado em MySQL QA isolado como QA_CATALOG_AUTHORITY_RESTART_ISOLATION; QA_RUNNER_CONTROLLED_RESTART_CAPABILITY opt-in foi validada pelo commit 9d00b01. FRONT_3 permanece ativa e Artwork/CatalogItem permanecem PARCIAL.",
   "blocked": false,
   "blockers": [],
   "externalDependencies": [
@@ -121,7 +121,8 @@
     "npm run qa:campaign:detail em MySQL QA local isolado useruah_qa_campaign_detail com login por cookie ruah_session e ownership 403 em 2026-07-28",
     "npm run qa:campaign:public em MySQL QA local isolado useruah_qa_campaign_detail com sessoes reais, visitante anonimo e superficie publica contextual em 2026-07-29; useruah_qa_campaign_public nao estava acessivel pela credencial local",
     "44bca23 e npm run qa:community:revenue PASS em MySQL QA local isolado useruah_qa_community_revenue em 2026-07-29, limitado a community_campaign_revenue_read_ownership_only",
-    "4cbb75e e npm run qa:catalog:curation PASS em MySQL QA local isolado useruah_qa_catalog_curation em 2026-07-29, limitado a QA_CATALOG_CURATION_ISOLATION; Artwork/CatalogItem permanecem PARCIAL e nao valida pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona"
+    "4cbb75e e npm run qa:catalog:curation PASS em MySQL QA local isolado useruah_qa_catalog_curation em 2026-07-29, limitado a QA_CATALOG_CURATION_ISOLATION; Artwork/CatalogItem permanecem PARCIAL e nao valida pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona",
+    "9d00b01 e npm run qa:catalog:authority PASS em MySQL QA local isolado useruah_qa_catalog_authority em 2026-07-30, vigente para QA_CATALOG_AUTHORITY_RESTART_ISOLATION; QA_RUNNER_CONTROLLED_RESTART_CAPABILITY opt-in validada, com autoridade do catalogo apos restart controlado do Next e cache local obsoleto sem vencer MySQL. Artwork/CatalogItem permanecem PARCIAL e nao valida pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona"
   ],
   "nextExactStep": [
     "Ler docs/ACTIVE_FRONT.md",
