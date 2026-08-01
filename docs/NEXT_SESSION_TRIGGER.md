@@ -3,7 +3,7 @@
 Data de revisao: 2026-08-01
 
 ## Objetivo
-Nao retomar implementacao. `FRONT_3_CATALOG_CURATION_HARDENING` esta pausada como `PARCIAL` fortalecida; W1-W8 permanecem historico processado e FRONT_1_COMMUNITY_CAMPAIGNS permanece PARCIAL/PAUSADA.
+Retomar por `FRONT_QA_GATE_GOVERNANCE_CLEANUP`, limitada a inventario e classificacao documental/tecnica de gates e aliases legados, sem alterar scripts QA nesta rodada.
 
 ## Gatilho canonico de retomada
 Toda nova sessao deve comecar por este gatilho, nesta ordem:
@@ -23,7 +23,7 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Leia docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/EXECUTION_TRACKING.md, docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md e .agents/session-state.json. FRONT_3_CATALOG_CURATION_HARDENING esta pausada como PARCIAL fortalecida. Nao retome FRONT_3 nem abra nova frente sem autorizacao humana explicita.`
+`Retome FRONT_QA_GATE_GOVERNANCE_CLEANUP a partir de docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/EXECUTION_TRACKING.md, docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md, docs/DOCS_CLASSIFICATION.md, .agents/session-state.json e package.json. Faca apenas inventario e classificacao de gates/aliases; nao altere scripts QA, package.json ou produto.`
 
 ## Checklist anti-retrabalho
 Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
@@ -107,8 +107,8 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 
 ## Contrato minimo da proxima sessao
 A proxima sessao so esta autorizada a:
-1. manter o trabalho parado ate autorizacao humana explicita para uma nova frente ou para retomada delimitada da `FRONT_3_CATALOG_CURATION_HARDENING`; ou
-2. recusar reabertura de W1-W8, FRONT_1, pagamento real sem dependencia externa comprovada, ou expansao de FRONT_3 para financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.
+1. inventariar e classificar gates/aliases legados, incluindo `qa:catalog`, `qa:catalog:persisted`, `qa:full` e composicoes amplas, sem alterar scripts QA ou `package.json`; ou
+2. recusar reabertura de W1-W8, FRONT_1, pagamento real sem dependencia externa comprovada, ou expansao para produto, dominio, RBAC, migrations, banco, financeiro, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona.
 
 Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do primeiro patch.
 
@@ -137,7 +137,7 @@ Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-Nenhuma. FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. Nova frente ou retomada de FRONT_3 exige autorizacao humana explicita. `FRONT_1_COMMUNITY_CAMPAIGNS` permanece PARCIAL/PAUSADA, e `real-payments-cutover` continua condicionado a janela externa objetiva e nao pode ser retomado por esta transicao.
+FRONT_QA_GATE_GOVERNANCE_CLEANUP aberta como frente ativa. Objetivo: inventariar, classificar e higienizar gates/aliases legados para evitar falso PASS e falsa cobertura. Esta frente nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida; Artwork e CatalogItem permanecem PARCIAL; T1 permanece nao iniciado.
 
 Leitura operacional deste momento:
 - `affiliate-referral` fechou o recorte novo.
@@ -145,7 +145,8 @@ Leitura operacional deste momento:
 - `superficies publicas` fechou o recorte ativo com saneamento de `artista`, `category`, `help-center`, `quem-somos`, `journal`, `register` e `footer`.
 - W1-W8 sao historico processado para fins de continuidade; W7/W8 nao autorizam afirmar homologacao externa.
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` foi concluida: documentos, espelho operacional e roteador concordam, e caches locais nao participam da autoridade.
-- FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida; FRONT_3 nao esta DONE e Artwork e CatalogItem permanecem PARCIAL.
+- FRONT_QA_GATE_GOVERNANCE_CLEANUP e a frente ativa por autorizacao humana explicita, limitada a governanca de gates.
+- FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida; FRONT_3 nao esta DONE e Artwork e CatalogItem permanecem PARCIAL.
 - `real-payments-cutover` permanece dependencia externa bloqueada e nao deve ser reaberta como frente atual.
 - `npm run qa:campaign:authority` passou em MySQL QA local isolado, com schema `001`/`002`, provando persistencia de `Campaign` e `CampaignProduct` apos reinicio sem fallback dos dados locais obsoletos; os caches locais de campanha foram restaurados ao fim do gate.
 - Em 2026-07-28, `npm run qa:campaign:impact` passou em `useruah_qa_campaign_impact` no host `localhost`, usando somente `QA_DATABASE_URL`, distinta de `DATABASE_URL`, com schemas `001_payments.sql` e `002_distribution_authority.sql`. A base principal `useruah` foi preservada: a campanha criada existe uma vez na QA e zero vezes nela. O gate provou criacao, submissao, bloqueio por revisao pendente, aprovacao da revisao, ativacao, pausa e reativacao; chamou somente endpoints de campanhas e revisoes de impacto. `.tmp-store/active-agent-plan.json` permaneceu ausente. Nao houve pedido, checkout, pagamento, webhook, falha funcional reproduzivel, `CAMPAIGN_*_REPAIR` ou inicio de T1. `Campaign` e `CampaignProduct` seguem `PARCIAL`.

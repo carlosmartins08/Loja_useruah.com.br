@@ -1,10 +1,10 @@
 {
   "reviewedAt": "2026-08-01",
   "branch": "main",
-  "status": "FRONT_3_CATALOG_CURATION_HARDENING_PAUSED_PARTIAL_STRENGTHENED",
-  "frontLifecycle": "PAUSED_PARTIAL_STRENGTHENED_BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY",
-  "objective": "FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida. FRONT_3 nao esta DONE; Artwork e CatalogItem permanecem PARCIAL. As tres evidencias vigentes cobrem cadeia positiva de curadoria/catalogo, autoridade MySQL apos restart controlado e reversao publica do lifecycle. Nova frente ou retomada de FRONT_3 exige autorizacao humana explicita.",
-  "activeFront": null,
+  "status": "FRONT_QA_GATE_GOVERNANCE_CLEANUP",
+  "frontLifecycle": "ACTIVE_GOVERNANCE_INVENTORY_AUTHORIZED",
+  "objective": "FRONT_QA_GATE_GOVERNANCE_CLEANUP aberta como frente ativa. Objetivo: inventariar, classificar e higienizar gates/aliases legados para evitar falso PASS e falsa cobertura. Esta frente nao altera produto, dominio, RBAC, migrations ou fluxos de negocio.",
+  "activeFront": "FRONT_QA_GATE_GOVERNANCE_CLEANUP",
   "resumeTrigger": {
     "entrypoint": "docs/NEXT_SESSION_TRIGGER.md",
     "mustRead": [
@@ -69,12 +69,9 @@
     "Commit 44bca23 registrou qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only em useruah_qa_community_revenue: fixture controlado, leitura por campanha do owner, agregado coerente, ownership negativo e bloqueio de papel nao financeiro. Não valida order, checkout, payment, webhook, production, shipping, referral ou attribution. Campaign/CampaignProduct permanecem PARCIAL, agora com evidência adicional de leitura/ownership de receita por campanha; nao autoriza maturidade financeira, payout real, reparo de dominio ou T1.",
     "FRONT_1_COMMUNITY_CAMPAIGNS encerrada/pausada como PARCIAL conscientemente limitado por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE. Não há autorização para avançar para financeiro completo, qa:base:roles, payout, checkout, payment ou nova frente sem decisão explícita posterior."
   ],
-  "lastStep": "Reavaliacao posterior as tres evidencias vigentes determinou: FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida. FRONT_3 nao esta DONE; Artwork e CatalogItem permanecem PARCIAL.",
-  "blocked": true,
-  "blockers": [
-    "BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY: a proxima frente precisa de autorizacao humana explicita; continuar FRONT_3 sem nova autoridade tenderia a criar aparencia de avanco, nao evidencia mais forte.",
-    "Lacunas preservadas: rejeicao de Artwork com auditoria realmente duravel, midia editorial/qualidade, SEO por item, staging com amostra real de 20 itens e higienizacao consciente de aliases/gates legados."
-  ],
+  "lastStep": "Autorizacao humana explicita abriu FRONT_QA_GATE_GOVERNANCE_CLEANUP como frente ativa, limitada a inventario e classificacao de gates/aliases sem alteracao de scripts QA.",
+  "blocked": false,
+  "blockers": [],
   "externalDependencies": [
     "FRONT_5_REAL_PAYMENTS_CUTOVER depende de janela externa objetiva de homologacao final e cutover; essa frente nao e a frente ativa."
   ],
@@ -134,8 +131,11 @@
     "Ler docs/CATALOG_CURATION_DEFINITION_OF_DONE.md",
     "Ler docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md",
     "Manter qa:community:revenue como evidencia vigente limitada a community_campaign_revenue_read_ownership_only",
-    "Parar: nao abrir nova frente nem retomar FRONT_3 sem autorizacao humana explicita",
-    "Manter financeiro, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona fora",
+    "Inventariar scripts QA e aliases de package.json sem altera-los",
+    "Classificar qa:catalog, qa:catalog:persisted, qa:full e composicoes amplas como vigente, historico, legado inseguro, reformavel ou condenado",
+    "Preservar qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle como evidencias vigentes",
+    "Registrar proposta posterior de higienizacao sem implementar",
+    "Manter produto, dominio, RBAC, migrations, banco, financeiro, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona fora",
     "Manter T1 nao iniciado"
   ],
   "doNotReopen": [

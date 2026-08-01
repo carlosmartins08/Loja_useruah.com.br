@@ -3,10 +3,10 @@
 Data de revisao: 2026-08-01
 Branch: `main`
 Responsavel atual: `Codex + usuario`
-Status da frente: `FRONT_3_CATALOG_CURATION_HARDENING` — `PAUSADA COMO PARCIAL FORTALECIDA`
+Status da frente: `FRONT_QA_GATE_GOVERNANCE_CLEANUP` — `ATIVA`
 
 ## Objetivo atual
-Registrar a pausa consciente de `FRONT_3_CATALOG_CURATION_HARDENING` como `PARCIAL` fortalecida, sem implementacao direta, sem nova frente e sem promover capacidades parciais a maturidade.
+FRONT_QA_GATE_GOVERNANCE_CLEANUP aberta como frente ativa. Objetivo: inventariar, classificar e higienizar gates/aliases legados para evitar falso PASS e falsa cobertura.
 
 ## Gatilho rapido de retomada
 Se a sessao cair ou for retomada depois:
@@ -15,29 +15,29 @@ Se a sessao cair ou for retomada depois:
 3. recusar qualquer desvio que pule essa leitura.
 
 ## Frente unica aberta
-Nenhuma frente esta aberta para implementacao. A ultima frente permanece registrada para continuidade:
-- `FRONT_3_CATALOG_CURATION_HARDENING` — pausada como `PARCIAL` fortalecida.
+Frente atual selecionada:
+- `FRONT_QA_GATE_GOVERNANCE_CLEANUP`
 
 Estado operacional:
 - FRONT_1_COMMUNITY_CAMPAIGNS permanece PARCIAL/PAUSADA, conscientemente limitada por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE, e nao esta DONE.
 - Campaign/CampaignProduct permanecem PARCIAL.
 - qa:community:revenue permanece limitado a community_campaign_revenue_read_ownership_only; nao valida order, checkout, payment, webhook, production, shipping, referral ou attribution.
-- FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida.
-- FRONT_3 nao esta DONE.
-- Artwork e CatalogItem permanecem PARCIAL.
-- Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY.
-- Nova frente ou retomada de FRONT_3 exige autorizacao humana explicita.
+- FRONT_QA_GATE_GOVERNANCE_CLEANUP aberta como frente ativa por autorizacao humana explicita.
+- FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida.
+- FRONT_3 nao esta DONE; Artwork e CatalogItem permanecem PARCIAL.
+- O bloqueio BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY foi removido somente para esta frente limitada de governanca de gates.
+- T1 permanece nao iniciado.
 
 Motivo:
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` concluiu a reconciliacao entre `ACTIVE_FRONT`, `NEXT_SESSION_TRIGGER`, `.agents/session-state.json` e o roteador.
 - W1-W8 permanecem historico processado; W7/W8 continuam limitados as evidencias existentes e nao afirmam homologacao externa.
-- A autorizacao humana encerrou os recortes QA autorizados da FRONT_3 como evidencia limitada e determinou a pausa: continuar sem nova autoridade tenderia a criar aparencia de avanco, nao evidencia mais forte.
+- A autorizacao humana abriu `FRONT_QA_GATE_GOVERNANCE_CLEANUP` para inventario, classificacao e proposta posterior de higienizacao, sem alterar scripts QA nesta rodada.
 - `FRONT_5_REAL_PAYMENTS_CUTOVER` continua bloqueada por dependencia externa e nao e a frente ativa.
 
 Limite preservado:
-- `Artwork`, catalogo-curadoria e `CatalogItem` permanecem no perimetro parcial ja documentado.
-- As evidencias vigentes cobrem cadeia positiva de curadoria/catalogo, autoridade MySQL apos restart controlado e reversao publica do lifecycle.
-- As evidencias nao validam rejeicao auditavel de Artwork, auditoria duravel, midia, SEO, staging, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona.
+- Esta frente nao altera produto, dominio, RBAC, migrations ou fluxos de negocio.
+- Esta frente nao valida pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona.
+- FRONT_3 preserva as evidencias de cadeia positiva de curadoria/catalogo, autoridade MySQL apos restart controlado e reversao publica do lifecycle; isso nao fecha auditoria duravel, midia, SEO ou staging.
 
 ## Plano serial de execucao
 1. `FRONT_1_COMMUNITY_CAMPAIGNS`
@@ -120,12 +120,12 @@ Nao tocar: produto, checkout, carrinho, pedido, pagamento, webhook, catalogo, ba
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
-Reavaliacao documental e tecnica posterior ao commit `3dc9134`: FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida. FRONT_3 nao esta DONE. Artwork e CatalogItem permanecem PARCIAL.
+Autorizacao humana explicita abriu FRONT_QA_GATE_GOVERNANCE_CLEANUP como frente ativa, sem implementacao. FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida; FRONT_3 nao esta DONE e Artwork/CatalogItem permanecem PARCIAL.
 
 ## Bloqueio atual
-Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. Nova frente ou retomada de FRONT_3 exige autorizacao humana explicita. A proxima lacuna material requer decisao humana sobre auditoria duravel, criterio editorial de midia/SEO, staging com amostra real de 20 itens ou higienizacao consciente de aliases/gates legados.
+O bloqueio BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY foi removido somente porque ha autorizacao humana explicita para FRONT_QA_GATE_GOVERNANCE_CLEANUP. A frente nao autoriza alterar scripts QA, aliases, produto, dominio, RBAC, migrations, banco ou fluxos de negocio.
 
-`FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa. As evidencias nao validam rejeicao auditavel de Artwork, auditoria duravel, midia, SEO, staging, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona.
+`FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa. FRONT_3 continua pausada com lacunas de rejeicao auditavel de Artwork, auditoria duravel, midia, SEO e staging.
 
 O risco real agora e:
 - promover campanhas de `PARCIAL` para dominio maduro sem evidencia nova;
@@ -174,7 +174,7 @@ O risco real agora e:
 - `3dc9134` (tecnico) e `60580ea` (documental): `qa:catalog:lifecycle PASS` vigente para `QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION`, cobrindo reversao publica `published -> archived -> draft -> ready -> published`.
 
 ## Proximo passo exato
-Parar. Nao abrir nova frente nem retomar FRONT_3 ate autorizacao humana explicita que nomeie a proxima lacuna e seu limite. FRONT_1 permanece PARCIAL/PAUSADA; qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only e nao valida order, checkout, payment, webhook, production, shipping, referral ou attribution.
+Primeiro passo da nova frente: inventario tecnico e documental dos gates e aliases, sem alteracao de scripts. Classificar `qa:catalog`, `qa:catalog:persisted`, `qa:full` e composicoes amplas como vigente, historico, legado inseguro, reformavel ou condenado; preservar os gates comprovados. T1 permanece nao iniciado.
 
 ## Nao reabrir sem evidencia nova
 - `lib/access-control.ts` como autoridade canonica de permissao
