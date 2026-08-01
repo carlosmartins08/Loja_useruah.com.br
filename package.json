@@ -100,7 +100,7 @@
     "qa:crossrole:impact": "set QA_PORT=3215&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa/qa-cross-role-impact.mjs&& set RBAC_ACTIVE=true&& set QA_EXPECT_RBAC=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& node scripts/qa/qa-api-runner.mjs",
     "qa:community-curation": "set QA_PORT=3325&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-community-curation.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& node scripts/qa/qa-api-runner.mjs",
     "qa:affiliate:referral": "set QA_PORT=3329&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-affiliate-referral.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& node scripts/qa/qa-api-runner.mjs",
-    "qa:role:closure": "set QA_PORT=3336&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-role-closure.mjs&& set RBAC_ACTIVE=true&& set ALLOW_HEADER_ACTOR_FALLBACK=true&& set PAYOUT_SECURITY_WINDOW_DAYS=0&& set AUTH_SESSION_SECRET=qa-local-session-secret&& node scripts/qa/qa-api-runner.mjs",
+    "qa:role:closure": "node -e \"console.error('qa:role:closure is quarantined because it mixes heterogeneous legacy role, order, payment, production, referral and payout flows and must not be used as current evidence of role closure. Any resumption requires an isolated scope and explicit human authorization.'); process.exit(1)\"",
     "qa:overlays": "set QA_PORT=3339&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-overlay-smoke.mjs&& node scripts/qa/qa-api-runner.mjs",
     "qa:routes": "node scripts/qa/qa-route-canonicalization.mjs",
     "qa:blindspots": "node scripts/qa/qa-blindspots.mjs",
