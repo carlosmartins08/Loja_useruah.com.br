@@ -104,7 +104,7 @@
     "qa:overlays": "set QA_PORT=3339&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-overlay-smoke.mjs&& node scripts/qa/qa-api-runner.mjs",
     "qa:routes": "node scripts/qa/qa-route-canonicalization.mjs",
     "qa:blindspots": "node scripts/qa/qa-blindspots.mjs",
-    "qa:base:roles": "node scripts/qa/qa-base-roles.mjs",
+    "qa:base:roles": "node -e \"console.error('qa:base:roles is quarantined because it orchestrates heterogeneous legacy role, finance, campaign, community and payout gates and must not be used as current evidence of base role maturity. This broad legacy alias is not current functional evidence. Any resumption requires decomposition into isolated scopes and explicit human authorization.'); process.exit(1)\"",
     "backend:gate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release/backend-readiness-gate.ps1",
     "go:e2e:proof": "node scripts/release/go-live-e2e-proof.mjs",
     "go:e2e:proof:run": "node scripts/release/go-live-e2e-proof.mjs --execute",
