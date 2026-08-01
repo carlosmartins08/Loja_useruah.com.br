@@ -61,7 +61,7 @@
     "catalog:rehydrate": "npm run catalog:artwork && set QA_PORT=3216&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/catalog/catalog-rehydrate.mjs&& node scripts/qa/qa-api-runner.mjs",
     "qa:functional": "set QA_PORT=3310&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-functional.mjs&& node scripts/qa/qa-api-runner.mjs",
     "qa:role:journeys": "node scripts/qa/qa-role-journeys-runner.mjs",
-    "qa:catalog": "set QA_PORT=3200&& set QA_SERVER_MODE=dev&& set QA_SCRIPT=scripts/qa/qa-catalog-lifecycle.mjs&& node scripts/qa/qa-api-runner.mjs",
+    "qa:catalog": "node -e \"console.error('qa:catalog is quarantined and is not a current evidence gate. Use npm run qa:catalog:curation, npm run qa:catalog:authority, or npm run qa:catalog:lifecycle.'); process.exit(1)\"",
     "qa:catalog:lifecycle": "set QA_PORT=3349&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-catalog-lifecycle.mjs&& set QA_REQUIRE_ISOLATED_DATABASE=true&& set PAYMENT_PERSISTENCE=mysql&& set QA_NEXT_DIST_DIR=.tmp-store/qa-next-catalog-lifecycle&& set RBAC_ACTIVE=true&& set AUTH_SESSION_SECRET=qa-local-session-secret&& node scripts/db/seed-qa-identities.mjs&& node scripts/qa/qa-api-runner.mjs",
     "qa:catalog:authority": "set QA_PORT=3345&& set QA_SERVER_MODE=start&& set QA_SCRIPT=scripts/qa/qa-catalog-authority-restart.mjs&& set QA_REQUIRE_ISOLATED_DATABASE=true&& set PAYMENT_PERSISTENCE=mysql&& set QA_NEXT_DIST_DIR=.tmp-store/qa-next-catalog-authority&& set RBAC_ACTIVE=true&& set AUTH_SESSION_SECRET=qa-local-session-secret&& set QA_ENABLE_CONTROLLED_RESTART=true&& node scripts/db/seed-qa-identities.mjs&& node scripts/qa/qa-api-runner.mjs",
       "qa:governance:authority": "set QA_PORT=3346&& set QA_SCRIPT=scripts/qa/qa-governance-authority-restart.mjs&& node scripts/qa/qa-governance-authority-restart.mjs",
@@ -108,7 +108,7 @@
     "backend:gate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release/backend-readiness-gate.ps1",
     "go:e2e:proof": "node scripts/release/go-live-e2e-proof.mjs",
     "go:e2e:proof:run": "node scripts/release/go-live-e2e-proof.mjs --execute",
-    "qa:full": "npm run alert:critical && npm run check && npm run qa:brand:colors && npm run qa:typography && npm run qa:content && npm run qa:ux:journeys && npm run qa:catalog && npm run qa:payments21 && npm run qa:exceptions && npm run qa:coreops && npm run qa:campaign:impact && npm run qa:finance:impact && npm run qa:payout:ledger"
+    "qa:full": "node -e \"console.error('qa:full is quarantined because it mixes heterogeneous legacy gates and must not be used as evidence of full system maturity.'); process.exit(1)\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
