@@ -3,7 +3,7 @@
 Data de revisao: 2026-08-01
 
 ## Objetivo
-FRONT_QA_GATE_GOVERNANCE_CLEANUP esta pausada como PARCIAL fortalecida e nao esta DONE. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY; nova frente ou retomada exige autorizacao humana explicita.
+FRONT_ORDER_CHECKOUT_PAYMENT_READINESS esta ativa por autorizacao humana explicita. O objetivo e readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessao real. Esta frente nao e cutover externo e nao valida pagamento homologado com provedor real.
 
 ## Gatilho canonico de retomada
 Toda nova sessao deve comecar por este gatilho, nesta ordem:
@@ -23,7 +23,7 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Confirme que FRONT_QA_GATE_GOVERNANCE_CLEANUP permanece pausada como PARCIAL fortalecida por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. Nao retome a frente, nao abra nova frente e nao altere package.json, scripts QA ou produto sem autorizacao humana explicita para um dominio e recorte isolado.`
+`Confirme que FRONT_ORDER_CHECKOUT_PAYMENT_READINESS e a unica frente ativa. Limite-se ao inventario tecnico e documental de pedido, checkout, pagamento, webhook e status; nao altere codigo nem execute gate funcional sem nova autorizacao explicita.`
 
 ## Checklist anti-retrabalho
 Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
@@ -137,7 +137,7 @@ Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida, nao DONE. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. Nenhuma nova frente esta aberta; nova frente ou retomada exige autorizacao humana explicita. FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida; Artwork e CatalogItem permanecem PARCIAL; T1 permanece nao iniciado.
+FRONT_ORDER_CHECKOUT_PAYMENT_READINESS e a unica frente ativa por autorizacao humana explicita. Ela e limitada a readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessao real. Esta frente nao e cutover externo; nao valida pagamento homologado com provedor real, HML externa, Base URL publica, inscricao real de webhook ou transacao real de provedor. FRONT_QA_GATE_GOVERNANCE_CLEANUP e FRONT_3_CATALOG_CURATION_HARDENING permanecem pausadas como PARCIAL fortalecida; Artwork e CatalogItem permanecem PARCIAL; T1 permanece nao iniciado.
 
 Leitura operacional deste momento:
 - `affiliate-referral` fechou o recorte novo.
@@ -151,6 +151,7 @@ Leitura operacional deste momento:
 - QA_ROLE_CLOSURE_ALIAS_QUARANTINE registrada como segunda acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. Commit tecnico: 9ae24f3 chore(qa): quarantine role closure alias. qa:role:closure foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de fechamento por papeis. qa:role:closure nao e evidencia funcional vigente. Eventual retomada de role closure exige recorte isolado e autorizacao humana explicita. qa:base:roles e pr:premerge permanecem inalterados nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
 - QA_BASE_ROLES_ALIAS_QUARANTINE registrada como terceira acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. Commit tecnico: 4390f1a chore(qa): quarantine base roles alias. qa:base:roles foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de maturidade por papeis. qa:base:roles nao e evidencia funcional vigente. Eventual retomada de base roles exige decomposicao em recortes isolados e autorizacao humana explicita. pr:premerge permanece inalterado nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
 - Pausa autorizada: a frente neutralizou qa:catalog, qa:full, qa:role:closure e qa:base:roles como aliases de risco para falso PASS e falsa cobertura. pr:premerge permanece governanca estatica de PR, nao evidencia funcional vigente. qa:catalog:persisted permanece historico/referencial, nao evidencia vigente de autoridade de catalogo. Os gates vigentes separados sao qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle. Esta pausa nao valida maturidade completa do sistema nem pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY; T1 permanece nao iniciado.
+- Por autorizacao humana explicita, FRONT_ORDER_CHECKOUT_PAYMENT_READINESS aberta como frente ativa. Objetivo: readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessao real. Esta frente nao e cutover externo e nao valida pagamento homologado com provedor real. Producao/envio, Dimona, affiliate, referral, attribution, comissoes e payout permanecem fora. Primeiro passo: inventario tecnico e documental sem alteracao de codigo.
 - `real-payments-cutover` permanece dependencia externa bloqueada e nao deve ser reaberta como frente atual.
 - `npm run qa:campaign:authority` passou em MySQL QA local isolado, com schema `001`/`002`, provando persistencia de `Campaign` e `CampaignProduct` apos reinicio sem fallback dos dados locais obsoletos; os caches locais de campanha foram restaurados ao fim do gate.
 - Em 2026-07-28, `npm run qa:campaign:impact` passou em `useruah_qa_campaign_impact` no host `localhost`, usando somente `QA_DATABASE_URL`, distinta de `DATABASE_URL`, com schemas `001_payments.sql` e `002_distribution_authority.sql`. A base principal `useruah` foi preservada: a campanha criada existe uma vez na QA e zero vezes nela. O gate provou criacao, submissao, bloqueio por revisao pendente, aprovacao da revisao, ativacao, pausa e reativacao; chamou somente endpoints de campanhas e revisoes de impacto. `.tmp-store/active-agent-plan.json` permaneceu ausente. Nao houve pedido, checkout, pagamento, webhook, falha funcional reproduzivel, `CAMPAIGN_*_REPAIR` ou inicio de T1. `Campaign` e `CampaignProduct` seguem `PARCIAL`.

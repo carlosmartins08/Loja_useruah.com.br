@@ -3,10 +3,10 @@
 Data de revisao: 2026-08-01
 Branch: `main`
 Responsavel atual: `Codex + usuario`
-Status da frente: `FRONT_QA_GATE_GOVERNANCE_CLEANUP` — `PAUSADA COMO PARCIAL FORTALECIDA`
+Status da frente: `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS` — `ATIVA`
 
 ## Objetivo atual
-FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida. FRONT_QA_GATE_GOVERNANCE_CLEANUP nao esta DONE. O objetivo minimo substancial foi neutralizar aliases amplos que induziam falso PASS e falsa cobertura, sem promover maturidade funcional ampla.
+FRONT_ORDER_CHECKOUT_PAYMENT_READINESS aberta como frente ativa. Objetivo: readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessão real. Esta frente não é cutover externo e não valida pagamento homologado com provedor real.
 
 ## Gatilho rapido de retomada
 Se a sessao cair ou for retomada depois:
@@ -16,27 +16,28 @@ Se a sessao cair ou for retomada depois:
 
 ## Frente unica aberta
 Frente atual selecionada:
-- `FRONT_QA_GATE_GOVERNANCE_CLEANUP`
+- `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS`
 
 Estado operacional:
 - FRONT_1_COMMUNITY_CAMPAIGNS permanece PARCIAL/PAUSADA, conscientemente limitada por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE, e nao esta DONE.
 - Campaign/CampaignProduct permanecem PARCIAL.
 - qa:community:revenue permanece limitado a community_campaign_revenue_read_ownership_only; nao valida order, checkout, payment, webhook, production, shipping, referral ou attribution.
-- FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida; nenhum novo front foi aberto.
+- FRONT_ORDER_CHECKOUT_PAYMENT_READINESS esta ativa por autorizacao humana explicita, limitada a readiness interno de pedido, checkout, webhook assinado e status.
+- FRONT_QA_GATE_GOVERNANCE_CLEANUP permanece pausada como PARCIAL fortalecida.
 - FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida.
 - FRONT_3 nao esta DONE; Artwork e CatalogItem permanecem PARCIAL.
-- Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY.
 - T1 permanece nao iniciado.
 
 Motivo:
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` concluiu a reconciliacao entre `ACTIVE_FRONT`, `NEXT_SESSION_TRIGGER`, `.agents/session-state.json` e o roteador.
 - W1-W8 permanecem historico processado; W7/W8 continuam limitados as evidencias existentes e nao afirmam homologacao externa.
-- A autorizacao humana abriu `FRONT_QA_GATE_GOVERNANCE_CLEANUP` para inventario, classificacao e proposta posterior de higienizacao, sem alterar scripts QA nesta rodada.
+- A autorizacao humana explicita abriu `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS` como recorte isolado; ela remove apenas o bloqueio generico de abertura de nova frente.
 - `FRONT_5_REAL_PAYMENTS_CUTOVER` continua bloqueada por dependencia externa e nao e a frente ativa.
 
 Limite preservado:
-- Esta frente nao altera produto, dominio, RBAC, migrations ou fluxos de negocio.
-- Esta frente nao valida pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona.
+- Nesta rodada, esta frente não altera código, produto, domínio, RBAC, migrations, banco, scripts ou package.json.
+- Esta frente não é cutover externo e não valida HML externa, Base URL pública, inscrição real de webhook ou transação real de provedor.
+- Produção/envio, Dimona, affiliate, referral, attribution, comissões e payout permanecem fora.
 - FRONT_3 preserva as evidencias de cadeia positiva de curadoria/catalogo, autoridade MySQL apos restart controlado e reversao publica do lifecycle; isso nao fecha auditoria duravel, midia, SEO ou staging.
 
 ## Plano serial de execucao
@@ -82,6 +83,13 @@ Fonte autoritativa: este arquivo, `.agents/session-state.json`, `docs/NEXT_SESSI
 Gate de saida: `npm run test:agent-route`, `npm run check` e `git diff --check`.
 Nao tocar: produto, checkout, carrinho, pedido, pagamento, webhook, catalogo, banco, admin, account, IA de cliente, README ou componentes visuais.
 
+7. `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS`
+Problema real: o fluxo minimo transacional precisa de evidencia interna isolada antes de qualquer homologacao externa ou cutover.
+Usuarios/roles: `customer` e `platform_admin` apenas para setup QA controlado.
+Fonte autoritativa: `docs/PAYMENTS_DEFINITION_OF_DONE.md`, `docs/PRECONDICAO_OPERACIONAL_PAGAMENTO_REAL_E_PERSISTENCIA_FINANCEIRA.md`, `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` e `docs/EXECUTION_TRACKING.md`.
+Primeiro passo: inventario tecnico e documental de pedido, checkout, pagamento, webhook e status, sem alteracao de codigo.
+Nao tocar: producao/envio, Dimona, affiliate, referral, attribution, comissoes, payout, HML externa, credenciais reais ou cutover.
+
 ## Regra de passagem entre frentes
 - So avancar para a proxima frente quando a atual terminar em `IMPLEMENTADO`, `PARCIAL` conscientemente limitado ou `BLOQUEADO` por dependencia externa objetiva.
 - Nao abrir duas frentes no mesmo patch.
@@ -120,12 +128,10 @@ Nao tocar: produto, checkout, carrinho, pedido, pagamento, webhook, catalogo, ba
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
-FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida. FRONT_QA_GATE_GOVERNANCE_CLEANUP nao esta DONE. A frente neutralizou qa:catalog, qa:full, qa:role:closure e qa:base:roles como aliases de risco para falso PASS e falsa cobertura. pr:premerge permanece preservado como governanca estatica de PR, nao evidencia funcional vigente. qa:catalog:persisted permanece historico/referencial, nao evidencia vigente de autoridade de catalogo. Os tres gates vigentes de catalogo permanecem separados: qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle. Esta pausa nao valida maturidade completa do sistema. Esta pausa nao valida pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. Nova frente ou retomada exige autorizacao humana explicita. T1 permanece nao iniciado.
+FRONT_ORDER_CHECKOUT_PAYMENT_READINESS aberta como frente ativa por autorizacao humana explicita. Objetivo: readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessão real. Esta frente não é cutover externo. Esta frente não valida pagamento homologado com provedor real, HML externa, Base URL pública, inscrição real de webhook ou transação real de provedor. Primeiro passo da nova frente: inventário técnico e documental dos fluxos de pedido, checkout, pagamento, webhook e status, sem alteração de código. FRONT_3_CATALOG_CURATION_HARDENING e FRONT_QA_GATE_GOVERNANCE_CLEANUP permanecem pausadas como PARCIAL fortalecida. T1 permanece não iniciado.
 
 ## Bloqueio atual
-FRONT_QA_GATE_GOVERNANCE_CLEANUP esta pausada como PARCIAL fortalecida e nao esta DONE. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY: os riscos residuais sao por dominio especifico e exigem autorizacao humana propria; nao ha proximo patch tecnico generico autorizado.
-
-`FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa. FRONT_3 continua pausada com lacunas de rejeicao auditavel de Artwork, auditoria duravel, midia, SEO e staging.
+O bloqueio `BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY` foi removido somente para a abertura autorizada de FRONT_ORDER_CHECKOUT_PAYMENT_READINESS. `FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa. FRONT_3 continua pausada com lacunas de rejeicao auditavel de Artwork, auditoria duravel, midia, SEO e staging.
 
 O risco real agora e:
 - promover campanhas de `PARCIAL` para dominio maduro sem evidencia nova;
@@ -133,6 +139,7 @@ O risco real agora e:
 - reabrir W1-W8 como se fossem frentes atuais;
 - promover pagamento real para `IMPLEMENTADO` sem evidencia operacional externa;
 - tratar readiness local como homolog final fora de `localhost`.
+- expandir o recorte interno para producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout.
 
 ## Evidencia
 - `npm run p3:precheck`: `BLOCKED_EXTERNAL_BASE_URL` em `2026-06-21` quando `HML_BASE_URL=http://localhost:3000`
@@ -176,9 +183,10 @@ O risco real agora e:
 - `9ae24f3`: QA_ROLE_CLOSURE_ALIAS_QUARANTINE registrada como segunda acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. qa:role:closure foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de fechamento por papeis; e um alias legado e nao e evidencia funcional vigente. Eventual retomada de role closure exige recorte isolado e autorizacao humana explicita. qa:base:roles e pr:premerge permanecem inalterados nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
 - `4390f1a`: QA_BASE_ROLES_ALIAS_QUARANTINE registrada como terceira acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. qa:base:roles foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de maturidade por papeis; e um alias legado/amplo e nao e evidencia funcional vigente. Eventual retomada de base roles exige decomposicao em recortes isolados e autorizacao humana explicita. pr:premerge permanece inalterado nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
 - Pausa documental: FRONT_QA_GATE_GOVERNANCE_CLEANUP esta PARCIAL fortalecida, nao DONE. Os commits tecnicos/documentais das quarentenas sao `8b4ee58`/`8f76da2` para qa:catalog e qa:full, `9ae24f3`/`acb443e` para qa:role:closure e `4390f1a`/`a3dcaf3` para qa:base:roles. `pr:premerge` e governanca estatica de PR, nao evidencia funcional; `qa:catalog:persisted` e historico/referencial baseado em SQLite/dev/header/.tmp-store, nao evidencia vigente de autoridade de catalogo. Os gates vigentes separados sao qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle. Nenhum novo front foi aberto; T1 permanece nao iniciado.
+- Autorizacao humana explicita: FRONT_ORDER_CHECKOUT_PAYMENT_READINESS aberta como frente ativa, limitada a readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessao real. Nao e cutover externo e nao valida pagamento homologado com provedor real.
 
 ## Proximo passo exato
-Nao executar novo patch tecnico generico. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. Nova frente ou retomada exige autorizacao humana explicita para o dominio e o recorte isolado; T1 permanece nao iniciado.
+Inventariar tecnicamente e documentalmente os fluxos de pedido, checkout, pagamento, webhook e status, sem alteracao de codigo e sem executar gates funcionais. Parar se o recorte exigir HML externa, Base URL publica, inscricao real de webhook, transacao de provedor, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout. T1 permanece nao iniciado.
 
 ## Nao reabrir sem evidencia nova
 - `lib/access-control.ts` como autoridade canonica de permissao
