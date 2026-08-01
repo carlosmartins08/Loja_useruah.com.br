@@ -1,10 +1,10 @@
 {
   "reviewedAt": "2026-08-01",
   "branch": "main",
-  "status": "FRONT_3_CATALOG_CURATION_HARDENING",
-  "frontLifecycle": "ACTIVE_QA_EVIDENCE_RECORDED",
-  "objective": "FRONT_3 ativa com evidencias limitadas de QA_CATALOG_CURATION_ISOLATION, QA_CATALOG_AUTHORITY_RESTART_ISOLATION e QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION; decidir documentalmente o proximo recorte sem promover Artwork/CatalogItem alem de PARCIAL e sem abrir financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.",
-  "activeFront": "FRONT_3_CATALOG_CURATION_HARDENING",
+  "status": "FRONT_3_CATALOG_CURATION_HARDENING_PAUSED_PARTIAL_STRENGTHENED",
+  "frontLifecycle": "PAUSED_PARTIAL_STRENGTHENED_BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY",
+  "objective": "FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida. FRONT_3 nao esta DONE; Artwork e CatalogItem permanecem PARCIAL. As tres evidencias vigentes cobrem cadeia positiva de curadoria/catalogo, autoridade MySQL apos restart controlado e reversao publica do lifecycle. Nova frente ou retomada de FRONT_3 exige autorizacao humana explicita.",
+  "activeFront": null,
   "resumeTrigger": {
     "entrypoint": "docs/NEXT_SESSION_TRIGGER.md",
     "mustRead": [
@@ -69,9 +69,12 @@
     "Commit 44bca23 registrou qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only em useruah_qa_community_revenue: fixture controlado, leitura por campanha do owner, agregado coerente, ownership negativo e bloqueio de papel nao financeiro. Não valida order, checkout, payment, webhook, production, shipping, referral ou attribution. Campaign/CampaignProduct permanecem PARCIAL, agora com evidência adicional de leitura/ownership de receita por campanha; nao autoriza maturidade financeira, payout real, reparo de dominio ou T1.",
     "FRONT_1_COMMUNITY_CAMPAIGNS encerrada/pausada como PARCIAL conscientemente limitado por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE. Não há autorização para avançar para financeiro completo, qa:base:roles, payout, checkout, payment ou nova frente sem decisão explícita posterior."
   ],
-  "lastStep": "qa:catalog:lifecycle PASS vigente foi comprovado em MySQL QA isolado como QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION pelo commit 3dc9134: lifecycle autenticado published -> archived -> draft -> ready -> published, com remocao e retorno publico. FRONT_3 permanece ativa e Artwork/CatalogItem permanecem PARCIAL.",
-  "blocked": false,
-  "blockers": [],
+  "lastStep": "Reavaliacao posterior as tres evidencias vigentes determinou: FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida. FRONT_3 nao esta DONE; Artwork e CatalogItem permanecem PARCIAL.",
+  "blocked": true,
+  "blockers": [
+    "BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY: a proxima frente precisa de autorizacao humana explicita; continuar FRONT_3 sem nova autoridade tenderia a criar aparencia de avanco, nao evidencia mais forte.",
+    "Lacunas preservadas: rejeicao de Artwork com auditoria realmente duravel, midia editorial/qualidade, SEO por item, staging com amostra real de 20 itens e higienizacao consciente de aliases/gates legados."
+  ],
   "externalDependencies": [
     "FRONT_5_REAL_PAYMENTS_CUTOVER depende de janela externa objetiva de homologacao final e cutover; essa frente nao e a frente ativa."
   ],
@@ -131,10 +134,9 @@
     "Ler docs/CATALOG_CURATION_DEFINITION_OF_DONE.md",
     "Ler docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md",
     "Manter qa:community:revenue como evidencia vigente limitada a community_campaign_revenue_read_ownership_only",
-    "Decidir documentalmente o proximo recorte tecnico autorizado de catalogo e curadoria sem inferir maturidade ampla, implementar diretamente ou executar gate funcional",
-    "Manter FRONT_1 como PARCIAL/PAUSADA e Campaign/CampaignProduct como PARCIAL",
-    "Manter financeiro, checkout, pagamento, webhook, producao/envio, referral e attribution fora do recorte",
-    "Manter FRONT_5_REAL_PAYMENTS_CUTOVER fora da frente ativa ate existir janela externa objetiva e HML_BASE_URL deixar de ser localhost"
+    "Parar: nao abrir nova frente nem retomar FRONT_3 sem autorizacao humana explicita",
+    "Manter financeiro, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona fora",
+    "Manter T1 nao iniciado"
   ],
   "doNotReopen": [
     "lib/access-control.ts como autoridade canonica de permissao",

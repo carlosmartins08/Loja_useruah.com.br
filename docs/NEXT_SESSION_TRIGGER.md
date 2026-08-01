@@ -3,7 +3,7 @@
 Data de revisao: 2026-08-01
 
 ## Objetivo
-Retomar por `FRONT_3_CATALOG_CURATION_HARDENING`, mantendo W1-W8 como historico processado, FRONT_1_COMMUNITY_CAMPAIGNS como PARCIAL/PAUSADA e sem reabrir pagamentos ou expandir campanhas alem do runtime `PARCIAL` provado.
+Nao retomar implementacao. `FRONT_3_CATALOG_CURATION_HARDENING` esta pausada como `PARCIAL` fortalecida; W1-W8 permanecem historico processado e FRONT_1_COMMUNITY_CAMPAIGNS permanece PARCIAL/PAUSADA.
 
 ## Gatilho canonico de retomada
 Toda nova sessao deve comecar por este gatilho, nesta ordem:
@@ -23,7 +23,7 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Retome FRONT_3_CATALOG_CURATION_HARDENING a partir de docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md, docs/CATALOG_CURATION_DEFINITION_OF_DONE.md e .agents/session-state.json. Faca apenas leitura e recorte tecnico de catalogo e curadoria; nao reabra pagamentos, checkout, referral, producao/envio ou implementacao direta.`
+`Leia docs/ACTIVE_FRONT.md, docs/NEXT_SESSION_TRIGGER.md, docs/EXECUTION_TRACKING.md, docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md e .agents/session-state.json. FRONT_3_CATALOG_CURATION_HARDENING esta pausada como PARCIAL fortalecida. Nao retome FRONT_3 nem abra nova frente sem autorizacao humana explicita.`
 
 ## Checklist anti-retrabalho
 Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
@@ -107,8 +107,8 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 
 ## Contrato minimo da proxima sessao
 A proxima sessao so esta autorizada a:
-1. ler as evidencias vigentes da `FRONT_3_CATALOG_CURATION_HARDENING` e decidir documentalmente o proximo recorte tecnico autorizado, sem inferir maturidade ampla, implementacao direta ou gate funcional; ou
-2. manter o trabalho parado se a solicitacao tentar reabrir W1-W8, FRONT_1, iniciar pagamento real sem dependencia externa comprovada ou expandir FRONT_3 para financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.
+1. manter o trabalho parado ate autorizacao humana explicita para uma nova frente ou para retomada delimitada da `FRONT_3_CATALOG_CURATION_HARDENING`; ou
+2. recusar reabertura de W1-W8, FRONT_1, pagamento real sem dependencia externa comprovada, ou expansao de FRONT_3 para financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.
 
 Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do primeiro patch.
 
@@ -137,7 +137,7 @@ Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-`FRONT_3_CATALOG_CURATION_HARDENING` e a frente serial ativa por autorizacao humana explicita. `FRONT_1_COMMUNITY_CAMPAIGNS` permanece PARCIAL/PAUSADA, e `real-payments-cutover` continua condicionado a janela externa objetiva e nao pode ser retomado por esta transicao.
+Nenhuma. FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. Nova frente ou retomada de FRONT_3 exige autorizacao humana explicita. `FRONT_1_COMMUNITY_CAMPAIGNS` permanece PARCIAL/PAUSADA, e `real-payments-cutover` continua condicionado a janela externa objetiva e nao pode ser retomado por esta transicao.
 
 Leitura operacional deste momento:
 - `affiliate-referral` fechou o recorte novo.
@@ -145,7 +145,7 @@ Leitura operacional deste momento:
 - `superficies publicas` fechou o recorte ativo com saneamento de `artista`, `category`, `help-center`, `quem-somos`, `journal`, `register` e `footer`.
 - W1-W8 sao historico processado para fins de continuidade; W7/W8 nao autorizam afirmar homologacao externa.
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` foi concluida: documentos, espelho operacional e roteador concordam, e caches locais nao participam da autoridade.
-- a frente ativa agora e `FRONT_3_CATALOG_CURATION_HARDENING`.
+- FRONT_3_CATALOG_CURATION_HARDENING pausada como PARCIAL fortalecida; FRONT_3 nao esta DONE e Artwork e CatalogItem permanecem PARCIAL.
 - `real-payments-cutover` permanece dependencia externa bloqueada e nao deve ser reaberta como frente atual.
 - `npm run qa:campaign:authority` passou em MySQL QA local isolado, com schema `001`/`002`, provando persistencia de `Campaign` e `CampaignProduct` apos reinicio sem fallback dos dados locais obsoletos; os caches locais de campanha foram restaurados ao fim do gate.
 - Em 2026-07-28, `npm run qa:campaign:impact` passou em `useruah_qa_campaign_impact` no host `localhost`, usando somente `QA_DATABASE_URL`, distinta de `DATABASE_URL`, com schemas `001_payments.sql` e `002_distribution_authority.sql`. A base principal `useruah` foi preservada: a campanha criada existe uma vez na QA e zero vezes nela. O gate provou criacao, submissao, bloqueio por revisao pendente, aprovacao da revisao, ativacao, pausa e reativacao; chamou somente endpoints de campanhas e revisoes de impacto. `.tmp-store/active-agent-plan.json` permaneceu ausente. Nao houve pedido, checkout, pagamento, webhook, falha funcional reproduzivel, `CAMPAIGN_*_REPAIR` ou inicio de T1. `Campaign` e `CampaignProduct` seguem `PARCIAL`.
@@ -156,7 +156,8 @@ Leitura operacional deste momento:
 - Por autorizacao humana explicita, FRONT_3_CATALOG_CURATION_HARDENING foi aberta como nova frente ativa. FRONT_3 nao autoriza financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution; T1 nao foi iniciado.
 - Commit `4cbb75e` registrou `qa:catalog:curation PASS vigente para QA_CATALOG_CURATION_ISOLATION.` Evidence covers authenticated QA curation/catalog chain: artwork submission, review, approval, catalog governance blocks, impact review, ready, publish and public reads. CAT-CUR-01 a CAT-CUR-14 passaram em MySQL QA isolado `useruah_qa_catalog_curation`, com `ruah_session`, sem `x-actor-*`, sem `ALLOW_HEADER_ACTOR_FALLBACK` e com artefato Next isolado. Artwork e CatalogItem permanecem PARCIAL. FRONT_3_CATALOG_CURATION_HARDENING permanece ativa; nao esta DONE. Nao valida pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Nao altera produto, dominio, RBAC ou migrations.
 - Commit `9d00b01` registrou `qa:catalog:authority PASS vigente para QA_CATALOG_AUTHORITY_RESTART_ISOLATION.` QA_RUNNER_CONTROLLED_RESTART_CAPABILITY validada de forma opt-in pelo commit 9d00b01. Evidence covers MySQL QA catalog authority across controlled Next restart and stale local cache not overriding MySQL. CAT-AUTH-01 a CAT-AUTH-04 cobriram autenticacao do curator por `ruah_session`, bootstrap e leitura publica em MySQL QA antes do restart, restart controlado do Next sobre o mesmo build isolado e persistencia do catalogo apos restart sem prevalencia do cache local obsoleto. Artwork e CatalogItem permanecem PARCIAL. FRONT_3_CATALOG_CURATION_HARDENING permanece ativa; não está DONE. Não valida pedido, checkout, pagamento, webhook, produção/envio, affiliate, referral, attribution, payout ou Dimona. Não altera produto, domínio, RBAC ou migrations.
-- Commit `3dc9134` registrou `qa:catalog:lifecycle PASS vigente para QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION.` Evidence covers authenticated catalog lifecycle reversal: published visibility, archive/unpublish public removal, reopen to draft without public visibility, ready without public overexposure, and publish restoring public visibility. CAT-LIFE-01 a CAT-LIFE-10 passaram em MySQL QA isolado `useruah_qa_catalog_lifecycle`, com `ruah_session`, sem `x-actor-*`, sem `ALLOW_HEADER_ACTOR_FALLBACK` e com `QA_NEXT_DIST_DIR=.tmp-store/qa-next-catalog-lifecycle`; curator autenticado, artist e anonimo bloqueados (403 pelo contrato atual), allowlist e blocklist permaneceram ativas. Artwork e CatalogItem permanecem PARCIAL. FRONT_3_CATALOG_CURATION_HARDENING permanece ativa; nao esta DONE. Nao valida rejeicao auditavel de Artwork, auditoria duravel, midia, SEO, staging, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Nao altera produto, dominio, RBAC ou migrations.
+- Commit `3dc9134` registrou `qa:catalog:lifecycle PASS vigente para QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION.` Evidence covers authenticated catalog lifecycle reversal: published visibility, archive/unpublish public removal, reopen to draft without public visibility, ready without public overexposure, and publish restoring public visibility. CAT-LIFE-01 a CAT-LIFE-10 passaram em MySQL QA isolado `useruah_qa_catalog_lifecycle`, com `ruah_session`, sem `x-actor-*`, sem `ALLOW_HEADER_ACTOR_FALLBACK` e com `QA_NEXT_DIST_DIR=.tmp-store/qa-next-catalog-lifecycle`; curator autenticado, artist e anonimo bloqueados (403 pelo contrato atual), allowlist e blocklist permaneceram ativas.
+- As evidencias vigentes cobrem cadeia positiva de curadoria/catalogo (`4cbb75e` tecnico, `b213fba` documental), autoridade MySQL apos restart controlado (`9d00b01` tecnico, `a4afcb7` documental) e reversao publica do lifecycle (`3dc9134` tecnico, `60580ea` documental). As evidencias nao validam rejeicao auditavel de Artwork, auditoria duravel, midia, SEO, staging, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY.
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:
