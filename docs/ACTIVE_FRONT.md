@@ -128,6 +128,11 @@ Nao tocar: producao/envio, Dimona, affiliate, referral, attribution, comissoes, 
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
+QA_ORDER_CHECKOUT_AUTHORIZATION_IDEMPOTENCY_ISOLATION registrada como primeira evidência técnica da FRONT_ORDER_CHECKOUT_PAYMENT_READINESS. Commit técnico: cbdfc91 fix(payments): scope checkout idempotency by order. Resultado funcional: npm run qa:order:checkout:readiness PASS. Classificação: QA_ORDER_CHECKOUT_AUTHORIZATION_IDEMPOTENCY_ISOLATION_PASS. ORD-CHK-01 a ORD-CHK-10 passaram. A correção impede reutilização cruzada de x-idempotency-key entre pedidos diferentes. Mesma x-idempotency-key para o mesmo pedido retorna o mesmo payment. Mesma x-idempotency-key para outro pedido retorna 409 idempotency_key_order_conflict. Esta evidência é readiness interno, não cutover externo. Esta evidência não valida pagamento homologado com provedor real, webhook approved, produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout. Nenhuma migration foi criada. T1 permanece não iniciado.
+
+## Abertura da frente
+Esta evidência não valida pagamento homologado com provedor real. Esta evidência não valida webhook approved. Esta evidência não valida produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout. Esta evidência não valida HML externa, Base URL pública, inscrição real de webhook ou transação real de provedor. Esta evidência não declara MVP pronto.
+
 FRONT_ORDER_CHECKOUT_PAYMENT_READINESS aberta como frente ativa por autorizacao humana explicita. Objetivo: readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessão real. Esta frente não é cutover externo. Esta frente não valida pagamento homologado com provedor real, HML externa, Base URL pública, inscrição real de webhook ou transação real de provedor. Primeiro passo da nova frente: inventário técnico e documental dos fluxos de pedido, checkout, pagamento, webhook e status, sem alteração de código. FRONT_3_CATALOG_CURATION_HARDENING e FRONT_QA_GATE_GOVERNANCE_CLEANUP permanecem pausadas como PARCIAL fortalecida. T1 permanece não iniciado.
 
 ## Bloqueio atual
@@ -142,6 +147,7 @@ O risco real agora e:
 - expandir o recorte interno para producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout.
 
 ## Evidencia
+- QA_ORDER_CHECKOUT_AUTHORIZATION_IDEMPOTENCY_ISOLATION registrada como primeira evidência técnica da FRONT_ORDER_CHECKOUT_PAYMENT_READINESS. Commit técnico: cbdfc91 fix(payments): scope checkout idempotency by order. Resultado funcional: npm run qa:order:checkout:readiness PASS. Classificação: QA_ORDER_CHECKOUT_AUTHORIZATION_IDEMPOTENCY_ISOLATION_PASS. ORD-CHK-01 a ORD-CHK-10 passaram. A correção impede reutilização cruzada de x-idempotency-key entre pedidos diferentes. Mesma x-idempotency-key para o mesmo pedido retorna o mesmo payment. Mesma x-idempotency-key para outro pedido retorna 409 idempotency_key_order_conflict. Durante runner/build, qa:product:guardrails pode ser executado como pré-condição estática; nenhum gate funcional amplo foi executado diretamente. Nenhum webhook approved foi chamado. Esta evidência é readiness interno, não cutover externo, e não valida pagamento homologado com provedor real, webhook approved, produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout. Nenhuma migration foi criada. T1 permanece não iniciado.
 - `npm run p3:precheck`: `BLOCKED_EXTERNAL_BASE_URL` em `2026-06-21` quando `HML_BASE_URL=http://localhost:3000`
 - `npm run p3:plug`: `BLOCKED_EXTERNAL_BASE_URL` em `2026-06-21`
 - `npm run go:preflight`: `BLOCKED_EXTERNAL_BASE_URL` em `2026-06-21`
@@ -186,6 +192,9 @@ O risco real agora e:
 - Autorizacao humana explicita: FRONT_ORDER_CHECKOUT_PAYMENT_READINESS aberta como frente ativa, limitada a readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessao real. Nao e cutover externo e nao valida pagamento homologado com provedor real.
 
 ## Proximo passo exato
+Preservar QA_ORDER_CHECKOUT_AUTHORIZATION_IDEMPOTENCY_ISOLATION como evidência interna vigente e não inferir cutover externo, pagamento homologado, webhook approved ou MVP pronto. Qualquer novo recorte da FRONT_ORDER_CHECKOUT_PAYMENT_READINESS exige escopo humano explícito e deve parar se exigir HML externa, Base URL pública, inscrição real de webhook, transação de provedor, produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout. T1 permanece não iniciado.
+
+## Passo anterior
 Inventariar tecnicamente e documentalmente os fluxos de pedido, checkout, pagamento, webhook e status, sem alteracao de codigo e sem executar gates funcionais. Parar se o recorte exigir HML externa, Base URL publica, inscricao real de webhook, transacao de provedor, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout. T1 permanece nao iniciado.
 
 ## Nao reabrir sem evidencia nova

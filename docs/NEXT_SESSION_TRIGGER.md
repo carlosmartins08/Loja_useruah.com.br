@@ -23,7 +23,7 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Confirme que FRONT_ORDER_CHECKOUT_PAYMENT_READINESS e a unica frente ativa. Limite-se ao inventario tecnico e documental de pedido, checkout, pagamento, webhook e status; nao altere codigo nem execute gate funcional sem nova autorizacao explicita.`
+`Confirme que FRONT_ORDER_CHECKOUT_PAYMENT_READINESS e a unica frente ativa. QA_ORDER_CHECKOUT_AUTHORIZATION_IDEMPOTENCY_ISOLATION e evidencia interna vigente; nao a promova a cutover externo, pagamento homologado, webhook approved ou MVP pronto. Nao altere codigo nem execute novo gate funcional sem nova autorizacao explicita.`
 
 ## Checklist anti-retrabalho
 Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
@@ -83,6 +83,7 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - `go:e2e:proof`: `BLOCKED_EXTERNAL_BASE_URL` em dry-run quando a base ainda e local
 
 ## Evidencia adicional deste ciclo
+- QA_ORDER_CHECKOUT_AUTHORIZATION_IDEMPOTENCY_ISOLATION registrada como primeira evidência técnica da FRONT_ORDER_CHECKOUT_PAYMENT_READINESS. Commit técnico: cbdfc91 fix(payments): scope checkout idempotency by order. Resultado funcional: npm run qa:order:checkout:readiness PASS. Classificação: QA_ORDER_CHECKOUT_AUTHORIZATION_IDEMPOTENCY_ISOLATION_PASS. ORD-CHK-01 a ORD-CHK-10 passaram. A correção impede reutilização cruzada de x-idempotency-key entre pedidos diferentes. Mesma x-idempotency-key para o mesmo pedido retorna o mesmo payment. Mesma x-idempotency-key para outro pedido retorna 409 idempotency_key_order_conflict. Esta evidência é readiness interno, não cutover externo. Esta evidência não valida pagamento homologado com provedor real, webhook approved, produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout. Nenhuma migration foi criada. Durante runner/build, qa:product:guardrails pode ser executado como pré-condição estática; nenhum gate funcional amplo foi executado diretamente. Nenhum webhook approved foi chamado. T1 permanece não iniciado.
 - `qa:routes`: `PASS`
 - `qa:blindspots`: `PASS`
 - `qa:campaign:impact`: `PASS`
