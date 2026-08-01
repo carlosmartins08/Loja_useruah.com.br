@@ -120,7 +120,7 @@ Nao tocar: produto, checkout, carrinho, pedido, pagamento, webhook, catalogo, ba
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
-Autorizacao humana explicita abriu FRONT_QA_GATE_GOVERNANCE_CLEANUP como frente ativa, sem implementacao. FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida; FRONT_3 nao esta DONE e Artwork/CatalogItem permanecem PARCIAL.
+QA_GATE_ALIAS_QUARANTINE registrada como primeira acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. Commit tecnico: 8b4ee58 chore(qa): quarantine legacy QA aliases. qa:catalog e qa:full foram colocados em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura.
 
 ## Bloqueio atual
 O bloqueio BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY foi removido somente porque ha autorizacao humana explicita para FRONT_QA_GATE_GOVERNANCE_CLEANUP. A frente nao autoriza alterar scripts QA, aliases, produto, dominio, RBAC, migrations, banco ou fluxos de negocio.
@@ -172,9 +172,10 @@ O risco real agora e:
 - `4cbb75e` (tecnico) e `b213fba` (documental): `qa:catalog:curation PASS` vigente para `QA_CATALOG_CURATION_ISOLATION`, cobrindo a cadeia positiva de curadoria/catalogo.
 - `9d00b01` (tecnico) e `a4afcb7` (documental): `qa:catalog:authority PASS` vigente para `QA_CATALOG_AUTHORITY_RESTART_ISOLATION`, cobrindo a autoridade MySQL apos restart controlado.
 - `3dc9134` (tecnico) e `60580ea` (documental): `qa:catalog:lifecycle PASS` vigente para `QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION`, cobrindo reversao publica `published -> archived -> draft -> ready -> published`.
+- `8b4ee58`: QA_GATE_ALIAS_QUARANTINE colocou `qa:catalog` e `qa:full` em quarentena/fail-fast explicito. qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle permanecem como gates vigentes de catalogo com evidencia propria. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
 
 ## Proximo passo exato
-Primeiro passo da nova frente: inventario tecnico e documental dos gates e aliases, sem alteracao de scripts. Classificar `qa:catalog`, `qa:catalog:persisted`, `qa:full` e composicoes amplas como vigente, historico, legado inseguro, reformavel ou condenado; preservar os gates comprovados. T1 permanece nao iniciado.
+Continuar o inventario e a classificacao documental dos gates e aliases remanescentes, sem alterar scripts QA. qa:full nao e cobertura confiavel nem evidencia de maturidade completa. T1 permanece nao iniciado.
 
 ## Nao reabrir sem evidencia nova
 - `lib/access-control.ts` como autoridade canonica de permissao
