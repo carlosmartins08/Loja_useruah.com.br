@@ -10,6 +10,8 @@ const QA_IDENTITIES = [
   { email: 'qa-foreign-community-manager@useruah.local', userName: 'QA Foreign Community Manager', userRole: 'community_manager' },
   { email: 'qa-curator@useruah.local', userName: 'QA Curator', userRole: 'curator' },
   { email: 'qa-platform-admin@useruah.local', userName: 'QA Platform Admin', userRole: 'platform_admin' },
+  { email: 'qa-customer-primary@useruah.local', userName: 'QA Customer Primary', userRole: 'customer' },
+  { email: 'qa-customer-foreign@useruah.local', userName: 'QA Customer Foreign', userRole: 'customer' },
 ];
 
 function resolveQaDatabaseUrl() {

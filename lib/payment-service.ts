@@ -42,6 +42,9 @@ export async function createPaymentWithIdempotency(
 ): Promise<{ payment: PaymentRecord; nextAction: 'none' | 'await_pix_confirmation' | 'await_wallet_confirmation'; reused: boolean }> {
   const existing = await getPaymentByIdempotencyKey(idempotencyKey);
   if (existing) {
+    if (existing.orderId !== payload.orderId) {
+      throw new PaymentFlowError(409, 'idempotency_key_order_conflict');
+    }
     return {
       payment: existing,
       nextAction:
