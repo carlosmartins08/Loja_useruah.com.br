@@ -1,6 +1,6 @@
 # Active Front
 
-Data de revisao: 2026-07-29
+Data de revisao: 2026-08-01
 Branch: `main`
 Responsavel atual: `Codex + usuario`
 Status da frente: `FRONT_3_CATALOG_CURATION_HARDENING` — `ATIVA`
@@ -116,7 +116,7 @@ Nao tocar: produto, checkout, carrinho, pedido, pagamento, webhook, catalogo, ba
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
-FRONT_3_CATALOG_CURATION_HARDENING foi aberta como frente ativa por autorizacao humana explicita, preservando FRONT_1_COMMUNITY_CAMPAIGNS como PARCIAL/PAUSADA e sem iniciar implementacao, gates ou T1.
+Commit `3dc9134` confirmou `qa:catalog:lifecycle PASS vigente para QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION.` Artwork e CatalogItem permanecem PARCIAL; FRONT_3_CATALOG_CURATION_HARDENING permanece ativa e nao esta DONE.
 
 ## Bloqueio atual
 `FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa. FRONT_3 nao autoriza financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.
@@ -163,9 +163,10 @@ O risco real agora e:
 - `app/affiliate/links/page.tsx`: workspace do afiliado agora explicita e controla status ativo/pausado
 - `scripts/qa/qa-affiliate-referral.mjs`: suite preparada e aprovada para o recorte novo
 - `e0df063`: `ACTIVE_FRONT` passou a vencer o espelho operacional para frente, objetivo e branch; `npm run test:agent-route` passou 6/6 em 2026-07-25.
+- `3dc9134` e `npm run qa:catalog:lifecycle`: `PASS` vigente em MySQL QA isolado `useruah_qa_catalog_lifecycle` para `QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION`, com `ruah_session`, sem `x-actor-*`, sem `ALLOW_HEADER_ACTOR_FALLBACK` e com `QA_NEXT_DIST_DIR=.tmp-store/qa-next-catalog-lifecycle`. Evidence covers authenticated catalog lifecycle reversal: published visibility, archive/unpublish public removal, reopen to draft without public visibility, ready without public overexposure, and publish restoring public visibility. CAT-LIFE-01 a CAT-LIFE-10 cobriram autenticacao do curator, bloqueio de artist e anonimo (403 pelo contrato atual), as quatro superficies publicas, isolamento e allowlist/blocklist. Artwork e CatalogItem permanecem PARCIAL. FRONT_3_CATALOG_CURATION_HARDENING permanece ativa; nao esta DONE. Nao valida rejeicao auditavel de Artwork, auditoria duravel, midia, SEO, staging, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Nao altera produto, dominio, RBAC ou migrations.
 
 ## Proximo passo exato
-Ler as fontes autoritativas de catalogo e curadoria e desenhar o primeiro recorte tecnico da FRONT_3, sem implementar diretamente nem executar gate funcional. FRONT_1 permanece PARCIAL/PAUSADA; qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only e nao valida order, checkout, payment, webhook, production, shipping, referral ou attribution. FRONT_3 nao autoriza financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.
+Ler as evidencias vigentes de catalogo e curadoria, incluindo QA_CATALOG_CURATION_ISOLATION, QA_CATALOG_AUTHORITY_RESTART_ISOLATION e QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION, e decidir documentalmente o proximo recorte tecnico autorizado da FRONT_3, sem inferir maturidade ampla, implementar diretamente ou executar gate funcional. FRONT_1 permanece PARCIAL/PAUSADA; qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only e nao valida order, checkout, payment, webhook, production, shipping, referral ou attribution. FRONT_3 nao autoriza financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution.
 
 ## Nao reabrir sem evidencia nova
 - `lib/access-control.ts` como autoridade canonica de permissao

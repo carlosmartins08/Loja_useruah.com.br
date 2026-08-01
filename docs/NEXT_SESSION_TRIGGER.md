@@ -1,6 +1,6 @@
 # Next Session Trigger
 
-Data de revisao: 2026-07-29
+Data de revisao: 2026-08-01
 
 ## Objetivo
 Retomar por `FRONT_3_CATALOG_CURATION_HARDENING`, mantendo W1-W8 como historico processado, FRONT_1_COMMUNITY_CAMPAIGNS como PARCIAL/PAUSADA e sem reabrir pagamentos ou expandir campanhas alem do runtime `PARCIAL` provado.
@@ -88,6 +88,7 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - `qa:campaign:impact`: `PASS`
 - `qa:community-curation`: `PASS`
 - `qa:catalog:curation`: `PASS`
+- `qa:catalog:lifecycle`: `PASS` vigente para `QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION`
 - `qa:affiliate:referral`: `PASS`
 - `ops:campaign:public`: `PASS`
 - `qa:role:closure`: `PASS`
@@ -155,6 +156,7 @@ Leitura operacional deste momento:
 - Por autorizacao humana explicita, FRONT_3_CATALOG_CURATION_HARDENING foi aberta como nova frente ativa. FRONT_3 nao autoriza financeiro, checkout, pagamento, webhook, producao/envio, referral ou attribution; T1 nao foi iniciado.
 - Commit `4cbb75e` registrou `qa:catalog:curation PASS vigente para QA_CATALOG_CURATION_ISOLATION.` Evidence covers authenticated QA curation/catalog chain: artwork submission, review, approval, catalog governance blocks, impact review, ready, publish and public reads. CAT-CUR-01 a CAT-CUR-14 passaram em MySQL QA isolado `useruah_qa_catalog_curation`, com `ruah_session`, sem `x-actor-*`, sem `ALLOW_HEADER_ACTOR_FALLBACK` e com artefato Next isolado. Artwork e CatalogItem permanecem PARCIAL. FRONT_3_CATALOG_CURATION_HARDENING permanece ativa; nao esta DONE. Nao valida pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Nao altera produto, dominio, RBAC ou migrations.
 - Commit `9d00b01` registrou `qa:catalog:authority PASS vigente para QA_CATALOG_AUTHORITY_RESTART_ISOLATION.` QA_RUNNER_CONTROLLED_RESTART_CAPABILITY validada de forma opt-in pelo commit 9d00b01. Evidence covers MySQL QA catalog authority across controlled Next restart and stale local cache not overriding MySQL. CAT-AUTH-01 a CAT-AUTH-04 cobriram autenticacao do curator por `ruah_session`, bootstrap e leitura publica em MySQL QA antes do restart, restart controlado do Next sobre o mesmo build isolado e persistencia do catalogo apos restart sem prevalencia do cache local obsoleto. Artwork e CatalogItem permanecem PARCIAL. FRONT_3_CATALOG_CURATION_HARDENING permanece ativa; não está DONE. Não valida pedido, checkout, pagamento, webhook, produção/envio, affiliate, referral, attribution, payout ou Dimona. Não altera produto, domínio, RBAC ou migrations.
+- Commit `3dc9134` registrou `qa:catalog:lifecycle PASS vigente para QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION.` Evidence covers authenticated catalog lifecycle reversal: published visibility, archive/unpublish public removal, reopen to draft without public visibility, ready without public overexposure, and publish restoring public visibility. CAT-LIFE-01 a CAT-LIFE-10 passaram em MySQL QA isolado `useruah_qa_catalog_lifecycle`, com `ruah_session`, sem `x-actor-*`, sem `ALLOW_HEADER_ACTOR_FALLBACK` e com `QA_NEXT_DIST_DIR=.tmp-store/qa-next-catalog-lifecycle`; curator autenticado, artist e anonimo bloqueados (403 pelo contrato atual), allowlist e blocklist permaneceram ativas. Artwork e CatalogItem permanecem PARCIAL. FRONT_3_CATALOG_CURATION_HARDENING permanece ativa; nao esta DONE. Nao valida rejeicao auditavel de Artwork, auditoria duravel, midia, SEO, staging, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Nao altera produto, dominio, RBAC ou migrations.
 
 ## Sinais de desvio
 Se qualquer um destes aparecer, parar e corrigir a direcao:
