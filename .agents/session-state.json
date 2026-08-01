@@ -2,8 +2,8 @@
   "reviewedAt": "2026-08-01",
   "branch": "main",
   "status": "FRONT_QA_GATE_GOVERNANCE_CLEANUP",
-  "frontLifecycle": "ACTIVE_GOVERNANCE_INVENTORY_AUTHORIZED",
-  "objective": "FRONT_QA_GATE_GOVERNANCE_CLEANUP aberta como frente ativa. Objetivo: inventariar, classificar e higienizar gates/aliases legados para evitar falso PASS e falsa cobertura. Esta frente nao altera produto, dominio, RBAC, migrations ou fluxos de negocio.",
+  "frontLifecycle": "PAUSED_PARTIAL_STRENGTHENED",
+  "objective": "FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida, nao DONE. O objetivo minimo substancial de neutralizar aliases amplos de risco foi cumprido; proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY.",
   "activeFront": "FRONT_QA_GATE_GOVERNANCE_CLEANUP",
   "resumeTrigger": {
     "entrypoint": "docs/NEXT_SESSION_TRIGGER.md",
@@ -69,9 +69,11 @@
     "Commit 44bca23 registrou qa:community:revenue PASS vigente apenas para community_campaign_revenue_read_ownership_only em useruah_qa_community_revenue: fixture controlado, leitura por campanha do owner, agregado coerente, ownership negativo e bloqueio de papel nao financeiro. Não valida order, checkout, payment, webhook, production, shipping, referral ou attribution. Campaign/CampaignProduct permanecem PARCIAL, agora com evidência adicional de leitura/ownership de receita por campanha; nao autoriza maturidade financeira, payout real, reparo de dominio ou T1.",
     "FRONT_1_COMMUNITY_CAMPAIGNS encerrada/pausada como PARCIAL conscientemente limitado por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE. Não há autorização para avançar para financeiro completo, qa:base:roles, payout, checkout, payment ou nova frente sem decisão explícita posterior."
   ],
-  "lastStep": "QA_BASE_ROLES_ALIAS_QUARANTINE registrada como terceira acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. Commit tecnico: 4390f1a chore(qa): quarantine base roles alias. qa:base:roles foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de maturidade por papeis. qa:base:roles nao e evidencia funcional vigente. Eventual retomada de base roles exige decomposicao em recortes isolados e autorizacao humana explicita. pr:premerge permanece inalterado nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.",
-  "blocked": false,
-  "blockers": [],
+  "lastStep": "FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida, nao DONE. A frente neutralizou qa:catalog, qa:full, qa:role:closure e qa:base:roles como aliases de risco para falso PASS e falsa cobertura. pr:premerge permanece governanca estatica de PR, nao evidencia funcional vigente; qa:catalog:persisted permanece historico/referencial, nao evidencia vigente de autoridade de catalogo. Os gates vigentes separados sao qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle. Esta pausa nao valida maturidade completa nem pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY; nova frente ou retomada exige autorizacao humana explicita. T1 permanece nao iniciado.",
+  "blocked": true,
+  "blockers": [
+    "BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY: os riscos residuais sao por dominio especifico e exigem autorizacao humana propria; nao ha proximo patch tecnico generico autorizado."
+  ],
   "externalDependencies": [
     "FRONT_5_REAL_PAYMENTS_CUTOVER depende de janela externa objetiva de homologacao final e cutover; essa frente nao e a frente ativa."
   ],
@@ -126,7 +128,8 @@
     "3dc9134 e npm run qa:catalog:lifecycle PASS em MySQL QA local isolado useruah_qa_catalog_lifecycle em 2026-08-01, vigente para QA_CATALOG_LIFECYCLE_REVERSAL_ISOLATION: CAT-LIFE-01 a CAT-LIFE-10 provaram ruah_session, bloqueio de artist e anonimo (403 pelo contrato atual), published visibility, archive/unpublish public removal, reopen draft invisivel, ready sem sobreexposicao, republish publico, QA_NEXT_DIST_DIR isolado e allowlist/blocklist. Sem x-actor-* ou ALLOW_HEADER_ACTOR_FALLBACK. Artwork/CatalogItem permanecem PARCIAL; nao valida rejeicao auditavel de Artwork, auditoria duravel, midia, SEO, staging, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona; nao altera produto, dominio, RBAC ou migrations.",
     "8b4ee58 QA_GATE_ALIAS_QUARANTINE: qa:catalog e qa:full foram colocados em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura. qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle permanecem gates vigentes de catalogo com evidencia propria. Esta acao nao executa gates funcionais, nao valida maturidade completa e nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora; T1 permanece nao iniciado.",
     "9ae24f3 QA_ROLE_CLOSURE_ALIAS_QUARANTINE: qa:role:closure foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de fechamento por papeis. O alias e legado e nao e evidencia funcional vigente. Eventual retomada de role closure exige recorte isolado e autorizacao humana explicita. qa:base:roles e pr:premerge permanecem inalterados nesta acao. Esta acao nao executa gates funcionais, nao valida maturidade completa e nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora; T1 permanece nao iniciado.",
-    "4390f1a QA_BASE_ROLES_ALIAS_QUARANTINE: qa:base:roles foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de maturidade por papeis. O alias e legado/amplo e nao e evidencia funcional vigente. Eventual retomada de base roles exige decomposicao em recortes isolados e autorizacao humana explicita. pr:premerge permanece inalterado nesta acao. Esta acao nao executa gates funcionais, nao valida maturidade completa e nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora; T1 permanece nao iniciado."
+    "4390f1a QA_BASE_ROLES_ALIAS_QUARANTINE: qa:base:roles foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de maturidade por papeis. O alias e legado/amplo e nao e evidencia funcional vigente. Eventual retomada de base roles exige decomposicao em recortes isolados e autorizacao humana explicita. pr:premerge permanece inalterado nesta acao. Esta acao nao executa gates funcionais, nao valida maturidade completa e nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora; T1 permanece nao iniciado.",
+    "FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida, nao DONE, por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. A pausa preserva pr:premerge como governanca estatica de PR, qa:catalog:persisted como historico/referencial e qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle como evidencias separadas."
   ],
   "nextExactStep": [
     "Ler docs/ACTIVE_FRONT.md",
@@ -134,20 +137,17 @@
     "Ler docs/CATALOG_CURATION_DEFINITION_OF_DONE.md",
     "Ler docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md",
     "Manter qa:community:revenue como evidencia vigente limitada a community_campaign_revenue_read_ownership_only",
-    "Inventariar scripts QA e aliases de package.json sem altera-los",
-    "Classificar qa:catalog, qa:catalog:persisted, qa:full e composicoes amplas como vigente, historico, legado inseguro, reformavel ou condenado",
-    "Preservar qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle como evidencias vigentes",
-    "Registrar proposta posterior de higienizacao sem implementar",
-    "Manter QA_GATE_ALIAS_QUARANTINE como governanca de aliases, nao como validacao funcional ou prova de maturidade completa",
-    "Manter QA_ROLE_CLOSURE_ALIAS_QUARANTINE como governanca de alias legado, nao como validacao funcional; eventual retomada exige recorte isolado e autorizacao humana explicita",
-    "Manter QA_BASE_ROLES_ALIAS_QUARANTINE como governanca de alias legado/amplo, nao como validacao funcional; eventual retomada exige decomposicao em recortes isolados e autorizacao humana explicita",
+    "Aguardar autorizacao humana explicita para nova frente ou retomada com dominio e recorte isolados",
+    "Manter qa:catalog, qa:full, qa:role:closure e qa:base:roles quarentenados; nao usa-los como evidencia funcional vigente",
+    "Manter pr:premerge como governanca estatica de PR e qa:catalog:persisted como historico/referencial",
+    "Manter qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle como evidencias vigentes separadas",
     "Manter produto, dominio, RBAC, migrations, banco, financeiro, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona fora",
     "Manter T1 nao iniciado"
   ],
   "doNotReopen": [
     "lib/access-control.ts como autoridade canonica de permissao",
     "namespaces canonicos por papel como unica referencia interna",
-    "qa:base:roles como gate obrigatorio",
+    "qa:base:roles como alias quarentenado, nao gate obrigatorio",
     "campanha publica, referral e leitura por campanha como provas fechadas do recorte atual",
     "spawn EPERM/EINVAL em sandbox Windows como ruido ambiental quando a malha serial ja passou fora do sandbox",
     "W1-W8 como historico processado, sem reabrir qualquer uma dessas ondas",

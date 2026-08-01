@@ -3,10 +3,10 @@
 Data de revisao: 2026-08-01
 Branch: `main`
 Responsavel atual: `Codex + usuario`
-Status da frente: `FRONT_QA_GATE_GOVERNANCE_CLEANUP` — `ATIVA`
+Status da frente: `FRONT_QA_GATE_GOVERNANCE_CLEANUP` — `PAUSADA COMO PARCIAL FORTALECIDA`
 
 ## Objetivo atual
-FRONT_QA_GATE_GOVERNANCE_CLEANUP aberta como frente ativa. Objetivo: inventariar, classificar e higienizar gates/aliases legados para evitar falso PASS e falsa cobertura.
+FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida. FRONT_QA_GATE_GOVERNANCE_CLEANUP nao esta DONE. O objetivo minimo substancial foi neutralizar aliases amplos que induziam falso PASS e falsa cobertura, sem promover maturidade funcional ampla.
 
 ## Gatilho rapido de retomada
 Se a sessao cair ou for retomada depois:
@@ -22,10 +22,10 @@ Estado operacional:
 - FRONT_1_COMMUNITY_CAMPAIGNS permanece PARCIAL/PAUSADA, conscientemente limitada por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE, e nao esta DONE.
 - Campaign/CampaignProduct permanecem PARCIAL.
 - qa:community:revenue permanece limitado a community_campaign_revenue_read_ownership_only; nao valida order, checkout, payment, webhook, production, shipping, referral ou attribution.
-- FRONT_QA_GATE_GOVERNANCE_CLEANUP aberta como frente ativa por autorizacao humana explicita.
+- FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida; nenhum novo front foi aberto.
 - FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida.
 - FRONT_3 nao esta DONE; Artwork e CatalogItem permanecem PARCIAL.
-- O bloqueio BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY foi removido somente para esta frente limitada de governanca de gates.
+- Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY.
 - T1 permanece nao iniciado.
 
 Motivo:
@@ -120,10 +120,10 @@ Nao tocar: produto, checkout, carrinho, pedido, pagamento, webhook, catalogo, ba
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
-QA_BASE_ROLES_ALIAS_QUARANTINE registrada como terceira acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. Commit tecnico: 4390f1a chore(qa): quarantine base roles alias. qa:base:roles foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de maturidade por papeis. qa:base:roles nao e evidencia funcional vigente. Eventual retomada de base roles exige decomposicao em recortes isolados e autorizacao humana explicita. pr:premerge permanece inalterado nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
+FRONT_QA_GATE_GOVERNANCE_CLEANUP pausada como PARCIAL fortalecida. FRONT_QA_GATE_GOVERNANCE_CLEANUP nao esta DONE. A frente neutralizou qa:catalog, qa:full, qa:role:closure e qa:base:roles como aliases de risco para falso PASS e falsa cobertura. pr:premerge permanece preservado como governanca estatica de PR, nao evidencia funcional vigente. qa:catalog:persisted permanece historico/referencial, nao evidencia vigente de autoridade de catalogo. Os tres gates vigentes de catalogo permanecem separados: qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle. Esta pausa nao valida maturidade completa do sistema. Esta pausa nao valida pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. Nova frente ou retomada exige autorizacao humana explicita. T1 permanece nao iniciado.
 
 ## Bloqueio atual
-O bloqueio BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY foi removido somente porque ha autorizacao humana explicita para FRONT_QA_GATE_GOVERNANCE_CLEANUP. A frente nao autoriza alterar scripts QA, aliases, produto, dominio, RBAC, migrations, banco ou fluxos de negocio.
+FRONT_QA_GATE_GOVERNANCE_CLEANUP esta pausada como PARCIAL fortalecida e nao esta DONE. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY: os riscos residuais sao por dominio especifico e exigem autorizacao humana propria; nao ha proximo patch tecnico generico autorizado.
 
 `FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa. FRONT_3 continua pausada com lacunas de rejeicao auditavel de Artwork, auditoria duravel, midia, SEO e staging.
 
@@ -175,9 +175,10 @@ O risco real agora e:
 - `8b4ee58`: QA_GATE_ALIAS_QUARANTINE colocou `qa:catalog` e `qa:full` em quarentena/fail-fast explicito. qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle permanecem como gates vigentes de catalogo com evidencia propria. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
 - `9ae24f3`: QA_ROLE_CLOSURE_ALIAS_QUARANTINE registrada como segunda acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. qa:role:closure foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de fechamento por papeis; e um alias legado e nao e evidencia funcional vigente. Eventual retomada de role closure exige recorte isolado e autorizacao humana explicita. qa:base:roles e pr:premerge permanecem inalterados nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
 - `4390f1a`: QA_BASE_ROLES_ALIAS_QUARANTINE registrada como terceira acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. qa:base:roles foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de maturidade por papeis; e um alias legado/amplo e nao e evidencia funcional vigente. Eventual retomada de base roles exige decomposicao em recortes isolados e autorizacao humana explicita. pr:premerge permanece inalterado nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
+- Pausa documental: FRONT_QA_GATE_GOVERNANCE_CLEANUP esta PARCIAL fortalecida, nao DONE. Os commits tecnicos/documentais das quarentenas sao `8b4ee58`/`8f76da2` para qa:catalog e qa:full, `9ae24f3`/`acb443e` para qa:role:closure e `4390f1a`/`a3dcaf3` para qa:base:roles. `pr:premerge` e governanca estatica de PR, nao evidencia funcional; `qa:catalog:persisted` e historico/referencial baseado em SQLite/dev/header/.tmp-store, nao evidencia vigente de autoridade de catalogo. Os gates vigentes separados sao qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle. Nenhum novo front foi aberto; T1 permanece nao iniciado.
 
 ## Proximo passo exato
-Continuar o inventario e a classificacao documental dos gates e aliases remanescentes, sem alterar scripts QA. `qa:role:closure` e `qa:base:roles` permanecem aliases legados quarentenados e nao sao evidencia funcional vigente; eventual retomada exige recortes isolados e autorizacao humana explicita. qa:full nao e cobertura confiavel nem evidencia de maturidade completa. T1 permanece nao iniciado.
+Nao executar novo patch tecnico generico. Proximo avanco bloqueado por BLOCKED_BY_MISSING_NEXT_FRONT_AUTHORITY. Nova frente ou retomada exige autorizacao humana explicita para o dominio e o recorte isolado; T1 permanece nao iniciado.
 
 ## Nao reabrir sem evidencia nova
 - `lib/access-control.ts` como autoridade canonica de permissao
