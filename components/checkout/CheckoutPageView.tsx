@@ -75,22 +75,27 @@ export function CheckoutPageView() {
 
     setIsProcessing(true);
     setCheckoutError(null);
-    if (!requestKeyRef.current) requestKeyRef.current = crypto.randomUUID();
+    const attemptKey = requestKeyRef.current ?? crypto.randomUUID();
+    requestKeyRef.current = attemptKey;
 
     try {
-      const orderPayload = await postJson<{ order: OrderRecord }>('/api/orders', {
-        customer: { id: userId },
-        supplierId,
-        shippingAddressMode: selectedAddress === 'home' ? 'same_as_account' : 'custom',
-        shippingAddress,
-        campaignId: campaignIds[0],
-        items: cart.map((item) => ({
-          catalogItemId: item.id,
-          variantId: item.variantId,
-          quantity: item.quantity,
-          unitPrice: item.price,
-        })),
-      });
+      const orderPayload = await postJson<{ order: OrderRecord }>(
+        '/api/orders',
+        {
+          customer: { id: userId },
+          supplierId,
+          shippingAddressMode: selectedAddress === 'home' ? 'same_as_account' : 'custom',
+          shippingAddress,
+          campaignId: campaignIds[0],
+          items: cart.map((item) => ({
+            catalogItemId: item.id,
+            variantId: item.variantId,
+            quantity: item.quantity,
+            unitPrice: item.price,
+          })),
+        },
+        { headers: { 'x-idempotency-key': attemptKey } }
+      );
 
       const payload = await postJson<{ payment: PaymentRecord }>(
         '/api/payments/checkout',
@@ -99,7 +104,7 @@ export function CheckoutPageView() {
           method,
           provider,
         },
-        { headers: { 'x-idempotency-key': requestKeyRef.current ?? '' } }
+        { headers: { 'x-idempotency-key': attemptKey } }
       );
 
       setPaymentSummary(payload.payment);

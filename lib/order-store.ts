@@ -1,7 +1,8 @@
-import { randomUUID } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import { readStoreFile, writeStoreFile } from '@/lib/dev-store';
 import { getMysqlPool, shouldUseMysql, type MysqlResult, type MysqlRow } from '@/lib/mysql-runtime';
 import type { MovementMarkupSnapshot } from '@/lib/campaign-pricing';
+import type { Pool, PoolConnection } from 'mysql2/promise';
 
 export type OrderStatus =
   | 'draft'
@@ -74,6 +75,45 @@ export interface OrderRecord {
   paidAt?: string;
 }
 
+export interface CreatePlacedOrderInput {
+  customerId: string;
+  supplierId: string;
+  shippingAddress: ShippingAddress;
+  attribution?: {
+    campaignId?: string;
+    campaignName?: string;
+    campaignProgressivePriceRule?: string;
+    organizationId?: string;
+    communityOwnerId?: string;
+    referralLinkId?: string;
+    affiliateUserId?: string;
+  };
+  items: Array<{
+    catalogItemId: string;
+    variantId: string;
+    quantity: number;
+    unitPrice: number;
+    priceCompositionVersion?: string;
+    movementMarkup?: MovementMarkupSnapshot | null;
+  }>;
+}
+
+interface OrderCreationIdempotencyRecord {
+  orderId: string;
+  payloadHash: string;
+}
+
+type OrderCreationIdempotencyState = Record<string, OrderCreationIdempotencyRecord>;
+
+export class OrderCreationIdempotencyError extends Error {
+  readonly status = 409;
+  readonly code = 'order_idempotency_conflict';
+
+  constructor() {
+    super('order_idempotency_conflict');
+  }
+}
+
 function safePct(raw: string | undefined, fallback: number) {
   const parsed = Number(raw);
   if (!Number.isFinite(parsed)) return fallback;
@@ -90,6 +130,14 @@ function readOrders(): OrderStoreState {
 
 function writeOrders(value: OrderStoreState) {
   writeStoreFile('orders', value);
+}
+
+function readOrderCreationIdempotency(): OrderCreationIdempotencyState {
+  return readStoreFile<OrderCreationIdempotencyState>('order-creation-idempotency', {});
+}
+
+function writeOrderCreationIdempotency(value: OrderCreationIdempotencyState) {
+  writeStoreFile('order-creation-idempotency', value);
 }
 
 function toMysqlDatetime(iso: string) {
@@ -196,28 +244,7 @@ function rowToOrder(row: MysqlRow): OrderRecord {
   };
 }
 
-export async function createPlacedOrder(input: {
-  customerId: string;
-  supplierId: string;
-  shippingAddress: ShippingAddress;
-  attribution?: {
-    campaignId?: string;
-    campaignName?: string;
-    campaignProgressivePriceRule?: string;
-    organizationId?: string;
-    communityOwnerId?: string;
-    referralLinkId?: string;
-    affiliateUserId?: string;
-  };
-  items: Array<{
-    catalogItemId: string;
-    variantId: string;
-    quantity: number;
-    unitPrice: number;
-    priceCompositionVersion?: string;
-    movementMarkup?: MovementMarkupSnapshot | null;
-  }>;
-}): Promise<OrderRecord> {
+async function buildPlacedOrder(input: CreatePlacedOrderInput): Promise<OrderRecord> {
   const now = new Date().toISOString();
   const supplierPct = safePct(process.env.SUPPLIER_REVENUE_PCT, 0.7);
   const artistPct = safePct(process.env.ARTIST_LICENSE_PCT, 0.1);
@@ -317,29 +344,168 @@ export async function createPlacedOrder(input: {
     updatedAt: now,
   };
 
+  return order;
+}
+
+function orderCreationPayloadHash(input: CreatePlacedOrderInput) {
+  const canonicalPayload = {
+    supplierId: input.supplierId,
+    shippingAddress: {
+      recipientName: input.shippingAddress.recipientName,
+      cep: input.shippingAddress.cep,
+      street: input.shippingAddress.street,
+      number: input.shippingAddress.number,
+      city: input.shippingAddress.city,
+      state: input.shippingAddress.state,
+      country: input.shippingAddress.country,
+    },
+    attribution: {
+      campaignId: input.attribution?.campaignId ?? null,
+      campaignName: input.attribution?.campaignName ?? null,
+      campaignProgressivePriceRule: input.attribution?.campaignProgressivePriceRule ?? null,
+      organizationId: input.attribution?.organizationId ?? null,
+      communityOwnerId: input.attribution?.communityOwnerId ?? null,
+      referralLinkId: input.attribution?.referralLinkId ?? null,
+      affiliateUserId: input.attribution?.affiliateUserId ?? null,
+    },
+    items: input.items.map((item) => ({
+      catalogItemId: item.catalogItemId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+      unitPrice: Number(item.unitPrice.toFixed(2)),
+      priceCompositionVersion: item.priceCompositionVersion ?? null,
+      movementMarkup: item.movementMarkup ?? null,
+    })),
+  };
+
+  return createHash('sha256').update(JSON.stringify(canonicalPayload)).digest('hex');
+}
+
+type MysqlOrderExecutor = Pick<Pool, 'execute'> | Pick<PoolConnection, 'execute'>;
+
+async function insertMysqlOrder(executor: MysqlOrderExecutor, order: OrderRecord) {
+  await executor.execute<MysqlResult>(
+    `INSERT INTO orders (order_id, customer_id, items_json, total_amount, status, created_at, updated_at, paid_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      order.orderId,
+      order.customerId,
+      JSON.stringify(order.items),
+      order.totalAmount,
+      order.status,
+      toMysqlDatetime(order.createdAt),
+      toMysqlDatetime(order.updatedAt),
+      null,
+    ]
+  );
+}
+
+async function findMysqlOrderCreationIdempotency(
+  executor: MysqlOrderExecutor,
+  customerId: string,
+  idempotencyKey: string
+) {
+  const [rows] = await executor.execute<MysqlRow[]>(
+    `SELECT order_id, payload_hash
+     FROM order_creation_idempotency
+     WHERE customer_id = ? AND idempotency_key = ?`,
+    [customerId, idempotencyKey]
+  );
+  if (!rows[0]) return null;
+  return {
+    orderId: String(rows[0].order_id),
+    payloadHash: String(rows[0].payload_hash),
+  };
+}
+
+function isMysqlDuplicateEntry(error: unknown) {
+  return Boolean(error && typeof error === 'object' && (error as { code?: string }).code === 'ER_DUP_ENTRY');
+}
+
+function assertCompatibleOrderAttempt(record: OrderCreationIdempotencyRecord, payloadHash: string) {
+  if (record.payloadHash !== payloadHash) {
+    throw new OrderCreationIdempotencyError();
+  }
+}
+
+export async function createPlacedOrder(input: CreatePlacedOrderInput): Promise<OrderRecord> {
+  const order = await buildPlacedOrder(input);
   const mysql = await getMysqlPool();
   if (mysql && shouldUseMysql()) {
-    await mysql.execute<MysqlResult>(
-      `INSERT INTO orders (order_id, customer_id, items_json, total_amount, status, created_at, updated_at, paid_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        order.orderId,
-        order.customerId,
-        JSON.stringify(order.items),
-        order.totalAmount,
-        order.status,
-        toMysqlDatetime(order.createdAt),
-        toMysqlDatetime(order.updatedAt),
-        null,
-      ]
-    );
+    await insertMysqlOrder(mysql, order);
     return order;
   }
 
   const state = readOrders();
-  state[orderId] = order;
+  state[order.orderId] = order;
   writeOrders(state);
   return order;
+}
+
+export async function createPlacedOrderIdempotent(
+  input: CreatePlacedOrderInput,
+  idempotencyKey: string
+): Promise<{ order: OrderRecord; reused: boolean }> {
+  const payloadHash = orderCreationPayloadHash(input);
+  const mysql = await getMysqlPool();
+
+  if (mysql && shouldUseMysql()) {
+    const existing = await findMysqlOrderCreationIdempotency(mysql, input.customerId, idempotencyKey);
+    if (existing) {
+      assertCompatibleOrderAttempt(existing, payloadHash);
+      const order = await getOrder(existing.orderId);
+      if (!order || order.customerId !== input.customerId) {
+        throw new Error('order_idempotency_mapping_invalid');
+      }
+      return { order, reused: true };
+    }
+
+    const order = await buildPlacedOrder(input);
+    const connection = await mysql.getConnection();
+    try {
+      await connection.beginTransaction();
+      await insertMysqlOrder(connection, order);
+      await connection.execute<MysqlResult>(
+        `INSERT INTO order_creation_idempotency
+          (customer_id, idempotency_key, order_id, payload_hash, created_at)
+         VALUES (?, ?, ?, ?, ?)`,
+        [input.customerId, idempotencyKey, order.orderId, payloadHash, toMysqlDatetime(order.createdAt)]
+      );
+      await connection.commit();
+      return { order, reused: false };
+    } catch (error) {
+      await connection.rollback();
+      if (!isMysqlDuplicateEntry(error)) throw error;
+
+      const concurrent = await findMysqlOrderCreationIdempotency(mysql, input.customerId, idempotencyKey);
+      if (!concurrent) throw error;
+      assertCompatibleOrderAttempt(concurrent, payloadHash);
+      const existingOrder = await getOrder(concurrent.orderId);
+      if (!existingOrder || existingOrder.customerId !== input.customerId) {
+        throw new Error('order_idempotency_mapping_invalid');
+      }
+      return { order: existingOrder, reused: true };
+    } finally {
+      connection.release();
+    }
+  }
+
+  const attemptId = JSON.stringify([input.customerId, idempotencyKey]);
+  const idempotencyState = readOrderCreationIdempotency();
+  const existing = idempotencyState[attemptId];
+  if (existing) {
+    assertCompatibleOrderAttempt(existing, payloadHash);
+    const order = await getOrder(existing.orderId);
+    if (!order || order.customerId !== input.customerId) {
+      throw new Error('order_idempotency_mapping_invalid');
+    }
+    return { order, reused: true };
+  }
+
+  const order = await createPlacedOrder(input);
+  idempotencyState[attemptId] = { orderId: order.orderId, payloadHash };
+  writeOrderCreationIdempotency(idempotencyState);
+  return { order, reused: false };
 }
 
 export async function getOrder(orderId: string) {

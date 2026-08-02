@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { appendAuditLog } from '@/lib/audit-log-store';
-import { createPlacedOrder, listOrders, type ShippingAddress } from '@/lib/order-store';
+import {
+  createPlacedOrder,
+  createPlacedOrderIdempotent,
+  listOrders,
+  OrderCreationIdempotencyError,
+  type ShippingAddress,
+} from '@/lib/order-store';
 import { isTermsGateEnabledFor, validateTermsAcceptance } from '@/lib/terms-enforcement';
 import { findPaymentByOrderId } from '@/lib/payment-store';
 import { getProductionJobByOrderId } from '@/lib/production-store';
@@ -74,6 +80,14 @@ function isValidOrderPayload(payload: unknown): payload is OrderCreatePayload {
       row.unitPrice > 0
     );
   });
+}
+
+function getOrderIdempotencyKey(request: Request) {
+  const header = request.headers.get('x-idempotency-key');
+  if (!header) return null;
+  const value = header.trim();
+  if (value.length < 8 || value.length > 128) return undefined;
+  return value;
 }
 
 async function resolveValidatedOrderItems(
@@ -217,6 +231,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'validation_error' }, { status: 422 });
   }
 
+  const idempotencyKey = getOrderIdempotencyKey(request);
+  if (idempotencyKey === undefined) {
+    return NextResponse.json({ error: 'validation_error', detail: 'invalid_x_idempotency_key' }, { status: 422 });
+  }
+
   const customerId = actor.actorId;
   if (body.customer?.id && body.customer.id !== customerId) {
     return NextResponse.json({ error: 'forbidden', detail: 'customer_id_mismatch' }, { status: 403 });
@@ -249,26 +268,45 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: validatedItems.error, detail: validatedItems.detail }, { status: 409 });
   }
 
-  const order = await createPlacedOrder({
+  const orderInput = {
     customerId,
     supplierId: body.supplierId,
     shippingAddress: body.shippingAddress,
     attribution: attribution.context,
     items: validatedItems.items,
-  });
+  };
 
-  appendAuditLog({
-    actor_id: customerId,
-    actor_role: 'customer',
-    action: 'order.placed',
-    entity_type: 'Order',
-    entity_id: order.orderId,
-    previous_status: 'draft',
-    new_status: order.status,
-    reason: `checkout_create_order|supplier:${body.supplierId}|address_mode:${body.shippingAddressMode}`,
-  });
+  let order;
+  let reused = false;
+  try {
+    if (idempotencyKey) {
+      const result = await createPlacedOrderIdempotent(orderInput, idempotencyKey);
+      order = result.order;
+      reused = result.reused;
+    } else {
+      order = await createPlacedOrder(orderInput);
+    }
+  } catch (error) {
+    if (error instanceof OrderCreationIdempotencyError) {
+      return NextResponse.json({ error: error.code }, { status: error.status });
+    }
+    throw error;
+  }
 
-  return NextResponse.json({ ok: true, order }, { status: 201 });
+  if (!reused) {
+    appendAuditLog({
+      actor_id: customerId,
+      actor_role: 'customer',
+      action: 'order.placed',
+      entity_type: 'Order',
+      entity_id: order.orderId,
+      previous_status: 'draft',
+      new_status: order.status,
+      reason: `checkout_create_order|supplier:${body.supplierId}|address_mode:${body.shippingAddressMode}`,
+    });
+  }
+
+  return NextResponse.json({ ok: true, order, reused }, { status: reused ? 200 : 201 });
 }
 
 export async function GET(request: Request) {
