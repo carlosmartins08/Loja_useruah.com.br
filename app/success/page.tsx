@@ -23,10 +23,10 @@ export default async function SuccessPage({
         </div>
 
         <h1 className="text-6xl font-serif italic tracking-tighter uppercase mb-4">
-          Pedido <span className="text-accent-gold">Confirmado.</span>
+          Pedido <span className="text-accent-gold">Recebido.</span>
         </h1>
         <p className="text-[11px] font-bold uppercase tracking-[0.4em] text-ruah-400 mb-12">
-          Obrigado pela sua confianca. Seu pedido entrou no fluxo oficial da operacao.
+          Acompanhe na sua conta a confirmacao do pagamento e as proximas etapas.
         </p>
 
         <div className="bg-ruah-50 p-12 rounded-[3.5rem] border border-ruah-100 w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-12 text-left mb-16 shadow-fancy">
@@ -37,9 +37,9 @@ export default async function SuccessPage({
               <span className="text-xl font-mono font-bold text-ruah-950">{orderId ?? 'Consulte sua conta'}</span>
             </div>
             <div>
-              <span className="text-[10px] text-ruah-400 font-bold uppercase tracking-widest block mb-1">Status</span>
-              <span className="flex items-center gap-2 text-[10px] font-bold text-green-600 uppercase tracking-widest">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> processing
+              <span className="text-[10px] text-ruah-400 font-bold uppercase tracking-widest block mb-1">Status do pagamento</span>
+              <span className="text-[10px] font-bold text-ruah-600 uppercase tracking-widest">
+                Consulte o estado atual na sua conta
               </span>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default async function SuccessPage({
             <Package className="text-accent-gold mb-2" />
             <h4 className="text-[10px] font-black uppercase tracking-widest text-ruah-950">Pack Respiro</h4>
             <p className="text-[10px] font-bold text-ruah-400 uppercase tracking-widest leading-relaxed">
-              Sua peca segue o fluxo real de producao e expedicao da operacao.
+              A producao so comeca depois da confirmacao do pagamento.
             </p>
           </div>
           <div className="flex flex-col gap-4">

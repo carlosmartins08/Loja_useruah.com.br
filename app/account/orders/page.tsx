@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Package, RefreshCcw, ChevronRight, Truck, CheckCircle2, Sparkles } from 'lucide-react';
 import { AppImage } from '@/components/shared/AppImage';
 import { getJson, HttpRequestError } from '@/lib/http-client';
-import { mapToUiStatus, type OrderStatusUi } from '@/lib/order-ui';
+import { humanizePaymentStatus, mapToUiStatus, type OrderStatusUi } from '@/lib/order-ui';
 import { getBrandProductVisual } from '@/lib/brand-assets';
 
 interface OrdersApiItem {
@@ -13,6 +13,7 @@ interface OrdersApiItem {
   totalAmount: number;
   createdAt: string;
   status: string;
+  paymentStatus: string | null;
   productionStatus: string | null;
   shipmentStatus: string | null;
   items: Array<{
@@ -25,7 +26,7 @@ interface OrdersApiItem {
 }
 
 const STATUS_MAP: Record<OrderStatusUi, { label: string; color: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = {
-  recebido: { label: 'Pedido Recebido', color: 'text-ruah-400', icon: Package },
+  recebido: { label: 'Pedido criado', color: 'text-ruah-400', icon: Package },
   producao: { label: 'Em Producao', color: 'text-accent-gold', icon: RefreshCcw },
   enviado: { label: 'Em Transito', color: 'text-accent-gold', icon: Truck },
   entregue: { label: 'Entregue', color: 'text-green-600', icon: CheckCircle2 },
@@ -96,7 +97,12 @@ export default function MyOrders() {
                   </div>
                   <div className='flex items-center gap-3'>
                     <statusConfig.icon size={16} className={statusConfig.color} />
-                    <span className={`text-xs font-semibold uppercase tracking-[0.12em] ${statusConfig.color}`}>{statusConfig.label}</span>
+                    <div className='flex flex-col gap-1'>
+                      <span className={`text-xs font-semibold uppercase tracking-[0.12em] ${statusConfig.color}`}>{statusConfig.label}</span>
+                      <span className='text-[10px] font-semibold uppercase tracking-[0.1em] text-ruah-500'>
+                        {humanizePaymentStatus(order.paymentStatus)}
+                      </span>
+                    </div>
                   </div>
                   <div className='flex flex-col items-end gap-1'>
                     <span className='text-xs font-semibold text-ruah-400 uppercase tracking-[0.12em]'>Total</span>

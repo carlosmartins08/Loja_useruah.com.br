@@ -14,6 +14,7 @@ import { HttpRequestError, postJson } from '@/lib/http-client';
 import { useUser } from '@/context/UserContext';
 import { renderContentMessage } from '@/lib/content-messages';
 import { readAddressBook, toShippingAddress } from '@/lib/address-book';
+import { humanizePaymentStatus } from '@/lib/order-ui';
 
 export function CheckoutPageView() {
   const { cart, total, subtotal, gifting, setGifting, clearCart } = useCart();
@@ -141,13 +142,15 @@ export function CheckoutPageView() {
           <div className="lg:col-span-7 flex flex-col gap-12">
             {step === 3 ? (
               <>
-                <CheckoutSuccessCard orderId={paymentSummary?.orderId} />
+                <CheckoutSuccessCard orderId={paymentSummary?.orderId} paymentStatus={paymentSummary?.status} />
                 {paymentSummary && (
                   <div className="bg-white border border-ruah-100 rounded-2xl p-6">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ruah-400">Resumo da transação</p>
                     <p className="text-sm font-semibold text-ruah-950 mt-3">Pedido: {paymentSummary.orderId}</p>
                     <p className="text-sm font-semibold text-ruah-950 mt-1">Pagamento: {paymentSummary.paymentId}</p>
-                    <p className="text-sm font-semibold text-ruah-950 mt-1">Status: {paymentSummary.status}</p>
+                    <p className="text-sm font-semibold text-ruah-950 mt-1">
+                      Status do pagamento: {humanizePaymentStatus(paymentSummary.status)}
+                    </p>
                   </div>
                 )}
               </>
