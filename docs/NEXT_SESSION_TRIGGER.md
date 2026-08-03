@@ -3,7 +3,7 @@
 Data de revisao: 2026-08-03
 
 ## Objetivo
-FRONT_ORDER_CHECKOUT_PAYMENT_READINESS pausada como PARCIAL fortalecida. FRONT_ORDER_CHECKOUT_PAYMENT_READINESS não está DONE. Bloqueio registrado: BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS. Nenhuma nova frente está aberta; nova frente ou retomada exige autorização humana explícita.
+FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS aberta como frente ativa. Objetivo: readiness interno para payment.approved com fronteira transacional segura. FRONT_ORDER_CHECKOUT_PAYMENT_READINESS permanece pausada como PARCIAL fortalecida, não DONE.
 
 ## Gatilho canonico de retomada
 Toda nova sessao deve comecar por este gatilho, nesta ordem:
@@ -23,7 +23,7 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Confirme que FRONT_ORDER_CHECKOUT_PAYMENT_READINESS permanece pausada como PARCIAL fortalecida por BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS. A frente nao esta DONE e nenhuma nova frente esta aberta. Preserve cbdfc91/f1645a2, 349b21f/92778d6 e 90519b0/0b027bc. Nao retome payment.approved, webhook approved, producao, financeiro, provider real, HML ou cutover sem nova frente e autorizacao humana explicita.`
+`Confirme FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS como frente unica ativa. Execute somente o inventario tecnico e contratual de payment.approved, webhook inbox, transacao de aprovacao e outbox duravel, sem alterar codigo e sem executar gate funcional. Preserve FRONT_ORDER_CHECKOUT_PAYMENT_READINESS como PARCIAL fortalecida, nao DONE, e preserve cbdfc91/f1645a2, 349b21f/92778d6 e 90519b0/0b027bc. Nao toque provider real, HML, cutover, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout.`
 
 ## Checklist anti-retrabalho
 Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
@@ -110,8 +110,8 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 
 ## Contrato minimo da proxima sessao
 A proxima sessao so esta autorizada a:
-1. confirmar a pausa de `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS`, preservar as tres evidencias e aguardar autorizacao humana explicita; ou
-2. recusar reabertura de `payment.approved`, webhook approved, provider real/HML/cutover, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout sem nova frente autorizada.
+1. inventariar tecnicamente e contratualmente o fluxo `payment.approved`, webhook inbox, transacao de aprovacao e outbox duravel, sem alteracao de codigo; e
+2. mapear atomicidade, idempotencia, efeitos downstream e fronteiras de pagamento, pedido, producao e financeiro, sem executar gate funcional.
 
 Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do primeiro patch.
 
@@ -140,9 +140,10 @@ Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-FRONT_ORDER_CHECKOUT_PAYMENT_READINESS esta pausada como PARCIAL fortalecida e nao esta DONE. Bloqueio: BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS. Nenhuma nova frente esta aberta; nova frente ou retomada exige autorizacao humana explicita. FRONT_QA_GATE_GOVERNANCE_CLEANUP e FRONT_3_CATALOG_CURATION_HARDENING permanecem pausadas como PARCIAL fortalecida; Artwork e CatalogItem permanecem PARCIAL; T1 permanece nao iniciado.
+FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS e a frente unica ativa, aberta por autorizacao humana explicita. Esta abertura autoriza apenas readiness interno e analise de desacoplamento; nao autoriza implementacao, gate funcional, cutover externo ou prova de pagamento aprovado. FRONT_ORDER_CHECKOUT_PAYMENT_READINESS, FRONT_QA_GATE_GOVERNANCE_CLEANUP e FRONT_3_CATALOG_CURATION_HARDENING permanecem pausadas como PARCIAL fortalecida; Artwork e CatalogItem permanecem PARCIAL; T1 permanece nao iniciado.
 
 Leitura operacional deste momento:
+- Abertura autorizada: FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS aberta como frente ativa. Objetivo: readiness interno para payment.approved com fronteira transacional segura. Esta frente nao e cutover externo e nao valida pagamento homologado, provider real, HML externa, Base URL publica, inscricao real de webhook, transacao real, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout. Primeiro passo: inventario tecnico e contratual sem alteracao de codigo.
 - `affiliate-referral` fechou o recorte novo.
 - `catalogo-curadoria/artwork` fechou o recorte validado nesta sessao.
 - `superficies publicas` fechou o recorte ativo com saneamento de `artista`, `category`, `help-center`, `quem-somos`, `journal`, `register` e `footer`.

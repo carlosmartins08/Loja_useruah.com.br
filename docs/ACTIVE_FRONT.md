@@ -3,10 +3,10 @@
 Data de revisao: 2026-08-03
 Branch: `main`
 Responsavel atual: `Codex + usuario`
-Status da frente: `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS` — `PAUSADA COMO PARCIAL FORTALECIDA`
+Status da frente: `FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS` — `ATIVA`
 
 ## Objetivo atual
-FRONT_ORDER_CHECKOUT_PAYMENT_READINESS pausada como PARCIAL fortalecida. FRONT_ORDER_CHECKOUT_PAYMENT_READINESS não está DONE. A frente provou readiness interno até pedido placed e payment processing, sem promover nenhum domínio a DONE.
+FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS aberta como frente ativa. Objetivo: readiness interno para payment.approved com fronteira transacional segura.
 
 ## Gatilho rapido de retomada
 Se a sessao cair ou for retomada depois:
@@ -16,13 +16,14 @@ Se a sessao cair ou for retomada depois:
 
 ## Frente unica aberta
 Frente atual selecionada:
-- `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS`
+- `FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS`
 
 Estado operacional:
 - FRONT_1_COMMUNITY_CAMPAIGNS permanece PARCIAL/PAUSADA, conscientemente limitada por BLOCKED_BY_MISSING_AUTHORIZED_NEXT_GATE, e nao esta DONE.
 - Campaign/CampaignProduct permanecem PARCIAL.
 - qa:community:revenue permanece limitado a community_campaign_revenue_read_ownership_only; nao valida order, checkout, payment, webhook, production, shipping, referral ou attribution.
-- FRONT_ORDER_CHECKOUT_PAYMENT_READINESS pausada como PARCIAL fortalecida; nenhum novo front foi aberto.
+- FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS aberta como frente ativa por autorizacao humana explicita.
+- FRONT_ORDER_CHECKOUT_PAYMENT_READINESS permanece pausada como PARCIAL fortalecida, não DONE.
 - FRONT_QA_GATE_GOVERNANCE_CLEANUP permanece pausada como PARCIAL fortalecida.
 - FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida.
 - FRONT_3 nao esta DONE; Artwork e CatalogItem permanecem PARCIAL.
@@ -31,7 +32,7 @@ Estado operacional:
 Motivo:
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` concluiu a reconciliacao entre `ACTIVE_FRONT`, `NEXT_SESSION_TRIGGER`, `.agents/session-state.json` e o roteador.
 - W1-W8 permanecem historico processado; W7/W8 continuam limitados as evidencias existentes e nao afirmam homologacao externa.
-- A autorizacao humana explicita permitiu o recorte isolado de `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS`; a frente agora esta pausada como PARCIAL fortalecida.
+- A autorizacao humana explicita abriu `FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS` para analisar e desacoplar a fronteira transacional interna de `payment.approved`, sem autorizar cutover externo ou prova funcional nesta rodada.
 - `FRONT_5_REAL_PAYMENTS_CUTOVER` continua bloqueada por dependencia externa e nao e a frente ativa.
 
 Limite preservado:
@@ -128,6 +129,8 @@ Nao tocar: producao/envio, Dimona, affiliate, referral, attribution, comissoes, 
 - smoke local em `next start` para `/`, `/journal` e `/register` revalidado em `2026-06-21` com `PASS`, com `/journal` sem detalhe morto.
 
 ## Ultimo passo executado
+FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS aberta como frente ativa. Objetivo: readiness interno para payment.approved com fronteira transacional segura. Esta frente não é cutover externo. Esta frente não valida pagamento homologado com provedor real. Esta frente não valida HML externa, Base URL pública, inscrição real de webhook ou transação real de provedor. Esta frente não valida produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout. payment.approved atualmente cruza produção e financeiro; esta frente existe para analisar e desacoplar esse risco antes de qualquer prova de aprovação. FRONT_ORDER_CHECKOUT_PAYMENT_READINESS permanece pausada como PARCIAL fortalecida, não DONE. As evidências cbdfc91/f1645a2, 349b21f/92778d6 e 90519b0/0b027bc permanecem preservadas como readiness interno até order placed e payment processing. Primeiro passo da nova frente: inventário técnico e contratual do fluxo payment.approved, webhook inbox, transação de aprovação e outbox durável, sem alteração de código. T1 permanece não iniciado.
+
 FRONT_ORDER_CHECKOUT_PAYMENT_READINESS pausada como PARCIAL fortalecida. FRONT_ORDER_CHECKOUT_PAYMENT_READINESS não está DONE. A frente provou readiness interno até pedido placed e payment processing. A frente não validou payment.approved. A frente não validou webhook approved. A frente não validou pagamento homologado com provedor real. A frente não validou cutover externo, HML externa, Base URL pública, inscrição real de webhook ou transação real de provedor. A frente não validou produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout. payment.approved cruza produção e financeiro e exige nova frente/autorização explícita. Bloqueio registrado: BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS. As evidências preservadas são cbdfc91/f1645a2, 349b21f/92778d6 e 90519b0/0b027bc. O guardrail qa:order:status:honesty é estático e não substitui prova browser/runtime. Nenhum domínio foi promovido a DONE. Nenhum novo front foi aberto. T1 permanece não iniciado.
 
 ORDER_CHECKOUT_STATUS_COPY_HONESTY_REPAIR registrada como terceira evidência técnica da FRONT_ORDER_CHECKOUT_PAYMENT_READINESS. Commit técnico: 90519b0 fix(checkout): make processing status copy honest. Resultado: qa:order:status:honesty PASS. Classificação: QA_ORDER_CHECKOUT_STATUS_COPY_HONESTY_PASS. ORD-STATUS-01 a ORD-STATUS-04 passaram. Esta evidência corrige a apresentação visual para não tratar payment processing como approved. Esta evidência corrige a apresentação visual para não tratar pedido placed como paid ou concluído. CheckoutSuccessCard não afirma produção iniciada para payment processing. /success não vende pagamento aprovado sem estado real. account/orders passa a exibir paymentStatus separadamente. Esta evidência é guardrail estático, não prova browser/runtime. Payment permanece processing e pedido permanece placed. Esta evidência é readiness interno, não cutover externo. Esta evidência não valida pagamento homologado com provedor real. Esta evidência não valida webhook approved. Esta evidência não valida HML externa, Base URL pública, inscrição real de webhook ou transação real de provedor. Esta evidência não valida produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout. Esta evidência não declara MVP pronto. Nenhuma migration foi criada. T1 permanece não iniciado.
@@ -142,7 +145,7 @@ Esta evidência não valida pagamento homologado com provedor real. Esta evidên
 FRONT_ORDER_CHECKOUT_PAYMENT_READINESS aberta como frente ativa por autorizacao humana explicita. Objetivo: readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessão real. Esta frente não é cutover externo. Esta frente não valida pagamento homologado com provedor real, HML externa, Base URL pública, inscrição real de webhook ou transação real de provedor. Primeiro passo da nova frente: inventário técnico e documental dos fluxos de pedido, checkout, pagamento, webhook e status, sem alteração de código. FRONT_3_CATALOG_CURATION_HARDENING e FRONT_QA_GATE_GOVERNANCE_CLEANUP permanecem pausadas como PARCIAL fortalecida. T1 permanece não iniciado.
 
 ## Bloqueio atual
-FRONT_ORDER_CHECKOUT_PAYMENT_READINESS esta pausada como PARCIAL fortalecida e nao esta DONE. Bloqueio registrado: `BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS`. `payment.approved` marca o pedido como `paid`, cria job de producao, splits, eventos de licenca, comissoes e conversao referral quando aplicavel; qualquer avanco exige nova frente e autorizacao humana explicita.
+A autorizacao humana explicita removeu `BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS` somente para o inventario e a analise de desacoplamento desta nova frente. `payment.approved` ainda marca o pedido como `paid` e cruza producao e financeiro; nenhuma execucao funcional ou alteracao desse fluxo esta autorizada nesta abertura.
 
 Provider real, HML e cutover permanecem fora e dependem de credenciais, webhook secret, Base URL publica e janela operacional. `FRONT_5_REAL_PAYMENTS_CUTOVER` permanece bloqueada por dependencia externa e nao e a frente ativa. FRONT_3 continua pausada com lacunas de rejeicao auditavel de Artwork, auditoria duravel, midia, SEO e staging.
 
@@ -155,6 +158,7 @@ O risco real agora e:
 - expandir o recorte interno para producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout.
 
 ## Evidencia
+- Abertura documental: FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS aberta como frente ativa por autorizacao humana explicita. O recorte e readiness interno da fronteira transacional de `payment.approved`; nao e cutover externo, nao valida provedor real, HML externa, Base URL publica, webhook real, transacao real, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout. Primeiro passo: inventario tecnico e contratual sem alteracao de codigo e sem gate funcional. T1 permanece nao iniciado.
 - Pausa documental: FRONT_ORDER_CHECKOUT_PAYMENT_READINESS esta PARCIAL fortalecida, nao DONE. As evidencias preservadas sao `cbdfc91`/`f1645a2` para checkout/payment idempotente por pedido, `349b21f`/`92778d6` para criacao idempotente de pedido por tentativa e `90519b0`/`0b027bc` para honestidade visual de status/copy. A frente provou readiness interno ate pedido `placed` e payment `processing`; nao validou `payment.approved`, webhook approved, pagamento homologado, cutover externo, HML externa, Base URL publica, inscricao real de webhook, transacao real de provedor, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout. `qa:order:status:honesty` e guardrail estatico e nao substitui prova browser/runtime. Bloqueio: `BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS`. Nenhum dominio foi promovido a DONE, nenhum novo front foi aberto e T1 permanece nao iniciado.
 - ORDER_CHECKOUT_STATUS_COPY_HONESTY_REPAIR registrada como terceira evidência técnica da FRONT_ORDER_CHECKOUT_PAYMENT_READINESS. Commit técnico: 90519b0 fix(checkout): make processing status copy honest. Resultado: qa:order:status:honesty PASS. Classificação: QA_ORDER_CHECKOUT_STATUS_COPY_HONESTY_PASS. ORD-STATUS-01 a ORD-STATUS-04 passaram. Esta evidência corrige a apresentação visual para não tratar payment processing como approved e pedido placed como paid ou concluído. CheckoutSuccessCard não afirma produção iniciada para payment processing; /success não vende pagamento aprovado sem estado real; account/orders passa a exibir paymentStatus separadamente. Esta evidência é guardrail estático, não prova browser/runtime. Payment permanece processing e pedido permanece placed. Esta evidência é readiness interno, não cutover externo. Não valida pagamento homologado com provedor real, webhook approved, HML externa, Base URL pública, inscrição real de webhook, transação real de provedor, produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout e não declara MVP pronto. Nenhuma migration foi criada. T1 permanece não iniciado.
 - ORDER_CREATION_IDEMPOTENCY_REPAIR registrada como segunda evidência técnica da FRONT_ORDER_CHECKOUT_PAYMENT_READINESS. Commit técnico: 349b21f fix(orders): make checkout order creation idempotent. Resultado funcional: npm run qa:order:checkout:readiness PASS. Classificação: QA_ORDER_CHECKOUT_AUTHORIZATION_IDEMPOTENCY_ISOLATION_PASS. ORD-CHK-01 a ORD-CHK-12 passaram. A correção impede que retry completo do checkout crie pedido órfão. Mesma tentativa autenticada com mesmo payload retorna o mesmo orderId. Mesma tentativa com payload incompatível retorna 409 order_idempotency_conflict. Outro customer possui namespace próprio; checkout continua idempotente no mesmo pedido e associação cruzada de payment continua bloqueada. Payment permanece processing e pedido permanece placed, nunca paid. A migration `infra/mysql/migrations/003_order_creation_idempotency.sql` registra `customerId + idempotencyKey/tentativa -> orderId + payloadHash`, com chave única composta e FK para `orders`, para durabilidade e concorrência; não altera payment, webhook, produção/envio, referral, payout ou RBAC. Esta evidência é readiness interno, não cutover externo. Esta evidência não valida pagamento homologado com provedor real. Esta evidência não valida webhook approved. Esta evidência não valida HML externa, Base URL pública, inscrição real de webhook, transação real de provedor, produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout e não declara MVP pronto. Copy/status visual de /success e CheckoutSuccessCard permanecem lacuna futura. O build do runner executa `qa:product:guardrails` como pré-condição estática; nenhum gate funcional amplo foi executado diretamente. Nenhuma rota proibida foi chamada; webhook approved não foi chamado e produção/envio, referral, attribution, comissões, payout, Dimona e provider real não foram tocados. T1 permanece não iniciado.
@@ -203,7 +207,7 @@ O risco real agora e:
 - Autorizacao humana explicita: FRONT_ORDER_CHECKOUT_PAYMENT_READINESS aberta como frente ativa, limitada a readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessao real. Nao e cutover externo e nao valida pagamento homologado com provedor real.
 
 ## Proximo passo exato
-Nao executar novo patch tecnico. `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS` permanece pausada como PARCIAL fortalecida por `BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS`. Nova frente ou retomada exige autorizacao humana explicita. Preservar as tres evidencias, a limitacao estatica de `qa:order:status:honesty` e a separacao de provider real/HML/cutover. T1 permanece nao iniciado.
+Executar somente o inventario tecnico e contratual do fluxo `payment.approved`, webhook inbox, transacao de aprovacao e outbox duravel, sem alterar codigo e sem executar gate funcional. Identificar atomicidade, idempotencia, efeitos downstream e fronteiras entre pagamento, pedido, producao e financeiro. Parar antes de implementar, migrar banco, alterar RBAC, chamar webhook approved, tocar provider real/HML/cutover ou expandir para producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout. T1 permanece nao iniciado.
 
 ## Passo anterior
 Inventariar tecnicamente e documentalmente os fluxos de pedido, checkout, pagamento, webhook e status, sem alteracao de codigo e sem executar gates funcionais. Parar se o recorte exigir HML externa, Base URL publica, inscricao real de webhook, transacao de provedor, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout. T1 permanece nao iniciado.
