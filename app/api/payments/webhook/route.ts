@@ -67,12 +67,32 @@ function inferProviderName(request: Request, body: WebhookPayload) {
   return process.env.PAYMENT_PROVIDER?.toLowerCase() ?? 'sandbox';
 }
 
+function shouldInjectPaymentApprovedFailure(request: Request) {
+  if (request.headers.get('x-qa-payment-approved-failure') !== 'before-commit') return false;
+  if (process.env.QA_ENABLE_PAYMENT_APPROVED_FAILURE_INJECTION !== 'true') return false;
+  if (process.env.QA_REQUIRE_ISOLATED_DATABASE !== 'true') return false;
+  if (process.env.QA_SCRIPT !== 'scripts/qa/qa-payment-approved-decoupling.mjs') return false;
+
+  const qaDatabaseUrl = process.env.QA_DATABASE_URL?.trim();
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  if (!qaDatabaseUrl || !databaseUrl || qaDatabaseUrl !== databaseUrl) return false;
+
+  try {
+    const database = decodeURIComponent(new URL(qaDatabaseUrl).pathname.replace(/^\//, ''));
+    return /(qa|test|disposable|ephemeral)/i.test(database);
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
   const rawBody = await request.text();
   const signature = request.headers.get('x-signature');
   const stripeSignature = request.headers.get('stripe-signature');
   const idempotencyKey = request.headers.get('x-idempotency-key');
-  const allowUnsignedInQa = process.env.NODE_ENV !== 'production' && Boolean(process.env.QA_SCRIPT);
+  const requireWebhookSignatureInQa = process.env.QA_REQUIRE_WEBHOOK_SIGNATURE === 'true';
+  const allowUnsignedInQa =
+    process.env.NODE_ENV !== 'production' && Boolean(process.env.QA_SCRIPT) && !requireWebhookSignatureInQa;
   const stripeWebhookSecret = process.env.PAYMENT_STRIPE_WEBHOOK_SECRET?.trim();
   const webhookSecret = process.env.PAYMENT_WEBHOOK_SECRET?.trim();
   const declaredProvider = request.headers.get('x-provider')?.trim().toLowerCase();
@@ -110,7 +130,7 @@ export async function POST(request: Request) {
       eventType: body.event,
       providerEventId: eventId,
       providerReference: body.providerReference,
-      payload: body,
+      payload: parsed,
     });
     if (!eventRegistration.created && eventRegistration.event?.processed) {
       return NextResponse.json({ ok: true, status: 'already_processed' });
@@ -125,9 +145,11 @@ export async function POST(request: Request) {
       attempt += 1;
       try {
         result = await applyWebhookEvent({
+          provider: providerName,
           providerReference: body.providerReference,
           event: body.event,
           eventId,
+          injectFailureBeforeCommit: body.event === 'payment.approved' && shouldInjectPaymentApprovedFailure(request),
         });
         break;
       } catch (error) {
@@ -144,47 +166,66 @@ export async function POST(request: Request) {
     }
 
     if (result.kind === 'already_processed') {
+      if (body.event !== 'payment.approved') {
+        await markProviderWebhookEventProcessed({
+          provider: providerName,
+          providerEventId: eventId,
+          processed: true,
+        });
+      }
+      return NextResponse.json({ ok: true, status: 'already_processed' });
+    }
+    if (result.kind === 'not_found') {
+      if (body.event !== 'payment.approved') {
+        await markProviderWebhookEventProcessed({
+          provider: providerName,
+          providerEventId: eventId,
+          processed: false,
+          errorMessage: 'payment_not_found',
+        });
+      }
+      return NextResponse.json({ error: 'payment_not_found' }, { status: 404 });
+    }
+
+    if (body.event !== 'payment.approved') {
       await markProviderWebhookEventProcessed({
         provider: providerName,
         providerEventId: eventId,
         processed: true,
       });
-      return NextResponse.json({ ok: true, status: 'already_processed' });
     }
-    if (result.kind === 'not_found') {
-      await markProviderWebhookEventProcessed({
-        provider: providerName,
-        providerEventId: eventId,
-        processed: false,
-        errorMessage: 'payment_not_found',
-      });
-      return NextResponse.json({ error: 'payment_not_found' }, { status: 404 });
-    }
-
-    await markProviderWebhookEventProcessed({
-      provider: providerName,
-      providerEventId: eventId,
-      processed: true,
-    });
-    await appendIntegrationLog({
+    const integrationLog = {
       provider: providerName,
       action: 'webhook_payment',
       requestPayload: body,
       responsePayload: { status: 'processed' },
       statusCode: 200,
       success: true,
-    });
+    };
+    if (body.event === 'payment.approved') {
+      try {
+        await appendIntegrationLog(integrationLog);
+      } catch (error) {
+        console.error('webhook integration log failed after payment transaction commit', error);
+      }
+    } else {
+      await appendIntegrationLog({
+        ...integrationLog,
+      });
+    }
 
     return NextResponse.json({ ok: true, payment: result.payment });
   } catch (error) {
     const providerName = inferProviderName(request, body);
     const eventId = body.eventId || idempotencyKey || '';
-    await markProviderWebhookEventProcessed({
-      provider: providerName,
-      providerEventId: eventId,
-      processed: false,
-      errorMessage: error instanceof Error ? error.message : 'internal_error',
-    });
+    if (body.event !== 'payment.approved') {
+      await markProviderWebhookEventProcessed({
+        provider: providerName,
+        providerEventId: eventId,
+        processed: false,
+        errorMessage: error instanceof Error ? error.message : 'internal_error',
+      });
+    }
     await appendIntegrationLog({
       provider: providerName,
       action: 'webhook_payment',

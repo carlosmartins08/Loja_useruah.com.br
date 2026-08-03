@@ -8,22 +8,18 @@ import {
   linkIdempotencyKey,
   updatePaymentStatus,
 } from '@/lib/payment-store';
+import {
+  applyPaymentApprovedTransaction,
+  PaymentApprovedTransactionError,
+} from '@/lib/payment-approved-outbox-store';
 import { getPaymentProvider } from '@/lib/payment-provider';
 import type { CheckoutPaymentPayload, PaymentCheckoutRequest, PaymentRecord, PaymentStatus } from '@/lib/payments';
 import { getPaymentGateway } from '@/lib/payment-gateway-registry';
 import { getPaymentConnectorConfigPlain, resolveDefaultPaymentProvider } from '@/lib/payment-connector-store';
 import { appendAuditLog } from '@/lib/audit-log-store';
-import { createCommissionPending } from '@/lib/commission-store';
-import { getOrder, updateOrderStatus } from '@/lib/order-store';
-import { createQueuedProductionJob } from '@/lib/production-store';
+import { getOrder } from '@/lib/order-store';
 import { isWebhookEventProcessed, markWebhookEventProcessed } from '@/lib/webhook-event-store';
-import { createPaymentSplits } from '@/lib/payment-split-store';
-import { createLicenseEvents } from '@/lib/license-event-store';
-import { getCatalogItem } from '@/lib/catalog-item-store';
-import { getArtwork } from '@/lib/artwork-store';
 import { appendIntegrationLog } from '@/lib/integration-log-store';
-import { getProviderRecipient } from '@/lib/provider-recipient-store';
-import { recordReferralConversion } from '@/lib/referral-store';
 
 export class PaymentFlowError extends Error {
   status: number;
@@ -148,11 +144,39 @@ export async function createPaymentWithIdempotency(
   return { payment, nextAction: charge.nextAction, reused: false };
 }
 
+function mapApprovedTransactionError(error: PaymentApprovedTransactionError): PaymentFlowError {
+  if (error.code === 'order_not_found') return new PaymentFlowError(404, error.code);
+  if (error.code === 'invalid_transition') return new PaymentFlowError(409, error.code);
+  if (error.code === 'mysql_required_for_payment_approved') return new PaymentFlowError(503, error.code);
+  if (error.code === 'provider_webhook_event_not_found' || error.code === 'provider_webhook_event_state_conflict') {
+    return new PaymentFlowError(409, error.code);
+  }
+  return new PaymentFlowError(500, error.code);
+}
+
 export async function applyWebhookEvent(input: {
+  provider: string;
   providerReference: string;
   eventId: string;
   event: 'payment.approved' | 'payment.failed' | 'payment.pending';
+  injectFailureBeforeCommit?: boolean;
 }) {
+  if (input.event === 'payment.approved') {
+    try {
+      return await applyPaymentApprovedTransaction({
+        provider: input.provider,
+        providerReference: input.providerReference,
+        providerEventId: input.eventId,
+        injectFailureBeforeCommit: input.injectFailureBeforeCommit,
+      });
+    } catch (error) {
+      if (error instanceof PaymentApprovedTransactionError) {
+        throw mapApprovedTransactionError(error);
+      }
+      throw error;
+    }
+  }
+
   if (await isWebhookEventProcessed(input.eventId)) {
     return { kind: 'already_processed' as const };
   }
@@ -160,10 +184,8 @@ export async function applyWebhookEvent(input: {
   const payment = await findPaymentByProviderReference(input.providerReference);
   if (!payment) return { kind: 'not_found' as const };
 
-  const status: PaymentStatus =
-    input.event === 'payment.approved' ? 'approved' : input.event === 'payment.failed' ? 'failed' : 'processing';
-
-  if ((status === 'approved' || status === 'failed') && payment.status !== 'processing') {
+  const status: PaymentStatus = input.event === 'payment.failed' ? 'failed' : 'processing';
+  if (payment.status !== 'processing') {
     throw new PaymentFlowError(409, 'invalid_transition');
   }
 
@@ -187,251 +209,6 @@ export async function applyWebhookEvent(input: {
     new_status: updatedPayment.status,
     reason: 'webhook_event',
   });
-
-  if (status === 'approved') {
-    const order = await getOrder(updatedPayment.orderId);
-    if (!order) {
-      throw new PaymentFlowError(404, 'order_not_found');
-    }
-    if (order.status !== 'placed') {
-      throw new PaymentFlowError(409, 'invalid_transition');
-    }
-
-    const paidOrder = await updateOrderStatus(order.orderId, 'paid');
-    if (!paidOrder) {
-      throw new PaymentFlowError(404, 'order_not_found');
-    }
-
-    appendAuditLog({
-      actor_id: 'system',
-      actor_role: 'webhook',
-      action: 'order.paid',
-      entity_type: 'Order',
-      entity_id: paidOrder.orderId,
-      previous_status: order.status,
-      new_status: paidOrder.status,
-      reason: 'payment.approved',
-    });
-
-    const production = await createQueuedProductionJob(order.orderId);
-    if (production.created) {
-      appendAuditLog({
-        actor_id: 'system',
-        actor_role: 'backend',
-        action: 'production.created',
-        entity_type: 'ProductionJob',
-        entity_id: production.job.productionJobId,
-        previous_status: 'none',
-        new_status: production.job.status,
-        reason: 'order.paid',
-      });
-    }
-
-    const providerName = updatedPayment.provider;
-    const supplierDefault = process.env.SUPPLIER_OWNER_DEFAULT_ID?.trim() || 'supplier-default';
-    const platformDefault = process.env.PLATFORM_OWNER_DEFAULT_ID?.trim() || 'platform-default';
-    const artistDefault = process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default';
-    const platformRecipient = await getProviderRecipient({
-      provider: providerName,
-      entityType: 'platform',
-      entityId: platformDefault,
-    });
-    const supplierPct = Number(process.env.SUPPLIER_REVENUE_PCT ?? '0.7');
-    const artistPct = Number(process.env.ARTIST_LICENSE_PCT ?? '0.1');
-    const platformPct = Number(process.env.PLATFORM_COMMISSION_PCT ?? '0.15');
-    const gatewayPct = Number(process.env.GATEWAY_FEE_PCT ?? '0.05');
-    const taxReservePct = Number(process.env.TAX_RESERVE_PCT ?? '0');
-    const round2 = (value: number) => Math.round(value * 100) / 100;
-    const splitRows = (
-      await Promise.all(
-        paidOrder.items.map(async (item) => {
-          const supplierId = item.supplierId || supplierDefault;
-          const artistId = item.artworkAuthorId?.trim() || artistDefault;
-          const supplierRecipient = await getProviderRecipient({
-            provider: providerName,
-            entityType: 'supplier',
-            entityId: supplierId,
-          });
-          const artistRecipient = await getProviderRecipient({
-            provider: providerName,
-            entityType: 'artist',
-            entityId: artistId,
-          });
-      const gross = item.grossItemAmount || Number((item.unitPrice * item.quantity).toFixed(2));
-      const supplierAmount = item.supplierAmount ?? round2(gross * supplierPct);
-      const artistLicenseAmount = item.artistLicenseAmount ?? round2(gross * artistPct);
-      const platformCommissionAmount = item.platformCommissionAmount ?? round2(gross * platformPct);
-      const gatewayFeeAmount = item.gatewayFeeAmount ?? round2(gross * gatewayPct);
-      const taxReserveAmount = item.taxReserveAmount ?? round2(gross * taxReservePct);
-      const supplierNetAmount = item.supplierNetAmount ?? round2(supplierAmount - gatewayFeeAmount - taxReserveAmount);
-      const artistNetAmount = item.artistNetAmount ?? artistLicenseAmount;
-      const platformNetAmount = item.platformNetAmount ?? platformCommissionAmount;
-      return [
-        {
-          orderId: paidOrder.orderId,
-          orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
-          paymentId: updatedPayment.paymentId,
-          recipientType: 'supplier' as const,
-          recipientId: supplierId,
-          providerRecipientId: supplierRecipient?.providerRecipientId,
-          grossAmount: gross,
-          splitAmount: supplierAmount,
-          splitPercentage: gross > 0 ? Number((supplierAmount / gross).toFixed(4)) : 0,
-          netAmount: supplierNetAmount,
-          liable: false,
-          chargeProcessingFee: true,
-          status: 'available' as const,
-          providerReference: updatedPayment.providerReference,
-        },
-        {
-          orderId: paidOrder.orderId,
-          orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
-          paymentId: updatedPayment.paymentId,
-          recipientType: 'artist' as const,
-          recipientId: artistId,
-          providerRecipientId: artistRecipient?.providerRecipientId,
-          grossAmount: gross,
-          splitAmount: artistLicenseAmount,
-          splitPercentage: gross > 0 ? Number((artistLicenseAmount / gross).toFixed(4)) : 0,
-          netAmount: artistNetAmount,
-          liable: false,
-          chargeProcessingFee: false,
-          status: 'available' as const,
-          providerReference: updatedPayment.providerReference,
-        },
-        {
-          orderId: paidOrder.orderId,
-          orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
-          paymentId: updatedPayment.paymentId,
-          recipientType: 'platform' as const,
-          recipientId: platformDefault,
-          providerRecipientId: platformRecipient?.providerRecipientId,
-          grossAmount: gross,
-          splitAmount: platformCommissionAmount,
-          splitPercentage: gross > 0 ? Number((platformCommissionAmount / gross).toFixed(4)) : 0,
-          netAmount: platformNetAmount,
-          liable: true,
-          chargeProcessingFee: false,
-          status: 'available' as const,
-          providerReference: updatedPayment.providerReference,
-        },
-      ];
-        })
-      )
-    ).flat();
-    await createPaymentSplits({ paymentId: updatedPayment.paymentId, rows: splitRows });
-
-    const licenseRows = await Promise.all(paidOrder.items.map(async (item) => {
-      const catalog = await getCatalogItem(item.catalogItemId);
-      const artwork = catalog ? await getArtwork(catalog.artworkId) : null;
-      const gross = item.grossItemAmount || Number((item.unitPrice * item.quantity).toFixed(2));
-      const artistLicenseAmount = item.artistLicenseAmount ?? round2(gross * artistPct);
-      const platformCommissionAmount = item.platformCommissionAmount ?? round2(gross * platformPct);
-      const supplierAmount = item.supplierAmount ?? round2(gross * supplierPct);
-      const supplierId = item.supplierId || supplierDefault;
-      return {
-        orderId: paidOrder.orderId,
-        orderItemId: item.orderItemId || `${paidOrder.orderId}:${item.catalogItemId}:${item.variantId}`,
-        artistId:
-          item.artworkAuthorId?.trim() ||
-          artwork?.authorId ||
-          process.env.ARTIST_OWNER_DEFAULT_ID?.trim() ||
-          'artist-default',
-        artworkId: catalog?.artworkId ?? 'artwork-unknown',
-        supplierId,
-        productId: catalog?.productBaseId ?? item.catalogItemId,
-        buyerId: paidOrder.customerId,
-        licenseType: 'commercial_use' as const,
-        quantity: item.quantity,
-        grossSaleAmount: gross,
-        artistPercentage: gross > 0 ? Number((artistLicenseAmount / gross).toFixed(4)) : 0,
-        artistLicenseAmount,
-        platformCommissionAmount,
-        supplierAmount,
-        paymentStatus: 'approved' as const,
-        paidAt: new Date().toISOString(),
-      };
-    }));
-    await createLicenseEvents(licenseRows);
-
-    for (const item of paidOrder.items) {
-      const artistOwnerId = item.artworkAuthorId?.trim() || process.env.ARTIST_OWNER_DEFAULT_ID?.trim() || 'artist-default';
-      const artistCommissionAmount = Number((item.artistNetAmount || item.artistLicenseAmount || 0).toFixed(2));
-      if (artistCommissionAmount > 0) {
-        const artistCommissionResult = await createCommissionPending({
-          orderId: order.orderId,
-          ownerId: artistOwnerId,
-          ownerRole: 'artist',
-          amount: artistCommissionAmount,
-          sourceKey: `order.paid:${order.orderId}:item:${item.orderItemId}:artist:${artistOwnerId}`,
-        });
-
-        if (artistCommissionResult.created) {
-          appendAuditLog({
-            actor_id: 'system',
-            actor_role: 'backend',
-            action: 'commission.created',
-            entity_type: 'Commission',
-            entity_id: artistCommissionResult.commission.commissionId,
-            previous_status: 'none',
-            new_status: artistCommissionResult.commission.status,
-            reason: `order:${order.orderId}|owner_role:artist|item:${item.orderItemId}`,
-          });
-        }
-      }
-
-      const communityOwnerId = item.communityOwnerId?.trim();
-      const communityCommissionAmount = Number((item.communityCommissionAmount || 0).toFixed(2));
-      if (communityOwnerId && communityCommissionAmount > 0) {
-        const communityCommissionResult = await createCommissionPending({
-          orderId: order.orderId,
-          ownerId: communityOwnerId,
-          ownerRole: 'community_manager',
-          amount: communityCommissionAmount,
-          sourceKey: `order.paid:${order.orderId}:item:${item.orderItemId}:community:${communityOwnerId}`,
-        });
-
-        if (communityCommissionResult.created) {
-          appendAuditLog({
-            actor_id: 'system',
-            actor_role: 'backend',
-            action: 'commission.created',
-            entity_type: 'Commission',
-            entity_id: communityCommissionResult.commission.commissionId,
-            previous_status: 'none',
-            new_status: communityCommissionResult.commission.status,
-            reason: `order:${order.orderId}|owner_role:community_manager|item:${item.orderItemId}|campaign:${item.campaignId ?? 'none'}`,
-          });
-        }
-      }
-    }
-
-    const uniqueReferralLinkIds = Array.from(
-      new Set(
-        paidOrder.items
-          .map((item) => item.referralLinkId?.trim())
-          .filter((value): value is string => Boolean(value))
-      )
-    );
-    if (uniqueReferralLinkIds.length === 1) {
-      const referralResult = await recordReferralConversion({
-        referralLinkId: uniqueReferralLinkIds[0],
-        orderId: order.orderId,
-        revenueAmount: Number(updatedPayment.amount.toFixed(2)),
-      });
-
-      if (referralResult.kind === 'created') {
-        appendAuditLog({
-          actor_id: 'system',
-          actor_role: 'backend',
-          action: 'referral_conversion_recorded',
-          entity_type: 'ReferralLink',
-          entity_id: uniqueReferralLinkIds[0],
-          reason: `order:${order.orderId}|revenue:${updatedPayment.amount.toFixed(2)}`,
-        });
-      }
-    }
-  }
 
   await markWebhookEventProcessed(input.eventId);
   return { kind: 'processed' as const, payment: updatedPayment };

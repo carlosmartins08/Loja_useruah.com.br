@@ -58,6 +58,10 @@ function key(provider: string, providerEventId: string) {
   return `${provider}:${providerEventId}`;
 }
 
+function isMysqlDuplicateEntry(error: unknown) {
+  return Boolean(error && typeof error === 'object' && (error as { code?: string }).code === 'ER_DUP_ENTRY');
+}
+
 export async function registerProviderWebhookEvent(input: {
   provider: string;
   eventType: string;
@@ -76,23 +80,33 @@ export async function registerProviderWebhookEvent(input: {
       return { created: false, event: rowToRecord(existingRows[0]) };
     }
     const id = `PWE-${randomUUID()}`;
-    await mysql.execute<MysqlResult>(
-      `INSERT INTO provider_webhook_events
-       (id, provider, event_type, provider_event_id, provider_reference, payload_json, processed, processed_at, error_message, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, 0, NULL, NULL, ?, ?)`,
-      [
-        id,
-        input.provider,
-        input.eventType,
-        input.providerEventId,
-        input.providerReference ?? null,
-        JSON.stringify(input.payload ?? {}),
-        toMysqlDatetime(now),
-        toMysqlDatetime(now),
-      ]
-    );
-    const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM provider_webhook_events WHERE id = ? LIMIT 1`, [id]);
-    return { created: true, event: rows[0] ? rowToRecord(rows[0]) : null };
+    try {
+      await mysql.execute<MysqlResult>(
+        `INSERT INTO provider_webhook_events
+         (id, provider, event_type, provider_event_id, provider_reference, payload_json, processed, processed_at, error_message, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, 0, NULL, NULL, ?, ?)`,
+        [
+          id,
+          input.provider,
+          input.eventType,
+          input.providerEventId,
+          input.providerReference ?? null,
+          JSON.stringify(input.payload ?? {}),
+          toMysqlDatetime(now),
+          toMysqlDatetime(now),
+        ]
+      );
+      const [rows] = await mysql.execute<MysqlRow[]>(`SELECT * FROM provider_webhook_events WHERE id = ? LIMIT 1`, [id]);
+      return { created: true, event: rows[0] ? rowToRecord(rows[0]) : null };
+    } catch (error) {
+      if (!isMysqlDuplicateEntry(error)) throw error;
+      const [concurrentRows] = await mysql.execute<MysqlRow[]>(
+        `SELECT * FROM provider_webhook_events WHERE provider = ? AND provider_event_id = ? LIMIT 1`,
+        [input.provider, input.providerEventId]
+      );
+      if (!concurrentRows[0]) throw error;
+      return { created: false, event: rowToRecord(concurrentRows[0]) };
+    }
   }
 
   const state = readState();
