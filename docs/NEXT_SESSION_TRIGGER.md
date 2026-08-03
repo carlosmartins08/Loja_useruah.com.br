@@ -3,7 +3,11 @@
 Data de revisao: 2026-08-03
 
 ## Objetivo
-FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS pausada como PARCIAL fortalecida. FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS não está DONE. Nenhum novo front foi aberto. O avanço permanece bloqueado até autorização humana explícita.
+FRONT_PAYMENT_APPROVED_OUTBOX_CONSUMER_PRODUCTION_ENQUEUE_READINESS aberta como frente ativa.
+
+Objetivo: readiness interno para consumir o outbox PaymentApproved e enfileirar exatamente um ProductionJob por pedido pago.
+
+Esta frente é limitada ao primeiro efeito downstream: production_job.enqueue.
 
 ## Gatilho canonico de retomada
 Toda nova sessao deve comecar por este gatilho, nesta ordem:
@@ -21,7 +25,7 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
 6. So depois executar.
 
 ## Prompt curto para colar amanha
-`Confirme que nenhuma frente está aberta. FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS está pausada como PARCIAL fortalecida, não DONE. Preserve fc05f9d/7ce4586, qa:payment:approved:decoupling PASS, QA_PAYMENT_APPROVED_DECOUPLING_ISOLATION_PASS e PAY-APP-01 a PAY-APP-10. Permaneça bloqueado por BLOCKED_BY_OUTBOX_CONSUMER_DOWNSTREAM_AUTHORITY e BLOCKED_BY_EXTERNAL_PAYMENT_HOMOLOGATION até autorização humana explícita. Não implemente consumidor, downstream ou cutover. T1 permanece não iniciado.`
+`Confirme FRONT_PAYMENT_APPROVED_OUTBOX_CONSUMER_PRODUCTION_ENQUEUE_READINESS como frente única ativa. Execute somente o inventário técnico do outbox PaymentApproved, ProductionJob, claim/lease/retry, restart e idempotência, sem alterar código e sem executar gate funcional. Limite a frente a production_job.enqueue. Preserve FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS como PARCIAL fortalecida, não DONE, e preserve fc05f9d/7ce4586. Não toque shipment/envio, Dimona, splits, licenças, comissões, referral, attribution, payout, provider real, HML ou cutover. T1 permanece não iniciado.`
 
 ### Prompt anterior, concluído pelo recorte comprovado
 Use este prompt literalmente ou com ajuste minimo:
@@ -86,6 +90,7 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - `go:e2e:proof`: `BLOCKED_EXTERNAL_BASE_URL` em dry-run quando a base ainda e local
 
 ## Evidencia adicional deste ciclo
+- FRONT_PAYMENT_APPROVED_OUTBOX_CONSUMER_PRODUCTION_ENQUEUE_READINESS aberta como frente ativa por autorização humana explícita. Objetivo: readiness interno para consumir o outbox PaymentApproved e enfileirar exatamente um ProductionJob por pedido pago. Esta frente é limitada ao primeiro efeito downstream: production_job.enqueue. Esta frente não altera o produtor transacional de payment.approved já comprovado. Esta frente não valida shipment/envio. Esta frente não valida Dimona. Esta frente não valida splits, licenças, comissões, referral, attribution ou payout. Esta frente não valida provider real, HML externa, Base URL pública, webhook real de provedor, transação real de provedor ou cutover externo. FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS permanece pausada como PARCIAL fortalecida, não DONE. As evidências fc05f9d/7ce4586 permanecem preservadas como readiness interno de payment.approved desacoplado com outbox transacional. Primeiro passo da nova frente: inventário técnico do outbox PaymentApproved, ProductionJob, claim/lease/retry, restart e idempotência, sem alteração de código. T1 permanece não iniciado.
 - FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS pausada como PARCIAL fortalecida. FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS não está DONE. A frente provou readiness interno de payment.approved desacoplado com outbox transacional. Commit técnico preservado: fc05f9d fix(payments): decouple approved payment effects with outbox. Commit documental preservado: 7ce4586 docs(governance): record payment approved decoupling evidence. Resultado funcional preservado: qa:payment:approved:decoupling PASS. Classificação preservada: QA_PAYMENT_APPROVED_DECOUPLING_ISOLATION_PASS. PAY-APP-01 a PAY-APP-10 passaram. Nenhum consumidor de outbox foi implementado. Consumidor de outbox/downstream exige nova frente e autorização humana explícita. Bloqueio registrado: BLOCKED_BY_OUTBOX_CONSUMER_DOWNSTREAM_AUTHORITY. Bloqueio externo preservado: BLOCKED_BY_EXTERNAL_PAYMENT_HOMOLOGATION. Esta pausa não valida pagamento homologado com provedor real. Esta pausa não valida HML externa, Base URL pública, webhook real de provedor, transação real de provedor ou cutover externo. Esta pausa não valida produção/envio, shipment, Dimona, affiliate, referral, attribution, comissões ou payout. Nenhum domínio foi promovido a DONE. Nenhum novo front foi aberto. T1 permanece não iniciado.
 - PAYMENT_APPROVED_TRANSACTIONAL_OUTBOX_ISOLATION registrada como primeira evidência técnica da FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS. Commit técnico: fc05f9d fix(payments): decouple approved payment effects with outbox. Resultado funcional: qa:payment:approved:decoupling PASS. Classificação: QA_PAYMENT_APPROVED_DECOUPLING_ISOLATION_PASS. PAY-APP-01 a PAY-APP-10 passaram. Payment processing → approved e Order placed → paid ocorrem em transação MySQL única. Inbox, payment event, outbox PaymentApproved e marcação de inbox processado são commitados juntos. Falha injetada antes do commit não deixou estado parcial. Retry sequencial e concorrente não duplicaram payment event nem outbox. ProductionJob, shipment, splits, licenças, comissões, referral, payout, Dimona e provider real tiveram delta zero. Migration 004 cria somente outbox PaymentApproved durável e não altera domínios downstream. Nenhum consumidor de outbox foi implementado. Esta evidência é readiness interno, não cutover externo. Esta evidência não valida pagamento homologado com provedor real. Esta evidência não valida HML externa, Base URL pública, inscrição real de webhook ou transação real de provedor. Esta evidência não valida produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout. O build do runner executou `qa:product:guardrails` como pré-condição estática; o único gate funcional executado diretamente foi `qa:payment:approved:decoupling`. Esta evidência não declara MVP pronto. T1 permanece não iniciado.
 - ORDER_CHECKOUT_STATUS_COPY_HONESTY_REPAIR registrada como terceira evidência técnica da FRONT_ORDER_CHECKOUT_PAYMENT_READINESS. Commit técnico: 90519b0 fix(checkout): make processing status copy honest. Resultado: qa:order:status:honesty PASS. Classificação: QA_ORDER_CHECKOUT_STATUS_COPY_HONESTY_PASS. ORD-STATUS-01 a ORD-STATUS-04 passaram. Esta evidência corrige a apresentação visual para não tratar payment processing como approved e pedido placed como paid ou concluído. CheckoutSuccessCard não afirma produção iniciada para payment processing. /success não vende pagamento aprovado sem estado real. account/orders passa a exibir paymentStatus separadamente. Esta evidência é guardrail estático, não prova browser/runtime. Payment permanece processing e pedido permanece placed. Esta evidência é readiness interno, não cutover externo. Não valida pagamento homologado com provedor real, webhook approved, HML externa, Base URL pública, inscrição real de webhook, transação real de provedor, produção/envio, Dimona, affiliate, referral, attribution, comissões ou payout e não declara MVP pronto. Nenhuma migration foi criada. T1 permanece não iniciado.
@@ -114,11 +119,12 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 - A sessao deve registrar esse limite em `docs/ACTIVE_FRONT.md` e `.agents/session-state.json`, depois seguir para outra frente serial valida.
 
 ## Contrato minimo da proxima sessao
-A próxima sessão deve confirmar a pausa e permanecer bloqueada. Não há autorização para abrir nova frente, implementar consumidor de outbox, executar novo gate funcional, promover cutover externo ou tocar efeitos downstream.
+A próxima sessão deve confirmar a nova frente ativa e executar somente o inventário técnico autorizado. A abertura da frente não autoriza implementar consumidor de outbox, executar gate funcional, promover cutover externo ou tocar efeitos downstream além da análise de `production_job.enqueue`.
 
 A proxima sessao so esta autorizada a:
-1. preservar a pausa como PARCIAL fortalecida e as evidências `fc05f9d`/`7ce4586`; e
-2. aguardar autorização humana explícita para uma futura frente downstream ou para o cutover externo.
+1. preservar a pausa anterior como PARCIAL fortalecida e as evidências `fc05f9d`/`7ce4586`;
+2. inventariar outbox PaymentApproved, ProductionJob, claim/lease/retry, restart e idempotência; e
+3. produzir recomendação do menor patch futuro, sem implementar.
 
 Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do primeiro patch.
 
@@ -147,10 +153,11 @@ Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-Nenhuma frente está aberta. FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS está pausada como PARCIAL fortalecida e não está DONE. Uma futura frente de consumidor de outbox/downstream depende de autorização humana explícita por `BLOCKED_BY_OUTBOX_CONSUMER_DOWNSTREAM_AUTHORITY`. Provider real, HML e cutover permanecem bloqueados por `BLOCKED_BY_EXTERNAL_PAYMENT_HOMOLOGATION`. FRONT_ORDER_CHECKOUT_PAYMENT_READINESS, FRONT_QA_GATE_GOVERNANCE_CLEANUP e FRONT_3_CATALOG_CURATION_HARDENING permanecem pausadas como PARCIAL fortalecida; Artwork e CatalogItem permanecem PARCIAL; T1 permanece nao iniciado.
+FRONT_PAYMENT_APPROVED_OUTBOX_CONSUMER_PRODUCTION_ENQUEUE_READINESS é a frente única ativa. A autorização humana explícita supera `BLOCKED_BY_OUTBOX_CONSUMER_DOWNSTREAM_AUTHORITY` somente para o recorte `production_job.enqueue`. Provider real, HML e cutover permanecem bloqueados por `BLOCKED_BY_EXTERNAL_PAYMENT_HOMOLOGATION`. FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS, FRONT_ORDER_CHECKOUT_PAYMENT_READINESS, FRONT_QA_GATE_GOVERNANCE_CLEANUP e FRONT_3_CATALOG_CURATION_HARDENING permanecem pausadas como PARCIAL fortalecida; Artwork e CatalogItem permanecem PARCIAL; T1 permanece nao iniciado.
 
 Leitura operacional deste momento:
-- Pausa autorizada: FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS está PARCIAL fortalecida, não DONE. A evidência interna `fc05f9d`/`7ce4586` permanece válida e limitada. Nenhum consumidor de outbox foi implementado e nenhum novo front foi aberto.
+- Frente ativa: FRONT_PAYMENT_APPROVED_OUTBOX_CONSUMER_PRODUCTION_ENQUEUE_READINESS, limitada ao inventário e ao futuro readiness interno de `production_job.enqueue`. Nenhum consumidor foi implementado nesta abertura.
+- Pausa preservada: FRONT_PAYMENT_APPROVED_DECOUPLING_READINESS está PARCIAL fortalecida, não DONE. A evidência interna `fc05f9d`/`7ce4586` permanece válida e limitada. Nenhum consumidor foi implementado na rodada de abertura da nova frente.
 - `affiliate-referral` fechou o recorte novo.
 - `catalogo-curadoria/artwork` fechou o recorte validado nesta sessao.
 - `superficies publicas` fechou o recorte ativo com saneamento de `artista`, `category`, `help-center`, `quem-somos`, `journal`, `register` e `footer`.
