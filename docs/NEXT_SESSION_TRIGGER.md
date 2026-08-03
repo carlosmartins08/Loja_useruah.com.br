@@ -3,7 +3,7 @@
 Data de revisao: 2026-08-03
 
 ## Objetivo
-FRONT_ORDER_CHECKOUT_PAYMENT_READINESS esta ativa por autorizacao humana explicita. O objetivo e readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessao real. Esta frente nao e cutover externo e nao valida pagamento homologado com provedor real.
+FRONT_ORDER_CHECKOUT_PAYMENT_READINESS pausada como PARCIAL fortalecida. FRONT_ORDER_CHECKOUT_PAYMENT_READINESS não está DONE. Bloqueio registrado: BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS. Nenhuma nova frente está aberta; nova frente ou retomada exige autorização humana explícita.
 
 ## Gatilho canonico de retomada
 Toda nova sessao deve comecar por este gatilho, nesta ordem:
@@ -23,7 +23,7 @@ Toda nova sessao deve comecar por este gatilho, nesta ordem:
 ## Prompt curto para colar amanha
 Use este prompt literalmente ou com ajuste minimo:
 
-`Confirme que FRONT_ORDER_CHECKOUT_PAYMENT_READINESS e a unica frente ativa. ORDER_CHECKOUT_STATUS_COPY_HONESTY_REPAIR e a terceira evidencia tecnica interna vigente, no commit 90519b0, com qa:order:status:honesty PASS e ORD-STATUS-01 a ORD-STATUS-04 PASS. O guardrail e estatico e nao prova browser/runtime. Payment permanece processing e pedido placed. Nao promova a evidencia a cutover externo, pagamento homologado, webhook approved ou MVP pronto. Nao altere codigo nem execute novo gate funcional sem nova autorizacao explicita.`
+`Confirme que FRONT_ORDER_CHECKOUT_PAYMENT_READINESS permanece pausada como PARCIAL fortalecida por BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS. A frente nao esta DONE e nenhuma nova frente esta aberta. Preserve cbdfc91/f1645a2, 349b21f/92778d6 e 90519b0/0b027bc. Nao retome payment.approved, webhook approved, producao, financeiro, provider real, HML ou cutover sem nova frente e autorizacao humana explicita.`
 
 ## Checklist anti-retrabalho
 Antes de qualquer patch, a retomada precisa responder `SIM` para tudo abaixo:
@@ -110,8 +110,8 @@ Se qualquer item acima for `NAO`, parar e corrigir a leitura antes de implementa
 
 ## Contrato minimo da proxima sessao
 A proxima sessao so esta autorizada a:
-1. inventariar e classificar gates/aliases legados, incluindo `qa:catalog`, `qa:catalog:persisted`, `qa:full` e composicoes amplas, sem alterar scripts QA ou `package.json`; ou
-2. recusar reabertura de W1-W8, FRONT_1, pagamento real sem dependencia externa comprovada, ou expansao para produto, dominio, RBAC, migrations, banco, financeiro, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout ou Dimona.
+1. confirmar a pausa de `FRONT_ORDER_CHECKOUT_PAYMENT_READINESS`, preservar as tres evidencias e aguardar autorizacao humana explicita; ou
+2. recusar reabertura de `payment.approved`, webhook approved, provider real/HML/cutover, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout sem nova frente autorizada.
 
 Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do primeiro patch.
 
@@ -140,7 +140,7 @@ Qualquer outra abertura de escopo conta como desvio e deve ser recusada antes do
 - `docs/FRONTEND_FASE_2_MOVIMENTOS_CAMPANHAS_E_AFILIADOS.md` deixou de tratar `/@username*` e `/affiliate/rewards` como mapa pratico de continuidade; essas superficies seguem planejadas e nao podem ser presumidas no runtime atual.
 
 ## Proxima frente permitida
-FRONT_ORDER_CHECKOUT_PAYMENT_READINESS e a unica frente ativa por autorizacao humana explicita. Ela e limitada a readiness interno de pedido, checkout, webhook assinado e status, com MySQL QA isolado e sessao real. Esta frente nao e cutover externo; nao valida pagamento homologado com provedor real, HML externa, Base URL publica, inscricao real de webhook ou transacao real de provedor. FRONT_QA_GATE_GOVERNANCE_CLEANUP e FRONT_3_CATALOG_CURATION_HARDENING permanecem pausadas como PARCIAL fortalecida; Artwork e CatalogItem permanecem PARCIAL; T1 permanece nao iniciado.
+FRONT_ORDER_CHECKOUT_PAYMENT_READINESS esta pausada como PARCIAL fortalecida e nao esta DONE. Bloqueio: BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS. Nenhuma nova frente esta aberta; nova frente ou retomada exige autorizacao humana explicita. FRONT_QA_GATE_GOVERNANCE_CLEANUP e FRONT_3_CATALOG_CURATION_HARDENING permanecem pausadas como PARCIAL fortalecida; Artwork e CatalogItem permanecem PARCIAL; T1 permanece nao iniciado.
 
 Leitura operacional deste momento:
 - `affiliate-referral` fechou o recorte novo.
@@ -150,6 +150,7 @@ Leitura operacional deste momento:
 - `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT` foi concluida: documentos, espelho operacional e roteador concordam, e caches locais nao participam da autoridade.
 - FRONT_QA_GATE_GOVERNANCE_CLEANUP esta pausada como PARCIAL fortalecida e nao esta DONE.
 - FRONT_3_CATALOG_CURATION_HARDENING permanece pausada como PARCIAL fortalecida; FRONT_3 nao esta DONE e Artwork e CatalogItem permanecem PARCIAL.
+- Pausa autorizada: FRONT_ORDER_CHECKOUT_PAYMENT_READINESS esta PARCIAL fortalecida, nao DONE. A frente provou readiness interno ate pedido placed e payment processing. Nao validou payment.approved, webhook approved, pagamento homologado, cutover externo, HML externa, Base URL publica, inscricao real de webhook, transacao real de provedor, producao/envio, Dimona, affiliate, referral, attribution, comissoes ou payout. payment.approved cruza producao e financeiro e exige nova frente/autorizacao explicita. As evidencias preservadas sao cbdfc91/f1645a2, 349b21f/92778d6 e 90519b0/0b027bc. qa:order:status:honesty e estatico e nao substitui prova browser/runtime. Bloqueio registrado: BLOCKED_BY_PAYMENT_APPROVED_CROSSES_PRODUCTION_FINANCE_DOMAINS. Nenhum dominio foi promovido a DONE, nenhum novo front foi aberto e T1 permanece nao iniciado.
 - QA_GATE_ALIAS_QUARANTINE registrada como primeira acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. Commit tecnico: 8b4ee58 chore(qa): quarantine legacy QA aliases. qa:catalog e qa:full foram colocados em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura. qa:catalog:curation, qa:catalog:authority e qa:catalog:lifecycle permanecem como gates vigentes de catalogo com evidencia propria. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
 - QA_ROLE_CLOSURE_ALIAS_QUARANTINE registrada como segunda acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. Commit tecnico: 9ae24f3 chore(qa): quarantine role closure alias. qa:role:closure foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de fechamento por papeis. qa:role:closure nao e evidencia funcional vigente. Eventual retomada de role closure exige recorte isolado e autorizacao humana explicita. qa:base:roles e pr:premerge permanecem inalterados nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
 - QA_BASE_ROLES_ALIAS_QUARANTINE registrada como terceira acao tecnica da FRONT_QA_GATE_GOVERNANCE_CLEANUP. Commit tecnico: 4390f1a chore(qa): quarantine base roles alias. qa:base:roles foi colocado em quarentena/fail-fast explicito para evitar falso PASS e falsa cobertura de maturidade por papeis. qa:base:roles nao e evidencia funcional vigente. Eventual retomada de base roles exige decomposicao em recortes isolados e autorizacao humana explicita. pr:premerge permanece inalterado nesta acao. Esta acao nao executa gates funcionais e nao valida maturidade completa do sistema. Esta acao nao altera produto, dominio, RBAC, migrations ou fluxos de negocio. Financeiro, pedido, checkout, pagamento, webhook, producao/envio, affiliate, referral, attribution, payout e Dimona continuam fora. T1 permanece nao iniciado.
