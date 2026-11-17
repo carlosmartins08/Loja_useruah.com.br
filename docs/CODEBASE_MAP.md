@@ -49,8 +49,8 @@ Ser a fonte unica de localizacao tecnica do repositorio. Este arquivo nao explic
 
 ### Configuracao e dados versionados
 - `config/**`
-- `data/**`
   - `config/README.md`
+- `data/**`
   - `data/README.md`
 
 ### Artefatos locais gerados
@@ -58,10 +58,9 @@ Ser a fonte unica de localizacao tecnica do repositorio. Este arquivo nao explic
 
 ### Documentacao
 - `docs/**`
+  - `docs/NEXT_SESSION_TRIGGER.md`: gatilho de retomada da frente ativa
 - `docs/archive/**`
   - historico inativo, fora da camada ativa de decisao
-  - `docs/NEXT_SESSION_TRIGGER.md`
-    - gatilho curto de retomada para reusar a mesma logica de execucao no proximo ciclo
 
 ## Taxonomia curta para nao errar o local
 - `components/**`

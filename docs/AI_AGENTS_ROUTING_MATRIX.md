@@ -1,6 +1,6 @@
 # AI Agents Routing Matrix
 
-Data de revisao: 2026-07-07
+Data de revisao: 2026-11-17
 
 ## Objetivo
 Traduzir a estrutura operacional de agentes deste projeto para uso real, sem criar duplicidade de autoridade e sem ignorar a frente ativa.
@@ -24,20 +24,15 @@ Regra pratica:
 - se o agente encontra bloqueio, ele registra e escala em vez de improvisar
 
 ## Fonte de verdade
-Ordem de precedencia para este projeto:
-1. `docs/ACTIVE_FRONT.md`
-2. `docs/NEXT_SESSION_TRIGGER.md`
-3. `docs/DOCS_CLASSIFICATION.md`
-4. `docs/README_DOCS_HIERARCHY.md`
-5. `docs/EXECUTION_TRACKING.md`
-6. `docs/PLANO_MESTRE_CONTINUIDADE_TECNICA.md`
-7. `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md`
-8. `docs/ARCHITECTURE.md`
-9. `docs/CODEBASE_MAP.md`
-10. `.agents/session-state.json`
-11. `scripts/lib/agent-context.mjs`
+Este documento define roteamento de agentes; nao cria hierarquia documental propria.
 
-Se houver conflito, a frente ativa e o plano mestre do projeto mandam no curto prazo.
+- Precedencia e classificacao dos documentos: `docs/DOCS_CLASSIFICATION.md`.
+- Ordem pratica de consulta: `docs/README_DOCS_HIERARCHY.md`.
+- Frente de trabalho ativa e limites atuais: `docs/ACTIVE_FRONT.md`.
+- Retomada de sessao: `docs/NEXT_SESSION_TRIGGER.md`.
+- Planejamento e maturidade por dominio: consultar o plano mestre, a matriz de implementacao e o documento normativo do dominio, conforme a classificacao vigente.
+
+Em caso de divergencia, seguir a precedencia definida em `docs/DOCS_CLASSIFICATION.md`; nao usar esta matriz de agentes para arbitrar conflitos de autoridade.
 
 Regra para estado derivado:
 - `.agents/session-state.json` e um espelho operacional e nao pode vencer `docs/ACTIVE_FRONT.md`.
@@ -48,17 +43,16 @@ Nota:
 - a pasta `.ai-agents` nao faz parte da camada ativa deste repositorio
 - se existir em outro workspace, ela pode servir como referencia externa, mas nao como autoridade local
 
-## Leitura honesta do estado atual
-Este projeto nao esta em fase livre para “envolver todos”.
-O estado local em `.agents/session-state.json` indica:
-- frente ativa em `FRONT_6_CONTINUITY_DIFFERENTIAL_AUDIT`
-- W1-W8 tratados como historico processado; W7/W8 permanecem limitados as evidencias existentes
-- dependencia de janela externa objetiva de homolog final e cutover
-- `FRONT_5_REAL_PAYMENTS_CUTOVER` nao e a frente ativa e nao pode ser reaberta por atalho de ambiente
+## Consulta do estado atual
+Esta matriz nao registra uma frente ativa fixa: isso mudaria a cada ciclo e criaria informacao duplicada.
 
-Conclusao pratica:
-- agentes devem ser usados para continuidade e organizacao
-- nao para forcar uma frente bloqueada
+Antes de rotear uma demanda:
+1. Ler `docs/ACTIVE_FRONT.md` para identificar a frente e as restricoes atuais.
+2. Ler `docs/NEXT_SESSION_TRIGGER.md` para determinar a retomada permitida.
+3. Consultar `docs/EXECUTION_TRACKING.md` e `docs/PHASE_DOMAIN_IMPLEMENTATION_MATRIX.md` para conferir evidencia e maturidade.
+4. Usar `.agents/session-state.json` apenas como espelho; se divergir de `ACTIVE_FRONT.md`, registrar a divergencia sem mudar silenciosamente a autoridade.
+
+Uma auditoria documental nao autoriza implementar uma frente tecnica bloqueada.
 
 ## Matriz de roteamento por fase
 
