@@ -184,11 +184,14 @@ Taxonomia rapida de `lib/`:
 
 ### QA funcional e operacional
 - `npm run qa:functional`
-- `npm run qa:catalog`
+- `npm run qa:catalog:curation` (curadoria; requer ambiente de QA isolado)
+- `npm run qa:catalog:authority` (persistencia do catalogo apos reinicio; QA isolado)
+- `npm run qa:catalog:lifecycle` (publicacao e reversao; QA isolado)
 - `npm run qa:payments21`
 - `npm run qa:coreops`
 - `npm run qa:campaign:impact`
-- `npm run qa:full`
+
+Os aliases legados `qa:catalog`, `qa:full`, `qa:role:closure` e `qa:base:roles` estao em quarentena no `package.json`: falham de proposito e nao servem como evidencia de qualidade. Para cada frente, consultar os gates especificos e as pre-condicoes de ambiente antes de executar.
 
 ### Regra de testes
 - `scripts/qa/**` continua sendo a trilha oficial para QA operacional e suites dependentes de ambiente
